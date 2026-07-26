@@ -128,7 +128,7 @@ gen=0;draw()
 })
 document.getElementById('randomBtn').addEventListener('click',()=>{
 running&&play()
-grid=Array.from({length:ROWS},()=>Array(COLS).fill(Math.random()>.75?1:0))
+grid=Array.from({length:ROWS},()=>Array.from({length:COLS},()=>Math.random()>.8?1:0))
 gen=0;draw()
 })
 document.getElementById('speedSlider').addEventListener('input',function(){
@@ -136,7 +136,7 @@ if(running){clearTimeout(timer);tick()}
 })
 
 // 初始随机
-grid=Array.from({length:ROWS},()=>Array(COLS).fill(Math.random()>.75?1:0))
+grid=Array.from({length:ROWS},()=>Array.from({length:COLS},()=>Math.random()>.8?1:0))
 draw()
 </script>
 </body>
