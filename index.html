@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>康威生命游戏</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#1a1a2e;color:#eee;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh}
+.container{text-align:center;padding:20px}
+h1{font-size:1.5rem;margin-bottom:12px;color:#e94560;font-weight:300;letter-spacing:2px}
+canvas{border:1px solid #333;border-radius:4px;cursor:pointer;display:block;margin:0 auto;max-width:100%;background:#0f0f23}
+.controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.btn{background:#16213e;color:#eee;border:1px solid #333;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px;transition:.15s}
+.btn:hover{background:#e94560;border-color:#e94560}
+.btn.active{background:#e94560;border-color:#e94560}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.slider-group{display:flex;align-items:center;gap:8px;font-size:12px;color:#888}
+.slider-group input{width:80px;accent-color:#e94560}
+.info{font-size:12px;color:#666;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>CONWAY'S GAME OF LIFE</h1>
+<canvas id="canvas"></canvas>
+<div class="controls">
+<button class="btn" id="playBtn">▶ 运行</button>
+<button class="btn" id="stepBtn">⏭ 一步</button>
+<button class="btn" id="clearBtn">✕ 清空</button>
+<button class="btn" id="randomBtn">🎲 随机</button>
+<div class="slider-group">
+<span>速度</span>
+<input type="range" id="speedSlider" min="1" max="10" value="5">
+</div>
+</div>
+<div class="info">
+<span id="genInfo">第 0 代</span> · <span id="popInfo">存活: 0</span> · 点击细胞切换生死
+</div>
+</div>
+<script>
+const COLS=60,ROWS=40,CELL=12
+const canvas=document.getElementById('canvas')
+const ctx=canvas.getContext('2d')
+canvas.width=COLS*CELL
+canvas.height=ROWS*CELL
+
+let grid=Array.from({length:ROWS},()=>Array(COLS).fill(0))
+let running=false,timer=null,gen=0
+let speedMap={1:400,2:300,3:200,4:150,5:100,6:80,7:60,8:40,9:25,10:15}
+
+function draw(){
+ctx.clearRect(0,0,canvas.width,canvas.height)
+for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+if(grid[r][c]){
+ctx.fillStyle='#e94560'
+ctx.fillRect(c*CELL+1,r*CELL+1,CELL-2,CELL-2)
+}else{
+ctx.fillStyle='#1a1a3e'
+ctx.fillRect(c*CELL+1,r*CELL+1,CELL-2,CELL-2)
+}
+}
+ctx.strokeStyle='#222'
+ctx.lineWidth=0.5
+for(let r=0;r<=ROWS;r++){ctx.beginPath();ctx.moveTo(0,r*CELL);ctx.lineTo(canvas.width,r*CELL);ctx.stroke()}
+for(let c=0;c<=COLS;c++){ctx.beginPath();ctx.moveTo(c*CELL,0);ctx.lineTo(c*CELL,canvas.height);ctx.stroke()}
+document.getElementById('genInfo').textContent=`第 ${gen} 代`
+document.getElementById('popInfo').textContent=`存活: ${grid.flat().filter(Boolean).length}`
+}
+
+function neighbors(r,c){
+let n=0
+for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
+if(dr===0&&dc===0)continue
+let nr=(r+dr+ROWS)%ROWS,nc=(c+dc+COLS)%COLS
+n+=grid[nr][nc]
+}
+return n
+}
+
+function step(){
+const next=grid.map(row=>[...row])
+for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+const n=neighbors(r,c)
+if(grid[r][c])next[r][c]=n===2||n===3?1:0
+else next[r][c]=n===3?1:0
+}
+grid=next;gen++
+draw()
+}
+
+function play(){
+running=!running
+document.getElementById('playBtn').textContent=running?'⏸ 暂停':'▶ 运行'
+document.getElementById('playBtn').classList.toggle('active',running)
+document.getElementById('stepBtn').disabled=running
+if(running){
+const speed=parseInt(document.getElementById('speedSlider').value)
+tick()
+}else{
+clearTimeout(timer)
+}
+}
+
+function tick(){
+if(!running)return
+step()
+const speed=parseInt(document.getElementById('speedSlider').value)
+timer=setTimeout(tick,speedMap[speed])
+}
+
+canvas.addEventListener('click',e=>{
+const rect=canvas.getBoundingClientRect()
+const x=Math.floor((e.clientX-rect.left)/CELL)
+const y=Math.floor((e.clientY-rect.top)/CELL)
+if(x>=0&&x<COLS&&y>=0&&y<ROWS){
+grid[y][x]=grid[y][x]?0:1
+draw()
+}
+})
+
+document.getElementById('playBtn').addEventListener('click',play)
+document.getElementById('stepBtn').addEventListener('click',()=>{step()})
+document.getElementById('clearBtn').addEventListener('click',()=>{
+running&&play()
+grid=Array.from({length:ROWS},()=>Array(COLS).fill(0))
+gen=0;draw()
+})
+document.getElementById('randomBtn').addEventListener('click',()=>{
+running&&play()
+grid=Array.from({length:ROWS},()=>Array(COLS).fill(Math.random()>.75?1:0))
+gen=0;draw()
+})
+document.getElementById('speedSlider').addEventListener('input',function(){
+if(running){clearTimeout(timer);tick()}
+})
+
+// 初始随机
+grid=Array.from({length:ROWS},()=>Array(COLS).fill(Math.random()>.75?1:0))
+draw()
+</script>
+</body>
+</html>
