@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>变量与内存 — C 语言交互实验室</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0b0d1a;
+    --surface: #12142a;
+    --surface2: #1a1d3a;
+    --border: #2a2d5a;
+    --accent: #6c5ce7;
+    --accent2: #a29bfe;
+    --green: #00e676;
+    --cyan: #00e5ff;
+    --orange: #ff9100;
+    --pink: #ff4081;
+    --text: #e0e0ff;
+    --text-dim: #7878aa;
+    --cell-bg: #1a1d3a;
+    --cell-border: #2a2d5a;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  .top-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+
+  .back-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .back-btn:hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  .back-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  .top-bar h1 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent2), var(--green));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .top-bar .sub {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Main layout */
+  .workspace {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 800px) {
+    .workspace { grid-template-columns: 1fr; }
+  }
+
+  /* Code panel */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 12px 16px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .panel-header .label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .panel-header .action {
+    font-size: 0.72rem;
+    color: var(--accent2);
+    cursor: pointer;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgba(108,92,231,0.1);
+    border: none;
+    font-family: inherit;
+    transition: background 0.2s;
+  }
+
+  .panel-header .action:hover { background: rgba(108,92,231,0.2); }
+
+  .panel-body {
+    padding: 20px;
+  }
+
+  /* Code display */
+  .code-block {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    line-height: 1.8;
+    color: var(--text);
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  .code-block .kw { color: var(--accent2); }
+  .code-block .type { color: var(--cyan); }
+  .code-block .num { color: var(--orange); }
+  .code-block .comment { color: var(--text-dim); font-style: italic; }
+  .code-block .highlight { background: rgba(108,92,231,0.2); border-radius: 3px; padding: 0 2px; }
+
+  /* Memory view */
+  .memory-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 12px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    min-height: 120px;
+    align-content: flex-start;
+  }
+
+  .mem-cell {
+    width: 48px;
+    height: 48px;
+    background: var(--cell-bg);
+    border: 1px solid var(--cell-border);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    transition: all 0.3s;
+    position: relative;
+  }
+
+  .mem-cell .val {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .mem-cell .addr {
+    font-size: 0.55rem;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .mem-cell.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 12px rgba(108,92,231,0.3);
+  }
+
+  .mem-cell.highlight-int { border-color: var(--accent); }
+  .mem-cell.highlight-float { border-color: var(--green); }
+  .mem-cell.highlight-char { border-color: var(--orange); }
+
+  .mem-cell .type-label {
+    position: absolute;
+    top: -20px;
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+
+  /* Variable selector */
+  .var-selector {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .var-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .var-btn:hover { border-color: var(--accent); }
+  .var-btn.active {
+    border-color: var(--accent);
+    background: rgba(108,92,231,0.15);
+    box-shadow: 0 0 12px rgba(108,92,231,0.2);
+  }
+
+  /* Value editor */
+  .value-editor {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+  }
+
+  .value-editor label {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+  }
+
+  .value-editor input {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    width: 100px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .value-editor input:focus { border-color: var(--accent); }
+
+  .value-editor .size-info {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    margin-left: auto;
+  }
+
+  /* Info bar */
+  .info-bar {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+
+  .info-item {
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: rgba(0,0,0,0.2);
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .info-item strong {
+    color: var(--accent2);
+    font-weight: 600;
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+  }
+
+  .legend-color {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    border: 1px solid var(--cell-border);
+  }
+
+  /* Tooltip */
+  .mem-cell .tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.65rem;
+    color: var(--text);
+    white-space: nowrap;
+    z-index: 10;
+  }
+
+  .mem-cell:hover .tooltip { display: block; }
+
+  /* Animations */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .mem-cell { animation: fadeIn 0.3s ease both; }
+  .mem-cell:nth-child(1) { animation-delay: 0s; }
+  .mem-cell:nth-child(2) { animation-delay: 0.05s; }
+  .mem-cell:nth-child(3) { animation-delay: 0.1s; }
+  .mem-cell:nth-child(4) { animation-delay: 0.15s; }
+  .mem-cell:nth-child(5) { animation-delay: 0.2s; }
+  .mem-cell:nth-child(6) { animation-delay: 0.25s; }
+  .mem-cell:nth-child(7) { animation-delay: 0.3s; }
+  .mem-cell:nth-child(8) { animation-delay: 0.35s; }
+
+  /* Size comparison */
+  .size-compare {
+    display: flex;
+    gap: 4px;
+    align-items: flex-end;
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+  }
+
+  .size-bar {
+    flex: 1;
+    text-align: center;
+    padding: 8px 4px;
+    border-radius: 6px 6px 0 0;
+    font-size: 0.65rem;
+    font-family: 'JetBrains Mono', monospace;
+    transition: height 0.3s;
+  }
+
+  .size-bar .label { color: var(--text-dim); margin-bottom: 4px; }
+  .size-bar .bytes { font-weight: 700; color: var(--text); }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="../index.html" class="back-btn">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    返回
+  </a>
+  <h1>变量与内存</h1>
+  <span class="sub">int · float · char · 内存大小</span>
+</div>
+
+<div class="workspace">
+  <!-- Left: Code Panel -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="label">C 代码</span>
+      <button class="action" onclick="resetExample()">重置</button>
+    </div>
+    <div class="panel-body">
+      <div class="var-selector" id="var-selector"></div>
+      <div class="code-block" id="code-display"></div>
+      <div class="value-editor">
+        <label>修改值：</label>
+        <input type="text" id="value-input" oninput="updateValue(this.value)">
+        <span class="size-info" id="size-info"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Memory Panel -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="label">内存视图</span>
+      <span class="action" style="cursor:default;background:transparent;color:var(--text-dim)" id="mem-summary">0 字节</span>
+    </div>
+    <div class="panel-body">
+      <div class="memory-grid" id="memory-grid"></div>
+      <div class="info-bar" id="info-bar"></div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-color" style="border-color:var(--accent);background:rgba(108,92,231,0.2)"></div> int (4 字节)</div>
+        <div class="legend-item"><div class="legend-color" style="border-color:var(--green);background:rgba(0,230,118,0.2)"></div> float (4 字节)</div>
+        <div class="legend-item"><div class="legend-color" style="border-color:var(--orange);background:rgba(255,145,0,0.2)"></div> char (1 字节)</div>
+        <div class="legend-item"><div class="legend-color" style="border-color:var(--cyan);background:rgba(0,229,255,0.2)"></div> double (8 字节)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const TYPES = {
+  int: { size: 4, color: 'var(--accent)', label: 'int', borderClass: 'highlight-int' },
+  float: { size: 4, color: 'var(--green)', label: 'float', borderClass: 'highlight-float' },
+  char: { size: 1, color: 'var(--orange)', label: 'char', borderClass: 'highlight-char' },
+  double: { size: 8, color: 'var(--cyan)', label: 'double', borderClass: '' }
+};
+
+const EXAMPLES = [
+  { name: 'int a = 42;', type: 'int', value: 42, code: 'int a = 42;' },
+  { name: 'float pi = 3.14;', type: 'float', value: 3.14, code: 'float pi = 3.14;' },
+  { name: 'char ch = \'A\';', type: 'char', value: 'A', code: "char ch = 'A';" },
+  { name: 'double d = 3.14159;', type: 'double', value: 3.14159, code: 'double d = 3.14159;' },
+  { name: 'int b = 255;', type: 'int', value: 255, code: 'int b = 255;' },
+  { name: 'char c = \'?\';', type: 'char', value: '?', code: "char c = '?';" },
+];
+
+let currentIdx = 0;
+let baseAddr = 0x1000;
+
+function renderMemory(type, value) {
+  const info = TYPES[type];
+  const grid = document.getElementById('memory-grid');
+  const summary = document.getElementById('mem-summary');
+  const infoBar = document.getElementById('info-bar');
+  const sizeInfo = document.getElementById('size-info');
+
+  grid.innerHTML = '';
+  const bytes = getBytes(type, value);
+
+  for (let i = 0; i < info.size; i++) {
+    const cell = document.createElement('div');
+    cell.className = `mem-cell ${info.borderClass}`;
+    cell.style.animationDelay = `${i * 0.05}s`;
+
+    const val = document.createElement('div');
+    val.className = 'val';
+    val.textContent = bytes[i] !== undefined ? bytes[i] : '??';
+    cell.appendChild(val);
+
+    const addr = document.createElement('div');
+    addr.className = 'addr';
+    addr.textContent = `0x${(baseAddr + i).toString(16).toUpperCase()}`;
+    cell.appendChild(addr);
+
+    const tooltip = document.createElement('div');
+    tooltip.className = 'tooltip';
+    tooltip.textContent = `地址 0x${(baseAddr + i).toString(16).toUpperCase()} · 第 ${i + 1}/${info.size} 字节`;
+    cell.appendChild(tooltip);
+
+    grid.appendChild(cell);
+  }
+
+  summary.textContent = `${info.size} 字节`;
+  sizeInfo.textContent = `${info.label} · ${info.size} 字节`;
+
+  infoBar.innerHTML = `
+    <div class="info-item">类型: <strong>${info.label}</strong></div>
+    <div class="info-item">大小: <strong>${info.size} 字节</strong></div>
+    <div class="info-item">起始地址: <strong>0x${baseAddr.toString(16).toUpperCase()}</strong></div>
+    <div class="info-item">值: <strong>${value}</strong></div>
+  `;
+}
+
+function getBytes(type, value) {
+  const buf = new ArrayBuffer(8);
+  const view = new DataView(buf);
+
+  switch (type) {
+    case 'int':
+      view.setInt32(0, Number(value), true);
+      return Array.from({length: 4}, (_, i) => view.getUint8(i));
+    case 'float':
+      view.setFloat32(0, Number(value), true);
+      return Array.from({length: 4}, (_, i) => view.getUint8(i));
+    case 'char':
+      return [String(value).charCodeAt(0) || 0];
+    case 'double':
+      view.setFloat64(0, Number(value), true);
+      return Array.from({length: 8}, (_, i) => view.getUint8(i));
+  }
+}
+
+function updateValue(val) {
+  const ex = EXAMPLES[currentIdx];
+  if (ex.type === 'int') {
+    const n = parseInt(val);
+    if (!isNaN(n)) { ex.value = n; renderMemory(ex.type, ex.value); }
+  } else if (ex.type === 'float' || ex.type === 'double') {
+    const n = parseFloat(val);
+    if (!isNaN(n)) { ex.value = n; renderMemory(ex.type, ex.value); }
+  } else {
+    if (val.length > 0) { ex.value = val[0]; renderMemory(ex.type, ex.value); }
+  }
+}
+
+function selectExample(idx) {
+  currentIdx = idx;
+  const ex = EXAMPLES[idx];
+  const selector = document.getElementById('var-selector');
+  const codeDisplay = document.getElementById('code-display');
+  const input = document.getElementById('value-input');
+
+  // Update selector buttons
+  selector.querySelectorAll('.var-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i === idx);
+  });
+
+  // Update code display
+  codeDisplay.innerHTML = `<span class="type">${ex.type}</span> <span class="kw">${ex.code.split(' ').slice(1).join(' ')}</span>`;
+
+  // Update input
+  input.value = ex.value;
+
+  // Render memory
+  renderMemory(ex.type, ex.value);
+}
+
+function resetExample() {
+  const ex = EXAMPLES[currentIdx];
+  const defaults = {
+    'int a = 42;': 42,
+    'float pi = 3.14;': 3.14,
+    "char ch = 'A';": 'A',
+    'double d = 3.14159;': 3.14159,
+    'int b = 255;': 255,
+    "char c = '?';": '?'
+  };
+  ex.value = defaults[ex.code];
+  document.getElementById('value-input').value = ex.value;
+  renderMemory(ex.type, ex.value);
+}
+
+// Init
+function init() {
+  const selector = document.getElementById('var-selector');
+  EXAMPLES.forEach((ex, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'var-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = ex.name;
+    btn.onclick = () => selectExample(i);
+    selector.appendChild(btn);
+  });
+
+  selectExample(0);
+}
+
+init();
+</script>
+
+</body>
+</html>

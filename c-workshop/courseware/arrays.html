@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数组 — C 语言交互实验室</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0b0d1a; --surface: #12142a; --surface2: #1a1d3a;
+    --border: #2a2d5a; --accent: #6c5ce7; --accent2: #a29bfe;
+    --green: #00e676; --cyan: #00e5ff; --orange: #ff9100;
+    --pink: #ff4081; --text: #e0e0ff; --text-dim: #7878aa;
+    --cell-bg: #1a1d3a; --cell-border: #2a2d5a;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  .top-bar {
+    display: flex; align-items: center; gap: 16px;
+    margin-bottom: 32px; flex-wrap: wrap;
+  }
+
+  .back-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 8px;
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text-dim); text-decoration: none;
+    font-size: 0.82rem; font-weight: 600; transition: all 0.2s;
+  }
+  .back-btn:hover { border-color: var(--accent); color: var(--text); }
+  .back-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  .top-bar h1 {
+    font-size: 1.3rem; font-weight: 700;
+    background: linear-gradient(135deg, var(--green), var(--cyan));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .top-bar .sub { font-size: 0.78rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+
+  .workspace {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 24px; max-width: 1100px; margin: 0 auto;
+  }
+  @media (max-width: 800px) { .workspace { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 12px 16px; background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .panel-header .label { font-size: 0.72rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+  .panel-header .action {
+    font-size: 0.72rem; color: var(--accent2); cursor: pointer;
+    padding: 4px 10px; border-radius: 6px;
+    background: rgba(108,92,231,0.1); border: none; font-family: inherit;
+  }
+  .panel-header .action:hover { background: rgba(108,92,231,0.2); }
+
+  .panel-body { padding: 20px; }
+
+  .code-block {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;
+    line-height: 1.8; color: var(--text); white-space: pre; overflow-x: auto;
+  }
+  .code-block .kw { color: var(--accent2); }
+  .code-block .type { color: var(--cyan); }
+  .code-block .num { color: var(--orange); }
+  .code-block .comment { color: var(--text-dim); font-style: italic; }
+  .code-block .highlight { background: rgba(108,92,231,0.2); border-radius: 3px; padding: 0 2px; }
+
+  .memory-grid {
+    display: flex; flex-wrap: wrap; gap: 4px;
+    padding: 12px; background: rgba(0,0,0,0.2);
+    border-radius: 8px; min-height: 60px; align-content: flex-start;
+  }
+
+  .mem-cell {
+    width: 48px; height: 48px;
+    background: var(--cell-bg); border: 1px solid var(--cell-border);
+    border-radius: 6px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+    transition: all 0.3s; position: relative; cursor: pointer;
+  }
+  .mem-cell .val { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+  .mem-cell .addr { font-size: 0.55rem; color: var(--text-dim); margin-top: 2px; }
+  .mem-cell .index { font-size: 0.55rem; color: var(--accent2); margin-bottom: 2px; }
+  .mem-cell.active { border-color: var(--accent); box-shadow: 0 0 12px rgba(108,92,231,0.3); }
+  .mem-cell.highlight { border-color: var(--green); box-shadow: 0 0 8px rgba(0,230,118,0.2); }
+
+  .mem-cell .tooltip {
+    display: none; position: absolute;
+    bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 6px 10px;
+    font-size: 0.65rem; color: var(--text); white-space: nowrap; z-index: 10;
+  }
+  .mem-cell:hover .tooltip { display: block; }
+
+  .array-controls {
+    display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .ctrl-btn {
+    padding: 8px 16px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--text); font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem; cursor: pointer; transition: all 0.2s;
+  }
+  .ctrl-btn:hover { border-color: var(--accent); }
+  .ctrl-btn.active { border-color: var(--green); background: rgba(0,230,118,0.1); }
+  .ctrl-btn.danger { border-color: rgba(255,82,82,0.3); color: #ff5252; }
+  .ctrl-btn.danger:hover { border-color: #ff5252; background: rgba(255,82,82,0.1); }
+
+  .index-editor {
+    display: flex; align-items: center; gap: 12px;
+    margin-top: 12px; padding: 12px 16px;
+    background: rgba(0,0,0,0.2); border-radius: 8px;
+  }
+  .index-editor label { font-size: 0.78rem; color: var(--text-dim); }
+  .index-editor input {
+    padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text);
+    font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
+    width: 80px; outline: none; transition: border-color 0.2s;
+  }
+  .index-editor input:focus { border-color: var(--accent); }
+
+  .info-bar {
+    display: flex; gap: 16px; margin-top: 12px; flex-wrap: wrap;
+  }
+  .info-item {
+    padding: 6px 12px; border-radius: 6px;
+    background: rgba(0,0,0,0.2);
+    font-size: 0.72rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace;
+  }
+  .info-item strong { color: var(--accent2); font-weight: 600; }
+
+  .legend {
+    display: flex; gap: 16px; margin-top: 16px; flex-wrap: wrap;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--text-dim); }
+  .legend-color { width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--cell-border); }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .mem-cell { animation: fadeIn 0.3s ease both; }
+  .mem-cell:nth-child(1) { animation-delay: 0s; }
+  .mem-cell:nth-child(2) { animation-delay: 0.03s; }
+  .mem-cell:nth-child(3) { animation-delay: 0.06s; }
+  .mem-cell:nth-child(4) { animation-delay: 0.09s; }
+  .mem-cell:nth-child(5) { animation-delay: 0.12s; }
+  .mem-cell:nth-child(6) { animation-delay: 0.15s; }
+  .mem-cell:nth-child(7) { animation-delay: 0.18s; }
+  .mem-cell:nth-child(8) { animation-delay: 0.21s; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="../index.html" class="back-btn">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    返回
+  </a>
+  <h1>数组</h1>
+  <span class="sub">连续内存 · 索引即偏移</span>
+</div>
+
+<div class="workspace">
+  <div class="panel">
+    <div class="panel-header">
+      <span class="label">C 代码</span>
+      <span class="action" style="cursor:default;background:transparent;color:var(--text-dim)">arr[index] = *(arr + index)</span>
+    </div>
+    <div class="panel-body">
+      <div class="array-controls" id="array-controls"></div>
+      <div class="code-block" id="code-display"></div>
+      <div class="index-editor">
+        <label>arr[</label>
+        <input type="number" id="index-input" min="0" value="0" oninput="highlightIndex(this.value)">
+        <label>] =</label>
+        <input type="number" id="value-input" value="0" oninput="updateValue()">
+        <button class="ctrl-btn" onclick="setValue()" style="padding:6px 12px;font-size:0.72rem">设置</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <span class="label">内存视图</span>
+      <span class="action" style="cursor:default;background:transparent;color:var(--text-dim)" id="mem-summary">5 个元素 · 20 字节</span>
+    </div>
+    <div class="panel-body">
+      <div class="memory-grid" id="memory-grid"></div>
+      <div class="info-bar" id="info-bar"></div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-color" style="border-color:var(--green);background:rgba(0,230,118,0.2)"></div> 选中元素</div>
+        <div class="legend-item"><div class="legend-color" style="border-color:var(--cell-border);background:var(--cell-bg)"></div> 其他元素</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const EXAMPLES = [
+  {
+    name: 'int arr[5]',
+    type: 'int',
+    size: 5,
+    values: [10, 20, 30, 40, 50],
+    code: 'int arr[5] = {10, 20, 30, 40, 50};'
+  },
+  {
+    name: 'int arr[8]',
+    type: 'int',
+    size: 8,
+    values: [3, 7, 1, 9, 4, 6, 8, 2],
+    code: 'int arr[8] = {3, 7, 1, 9, 4, 6, 8, 2};'
+  },
+  {
+    name: 'char arr[6]',
+    type: 'char',
+    size: 6,
+    values: ['H', 'e', 'l', 'l', 'o', '!'],
+    code: 'char arr[6] = {\'H\',\'e\',\'l\',\'l\',\'o\',\'!\'};'
+  },
+  {
+    name: 'float arr[4]',
+    type: 'float',
+    size: 4,
+    values: [1.5, 2.5, 3.5, 4.5],
+    code: 'float arr[4] = {1.5, 2.5, 3.5, 4.5};'
+  }
+];
+
+const TYPE_SIZES = { int: 4, char: 1, float: 4 };
+let currentIdx = 0;
+let selectedIndex = 0;
+let baseAddr = 0x2000;
+
+function renderMemory() {
+  const ex = EXAMPLES[currentIdx];
+  const grid = document.getElementById('memory-grid');
+  const summary = document.getElementById('mem-summary');
+  const infoBar = document.getElementById('info-bar');
+  const elemSize = TYPE_SIZES[ex.type];
+  const totalBytes = ex.size * elemSize;
+
+  grid.innerHTML = '';
+  summary.textContent = `${ex.size} 个元素 · ${totalBytes} 字节`;
+
+  for (let i = 0; i < ex.size; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'mem-cell' + (i === selectedIndex ? ' highlight' : '');
+    cell.style.animationDelay = `${i * 0.05}s`;
+    cell.onclick = () => { selectedIndex = i; highlightIndex(i); };
+
+    const idx = document.createElement('div');
+    idx.className = 'index';
+    idx.textContent = `[${i}]`;
+    cell.appendChild(idx);
+
+    const val = document.createElement('div');
+    val.className = 'val';
+    val.textContent = ex.values[i];
+    cell.appendChild(val);
+
+    const addr = document.createElement('div');
+    addr.className = 'addr';
+    const elemAddr = baseAddr + i * elemSize;
+    addr.textContent = `0x${elemAddr.toString(16).toUpperCase()}`;
+    cell.appendChild(addr);
+
+    const tooltip = document.createElement('div');
+    tooltip.className = 'tooltip';
+    tooltip.textContent = `arr[${i}] · 地址 0x${elemAddr.toString(16).toUpperCase()} · 偏移 +${i * elemSize} 字节`;
+    cell.appendChild(tooltip);
+
+    grid.appendChild(cell);
+  }
+
+  infoBar.innerHTML = `
+    <div class="info-item">元素类型: <strong>${ex.type}</strong></div>
+    <div class="info-item">元素大小: <strong>${elemSize} 字节</strong></div>
+    <div class="info-item">数组长度: <strong>${ex.size}</strong></div>
+    <div class="info-item">起始地址: <strong>0x${baseAddr.toString(16).toUpperCase()}</strong></div>
+  `;
+
+  updateCodeDisplay();
+}
+
+function updateCodeDisplay() {
+  const ex = EXAMPLES[currentIdx];
+  const codeEl = document.getElementById('code-display');
+  const idx = document.getElementById('index-input').value;
+  const val = ex.values[parseInt(idx)] !== undefined ? ex.values[parseInt(idx)] : '?';
+  codeEl.innerHTML = `<span class="type">${ex.type}</span> arr[${ex.size}];<br><span class="comment">// arr[${idx}] = ${val}  (地址偏移: +${parseInt(idx) * TYPE_SIZES[ex.type]} 字节)</span>`;
+}
+
+function highlightIndex(idx) {
+  selectedIndex = parseInt(idx);
+  if (isNaN(selectedIndex) || selectedIndex < 0) selectedIndex = 0;
+  const ex = EXAMPLES[currentIdx];
+  if (selectedIndex >= ex.size) selectedIndex = ex.size - 1;
+  document.getElementById('index-input').value = selectedIndex;
+  document.getElementById('value-input').value = ex.values[selectedIndex];
+  renderMemory();
+}
+
+function updateValue() {
+  const val = document.getElementById('value-input').value;
+  const ex = EXAMPLES[currentIdx];
+  const idx = parseInt(document.getElementById('index-input').value);
+  if (idx >= 0 && idx < ex.size) {
+    if (ex.type === 'int') ex.values[idx] = parseInt(val) || 0;
+    else if (ex.type === 'float') ex.values[idx] = parseFloat(val) || 0;
+    else ex.values[idx] = val;
+    renderMemory();
+  }
+}
+
+function setValue() { updateValue(); }
+
+function selectExample(idx) {
+  currentIdx = idx;
+  selectedIndex = 0;
+  document.getElementById('index-input').value = 0;
+  document.querySelectorAll('.ctrl-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i === idx);
+  });
+  renderMemory();
+}
+
+function init() {
+  const controls = document.getElementById('array-controls');
+  EXAMPLES.forEach((ex, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'ctrl-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = ex.name;
+    btn.onclick = () => selectExample(i);
+    controls.appendChild(btn);
+  });
+  selectExample(0);
+}
+
+init();
+</script>
+
+</body>
+</html>
