@@ -355,30 +355,43 @@ function drawArrow(svg, from, to) {
   const x2 = tRect.left - cRect.left;
   const y2 = tRect.top + tRect.height / 2 - cRect.top;
 
-  // Draw curved arrow
+  // Draw right-angle connector
   const midX = (x1 + x2) / 2;
   const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  const d = `M ${x1} ${y1} Q ${midX + 20} ${y1}, ${midX} ${(y1 + y2) / 2} Q ${midX - 20} ${y2}, ${x2} ${y2}`;
+  const d = `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${y2} L ${x2} ${y2}`;
   path.setAttribute('d', d);
   path.setAttribute('stroke', 'var(--green)');
-  path.setAttribute('stroke-width', '2');
+  path.setAttribute('stroke-width', '2.5');
   path.setAttribute('fill', 'none');
-  path.setAttribute('stroke-dasharray', '6,3');
-  path.setAttribute('opacity', '0.7');
+  path.setAttribute('stroke-dasharray', '');
+  path.setAttribute('opacity', '0.9');
+  path.setAttribute('stroke-linecap', 'round');
+  path.setAttribute('stroke-linejoin', 'round');
   svg.appendChild(path);
 
-  // Arrowhead
+  // Arrowhead (pointing left)
   const arrowHead = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-  const angle = Math.atan2(y2 - y1, x2 - x1);
   const headSize = 8;
   const hx = x2;
   const hy = y2;
   arrowHead.setAttribute('points',
-    `${hx},${hy} ${hx - headSize * Math.cos(angle - 0.4)},${hy - headSize * Math.sin(angle - 0.4)} ${hx - headSize * Math.cos(angle + 0.4)},${hy - headSize * Math.sin(angle + 0.4)}`
+    `${hx},${hy} ${hx + headSize * 1.2},${hy - headSize * 0.5} ${hx + headSize * 1.2},${hy + headSize * 0.5}`
   );
   arrowHead.setAttribute('fill', 'var(--green)');
-  arrowHead.setAttribute('opacity', '0.7');
+  arrowHead.setAttribute('opacity', '0.9');
   svg.appendChild(arrowHead);
+
+  // Label on the horizontal segment
+  const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  label.setAttribute('x', (midX + x2) / 2);
+  label.setAttribute('y', y2 - 6);
+  label.setAttribute('fill', 'var(--green)');
+  label.setAttribute('font-size', '10');
+  label.setAttribute('font-family', 'JetBrains Mono, monospace');
+  label.setAttribute('text-anchor', 'middle');
+  label.setAttribute('opacity', '0.6');
+  label.textContent = '地址';
+  svg.appendChild(label);
 }
 
 function updateTargetValue(val) {
