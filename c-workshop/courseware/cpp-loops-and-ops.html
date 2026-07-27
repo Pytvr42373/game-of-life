@@ -508,6 +508,7 @@ let stepIdx = 0;
 function getCodeHTML(code) {
   return code.map((line, i) => {
     let hl = line;
+    hl = hl.replace(/</g, '&lt;').replace(/>/g, '&gt;');
     hl = hl.replace(/\b(int|double|float|char|string|bool|void|long|auto|for|while|do|if|else|return|break|continue|cout|cin|endl|main|using|namespace|include)\b/g, '<span class="kw">$1</span>');
     hl = hl.replace(/\/\/.*/g, '<span class="comment">$&</span>');
     hl = hl.replace(/\b(\d+\.?\d*)\b/g, '<span class="num">$1</span>');
