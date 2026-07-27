@@ -329,14 +329,16 @@ const TERM_DEFS = {
 };
 
 function initTerms() {
+  let currentTerm = null;
   let currentCard = null;
-  document.addEventListener('mouseover', (e) => {
-    const term = e.target.closest('.term');
-    if (!term) return;
+
+  function showCard(term) {
+    if (term === currentTerm && currentCard) return;
+    hideCard();
+    currentTerm = term;
     const key = term.dataset.term;
     const def = TERM_DEFS[key];
     if (!def) return;
-    if (currentCard) currentCard.remove();
     const card = document.createElement('div');
     card.className = 'term-card show';
     card.innerHTML = `<div class="tc-icon">${def.icon}</div><div class="tc-title">${def.title}</div><div class="tc-body">${def.body}</div>`;
@@ -350,13 +352,20 @@ function initTerms() {
     card.style.left = left + 'px';
     card.style.top = top + 'px';
     currentCard = card;
-  });
-  document.addEventListener('mouseout', (e) => {
-    const term = e.target.closest('.term');
-    if (!term) return;
-    const related = e.relatedTarget;
-    if (related && term.contains(related)) return;
+  }
+
+  function hideCard() {
     if (currentCard) { currentCard.remove(); currentCard = null; }
+    currentTerm = null;
+  }
+
+  document.addEventListener('mouseover', (e) => {
+    const term = e.target.closest('.term');
+    if (term) {
+      showCard(term);
+    } else if (!e.target.closest('.term-card')) {
+      hideCard();
+    }
   });
 }
 
