@@ -227,35 +227,36 @@ const CODE = [
 ];
 
 const EXPLAINS = [
-  '<strong>#include &lt;cstdio&gt;</strong><br>引入 C 标准输入输出库。scanf 和 printf 都在这里。<br>也可以写 &lt;stdio.h&gt;（C 风格），但 C++ 推荐用 &lt;cstdio&gt;。',
-  '<strong>空行</strong><br>分隔头文件和代码。',
-  '<strong>int main()</strong><br>程序入口，和 cin/cout 版完全一样。',
-  '<strong>int a;</strong><br>声明整型变量 a，等待 scanf 读入。<br>C++ 必须先声明变量和类型。',
-  '<strong>double b;</strong><br>声明双精度浮点变量 b。<br>注意：scanf 读 double 用 <em>%lf</em>，printf 输出 double 用 <em>%f</em>——格式符不对称！',
-  '<strong>long long c;</strong><br>声明 64 位长整型变量 c。范围 ±9.2×10¹⁸，比 int（±21亿）大得多。<br>竞赛中经常用 long long 防溢出。',
-  '<strong>char ch;</strong><br>声明字符变量 ch，存放一个字符（1 字节）。',
-  '<strong>空行</strong><br>分隔变量声明和读入代码。',
-  '<strong>// 读入各种类型</strong><br>注释：说明下面这行的功能。',
-  '<strong>scanf("%d %lf %lld %c", &amp;a, &amp;b, &amp;c, &amp;ch);</strong><br>一行读入四种类型！<br><em>%d</em> 读 int 到 a<br><em>%lf</em> 读 double 到 b<br><em>%lld</em> 读 long long 到 c<br><em>%c</em> 读 char 到 ch<br><br><strong>每个变量前都有 &amp;！</strong>（取地址）<br>输入：<em>42 3.14 1000000000 A</em><br><br>⚠ %c 前面最好加空格：<em>"%c"→" %c"</em>，跳过前面的空白字符。',
-  '<strong>空行</strong><br>分隔读入和输出。',
-  '<strong>printf("a = %d\\n", a);</strong><br>输出 a 的值。<em>%d</em> 是 int 的格式符。<br>\\n 换行。输出：<strong>a = 42</strong>',
-  '<strong>printf("b = %.2f\\n", b);</strong><br>输出 b 并保留 2 位小数。<em>%.2f</em> 中 .2 表示精度。<br>注意：printf 输出 double 用 <em>%f</em>（不是 %lf）！输出：<strong>b = 3.14</strong>',
-  '<strong>printf("c = %lld\\n", c);</strong><br>输出 long long 必须用 <em>%lld</em>。<br>如果用 %d 会截断，结果错误！输出：<strong>c = 1000000000</strong>',
-  '<strong>printf("ch = %c\\n", ch);</strong><br>输出字符变量。<em>%c</em> 输出单个字符。<br>输出：<strong>ch = A</strong>',
-  '<strong>空行</strong><br>分隔基本输出和格式化演示。',
-  '<strong>// 宽度与对齐</strong><br>演示格式化输出，竞赛中输出对齐时常用。',
-  '<strong>printf("[%5d]\\n", 42);</strong><br><em>%5d</em> 最少占 5 位，默认右对齐。<br>输出：<strong>[   42]</strong>（42前面3个空格）',
-  '<strong>printf("[%-5d]\\n", 42);</strong><br><em>%-5d</em> 左对齐。<br>输出：<strong>[42   ]</strong>（42后面3个空格）',
-  '<strong>printf("[%05d]\\n", 42);</strong><br><em>%05d</em> 补前导零。<br>输出：<strong>[00042]</strong><br>竞赛中常用于输出编号、日期等。',
-  '<strong>printf("[%8.3f]\\n", 3.14);</strong><br><em>%8.3f</em> 总宽 8 位，3 位小数。<br>输出：<strong>[   3.140]</strong>（前面3个空格，含小数点共8位）',
-  '<strong>空行</strong><br>分隔格式化演示和竞赛实战部分。',
-  '<strong>// 竞赛常用：一行读多个</strong><br>竞赛中经常一行读入两个数 n 和 m，表示矩阵或图的规模。',
-  '<strong>int n, m;</strong><br>声明两个整型变量。竞赛中 n 通常表示规模，m 表示边数或操作数。',
-  '<strong>scanf("%d %d", &amp;n, &amp;m);</strong><br>一行读入两个整数。<br>输入 <em>3 5</em> 时 n=3, m=5。<br><strong>记得 &amp;！</strong> 这是 scanf 和 cin 最大的区别。',
-  '<strong>printf("%d %d\\n", n, m);</strong><br>输出两个整数，空格分隔。<br>输出：<strong>3 5</strong><br>注意 printf 输出不需要 &amp;（输出是取值，不是写地址）。',
-  '<strong>return 0;</strong><br>程序正常结束。',
-  '<strong>}</strong><br>main 函数结束。整个程序演示了 scanf/printf 的常用用法。'
-];
+    '<strong>#<code>include</code> &lt;<code>cstdio</code>&gt;</strong><br>引入 C 标准输入输出库。<code>scanf</code> 和 <code>printf</code> 都在这里。<br>也可以写 &lt;<code>std</code>io.h&gt;（C 风格），但 C++ 推荐用 &lt;<code>cstdio</code>&gt;。',
+    '<strong>空行</strong><br>分隔头文件和代码。',
+    '<strong><code>int</code> <code>main</code>()</strong><br>程序入口，和 <code>cin</code>/<code>cout</code> 版完全一样。',
+    '<strong><code>int</code> a;</strong><br>声明整型变量 a，等待 <code>scanf</code> 读入。<br>C++ 必须先声明变量和类型。',
+    '<strong><code>double</code> b;</strong><br>声明双精度浮点变量 b。<br>注意：<code>scanf</code> 读 <code>double</code> 用 <em>%lf</em>，<code>printf</code> 输出 <code>double</code> 用 <em>%f</em>——格式符不对称！',
+    '<strong><code>long</code> <code>long</code> c;</strong><br>声明 64 位长整型变量 c。范围 ±9.2×10¹⁸，比 <code>int</code>（±21亿）大得多。<br>竞赛中经常用 <code>long</code> <code>long</code> 防溢出。',
+    '<strong><code>char</code> ch;</strong><br>声明字符变量 ch，存放一个字符（1 字节）。',
+    '<strong>空行</strong><br>分隔变量声明和读入代码。',
+    '<strong>// 读入各种类型</strong><br>注释：说明下面这行的功能。',
+    '<strong><code>scanf</code>("%d %lf %lld %c", &amp;a, &amp;b, &amp;c, &amp;ch);</strong><br>一行读入四种类型！<br><em>%d</em> 读 <code>int</code> 到 a<br><em>%lf</em> 读 <code>double</code> 到 b<br><em>%lld</em> 读 <code>long</code> <code>long</code> 到 c<br><em>%c</em> 读 <code>char</code> 到 ch<br><br><strong>每个变量前都有 &amp;！</strong>（取地址）<br>输入：<em>42 3.14 1000000000 A</em><br><br>⚠ %c 前面最好加空格：<em>"%c"→" %c"</em>，跳过前面的空白字符。',
+    '<strong>空行</strong><br>分隔读入和输出。',
+    '<strong><code>printf</code>("a = %d\\n", a);</strong><br>输出 a 的值。<em>%d</em> 是 <code>int</code> 的格式符。<br>\\n 换行。输出：<strong>a = 42</strong>',
+    '<strong><code>printf</code>("b = %.2f\\n", b);</strong><br>输出 b 并保留 2 位小数。<em>%.2f</em> 中 .2 表示精度。<br>注意：<code>printf</code> 输出 <code>double</code> 用 <em>%f</em>（不是 %lf）！输出：<strong>b = 3.14</strong>',
+    '<strong><code>printf</code>("c = %lld\\n", c);</strong><br>输出 <code>long</code> <code>long</code> 必须用 <em>%lld</em>。<br>如果用 %d 会截断，结果错误！输出：<strong>c = 1000000000</strong>',
+    '<strong><code>printf</code>("ch = %c\\n", ch);</strong><br>输出字符变量。<em>%c</em> 输出单个字符。<br>输出：<strong>ch = A</strong>',
+    '<strong>空行</strong><br>分隔基本输出和格式化演示。',
+    '<strong>// 宽度与对齐</strong><br>演示格式化输出，竞赛中输出对齐时常用。',
+    '<strong><code>printf</code>("[%5d]\\n", 42);</strong><br><em>%5d</em> 最少占 5 位，默认右对齐。<br>输出：<strong>[   42]</strong>（42前面3个空格）',
+    '<strong><code>printf</code>("[%-5d]\\n", 42);</strong><br><em>%-5d</em> 左对齐。<br>输出：<strong>[42   ]</strong>（42后面3个空格）',
+    '<strong><code>printf</code>("[%05d]\\n", 42);</strong><br><em>%05d</em> 补前导零。<br>输出：<strong>[00042]</strong><br>竞赛中常用于输出编号、日期等。',
+    '<strong><code>printf</code>("[%8.3f]\\n", 3.14);</strong><br><em>%8.3f</em> 总宽 8 位，3 位小数。<br>输出：<strong>[   3.140]</strong>（前面3个空格，含小数点共8位）',
+    '<strong>空行</strong><br>分隔格式化演示和竞赛实战部分。',
+    '<strong>// 竞赛常用：一行读多个</strong><br>竞赛中经常一行读入两个数 n 和 m，表示矩阵或图的规模。',
+    '<strong><code>int</code> n, m;</strong><br>声明两个整型变量。竞赛中 n 通常表示规模，m 表示边数或操作数。',
+    '<strong><code>scanf</code>("%d %d", &amp;n, &amp;m);</strong><br>一行读入两个整数。<br>输入 <em>3 5</em> 时 n=3, m=5。<br><strong>记得 &amp;！</strong> 这是 <code>scanf</code> 和 <code>cin</code> 最大的区别。',
+    '<strong><code>printf</code>("%d %d\\n", n, m);</strong><br>输出两个整数，空格分隔。<br>输出：<strong>3 5</strong><br>注意 <code>printf</code> 输出不需要 &amp;（输出是取值，不是写地址）。',
+    '<strong><code>return</code> 0;</strong><br>程序正常结束。',
+    '<strong>}</strong><br><code>main</code> 函数结束。整个程序演示了 <code>scanf</code>/<code>printf</code> 的常用用法。',
+    '<strong>}</strong><br><code>main</code> 函数结束。整个程序演示了 <code>scanf</code>/<code>printf</code> 的常用用法。'
+]
 
 function escapeHtml(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -305,7 +306,7 @@ const TERM_DEFS = {
   'address': {
     icon: '🏠',
     title: '内存地址（Memory Address）',
-    body: '每个变量在内存中都有一个"门牌号"，就是它的地址。<br><br>想象内存是一排信箱，每个信箱有编号。变量 a 的信箱编号可能是 <code>0x7fff5a3c</code>。<br><br><code>&amp;a</code> 就是"取 a 的信箱编号"，scanf 需要知道编号才能往信箱里塞数据。<br><br>Python 不需要管地址，因为 Python 的变量是标签（引用），不是信箱。'
+    body: '每个变量在内存中都有一个"门牌号"，就是它的地址。<br><br>想象内存是一排信箱，每个信箱有编号。变量 a 的信箱编号可能是 <code>0x7fff5a3c</code>。<br><br><code>&amp;a</code> 就是"取 a 的信箱编号"，<code>scanf</code> 需要知道编号才能往信箱里塞数据。<br><br>Python 不需要管地址，因为 Python 的变量是标签（引用），不是信箱。'
   },
   'align': {
     icon: '📐',
@@ -320,12 +321,12 @@ const TERM_DEFS = {
   'format-spec': {
     icon: '🏷️',
     title: '格式控制符（Format Specifier）',
-    body: '告诉 scanf/printf <strong>"这个位置放什么类型的数据"</strong>。<br><br><code>%d</code> = 整数，<code>%f</code> = 浮点，<code>%c</code> = 字符，<code>%s</code> = 字符串。<br><br>就像填表的"格型说明"：<br>"这里填数字" → %d<br>"这里填小数" → %f<br>类型写错了，数据就乱套。'
+    body: '告诉 <code>scanf</code>/<code>printf</code> <strong>"这个位置放什么类型的数据"</strong>。<br><br><code>%d</code> = 整数，<code>%f</code> = 浮点，<code>%c</code> = 字符，<code>%s</code> = 字符串。<br><br>就像填表的"格型说明"：<br>"这里填数字" → %d<br>"这里填小数" → %f<br>类型写错了，数据就乱套。'
   },
   'overflow': {
     icon: '💥',
     title: '溢出（Overflow）',
-    body: '变量装不下了！<br><br>int 最大存 21 亿多，你存 30 亿进去，它装不下就"溢出"了，结果变成一个莫名其妙的负数。<br><br>用 <code>long long</code>（最大 9.2×10¹⁸）可以装更大的数。<code>%lld</code> 是 long long 的格式符，用错了 %d 就会截断溢出。<br><br>Python 不会溢出（int 无限大），C++ 会。'
+    body: '变量装不下了！<br><br><code>int</code> 最大存 21 亿多，你存 30 亿进去，它装不下就"溢出"了，结果变成一个莫名其妙的负数。<br><br>用 <code>long long</code>（最大 9.2×10¹⁸）可以装更大的数。<code>%lld</code> 是 <code>long</code> <code>long</code> 的格式符，用错了 %d 就会截断溢出。<br><br>Python 不会溢出（<code>int</code> 无限大），C++ 会。'
   }
 };
 

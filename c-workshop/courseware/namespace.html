@@ -205,21 +205,21 @@ const CODE = [
 ];
 
 const EXPLAINS = [
-  '<strong>#include &lt;iostream&gt;</strong><br>引入输入输出库。cout 和 endl 都属于 std 命名空间。<br>不管用哪种写法，头文件都要先包含。',
+  '<strong>#<code>include</code> &lt;<code>iostream</code>&gt;</strong><br>引入输入输出库。<code>cout</code> 和 <code>endl</code> 都属于 <code>std</code> 命名空间。<br>不管用哪种写法，头文件都要先包含。',
   '<strong>空行</strong><br>分隔说明性注释和代码。',
-  '<strong>写法一：带 std:: 前缀</strong><br>不写 using namespace std; 时，所有标准库的东西都要加 <em>std::</em> 前缀。<br>好处：明确知道每个名字来自哪里，不会冲突。<br>缺点：啰嗦，竞赛中浪费时间。',
-  '<strong>int main()</strong><br>程序入口。两种写法都必须有 main 函数。',
-  '<strong>std::cout &lt;&lt; "Hello" &lt;&lt; std::endl;</strong><br>注意这里每个标准库名字前面都写了 <em>std::</em>。<br>std::cout — std 家族的 cout<br>std::endl — std 家族的 endl（换行+刷新缓冲区）<br>如果不写 std:: 编译器会报错：找不到 cout。',
-  '<strong>return 0;</strong><br>程序正常结束，返回 0。',
-  '<strong>}</strong><br>main 函数结束。这是写法一的完整版本。',
+  '<strong>写法一：带 <code>std</code>:: 前缀</strong><br>不写 <code>using</code> <code>namespace</code> <code>std</code>; 时，所有标准库的东西都要加 <em><code>std</code>::</em> 前缀。<br>好处：明确知道每个名字来自哪里，不会冲突。<br>缺点：啰嗦，竞赛中浪费时间。',
+  '<strong><code>int</code> <code>main</code>()</strong><br>程序入口。两种写法都必须有 <code>main</code> 函数。',
+  '<strong><code>std</code>::<code>cout</code> &lt;&lt; "Hello" &lt;&lt; <code>std</code>::<code>endl</code>;</strong><br>注意这里每个标准库名字前面都写了 <em><code>std</code>::</em>。<br><code>std</code>::<code>cout</code> — <code>std</code> 家族的 <code>cout</code><br><code>std</code>::<code>endl</code> — <code>std</code> 家族的 <code>endl</code>（换行+刷新缓冲区）<br>如果不写 <code>std</code>:: 编译器会报错：找不到 <code>cout</code>。',
+  '<strong><code>return</code> 0;</strong><br>程序正常结束，返回 0。',
+  '<strong>}</strong><br><code>main</code> 函数结束。这是写法一的完整版本。',
   '<strong>空行</strong><br>分隔两种写法的演示。',
-  '<strong>写法二：using namespace std</strong><br>第二种写法，加了 <em>using namespace std;</em> 之后就不需要写 std:: 前缀了。',
-  '<strong>#include &lt;iostream&gt;</strong><br>头文件照常包含。两种写法的区别只在命名空间的使用方式。',
-  '<strong>using namespace std;</strong><br>关键一行！告诉编译器："std 命名空间里的名字都可以直接用"。<br>写了这行之后，<em>cout</em>、<em>cin</em>、<em>endl</em>、<em>sort</em>、<em>max</em>、<em>min</em> 等都可以不加前缀。',
-  '<strong>int main()</strong><br>和写法一完全一样的入口函数。',
-  '<strong>cout &lt;&lt; "Hello" &lt;&lt; endl;</strong><br>对比写法一：<em>不再需要 std:: 前缀</em>！<br>因为有 using namespace std; 所以 cout 直接就是 std::cout。<br>效果完全一样，但代码更简洁。',
-  '<strong>return 0;</strong><br>和写法一一样，返回 0 表示正常结束。',
-  '<strong>}</strong><br>main 函数结束。两种写法编译运行结果完全相同。'
+  '<strong>写法二：<code>using</code> <code>namespace</code> <code>std</code></strong><br>第二种写法，加了 <em><code>using</code> <code>namespace</code> <code>std</code>;</em> 之后就不需要写 <code>std</code>:: 前缀了。',
+  '<strong>#<code>include</code> &lt;<code>iostream</code>&gt;</strong><br>头文件照常包含。两种写法的区别只在命名空间的使用方式。',
+  '<strong><code>using</code> <code>namespace</code> <code>std</code>;</strong><br>关键一行！告诉编译器："<code>std</code> 命名空间里的名字都可以直接用"。<br>写了这行之后，<code>cout</code>、<code>cin</code>、<code>endl</code>、<code>sort</code>、<code>max</code>、<code>min</code> 等都可以不加前缀。',
+  '<strong><code>int</code> <code>main</code>()</strong><br>和写法一完全一样的入口函数。',
+  '<strong><code>cout</code> &lt;&lt; "Hello" &lt;&lt; <code>endl</code>;</strong><br>对比写法一：<em>不再需要 <code>std</code>:: 前缀</em>！<br>因为有 <code>using</code> <code>namespace</code> <code>std</code>; 所以 <code>cout</code> 直接就是 <code>std</code>::<code>cout</code>。<br>效果完全一样，但代码更简洁。',
+  '<strong><code>return</code> 0;</strong><br>和写法一一样，返回 0 表示正常结束。',
+  '<strong>}</strong><br><code>main</code> 函数结束。两种写法编译运行结果完全相同。'
 ];
 
 function escapeHtml(s) {
@@ -270,22 +270,22 @@ const TERM_DEFS = {
   'namespace2': {
     icon: '🏷️',
     title: '命名空间（Namespace）',
-    body: '想象一个学校，三年级的张伟和五年级的张伟同名。用<strong>"三年级的张伟"</strong>和<strong>"五年级的张伟"</strong>区分，这就是命名空间。<br><br><code>std::cout</code> = "std 家族的 cout"。<br><code>::</code> 就是那个"的"字——<strong>域作用符</strong>，连接姓氏和名字。'
+    body: '想象一个学校，三年级的张伟和五年级的张伟同名。用<strong>"三年级的张伟"</strong>和<strong>"五年级的张伟"</strong>区分，这就是命名空间。<br><br><code>std::cout</code> = "<code>std</code> 家族的 <code>cout</code>"。<br><code>::</code> 就是那个"的"字——<strong>域作用符</strong>，连接姓氏和名字。'
   },
   'stdlib2': {
     icon: '📚',
     title: '标准库（Standard Library）',
-    body: 'C++ 官方自带的工具箱，包含几百个常用函数和类。<br><br>cout、cin、sort、vector、max、min... 全都在标准库里。<br><br>相当于 Python 的 <code>import math</code>、<code>import os</code> 等自带模块，不用额外安装。'
+    body: 'C++ 官方自带的工具箱，包含几百个常用函数和类。<br><br><code>cout</code>、<code>cin</code>、<code>sort</code>、<code>vector</code>、<code>max</code>、<code>min</code>... 全都在标准库里。<br><br>相当于 Python 的 <code>import math</code>、<code>import os</code> 等自带模块，不用额外安装。'
   },
   'compiler2': {
     icon: '🏗️',
     title: '编译器（Compiler）',
-    body: '把 C++ 代码翻译成机器码的程序。<br><br>编译器看到 <code>cout</code> 时，需要知道它是什么。如果没写 <code>using namespace std;</code>，编译器只认识 <code>std::cout</code>，会报错"cout 是什么？"<br><br>常见的编译器：g++、clang++、MSVC。'
+    body: '把 C++ 代码翻译成机器码的程序。<br><br>编译器看到 <code>cout</code> 时，需要知道它是什么。如果没写 <code>using namespace std;</code>，编译器只认识 <code>std::cout</code>，会报错"<code>cout</code> 是什么？"<br><br>常见的编译器：g++、clang++、MSVC。'
   },
   'conflict': {
     icon: '⚠️',
     title: '命名冲突（Name Collision）',
-    body: '两个不同的东西用了<strong>同一个名字</strong>，编译器不知道你说的是哪个。<br><br>比如你写了一个 <code>max</code> 函数求最大值，标准库里也有一个 <code>std::max</code>。如果都叫 max，编译器就懵了：用哪个？<br><br>命名空间解决了这个问题：<code>std::max</code> vs <code>::max</code> 一目了然。'
+    body: '两个不同的东西用了<strong>同一个名字</strong>，编译器不知道你说的是哪个。<br><br>比如你写了一个 <code>max</code> 函数求最大值，标准库里也有一个 <code>std::max</code>。如果都叫 <code>max</code>，编译器就懵了：用哪个？<br><br>命名空间解决了这个问题：<code>std::max</code> vs <code>::max</code> 一目了然。'
   },
   'py-star': {
     icon: '🐍',

@@ -220,19 +220,19 @@ const CODE = [
 ];
 
 const EXPLAINS = [
-  '<strong>#include &lt;iostream&gt;</strong><br>引入 C++ 标准输入输出库。有了它才能用 <em>cin</em> 和 <em>cout</em>。<br>相当于 Python 的 <strong>import sys</strong>，但机制是<span class="term" data-term="text-paste">文本粘贴</span>而非<span class="term" data-term="module-load">模块加载</span>。',
-  '<strong>#include &lt;cstdio&gt;</strong><br>引入 C 标准输入输出库。有了它才能用 <em>scanf</em> 和 <em>printf</em>。<br>注意：C++ 版去掉了 .h 后缀，并把函数放进了 <span class="term" data-term="namespace">命名空间</span>。<br>也兼容写 <strong>&lt;stdio.h&gt;</strong>，但推荐用 &lt;cstdio&gt;。',
-  '<strong>#include &lt;cmath&gt;</strong><br>引入数学函数库。有了它才能用 <em>sqrt()</em>、<em>pow()</em>、<em>abs()</em>、<em>floor()</em> 等。<br>相当于 Python 直接用 <strong>math.sqrt()</strong> 不需要 import——但 C++ 必须显式包含。',
+  '<strong>#<code>include</code> &lt;<code>iostream</code>&gt;</strong><br>引入 C++ 标准输入输出库。有了它才能用 <code>cin</code> 和 <code>cout</code>。<br>相当于 Python 的 <strong>import sys</strong>，但机制是<span class="term" data-term="text-paste">文本粘贴</span>而非<span class="term" data-term="module-load">模块加载</span>。',
+  '<strong>#<code>include</code> &lt;<code>cstdio</code>&gt;</strong><br>引入 C 标准输入输出库。有了它才能用 <code>scanf</code> 和 <code>printf</code>。<br>注意：C++ 版去掉了 .h 后缀，并把函数放进了 <span class="term" data-term="namespace">命名空间</span>。<br>也兼容写 <strong>&lt;<code>std</code>io.h&gt;</strong>，但推荐用 &lt;<code>cstdio</code>&gt;。',
+  '<strong>#<code>include</code> &lt;<code>cmath</code>&gt;</strong><br>引入数学函数库。有了它才能用 <em>sqrt()</em>、<em>pow()</em>、<em>abs()</em>、<em>floor()</em> 等。<br>相当于 Python 直接用 <strong>math.sqrt()</strong> 不需要 import——但 C++ 必须显式包含。',
   '<strong>空行</strong><br>空行不影响程序运行，只是代码风格。常见做法：头文件区和其他代码之间空一行。',
-  '<strong>using namespace std;</strong><br>把 <span class="term" data-term="namespace">命名空间</span>"打开"，这样不用写 <em>std::cout</em> 而直接写 <em>cout</em>。<br>竞赛中几乎都写这一行。下页详细讲命名空间。',
-  '<strong>空行</strong><br>把头文件+命名空间（"准备区"）和 main 函数（"执行区"）分隔开。',
-  '<strong>int main()</strong><br>每个 C++ 程序<strong>必须有</strong>一个 main 函数，程序从这里开始执行。<br>int 表示返回值是整数（0 表示正常结束）。Python 没有"必须写 main"的要求。',
-  '<strong>double x = 2.0;</strong><br>声明一个双精度浮点变量 x，赋值为 2.0。<br>C++ 必须先声明类型，Python 直接写 x = 2.0 就行。',
-  '<strong>double result = sqrt(x);</strong><br>调用 &lt;cmath&gt; 里的 sqrt() 函数计算 √2，结果存入 result。<br>如果没写 #include &lt;cmath&gt;，<span class="term" data-term="compiler">编译器</span>不认识 sqrt()。',
-  '<strong>cout &lt;&lt; "sqrt(2) = " &lt;&lt; result &lt;&lt; endl;</strong><br>用 cout 输出。&lt;&lt; 是"插入运算符"，把右边的东西塞进左边。<br>需要 #include &lt;iostream&gt; 才能用 cout。',
-  '<strong>printf("sqrt(2) = %.4f\\n", result);</strong><br>用 printf 输出，%.4f 表示保留 4 位小数。<br>需要 #include &lt;cstdio&gt; 才能用 printf。<br>注意：用 printf 时不需要 & 取地址（输出参数是值），但 scanf 需要。',
-  '<strong>return 0;</strong><br>返回 0 表示程序正常结束。操作系统看到 0 就知道"没问题"。<br>这是 main 函数的固定结尾，GESP 考试中必须有。',
-  '<strong>}</strong><br>main 函数的右花括号，标记函数结束。<br>C++ 用 {} 表示代码块，Python 用缩进。'
+  '<strong><code>using</code> <code>namespace</code> <code>std</code>;</strong><br>把 <span class="term" data-term="namespace">命名空间</span>"打开"，这样不用写 <em><code>std</code>::<code>cout</code></em> 而直接写 <code>cout</code>。<br>竞赛中几乎都写这一行。下页详细讲命名空间。',
+  '<strong>空行</strong><br>把头文件+命名空间（"准备区"）和 <code>main</code> 函数（"执行区"）分隔开。',
+  '<strong><code>int</code> <code>main</code>()</strong><br>每个 C++ 程序<strong>必须有</strong>一个 <code>main</code> 函数，程序从这里开始执行。<br><code>int</code> 表示返回值是整数（0 表示正常结束）。Python 没有"必须写 <code>main</code>"的要求。',
+  '<strong><code>double</code> x = 2.0;</strong><br>声明一个双精度浮点变量 x，赋值为 2.0。<br>C++ 必须先声明类型，Python 直接写 x = 2.0 就行。',
+  '<strong><code>double</code> result = sqrt(x);</strong><br>调用 &lt;<code>cmath</code>&gt; 里的 sqrt() 函数计算 √2，结果存入 result。<br>如果没写 #<code>include</code> &lt;<code>cmath</code>&gt;，<span class="term" data-term="compiler">编译器</span>不认识 sqrt()。',
+  '<strong><code>cout</code> &lt;&lt; "sqrt(2) = " &lt;&lt; result &lt;&lt; <code>endl</code>;</strong><br>用 <code>cout</code> 输出。&lt;&lt; 是"插入运算符"，把右边的东西塞进左边。<br>需要 #<code>include</code> &lt;<code>iostream</code>&gt; 才能用 <code>cout</code>。',
+  '<strong><code>printf</code>("sqrt(2) = %.4f\\n", result);</strong><br>用 <code>printf</code> 输出，%.4f 表示保留 4 位小数。<br>需要 #<code>include</code> &lt;<code>cstdio</code>&gt; 才能用 <code>printf</code>。<br>注意：用 <code>printf</code> 时不需要 & 取地址（输出参数是值），但 <code>scanf</code> 需要。',
+  '<strong><code>return</code> 0;</strong><br>返回 0 表示程序正常结束。操作系统看到 0 就知道"没问题"。<br>这是 <code>main</code> 函数的固定结尾，GESP 考试中必须有。',
+  '<strong>}</strong><br><code>main</code> 函数的右花括号，标记函数结束。<br>C++ 用 {} 表示代码块，Python 用缩进。'
 ];
 
 function escapeHtml(s) {
@@ -284,7 +284,7 @@ const TERM_DEFS = {
   'text-paste': {
     icon: '📋',
     title: '文本粘贴（Text Paste）',
-    body: '想象你写了一封信，然后<strong>把另一张纸的内容完整抄写到信里</strong>。C++ 的 #include 就是这个意思：编译器在编译之前，把头文件里的所有代码<strong>一字不差地复制粘贴</strong>到你写的 #include 那个位置。<br><br>所以 #include &lt;iostream&gt; 之后，你的文件里就多了几千行 iostream 库的代码——只是你看不见。'
+    body: '想象你写了一封信，然后<strong>把另一张纸的内容完整抄写到信里</strong>。C++ 的 #<code>include</code> 就是这个意思：编译器在编译之前，把头文件里的所有代码<strong>一字不差地复制粘贴</strong>到你写的 #<code>include</code> 那个位置。<br><br>所以 #<code>include</code> &lt;<code>iostream</code>&gt; 之后，你的文件里就多了几千行 <code>iostream</code> 库的代码——只是你看不见。'
   },
   'module-load': {
     icon: '📦',
@@ -299,17 +299,17 @@ const TERM_DEFS = {
   'compile': {
     icon: '🏗️',
     title: '编译（Compile）',
-    body: '把你写的 C++ 代码<strong>翻译成机器能懂的二进制指令</strong>。<br><br>你写的是人类语言（C++），电脑只懂 0 和 1。编译器就是翻译官，把你的 .cpp 文件翻译成 .exe（可执行文件）。<br><br>编译<strong>之前</strong>会先跑预处理（#include 等指令），编译<strong>之后</strong>还要链接（把多个文件拼起来）。'
+    body: '把你写的 C++ 代码<strong>翻译成机器能懂的二进制指令</strong>。<br><br>你写的是人类语言（C++），电脑只懂 0 和 1。编译器就是翻译官，把你的 .cpp 文件翻译成 .exe（可执行文件）。<br><br>编译<strong>之前</strong>会先跑预处理（#<code>include</code> 等指令），编译<strong>之后</strong>还要链接（把多个文件拼起来）。'
   },
   'compiler': {
     icon: '🏗️',
     title: '编译器（Compiler）',
-    body: '一个程序，负责把 C++ 代码翻译成机器码。常见的有 <strong>g++</strong>、<strong>clang++</strong>、<strong>MSVC</strong>。<br><br>就像翻译官：你写中文（C++），它翻译成英语（机器码）。如果它不认识某个词（函数），就会报错。所以 sqrt() 不 include &lt;cmath&gt; 就用，编译器会说"不认识 sqrt"。'
+    body: '一个程序，负责把 C++ 代码翻译成机器码。常见的有 <strong>g++</strong>、<strong>clang++</strong>、<strong>MSVC</strong>。<br><br>就像翻译官：你写中文（C++），它翻译成英语（机器码）。如果它不认识某个词（函数），就会报错。所以 sqrt() 不 <code>include</code> &lt;<code>cmath</code>&gt; 就用，编译器会说"不认识 sqrt"。'
   },
   'namespace': {
     icon: '🏷️',
     title: '命名空间（Namespace）',
-    body: '给名字加"姓氏"，防止重名冲突。<br><br>学校有两个张伟：三年级的张伟和五年级的张伟。<code>std::cout</code> 就是"std 家族的 cout"。<br><br><code>using namespace std;</code> 相当于说"这页纸上 std 家族的人不用加姓氏了"，所以直接写 cout 就行。下页详细讲！'
+    body: '给名字加"姓氏"，防止重名冲突。<br><br>学校有两个张伟：三年级的张伟和五年级的张伟。<code>std::cout</code> 就是"<code>std</code> 家族的 <code>cout</code>"。<br><br><code>using namespace std;</code> 相当于说"这页纸上 <code>std</code> 家族的人不用加姓氏了"，所以直接写 <code>cout</code> 就行。下页详细讲！'
   },
   'system-dir': {
     icon: '📁',
