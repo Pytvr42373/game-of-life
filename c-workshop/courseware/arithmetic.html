@@ -13,6 +13,7 @@
     --bg: #0b0d1a; --surface: #12142a; --surface2: #1a1d3a; --border: #2a2d5a;
     --accent: #6c5ce7; --accent2: #a29bfe; --green: #00e676; --cyan: #00e5ff;
     --orange: #ff9100; --pink: #ff4081; --red: #ff4757; --text: #e0e0ff; --text-dim: #7878aa;
+    --cell-bg: #1a1d3a; --cell-border: #2a2d5a;
   }
 
   body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 24px; }
@@ -24,19 +25,14 @@
   .top-bar h1 { font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, var(--orange), var(--pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   .top-bar .sub { font-size: 0.78rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
 
-  .workspace { max-width: 1100px; margin: 0 auto; }
-
-  .example-selector { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
-  .example-btn { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.82rem; cursor: pointer; transition: all 0.2s; }
-  .example-btn:hover { border-color: var(--accent); }
-  .example-btn.active { border-color: var(--accent); background: rgba(108,92,231,0.15); }
-
-  .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-  @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+  .workspace { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 900px) { .workspace { grid-template-columns: 1fr; } }
 
   .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
   .panel-header { padding: 12px 16px; background: var(--surface2); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
   .panel-header .label { font-size: 0.72rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+  .panel-header .action { font-size: 0.72rem; color: var(--accent2); cursor: pointer; padding: 4px 10px; border-radius: 6px; background: rgba(108,92,231,0.1); border: none; font-family: inherit; transition: background 0.2s; }
+  .panel-header .action:hover { background: rgba(108,92,231,0.2); }
   .panel-body { padding: 20px; }
 
   .code-block { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.8; color: var(--text); white-space: pre; overflow-x: auto; letter-spacing: 0.5px; }
@@ -46,24 +42,69 @@
   .code-block .hl-yellow { background: rgba(255,215,0,0.12); border-radius: 3px; }
   .code-block .line-num { color: #3a3a6a; user-select: none; margin-right: 10px; }
 
-  .step-area { margin-top: 16px; }
-  .step-buttons { display: flex; gap: 8px; margin-bottom: 12px; }
-  .step-btn { padding: 8px 18px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.82rem; cursor: pointer; transition: all 0.2s; }
-  .step-btn:hover { border-color: var(--accent); }
-  .step-btn.primary { background: rgba(108,92,231,0.2); border-color: var(--accent); }
-  .step-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  /* Operation selector */
+  .op-selector { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+  .op-btn { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.82rem; cursor: pointer; transition: all 0.2s; }
+  .op-btn:hover { border-color: var(--accent); }
+  .op-btn.active { border-color: var(--accent); background: rgba(108,92,231,0.15); }
 
-  .var-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.85rem; }
-  .var-table th { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text-dim); font-weight: 600; font-family: 'JetBrains Mono', monospace; }
-  .var-table td { padding: 8px 12px; border-bottom: 1px solid rgba(42,45,90,0.5); font-family: 'JetBrains Mono', monospace; }
-  .var-table .val { color: var(--orange); }
-  .var-table .highlight-row { background: rgba(108,92,231,0.08); }
+  /* Interactive calculator */
+  .calc-area { margin-top: 12px; padding: 16px; background: rgba(0,0,0,0.2); border-radius: 8px; }
+  .calc-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .calc-row label { font-size: 0.78rem; color: var(--text-dim); min-width: 50px; }
+  .calc-row input { padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; width: 80px; outline: none; transition: border-color 0.2s; }
+  .calc-row input:focus { border-color: var(--accent); }
+  .calc-row .op-symbol { font-size: 1.2rem; color: var(--accent2); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+  .calc-row .eq-symbol { font-size: 1.2rem; color: var(--text-dim); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+  .calc-row .result-box { padding: 6px 16px; border-radius: 6px; background: rgba(108,92,231,0.15); border: 1px solid var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 700; color: var(--accent2); min-width: 60px; text-align: center; }
 
-  .output-area { margin-top: 12px; padding: 14px; background: rgba(0,0,0,0.3); border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--green); line-height: 1.6; min-height: 40px; }
-  .output-area .line { display: block; }
+  /* Memory grid for operation visualization */
+  .mem-grid { display: flex; gap: 4px; margin-top: 12px; flex-wrap: wrap; justify-content: center; }
+  .mem-cell { width: 56px; height: 56px; background: var(--cell-bg); border: 1px solid var(--cell-border); border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; transition: all 0.3s; position: relative; }
+  .mem-cell .val { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+  .mem-cell .addr { font-size: 0.55rem; color: var(--text-dim); margin-top: 2px; }
+  .mem-cell.active { border-color: var(--accent); box-shadow: 0 0 12px rgba(108,92,231,0.3); }
+  .mem-cell.highlight-int { border-color: var(--accent); }
+  .mem-cell.highlight-float { border-color: var(--green); }
+  .mem-cell.highlight-char { border-color: var(--orange); }
+  .mem-cell .type-label { position: absolute; top: -18px; font-size: 0.6rem; color: var(--text-dim); white-space: nowrap; }
+  .mem-cell .arrow-down { position: absolute; bottom: -14px; font-size: 0.7rem; color: var(--accent2); }
 
-  .step-info { margin-top: 10px; padding: 10px 14px; background: rgba(108,92,231,0.08); border-radius: 8px; font-size: 0.85rem; color: var(--accent2); font-family: 'Inter', sans-serif; line-height: 1.5; }
+  /* Number line visualization */
+  .num-line { margin-top: 12px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 8px; position: relative; height: 60px; }
+  .num-line .axis { position: absolute; left: 20px; right: 20px; top: 30px; height: 2px; background: var(--border); }
+  .num-line .tick { position: absolute; top: 24px; font-size: 0.6rem; color: var(--text-dim); transform: translateX(-50%); text-align: center; }
+  .num-line .tick::before { content: ''; display: block; width: 1px; height: 8px; background: var(--border); margin: 0 auto 4px; }
+  .num-line .marker { position: absolute; top: 8px; width: 20px; height: 20px; border-radius: 50%; transform: translateX(-50%); display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; transition: left 0.3s; }
+  .marker-a { background: rgba(108,92,231,0.3); border: 2px solid var(--accent); color: var(--accent2); }
+  .marker-b { background: rgba(0,229,255,0.3); border: 2px solid var(--cyan); color: var(--cyan); }
+  .marker-result { background: rgba(0,230,118,0.3); border: 2px solid var(--green); color: var(--green); }
 
+  /* Type conversion visual */
+  .type-flow { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 8px; flex-wrap: wrap; justify-content: center; }
+  .type-box { padding: 8px 14px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 600; text-align: center; }
+  .type-box.int { background: rgba(108,92,231,0.15); border: 1px solid var(--accent); color: var(--accent2); }
+  .type-box.float { background: rgba(0,230,118,0.15); border: 1px solid var(--green); color: var(--green); }
+  .type-box.char { background: rgba(255,145,0,0.15); border: 1px solid var(--orange); color: var(--orange); }
+  .type-box.double { background: rgba(0,229,255,0.15); border: 1px solid var(--cyan); color: var(--cyan); }
+  .type-arrow { font-size: 1rem; color: var(--text-dim); }
+  .type-arrow.loss { color: var(--red); }
+
+  /* Info bar */
+  .info-bar { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+  .info-item { padding: 6px 12px; border-radius: 6px; background: rgba(0,0,0,0.2); font-size: 0.72rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+  .info-item strong { color: var(--accent2); font-weight: 600; }
+  .info-item .badge-red { color: var(--red); }
+  .info-item .badge-green { color: var(--green); }
+  .info-item .badge-cyan { color: var(--cyan); }
+  .info-item .badge-orange { color: var(--orange); }
+
+  /* Legend */
+  .legend { display: flex; gap: 16px; margin-top: 12px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--text-dim); }
+  .legend-color { width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--cell-border); }
+
+  /* Knowledge panel */
   .tip-box { padding: 14px 18px; background: rgba(255,215,0,0.06); border: 1px solid rgba(255,215,0,0.15); border-radius: 8px; margin-bottom: 14px; }
   .tip-box .tip-label { font-size: 0.72rem; font-weight: 700; color: #ffd700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
   .tip-box .tip-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
@@ -71,6 +112,22 @@
   .danger-box { padding: 14px 18px; background: rgba(255,71,87,0.06); border: 1px solid rgba(255,71,87,0.15); border-radius: 8px; margin-bottom: 14px; }
   .danger-box .danger-label { font-size: 0.72rem; font-weight: 700; color: var(--red); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
   .danger-box .danger-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+
+  .op-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.82rem; }
+  .op-table th { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--text-dim); font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+  .op-table td { padding: 8px 10px; border-bottom: 1px solid rgba(42,45,90,0.5); font-family: 'JetBrains Mono', monospace; }
+  .op-table .highlight-row { background: rgba(108,92,231,0.08); }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .mem-cell { animation: fadeIn 0.3s ease both; }
+  .mem-cell:nth-child(1) { animation-delay: 0s; }
+  .mem-cell:nth-child(2) { animation-delay: 0.05s; }
+  .mem-cell:nth-child(3) { animation-delay: 0.1s; }
+  .mem-cell:nth-child(4) { animation-delay: 0.15s; }
+  .mem-cell:nth-child(5) { animation-delay: 0.2s; }
+  .mem-cell:nth-child(6) { animation-delay: 0.25s; }
+  .mem-cell:nth-child(7) { animation-delay: 0.3s; }
+  .mem-cell:nth-child(8) { animation-delay: 0.35s; }
 </style>
 </head>
 <body>
@@ -85,430 +142,423 @@
 </div>
 
 <div class="workspace">
-  <div class="example-selector" id="example-selector"></div>
+  <!-- Left: Interactive Calculator -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="label">交互计算器</span>
+      <button class="action" onclick="resetCalc()">重置</button>
+    </div>
+    <div class="panel-body">
+      <div class="op-selector" id="op-selector"></div>
 
-  <div class="main-grid">
-    <div class="panel">
-      <div class="panel-header">
-        <span class="label">C++ 代码</span>
-        <span class="action" style="cursor:default;background:transparent;color:var(--text-dim)">点击例子 → 单步执行</span>
-      </div>
-      <div class="panel-body">
-        <div class="code-block" id="code-display"></div>
-        <div class="step-area" id="step-area">
-          <div class="step-buttons">
-            <button class="step-btn primary" id="step-btn" onclick="stepOnce()">▶ 单步执行</button>
-            <button class="step-btn" id="reset-btn" onclick="resetStep()">↺ 重置</button>
-          </div>
-          <div class="var-table-wrapper" id="var-table-wrapper"></div>
-          <div class="output-area" id="output-area"><span class="line">点击"单步执行"逐步观察</span></div>
+      <div class="calc-area" id="calc-area">
+        <div class="calc-row">
+          <label>a =</label>
+          <input type="number" id="input-a" value="10" oninput="updateCalc()">
+          <span class="op-symbol" id="op-symbol">+</span>
+          <label>b =</label>
+          <input type="number" id="input-b" value="3" oninput="updateCalc()">
+          <span class="eq-symbol">=</span>
+          <span class="result-box" id="result-box">13</span>
         </div>
       </div>
-    </div>
 
-    <div class="panel">
-      <div class="panel-header">
-        <span class="label">关键知识点</span>
+      <!-- Memory visualization -->
+      <div style="margin-top:8px;font-size:0.72rem;color:var(--text-dim);font-family:'JetBrains Mono',monospace">内存中的值</div>
+      <div class="mem-grid" id="mem-grid">
+        <div class="mem-cell highlight-int">
+          <span class="type-label">int a</span>
+          <span class="val" id="mem-a-val">10</span>
+          <span class="addr">0x100</span>
+        </div>
+        <div class="mem-cell highlight-int">
+          <span class="type-label">int b</span>
+          <span class="val" id="mem-b-val">3</span>
+          <span class="addr">0x104</span>
+        </div>
+        <div class="mem-cell active" id="mem-result-cell">
+          <span class="type-label" id="mem-result-label">int 结果</span>
+          <span class="val" id="mem-result-val">13</span>
+          <span class="addr" id="mem-result-addr">0x108</span>
+        </div>
       </div>
-      <div class="panel-body" id="knowledge-panel">
-        <div id="knowledge-content"></div>
+
+      <!-- Number line -->
+      <div style="margin-top:8px;font-size:0.72rem;color:var(--text-dim);font-family:'JetBrains Mono',monospace">数轴上的位置</div>
+      <div class="num-line" id="num-line">
+        <div class="axis"></div>
+        <div class="marker marker-a" id="marker-a" style="left:calc(50% + 0px)">a</div>
+        <div class="marker marker-b" id="marker-b" style="left:calc(50% + 0px)">b</div>
+        <div class="marker marker-result" id="marker-result" style="left:calc(50% + 0px)">=</div>
       </div>
+
+      <!-- Info bar -->
+      <div class="info-bar">
+        <div class="info-item" id="info-type">类型: <strong>int</strong></div>
+        <div class="info-item" id="info-remainder">a % b = <strong>1</strong></div>
+        <div class="info-item" id="info-float">a / b = <strong class="badge-orange">3</strong> (整数除法)</div>
+      </div>
+
+      <!-- Legend -->
+      <div class="legend">
+        <div class="legend-item"><div class="legend-color" style="background:var(--accent)"></div> int 类型</div>
+        <div class="legend-item"><div class="legend-color" style="background:var(--green)"></div> float/double</div>
+        <div class="legend-item"><div class="legend-color" style="background:var(--orange)"></div> char 类型</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Knowledge Panel -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="label">关键知识点</span>
+    </div>
+    <div class="panel-body" id="knowledge-panel">
+      <div id="knowledge-content"></div>
     </div>
   </div>
 </div>
 
 <script>
-const EXAMPLES = [
-  {
-    name: '基本算术运算',
-    code: [
-      '#include <iostream>',
-      'using namespace std;',
-      'int main() {',
-      '    int a = 10, b = 3;',
-      '    int sum = a + b;     // 加法',
-      '    int diff = a - b;    // 减法',
-      '    int prod = a * b;    // 乘法',
-      '    int quot = a / b;    // 整数除法',
-      '    int rem = a % b;     // 取模（余数）',
-      '    cout << sum << " " << diff << " ";',
-      '    cout << prod << " " << quot << " ";',
-      '    cout << rem << endl;',
-      '    return 0;',
-      '}'
-    ],
-    steps: [
-      { line: 0, vars: {}, out: [] },
-      { line: 1, vars: {}, out: [] },
-      { line: 2, vars: {}, out: [] },
-      { line: 3, vars: { a: { v: 10, c: 'cyan' }, b: { v: 3, c: 'cyan' } }, out: [], info: 'a=10, b=3 初始化' },
-      { line: 4, vars: { a: { v: 10 }, b: { v: 3 }, sum: { v: 13, c: 'green' } }, out: [], info: '10 + 3 = 13' },
-      { line: 5, vars: { a: { v: 10 }, b: { v: 3 }, sum: { v: 13 }, diff: { v: 7, c: 'green' } }, out: [], info: '10 - 3 = 7' },
-      { line: 6, vars: { a: { v: 10 }, b: { v: 3 }, sum: { v: 13 }, diff: { v: 7 }, prod: { v: 30, c: 'green' } }, out: [], info: '10 × 3 = 30' },
-      { line: 7, vars: { a: { v: 10 }, b: { v: 3 }, sum: { v: 13 }, diff: { v: 7 }, prod: { v: 30 }, quot: { v: 3, c: 'green' } }, out: [], info: '10 ÷ 3 = 3（整数除法，丢掉小数部分！）' },
-      { line: 8, vars: { a: { v: 10 }, b: { v: 3 }, sum: { v: 13 }, diff: { v: 7 }, prod: { v: 30 }, quot: { v: 3 }, rem: { v: 1, c: 'green' } }, out: [], info: '10 % 3 = 1（余数：10 = 3×3 + 1）' },
-      { line: 9, vars: { a: { v: 10 }, b: { v: 3 }, sum: { v: 13 }, diff: { v: 7 }, prod: { v: 30 }, quot: { v: 3 }, rem: { v: 1 } }, out: ['13 7 '], info: '输出 sum 和 diff' },
-      { line: 10, vars: { a: { v: 10 }, b: { v: 3 }, sum: { v: 13 }, diff: { v: 7 }, prod: { v: 30 }, quot: { v: 3 }, rem: { v: 1 } }, out: ['13 7 30 3 '], info: '输出 prod 和 quot' },
-      { line: 11, vars: { a: { v: 10 }, b: { v: 3 }, sum: { v: 13 }, diff: { v: 7 }, prod: { v: 30 }, quot: { v: 3 }, rem: { v: 1 } }, out: ['13 7 30 3 1'], info: '输出 rem' }
-    ],
-    knowledge: `
-      <div class="tip-box" style="margin-top:0">
-        <div class="tip-label">📌 基本运算符</div>
-        <div class="tip-text">
-          <strong>+</strong> 加法 &nbsp; <strong>-</strong> 减法 &nbsp; <strong>*</strong> 乘法 &nbsp; <strong>/</strong> 除法 &nbsp; <strong>%</strong> 取模<br><br>
-          <strong>关键：整数除法会截断！</strong><br>
-          10 / 3 = 3（不是 3.333），小数部分直接丢掉。<br>
-          想得到小数结果，至少一个操作数要是浮点数。<br><br>
-          <strong>% 取模</strong>：求余数，只对整数有效。<br>
-          10 % 3 = 1（因为 10 = 3×3 + 1）
-        </div>
-      </div>
-      <div class="danger-box">
-        <div class="danger-label">⚠️ 除零错误</div>
-        <div class="danger-text">
-          任何数除以 0 都会导致<strong>运行时错误</strong>，程序崩溃！<br>
-          取模 % 0 也一样。<br><br>
-          竞赛中一定要检查除数是否为 0。
-        </div>
-      </div>
-    `
-  },
-  {
-    name: '整数除法 vs 浮点除法',
-    code: [
-      '#include <iostream>',
-      'using namespace std;',
-      'int main() {',
-      '    int a = 5, b = 2;',
-      '    // 整数除法：丢掉小数',
-      '    int q1 = a / b;       // 5/2 = 2',
-      '    // 浮点除法：保留小数',
-      '    double q2 = a / b;    // 还是 2！',
-      '    double q3 = 5.0 / 2;  // 2.5',
-      '    double q4 = (double)a / b;  // 2.5',
-      '    cout << q1 << " " << q2 << " ";',
-      '    cout << q3 << " " << q4 << endl;',
-      '    return 0;',
-      '}'
-    ],
-    steps: [
-      { line: 0, vars: {}, out: [] },
-      { line: 1, vars: {}, out: [] },
-      { line: 2, vars: {}, out: [] },
-      { line: 3, vars: { a: { v: 5, c: 'cyan' }, b: { v: 2, c: 'cyan' } }, out: [], info: 'a=5, b=2' },
-      { line: 4, vars: { a: { v: 5 }, b: { v: 2 } }, out: [], info: '整数除法：5/2 先算，结果是 2' },
-      { line: 5, vars: { a: { v: 5 }, b: { v: 2 }, q1: { v: 2, c: 'green' } }, out: [], info: 'q1 = 5/2 = 2（整数除法截断）' },
-      { line: 6, vars: { a: { v: 5 }, b: { v: 2 }, q1: { v: 2 } }, out: [], info: 'q2 是 double，但 5/2 先按整数算 = 2，再转成 2.0' },
-      { line: 7, vars: { a: { v: 5 }, b: { v: 2 }, q1: { v: 2 }, q2: { v: 2, c: 'orange' } }, out: [], info: 'q2 = 2.0（不是 2.5！因为整数除法先执行）' },
-      { line: 8, vars: { a: { v: 5 }, b: { v: 2 }, q1: { v: 2 }, q2: { v: 2 } }, out: [], info: '5.0 是浮点数，/ 2 自动转成浮点除法' },
-      { line: 9, vars: { a: { v: 5 }, b: { v: 2 }, q1: { v: 2 }, q2: { v: 2 }, q3: { v: 2.5, c: 'green' } }, out: [], info: 'q3 = 2.5（正确！）' },
-      { line: 10, vars: { a: { v: 5 }, b: { v: 2 }, q1: { v: 2 }, q2: { v: 2 }, q3: { v: 2.5 } }, out: [], info: '(double)a 把 a 转成 5.0，再 / 2 = 2.5' },
-      { line: 11, vars: { a: { v: 5 }, b: { v: 2 }, q1: { v: 2 }, q2: { v: 2 }, q3: { v: 2.5 }, q4: { v: 2.5, c: 'green' } }, out: [], info: 'q4 = 2.5（正确！）' },
-      { line: 12, vars: { a: { v: 5 }, b: { v: 2 }, q1: { v: 2 }, q2: { v: 2 }, q3: { v: 2.5 }, q4: { v: 2.5 } }, out: ['2 2 '], info: 'q1=2, q2=2' },
-      { line: 13, vars: { a: { v: 5 }, b: { v: 2 }, q1: { v: 2 }, q2: { v: 2 }, q3: { v: 2.5 }, q4: { v: 2.5 } }, out: ['2 2 2.5 2.5'], info: 'q3=2.5, q4=2.5' }
-    ],
-    knowledge: `
-      <div class="tip-box" style="margin-top:0">
-        <div class="tip-label">📌 整数除法陷阱</div>
-        <div class="tip-text">
-          <strong>两个整数相除，结果还是整数！</strong><br><br>
-          int a = 5, b = 2;<br>
-          a / b → 2（不是 2.5，小数被截断）<br><br>
-          <strong>正确做法：</strong><br>
-          double x = 5.0 / 2;     // 2.5<br>
-          double y = (double)a / b; // 2.5<br><br>
-          只要有一个操作数是浮点数，就做浮点除法。
-        </div>
-      </div>
-      <div class="danger-box">
-        <div class="danger-label">⚠️ 常见错误</div>
-        <div class="danger-text">
-          double q = a / b;  // 以为能得到小数？<br>
-          实际上 a/b 先按整数算 = 2，再转成 2.0<br>
-          结果不是 2.5，是 2.0！
-        </div>
-      </div>
-    `
-  },
-  {
-    name: '复合赋值运算符',
-    code: [
-      '#include <iostream>',
-      'using namespace std;',
-      'int main() {',
-      '    int x = 10;',
-      '    x += 5;   // x = x + 5',
-      '    x -= 3;   // x = x - 3',
-      '    x *= 2;   // x = x * 2',
-      '    x /= 4;   // x = x / 4',
-      '    x %= 3;   // x = x % 3',
-      '    cout << x << endl;',
-      '    return 0;',
-      '}'
-    ],
-    steps: [
-      { line: 0, vars: {}, out: [] },
-      { line: 1, vars: {}, out: [] },
-      { line: 2, vars: {}, out: [] },
-      { line: 3, vars: { x: { v: 10, c: 'cyan' } }, out: [], info: 'x = 10' },
-      { line: 4, vars: { x: { v: 15, c: 'orange' } }, out: [], info: 'x += 5 → x = 10 + 5 = 15' },
-      { line: 5, vars: { x: { v: 12, c: 'orange' } }, out: [], info: 'x -= 3 → x = 15 - 3 = 12' },
-      { line: 6, vars: { x: { v: 24, c: 'orange' } }, out: [], info: 'x *= 2 → x = 12 × 2 = 24' },
-      { line: 7, vars: { x: { v: 6, c: 'orange' } }, out: [], info: 'x /= 4 → x = 24 ÷ 4 = 6' },
-      { line: 8, vars: { x: { v: 0, c: 'orange' } }, out: [], info: 'x %= 3 → x = 6 % 3 = 0' },
-      { line: 9, vars: { x: { v: 0 } }, out: ['0'] }
-    ],
-    knowledge: `
-      <div class="tip-box" style="margin-top:0">
-        <div class="tip-label">📌 复合赋值运算符</div>
-        <div class="tip-text">
-          <strong>x += y</strong> 等价于 <strong>x = x + y</strong><br>
-          <strong>x -= y</strong> 等价于 <strong>x = x - y</strong><br>
-          <strong>x *= y</strong> 等价于 <strong>x = x * y</strong><br>
-          <strong>x /= y</strong> 等价于 <strong>x = x / y</strong><br>
-          <strong>x %= y</strong> 等价于 <strong>x = x % y</strong><br><br>
-          还有：<<=  >>=  &=  |=  ^=<br><br>
-          <strong>优点：</strong>代码更简洁，且只计算一次 x 的地址。
-        </div>
-      </div>
-    `
-  },
-  {
-    name: '自增自减与类型转换',
-    code: [
-      '#include <iostream>',
-      'using namespace std;',
-      'int main() {',
-      '    int i = 5;',
-      '    // 自增自减',
-      '    i++;  // i = 6',
-      '    i--;  // i = 5',
-      '    // 隐式类型转换',
-      '    double d = 3.7;',
-      '    int n = d;       // 截断为 3',
-      '    char c = 65;     // 65 是 ASCII A',
-      '    // 强制类型转换',
-      '    double pi = (double)22 / 7;',
-      '    cout << i << " " << n << " ";',
-      '    cout << c << " " << pi << endl;',
-      '    return 0;',
-      '}'
-    ],
-    steps: [
-      { line: 0, vars: {}, out: [] },
-      { line: 1, vars: {}, out: [] },
-      { line: 2, vars: {}, out: [] },
-      { line: 3, vars: { i: { v: 5, c: 'cyan' } }, out: [], info: 'i = 5' },
-      { line: 4, vars: { i: { v: 5, c: 'cyan' } }, out: [], info: '自增自减部分' },
-      { line: 5, vars: { i: { v: 6, c: 'orange' } }, out: [], info: 'i++ → i = 6' },
-      { line: 6, vars: { i: { v: 5, c: 'orange' } }, out: [], info: 'i-- → i = 5' },
-      { line: 7, vars: { i: { v: 5 } }, out: [], info: '类型转换部分' },
-      { line: 8, vars: { i: { v: 5 }, d: { v: 3.7, c: 'cyan' } }, out: [], info: 'd = 3.7' },
-      { line: 9, vars: { i: { v: 5 }, d: { v: 3.7 }, n: { v: 3, c: 'orange' } }, out: [], info: 'double → int 截断：3.7 变成 3（丢掉小数）' },
-      { line: 10, vars: { i: { v: 5 }, d: { v: 3.7 }, n: { v: 3 }, c: { v: 'A', c: 'green' } }, out: [], info: 'int 65 转成 char → ASCII 65 对应字母 A' },
-      { line: 11, vars: { i: { v: 5 }, d: { v: 3.7 }, n: { v: 3 }, c: { v: 'A' } }, out: [], info: '(double)22 / 7：先把 22 转成 22.0，再 / 7' },
-      { line: 12, vars: { i: { v: 5 }, d: { v: 3.7 }, n: { v: 3 }, c: { v: 'A' }, pi: { v: 3.14286, c: 'green' } }, out: [], info: 'pi = 22.0 / 7 = 3.14286（浮点除法）' },
-      { line: 13, vars: { i: { v: 5 }, d: { v: 3.7 }, n: { v: 3 }, c: { v: 'A' }, pi: { v: 3.14286 } }, out: ['5 3 '], info: '输出 i=5, n=3' },
-      { line: 14, vars: { i: { v: 5 }, d: { v: 3.7 }, n: { v: 3 }, c: { v: 'A' }, pi: { v: 3.14286 } }, out: ['5 3 A 3.14286'], info: '输出 c=A, pi=3.14286' }
-    ],
-    knowledge: `
-      <div class="tip-box" style="margin-top:0">
-        <div class="tip-label">📌 类型转换</div>
-        <div class="tip-text">
-          <strong>隐式转换（自动）：</strong><br>
-          double d = 3.7; int n = d;  // 3.7 → 3（截断）<br>
-          char c = 65;  // 整数 → 字符（ASCII）<br><br>
-          <strong>强制转换（手动）：</strong><br>
-          double x = (double)a / b;<br>
-          (类型)表达式  → 临时转成目标类型<br><br>
-          <strong>转换方向：</strong><br>
-          char → int → long → float → double<br>
-          小类型自动转大类型，大转小可能丢失精度。
-        </div>
-      </div>
-      <div class="danger-box">
-        <div class="danger-label">⚠️ 截断 vs 四舍五入</div>
-        <div class="danger-text">
-          C++ 的 double→int 是<strong>直接截断</strong>，不是四舍五入！<br>
-          3.7 → 3，不是 4。<br>
-          想四舍五入：int n = (int)(d + 0.5);
-        </div>
-      </div>
-    `
-  },
-  {
-    name: '取模的妙用',
-    code: [
-      '#include <iostream>',
-      'using namespace std;',
-      'int main() {',
-      '    int num = 17;',
-      '    // 判断奇偶',
-      '    bool isOdd = (num % 2 == 1);',
-      '    // 取个位数',
-      '    int lastDigit = num % 10;',
-      '    // 判断整除',
-      '    bool divisible = (num % 5 == 0);',
-      '    // 循环索引',
-      '    for (int i = 0; i < 10; i++) {',
-      '        if (i % 3 == 0) cout << i << " ";',
-      '    }',
-      '    cout << endl;',
-      '    return 0;',
-      '}'
-    ],
-    steps: [
-      { line: 0, vars: {}, out: [] },
-      { line: 1, vars: {}, out: [] },
-      { line: 2, vars: {}, out: [] },
-      { line: 3, vars: { num: { v: 17, c: 'cyan' } }, out: [], info: 'num = 17' },
-      { line: 4, vars: { num: { v: 17 } }, out: [], info: '判断奇偶：17 % 2 = 1' },
-      { line: 5, vars: { num: { v: 17 }, isOdd: { v: true, c: 'green' } }, out: [], info: '17 % 2 = 1 → isOdd = true（奇数）' },
-      { line: 6, vars: { num: { v: 17 }, isOdd: { v: true } }, out: [], info: '取个位数：17 % 10 = 7' },
-      { line: 7, vars: { num: { v: 17 }, isOdd: { v: true }, lastDigit: { v: 7, c: 'green' } }, out: [], info: '个位数是 7' },
-      { line: 8, vars: { num: { v: 17 }, isOdd: { v: true }, lastDigit: { v: 7 } }, out: [], info: '判断能否被 5 整除：17 % 5 = 2' },
-      { line: 9, vars: { num: { v: 17 }, isOdd: { v: true }, lastDigit: { v: 7 }, divisible: { v: false, c: 'orange' } }, out: [], info: '17 % 5 = 2 ≠ 0 → 不能被 5 整除' },
-      { line: 10, vars: { num: { v: 17 }, isOdd: { v: true }, lastDigit: { v: 7 }, divisible: { v: false } }, out: [], info: '循环：i=0, 0%3=0 → 输出' },
-      { line: 11, vars: { i: { v: 0, c: 'green' } }, out: ['0 '], info: '输出 0' },
-      { line: 10, vars: { i: { v: 1, c: 'green' } }, out: ['0 '], info: 'i=1, 1%3=1 ≠ 0 → 跳过' },
-      { line: 10, vars: { i: { v: 2, c: 'green' } }, out: ['0 '], info: 'i=2, 2%3=2 ≠ 0 → 跳过' },
-      { line: 10, vars: { i: { v: 3, c: 'green' } }, out: ['0 '], info: 'i=3, 3%3=0 → 输出' },
-      { line: 11, vars: { i: { v: 3, c: 'green' } }, out: ['0 3 '], info: '输出 3' },
-      { line: 10, vars: { i: { v: 6, c: 'green' } }, out: ['0 3 '], info: 'i=6, 6%3=0 → 输出' },
-      { line: 11, vars: { i: { v: 6, c: 'green' } }, out: ['0 3 6 '], info: '输出 6' },
-      { line: 10, vars: { i: { v: 9, c: 'green' } }, out: ['0 3 6 '], info: 'i=9, 9%3=0 → 输出' },
-      { line: 11, vars: { i: { v: 9, c: 'green' } }, out: ['0 3 6 9 '], info: '输出 9' },
-      { line: 13, vars: {}, out: ['0 3 6 9', ''], info: '循环结束，输出换行' }
-    ],
-    knowledge: `
-      <div class="tip-box" style="margin-top:0">
-        <div class="tip-label">📌 取模的常见用途</div>
-        <div class="tip-text">
-          <strong>1. 判断奇偶</strong><br>
-          n % 2 == 1 → 奇数；n % 2 == 0 → 偶数<br><br>
-          <strong>2. 取个位/十位</strong><br>
-          n % 10 → 个位数<br>
-          n / 10 % 10 → 十位数<br><br>
-          <strong>3. 判断整除</strong><br>
-          n % m == 0 → n 能被 m 整除<br><br>
-          <strong>4. 循环分组</strong><br>
-          i % 3 == 0 → 每 3 个一组<br><br>
-          <strong>5. 哈希/散列</strong><br>
-          大数 % 一个质数 → 映射到固定范围
-        </div>
-      </div>
-    `
-  }
+const OPS = [
+  { sym: '+', name: '加法', desc: 'a + b', result: (a,b) => a + b, type: 'int' },
+  { sym: '-', name: '减法', desc: 'a - b', result: (a,b) => a - b, type: 'int' },
+  { sym: '*', name: '乘法', desc: 'a × b', result: (a,b) => a * b, type: 'int' },
+  { sym: '/', name: '整数除法', desc: 'a ÷ b（截断）', result: (a,b) => Math.floor(a / b), type: 'int' },
+  { sym: '%', name: '取模', desc: 'a % b（余数）', result: (a,b) => a % b, type: 'int' },
+  { sym: '+=', name: '复合加', desc: 'a += b → a = a + b', result: (a,b) => a + b, type: 'int' },
+  { sym: '-=', name: '复合减', desc: 'a -= b → a = a - b', result: (a,b) => a - b, type: 'int' },
+  { sym: '*=', name: '复合乘', desc: 'a *= b → a = a × b', result: (a,b) => a * b, type: 'int' },
+  { sym: '/=', name: '复合除', desc: 'a /= b → a = a ÷ b', result: (a,b) => Math.floor(a / b), type: 'int' },
+  { sym: '%=', name: '复合模', desc: 'a %= b → a = a % b', result: (a,b) => a % b, type: 'int' },
+  { sym: '→f', name: 'int→float', desc: '(float)a / b', result: (a,b) => a / b, type: 'float' },
+  { sym: '→d', name: 'int→double', desc: '(double)a / b', result: (a,b) => a / b, type: 'double' },
+  { sym: '→c', name: 'int→char', desc: 'char c = a', result: (a,b) => String.fromCharCode(a), type: 'char' }
 ];
 
-let currentIdx = 0;
-let stepIdx = 0;
+const KNOWLEDGE = {
+  '+': `
+    <div class="tip-box" style="margin-top:0">
+      <div class="tip-label">📌 加法运算</div>
+      <div class="tip-text">
+        <strong>a + b</strong> 是最基本的算术运算。<br><br>
+        <strong>注意类型溢出：</strong><br>
+        int 最大值约 21 亿（2^31-1）。<br>
+        两个大数相加可能溢出，结果变成负数！<br><br>
+        <strong>竞赛建议：</strong><br>
+        大数用 <strong>long long</strong>（64位，最大 9×10^18）。
+      </div>
+    </div>
+    <div class="danger-box">
+      <div class="danger-label">⚠️ 整数溢出</div>
+      <div class="danger-text">
+        int a = 2000000000;<br>
+        int b = 2000000000;<br>
+        a + b → -294967296（溢出！）<br><br>
+        用 long long 避免：<br>
+        long long sum = (long long)a + b;
+      </div>
+    </div>
+  `,
+  '-': `
+    <div class="tip-box" style="margin-top:0">
+      <div class="tip-label">📌 减法运算</div>
+      <div class="tip-text">
+        <strong>a - b</strong> 减法运算。<br><br>
+        <strong>注意负数：</strong><br>
+        int 可以表示负数（最高位是符号位）。<br>
+        小减大得到负数，这是正常的。<br><br>
+        <strong>取模与负数：</strong><br>
+        C++ 中负数取模结果<strong>依赖编译器</strong>，<br>
+        建议避免负数取模操作。
+      </div>
+    </div>
+  `,
+  '*': `
+    <div class="tip-box" style="margin-top:0">
+      <div class="tip-label">📌 乘法运算</div>
+      <div class="tip-text">
+        <strong>a × b</strong> 乘法运算。<br><br>
+        <strong>溢出风险最大！</strong><br>
+        两个 10^5 的数相乘就是 10^10，<br>
+        远超 int 范围（2.1×10^9）。<br><br>
+        <strong>竞赛铁律：</strong><br>
+        看到乘法先想会不会溢出，<br>
+        不确定就用 long long。
+      </div>
+    </div>
+    <div class="danger-box">
+      <div class="danger-label">⚠️ 乘法溢出</div>
+      <div class="danger-text">
+        int a = 100000, b = 100000;<br>
+        a * b → 1410065408（溢出！）<br>
+        正确：long long c = (long long)a * b;
+      </div>
+    </div>
+  `,
+  '/': `
+    <div class="tip-box" style="margin-top:0">
+      <div class="tip-label">📌 整数除法</div>
+      <div class="tip-text">
+        <strong>两个整数相除，结果截断为整数！</strong><br>
+        10 / 3 = 3（不是 3.333）<br><br>
+        <strong>想保留小数：</strong><br>
+        double x = 10.0 / 3;  // 3.333<br>
+        double y = (double)10 / 3;  // 3.333<br><br>
+        <strong>注意：</strong><br>
+        double z = 10 / 3;  // 还是 3.0！<br>
+        因为 10/3 先按整数算 = 3，再转成 3.0
+      </div>
+    </div>
+    <div class="danger-box">
+      <div class="danger-label">⚠️ 除零错误</div>
+      <div class="danger-text">
+        任何数除以 0 都会导致<strong>运行时崩溃</strong>！<br>
+        竞赛中一定要检查除数是否为 0。
+      </div>
+    </div>
+  `,
+  '%': `
+    <div class="tip-box" style="margin-top:0">
+      <div class="tip-label">📌 取模运算</div>
+      <div class="tip-text">
+        <strong>a % b</strong> 求 a 除以 b 的<strong>余数</strong>。<br>
+        10 % 3 = 1（10 = 3×3 + 1）<br><br>
+        <strong>常见用途：</strong><br>
+        • 判断奇偶：n % 2 == 1 → 奇数<br>
+        • 取个位：n % 10<br>
+        • 判断整除：n % m == 0<br>
+        • 循环分组：i % 3 == 0 → 每3个一组<br>
+        • 哈希散列：大数 % 质数
+      </div>
+    </div>
+    <div class="danger-box">
+      <div class="danger-label">⚠️ 取模与负数</div>
+      <div class="danger-text">
+        C++ 中负数取模结果<strong>可能是负数</strong>：<br>
+        -5 % 3 → -2（不是 1）<br><br>
+        竞赛中建议：<br>
+        int mod = ((a % b) + b) % b;  // 保证正数
+      </div>
+    </div>
+  `,
+  '+=': `
+    <div class="tip-box" style="margin-top:0">
+      <div class="tip-label">📌 复合赋值</div>
+      <div class="tip-text">
+        <strong>a += b</strong> 等价于 <strong>a = a + b</strong><br>
+        类似：-=  *=  /=  %=  <<=  >>=  &=  |=  ^=<br><br>
+        <strong>优点：</strong><br>
+        • 代码更简洁<br>
+        • 只计算一次 a 的地址（性能更好）<br>
+        • 语义更清晰：修改 a 本身
+      </div>
+    </div>
+  `,
+  '-=': `
+    <div class="tip-box" style="margin-top:0">
+      <div class="tip-label">📌 复合赋值</div>
+      <div class="tip-text">
+        <strong>a -= b</strong> 等价于 <strong>a = a - b</strong><br><br>
+        所有复合赋值运算符：<br>
+        +=  -=  *=  /=  %=<br>
+        <<=  >>=  &=  |=  ^=<br><br>
+        它们都修改<strong>变量本身</strong>，<br>
+        而不是创建一个新值。
+      </div>
+    </div>
+  `,
+  '*=': `
+    <div class="tip-box" style="margin-top:0">
+      <div class="tip-label">📌 复合赋值</div>
+      <div class="tip-text">
+        <strong>a *= b</strong> 等价于 <strong>a = a * b</strong><br><br>
+        注意溢出问题同样存在！<br>
+        int a = 100000;<br>
+        a *= 100000;  // 溢出！<br><br>
+        大数乘法用 long long。
+      </div>
+    </div>
+  `,
+  '/=': `
+    <div class="tip-box" style="margin-top:0">
+      <div class="tip-label">📌 复合赋值</div>
+      <div class="tip-text">
+        <strong>a /= b</strong> 等价于 <strong>a = a / b</strong><br><br>
+        整数除法截断同样适用：<br>
+        int a = 10; a /= 3;  // a = 3<br><br>
+        <strong>注意：</strong><br>
+        a /= 0 同样会崩溃！
+      </div>
+    </div>
+  `,
+  '%=': `
+    <div class="tip-box" style="margin-top:0">
+      <div class="tip-label">📌 复合赋值</div>
+      <div class="tip-text">
+        <strong>a %= b</strong> 等价于 <strong>a = a % b</strong><br><br>
+        常用于循环中控制范围：<br>
+        for (int i = 0; i < n; i++) {<br>
+        &nbsp;&nbsp;idx = (idx + 1) % m;<br>
+        }<br><br>
+        保证 idx 始终在 [0, m-1] 范围内。
+      </div>
+    </div>
+  `,
+  '→f': `
+    <div class="tip-box" style="margin-top:0">
+      <div class="tip-label">📌 int → float 转换</div>
+      <div class="tip-text">
+        <strong>(float)a / b</strong> 先转 a 为 float，再做浮点除法。<br><br>
+        <strong>精度：</strong><br>
+        float 约 7 位有效数字。<br>
+        int 转 float 可能丢失精度（超过 2^24 时）。<br><br>
+        <strong>竞赛建议：</strong><br>
+        需要小数结果时用 <strong>double</strong>，<br>
+        精度更高（15 位有效数字）。
+      </div>
+    </div>
+  `,
+  '→d': `
+    <div class="tip-box" style="margin-top:0">
+      <div class="tip-label">📌 int → double 转换</div>
+      <div class="tip-text">
+        <strong>(double)a / b</strong> 得到精确的浮点结果。<br><br>
+        <strong>推荐做法：</strong><br>
+        double x = (double)a / b;<br><br>
+        <strong>错误做法：</strong><br>
+        double x = a / b;  // 先整数除法，再转 double<br>
+        结果还是整数！
+      </div>
+    </div>
+  `,
+  '→c': `
+    <div class="tip-box" style="margin-top:0">
+      <div class="tip-label">📌 int → char 转换</div>
+      <div class="tip-text">
+        <strong>char c = a;</strong> 整数转成 ASCII 字符。<br><br>
+        65 → 'A'<br>
+        97 → 'a'<br>
+        48 → '0'<br><br>
+        <strong>常见技巧：</strong><br>
+        char digit = n + '0';  // 数字 → 字符<br>
+        int num = c - '0';     // 字符 → 数字
+      </div>
+    </div>
+  `
+};
 
-function getCodeHTML(code) {
-  return code.map((line, i) => {
-    let hl = line;
-    hl = hl.replace(/\b(int|double|float|char|string|bool|void|long|auto|for|while|do|if|else|return|break|continue|cout|cin|endl|main|using|namespace|include|true|false)\b/g, '<span class="kw">$1</span>');
-    hl = hl.replace(/\/\/.*/g, '<span class="comment">$&</span>');
-    hl = hl.replace(/\b(\d+\.?\d*)\b/g, '<span class="num">$1</span>');
-    hl = hl.replace(/"([^"]*)"/g, '<span class="str">"$1"</span>');
-    const cls = (stepIdx > 0 && i === EXAMPLES[currentIdx].steps[stepIdx]?.line) ? ' hl-yellow' : '';
-    return `<div class="${cls}"><span class="line-num">${String(i+1).padStart(2)}</span>${hl}</div>`;
-  }).join('');
-}
+let currentOp = 0;
 
-function renderVars(vars) {
-  const keys = Object.keys(vars);
-  if (keys.length === 0) return '<div style="color:var(--text-dim);font-size:0.85rem;font-family:\'JetBrains Mono\',monospace">（无变量）</div>';
+function updateCalc() {
+  const a = parseInt(document.getElementById('input-a').value) || 0;
+  const b = parseInt(document.getElementById('input-b').value) || 0;
+  const op = OPS[currentOp];
   
-  let html = '<table class="var-table"><tr><th>变量</th><th>值</th></tr>';
-  keys.forEach(k => {
-    const v = vars[k];
-    const color = v.c || '';
-    const colorMap = { cyan: 'var(--cyan)', green: 'var(--green)', orange: 'var(--orange)', red: 'var(--red)' };
-    const style = color ? `color:${colorMap[color] || 'var(--text)'}` : '';
-    html += `<tr><td style="color:var(--text-dim)">${k}</td><td class="val" style="${style}">${v.v}</td></tr>`;
-  });
-  html += '</table>';
-  return html;
-}
-
-function renderStep() {
-  const ex = EXAMPLES[currentIdx];
-  const step = ex.steps[stepIdx];
+  // Update memory cells
+  document.getElementById('mem-a-val').textContent = a;
+  document.getElementById('mem-b-val').textContent = b;
   
-  document.getElementById('code-display').innerHTML = getCodeHTML(ex.code);
-  document.getElementById('var-table-wrapper').innerHTML = renderVars(step.vars);
+  // Calculate result
+  let result;
+  let resultType = op.type;
+  let resultStr;
   
-  const outEl = document.getElementById('output-area');
-  if (step.out.length > 0) {
-    outEl.innerHTML = step.out.map((l, i) => 
-      `<span class="line">${escapeHtml(l)}</span>`
-    ).join('');
+  if (op.sym === '→c') {
+    result = String.fromCharCode(a);
+    resultStr = result;
+  } else if (op.sym === '→f' || op.sym === '→d') {
+    result = a / b;
+    resultStr = result.toFixed(4);
+  } else {
+    result = op.result(a, b);
+    resultStr = result;
   }
   
-  const existing = document.querySelector('.step-info');
-  if (existing) existing.remove();
+  document.getElementById('result-box').textContent = resultStr;
+  document.getElementById('op-symbol').textContent = op.sym;
   
-  if (step.info) {
-    const infoEl = document.createElement('div');
-    infoEl.className = 'step-info';
-    infoEl.textContent = step.info;
-    outEl.after(infoEl);
+  // Update result memory cell
+  const resultCell = document.getElementById('mem-result-cell');
+  const resultLabel = document.getElementById('mem-result-label');
+  const resultVal = document.getElementById('mem-result-val');
+  
+  if (op.type === 'float' || op.type === 'double') {
+    resultCell.className = 'mem-cell active';
+    resultCell.style.borderColor = 'var(--green)';
+    resultLabel.textContent = op.type + ' 结果';
+    resultVal.textContent = result.toFixed(4);
+  } else if (op.type === 'char') {
+    resultCell.className = 'mem-cell active';
+    resultCell.style.borderColor = 'var(--orange)';
+    resultLabel.textContent = 'char 结果';
+    resultVal.textContent = "'" + result + "' (" + a + ")";
+  } else {
+    resultCell.className = 'mem-cell active';
+    resultCell.style.borderColor = 'var(--accent)';
+    resultLabel.textContent = 'int 结果';
+    resultVal.textContent = result;
   }
   
-  document.getElementById('step-btn').disabled = stepIdx >= ex.steps.length - 1;
-}
-
-function stepOnce() {
-  const ex = EXAMPLES[currentIdx];
-  if (stepIdx < ex.steps.length - 1) {
-    stepIdx++;
-    renderStep();
+  // Update number line
+  const line = document.getElementById('num-line');
+  const lineWidth = line.offsetWidth - 40 || 400;
+  const minVal = Math.min(0, a, b, result);
+  const maxVal = Math.max(0, a, b, result);
+  const range = Math.max(maxVal - minVal, 1);
+  
+  function pos(v) {
+    if (range === 0) return 50;
+    return ((v - minVal) / range) * 100;
   }
+  
+  document.getElementById('marker-a').style.left = `calc(${pos(a)}% + 0px)`;
+  document.getElementById('marker-b').style.left = `calc(${pos(b)}% + 0px)`;
+  document.getElementById('marker-result').style.left = `calc(${pos(result)}% + 0px)`;
+  
+  // Update info bar
+  document.getElementById('info-type').innerHTML = `类型: <strong>${op.type}</strong>`;
+  
+  if (op.sym === '/' || op.sym === '/=') {
+    document.getElementById('info-remainder').innerHTML = `a % b = <strong>${a % b}</strong>`;
+    document.getElementById('info-float').innerHTML = `a / b = <strong class="badge-orange">${Math.floor(a/b)}</strong> (整数除法)`;
+  } else if (op.sym === '→f' || op.sym === '→d') {
+    document.getElementById('info-remainder').innerHTML = `整数除法: <strong class="badge-orange">${Math.floor(a/b)}</strong>`;
+    document.getElementById('info-float').innerHTML = `浮点结果: <strong class="badge-green">${(a/b).toFixed(4)}</strong>`;
+  } else if (op.sym === '→c') {
+    document.getElementById('info-remainder').innerHTML = `ASCII: <strong>${a}</strong>`;
+    document.getElementById('info-float').innerHTML = `字符: <strong class="badge-orange">'${String.fromCharCode(a)}'</strong>`;
+  } else {
+    document.getElementById('info-remainder').innerHTML = `a % b = <strong>${a % b}</strong>`;
+    document.getElementById('info-float').innerHTML = `a / b = <strong class="badge-orange">${Math.floor(a/b)}</strong> (整数除法)`;
+  }
+  
+  // Update knowledge
+  document.getElementById('knowledge-content').innerHTML = KNOWLEDGE[op.sym] || KNOWLEDGE['+'];
 }
 
-function resetStep() {
-  stepIdx = 0;
-  const ex = EXAMPLES[currentIdx];
-  const outEl = document.getElementById('output-area');
-  outEl.innerHTML = '<span class="line">点击"单步执行"逐步观察</span>';
-  const infoEl = document.querySelector('.step-info');
-  if (infoEl) infoEl.remove();
-  document.getElementById('var-table-wrapper').innerHTML = '';
-  document.getElementById('step-btn').disabled = false;
-  document.getElementById('code-display').innerHTML = getCodeHTML(ex.code);
+function selectOp(idx) {
+  currentOp = idx;
+  document.querySelectorAll('.op-btn').forEach((btn, i) => btn.classList.toggle('active', i === idx));
+  updateCalc();
 }
 
-function escapeHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-function selectExample(idx) {
-  currentIdx = idx;
-  stepIdx = 0;
-  const ex = EXAMPLES[idx];
-  
-  document.querySelectorAll('.example-btn').forEach((btn, i) => btn.classList.toggle('active', i === idx));
-  document.getElementById('code-display').innerHTML = getCodeHTML(ex.code);
-  document.getElementById('var-table-wrapper').innerHTML = '';
-  document.getElementById('step-btn').disabled = false;
-  
-  const outEl = document.getElementById('output-area');
-  outEl.innerHTML = '<span class="line">点击"单步执行"逐步观察</span>';
-  const infoEl = document.querySelector('.step-info');
-  if (infoEl) infoEl.remove();
-  
-  document.getElementById('knowledge-content').innerHTML = ex.knowledge;
+function resetCalc() {
+  document.getElementById('input-a').value = 10;
+  document.getElementById('input-b').value = 3;
+  selectOp(0);
 }
 
 function init() {
-  const selector = document.getElementById('example-selector');
-  EXAMPLES.forEach((ex, i) => {
+  const selector = document.getElementById('op-selector');
+  OPS.forEach((op, i) => {
     const btn = document.createElement('button');
-    btn.className = 'example-btn' + (i === 0 ? ' active' : '');
-    btn.textContent = ex.name;
-    btn.onclick = () => selectExample(i);
+    btn.className = 'op-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = op.sym + ' ' + op.name;
+    btn.onclick = () => selectOp(i);
     selector.appendChild(btn);
   });
-  selectExample(0);
+  updateCalc();
 }
 
 init();
