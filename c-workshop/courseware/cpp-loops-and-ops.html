@@ -24,63 +24,53 @@
   .top-bar h1 { font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, var(--cyan), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   .top-bar .sub { font-size: 0.78rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
 
-  .workspace { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-  @media (max-width: 800px) { .workspace { grid-template-columns: 1fr; } }
+  .workspace { max-width: 1100px; margin: 0 auto; }
 
-  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-  .panel-header { padding: 10px 16px; background: var(--surface2); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-  .panel-header .label { font-size: 0.72rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
-  .panel-header .action { font-size: 0.72rem; color: var(--accent2); cursor: pointer; padding: 4px 10px; border-radius: 6px; background: rgba(108,92,231,0.1); border: none; font-family: inherit; transition: background 0.2s; }
-  .panel-header .action:hover { background: rgba(108,92,231,0.2); }
-  .panel-body { padding: 20px; }
-
-  .code-block { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 1.9; color: var(--text); white-space: pre; overflow-x: auto; }
-  .code-block .kw { color: var(--accent2); } .code-block .type { color: var(--cyan); }
-  .code-block .num { color: var(--orange); } .code-block .str { color: var(--green); }
-  .code-block .comment { color: var(--text-dim); font-style: italic; }
-  .code-block .hl-red { background: rgba(255,71,87,0.15); border-radius: 3px; }
-  .code-block .hl-green { background: rgba(0,230,118,0.12); border-radius: 3px; }
-  .code-block .hl-yellow { background: rgba(255,215,0,0.12); border-radius: 3px; }
-  .code-block .line-num { color: #3a3a6a; user-select: none; margin-right: 10px; }
-
-  .example-selector { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
-  .example-btn { padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
+  .example-selector { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+  .example-btn { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.82rem; cursor: pointer; transition: all 0.2s; }
   .example-btn:hover { border-color: var(--accent); }
   .example-btn.active { border-color: var(--accent); background: rgba(108,92,231,0.15); }
 
-  /* Step execution */
-  .step-area { margin-top: 14px; }
-  .step-buttons { display: flex; gap: 8px; margin-bottom: 10px; }
-  .step-btn { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
+  .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .panel-header { padding: 12px 16px; background: var(--surface2); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .panel-header .label { font-size: 0.72rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+  .panel-body { padding: 20px; }
+
+  .code-block { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.8; color: var(--text); white-space: pre; overflow-x: auto; }
+  .code-block .kw { color: var(--accent2); } .code-block .type { color: var(--cyan); }
+  .code-block .num { color: var(--orange); } .code-block .str { color: var(--green); }
+  .code-block .comment { color: var(--text-dim); font-style: italic; }
+  .code-block .hl-yellow { background: rgba(255,215,0,0.12); border-radius: 3px; }
+  .code-block .line-num { color: #3a3a6a; user-select: none; margin-right: 10px; }
+
+  .step-area { margin-top: 16px; }
+  .step-buttons { display: flex; gap: 8px; margin-bottom: 12px; }
+  .step-btn { padding: 8px 18px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.82rem; cursor: pointer; transition: all 0.2s; }
   .step-btn:hover { border-color: var(--accent); }
   .step-btn.primary { background: rgba(108,92,231,0.2); border-color: var(--accent); }
   .step-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  .var-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.78rem; }
-  .var-table th { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border); color: var(--text-dim); font-weight: 600; font-family: 'JetBrains Mono', monospace; }
-  .var-table td { padding: 6px 10px; border-bottom: 1px solid rgba(42,45,90,0.5); font-family: 'JetBrains Mono', monospace; }
+  .var-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.85rem; }
+  .var-table th { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text-dim); font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+  .var-table td { padding: 8px 12px; border-bottom: 1px solid rgba(42,45,90,0.5); font-family: 'JetBrains Mono', monospace; }
   .var-table .val { color: var(--orange); }
   .var-table .highlight-row { background: rgba(108,92,231,0.08); }
 
-  .output-area { margin-top: 10px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--green); line-height: 1.6; min-height: 40px; }
+  .output-area { margin-top: 12px; padding: 14px; background: rgba(0,0,0,0.3); border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--green); line-height: 1.6; min-height: 40px; }
   .output-area .line { display: block; }
-  .output-area .current { color: var(--accent2); }
 
-  .state-info { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
-  .state-item { padding: 6px 12px; border-radius: 6px; background: rgba(0,0,0,0.2); font-size: 0.7rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
-  .state-item strong { color: var(--accent2); font-weight: 600; }
-  .state-item .badge-red { color: var(--red); }
-  .state-item .badge-green { color: var(--green); }
-  .state-item .badge-cyan { color: var(--cyan); }
-  .state-item .badge-orange { color: var(--orange); }
+  .step-info { margin-top: 10px; padding: 10px 14px; background: rgba(108,92,231,0.08); border-radius: 8px; font-size: 0.85rem; color: var(--accent2); font-family: 'Inter', sans-serif; line-height: 1.5; }
 
-  .tip-box { padding: 12px 16px; background: rgba(255,215,0,0.06); border: 1px solid rgba(255,215,0,0.15); border-radius: 8px; margin-top: 14px; }
-  .tip-box .tip-label { font-size: 0.68rem; font-weight: 700; color: #ffd700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
-  .tip-box .tip-text { font-size: 0.8rem; color: var(--text-dim); line-height: 1.6; }
+  .tip-box { padding: 14px 18px; background: rgba(255,215,0,0.06); border: 1px solid rgba(255,215,0,0.15); border-radius: 8px; margin-bottom: 14px; }
+  .tip-box .tip-label { font-size: 0.72rem; font-weight: 700; color: #ffd700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .tip-box .tip-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
 
-  .danger-box { padding: 12px 16px; background: rgba(255,71,87,0.06); border: 1px solid rgba(255,71,87,0.15); border-radius: 8px; margin-top: 14px; }
-  .danger-box .danger-label { font-size: 0.68rem; font-weight: 700; color: var(--red); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
-  .danger-box .danger-text { font-size: 0.8rem; color: var(--text-dim); line-height: 1.6; }
+  .danger-box { padding: 14px 18px; background: rgba(255,71,87,0.06); border: 1px solid rgba(255,71,87,0.15); border-radius: 8px; margin-bottom: 14px; }
+  .danger-box .danger-label { font-size: 0.72rem; font-weight: 700; color: var(--red); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .danger-box .danger-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
 </style>
 </head>
 <body>
@@ -95,31 +85,34 @@
 </div>
 
 <div class="workspace">
-  <div class="panel">
-    <div class="panel-header">
-      <span class="label">C++ 代码</span>
-      <span class="action" style="cursor:default;background:transparent;color:var(--text-dim)">点击下方例子，再点"单步执行"</span>
-    </div>
-    <div class="panel-body">
-      <div class="example-selector" id="example-selector"></div>
-      <div class="code-block" id="code-display"></div>
-      <div class="step-area" id="step-area">
-        <div class="step-buttons">
-          <button class="step-btn primary" id="step-btn" onclick="stepOnce()">▶ 单步执行</button>
-          <button class="step-btn" id="reset-btn" onclick="resetStep()">↺ 重置</button>
+  <div class="example-selector" id="example-selector"></div>
+
+  <div class="main-grid">
+    <div class="panel">
+      <div class="panel-header">
+        <span class="label">C++ 代码</span>
+        <span class="action" style="cursor:default;background:transparent;color:var(--text-dim)">点击例子 → 单步执行</span>
+      </div>
+      <div class="panel-body">
+        <div class="code-block" id="code-display"></div>
+        <div class="step-area" id="step-area">
+          <div class="step-buttons">
+            <button class="step-btn primary" id="step-btn" onclick="stepOnce()">▶ 单步执行</button>
+            <button class="step-btn" id="reset-btn" onclick="resetStep()">↺ 重置</button>
+          </div>
+          <div class="var-table-wrapper" id="var-table-wrapper"></div>
+          <div class="output-area" id="output-area"><span class="line">点击"单步执行"逐步观察</span></div>
         </div>
-        <div class="var-table-wrapper" id="var-table-wrapper"></div>
-        <div class="output-area" id="output-area"><span class="line">点击"单步执行"逐步观察</span></div>
       </div>
     </div>
-  </div>
 
-  <div class="panel">
-    <div class="panel-header">
-      <span class="label">关键知识点</span>
-    </div>
-    <div class="panel-body" id="knowledge-panel">
-      <div id="knowledge-content"></div>
+    <div class="panel">
+      <div class="panel-header">
+        <span class="label">关键知识点</span>
+      </div>
+      <div class="panel-body" id="knowledge-panel">
+        <div id="knowledge-content"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -159,7 +152,7 @@ const EXAMPLES = [
       <div class="tip-box" style="margin-top:0">
         <div class="tip-label">📌 核心区别</div>
         <div class="tip-text">
-          <strong>i++（后置）</strong>：先取 i 的值参与表达式，再让 i 加 1<br>
+          <strong>i++（后置）</strong>：先取 i 的值参与表达式，再让 i 加 1<br><br>
           <strong>++i（前置）</strong>：先让 i 加 1，再取新值参与表达式<br><br>
           在 for 循环中 i++ 和 ++i 效果一样（因为自增是独立语句）。<br>
           但在赋值表达式里完全不同，如上例所示。
@@ -290,7 +283,7 @@ const EXAMPLES = [
       <div class="tip-box" style="margin-top:0">
         <div class="tip-label">📌 while vs do-while</div>
         <div class="tip-text">
-          <strong>while(条件) { }</strong>：先判断，条件为 false 则一次都不执行<br>
+          <strong>while(条件) { }</strong>：先判断，条件为 false 则一次都不执行<br><br>
           <strong>do { } while(条件);</strong>：先执行一次，再判断<br><br>
           <strong>注意：</strong>do-while 末尾有 <strong>分号 ;</strong>，容易漏写！<br><br>
           应用场景：需要"至少执行一次"时用 do-while，<br>
@@ -310,7 +303,7 @@ const EXAMPLES = [
     `
   },
   {
-    name: 'for 循环中的 i++ 现场',
+    name: 'for 中 i++ 与 ++i 对比',
     code: [
       '#include <iostream>',
       'using namespace std;',
@@ -418,7 +411,7 @@ const EXAMPLES = [
       <div class="tip-box" style="margin-top:0">
         <div class="tip-label">📌 break vs continue</div>
         <div class="tip-text">
-          <strong>break</strong>：跳出整个循环，不再执行后续任何轮次<br>
+          <strong>break</strong>：跳出整个循环，不再执行后续任何轮次<br><br>
           <strong>continue</strong>：跳过<strong>本轮</strong>剩余代码，进入下一轮<br><br>
           <strong>注意：</strong><br>
           - continue 后，for 循环会执行"更新"部分再判断条件<br>
@@ -453,10 +446,6 @@ const EXAMPLES = [
       '        }',
       '        cout << endl;',
       '    }',
-      '    // 输出:',
-      '    // 1*1=1',
-      '    // 2*1=2 2*2=4',
-      '    // 3*1=3 3*2=6 3*3=9',
       '    return 0;',
       '}'
     ],
@@ -492,8 +481,8 @@ const EXAMPLES = [
       <div class="tip-box" style="margin-top:0">
         <div class="tip-label">📌 嵌套循环要点</div>
         <div class="tip-text">
-          <strong>执行顺序：</strong>外层每执行一次，内层完整跑一轮<br>
-          <strong>变量作用域：</strong>内层和外层的 i/j 互不干扰<br>
+          <strong>执行顺序：</strong>外层每执行一次，内层完整跑一轮<br><br>
+          <strong>变量作用域：</strong>内层和外层的 i/j 互不干扰<br><br>
           <strong>复杂度：</strong>外层 n 次 × 内层 m 次 = n×m 次操作<br><br>
           <strong>竞赛技巧：</strong><br>
           - 外层循环变量 i 通常表示行<br>
@@ -504,8 +493,8 @@ const EXAMPLES = [
       <div class="danger-box">
         <div class="danger-label">⚠️ 嵌套循环常见错误</div>
         <div class="danger-text">
-          <strong>1. 内外层用同一个变量名</strong>（内层会覆盖外层）<br>
-          <strong>2. 忘记重置内层变量</strong>（for 循环自动重置，while 需要手动）<br>
+          <strong>1. 内外层用同一个变量名</strong>（内层会覆盖外层）<br><br>
+          <strong>2. 忘记重置内层变量</strong>（for 循环自动重置，while 需要手动）<br><br>
           <strong>3. 复杂度爆炸</strong>：三层嵌套就是 O(n³)，数据大时极慢
         </div>
       </div>
@@ -530,7 +519,7 @@ function getCodeHTML(code) {
 
 function renderVars(vars) {
   const keys = Object.keys(vars);
-  if (keys.length === 0) return '<div style="color:var(--text-dim);font-size:0.78rem;font-family:\'JetBrains Mono\',monospace">（无变量）</div>';
+  if (keys.length === 0) return '<div style="color:var(--text-dim);font-size:0.85rem;font-family:\'JetBrains Mono\',monospace">（无变量）</div>';
   
   let html = '<table class="var-table"><tr><th>变量</th><th>值</th></tr>';
   keys.forEach(k => {
@@ -548,13 +537,9 @@ function renderStep() {
   const ex = EXAMPLES[currentIdx];
   const step = ex.steps[stepIdx];
   
-  // Update code display with highlight
   document.getElementById('code-display').innerHTML = getCodeHTML(ex.code);
-  
-  // Update var table
   document.getElementById('var-table-wrapper').innerHTML = renderVars(step.vars);
   
-  // Update output
   const outEl = document.getElementById('output-area');
   if (step.out.length > 0) {
     outEl.innerHTML = step.out.map((l, i) => 
@@ -562,21 +547,17 @@ function renderStep() {
     ).join('');
   }
   
-  // Update info
+  const existing = document.querySelector('.step-info');
+  if (existing) existing.remove();
+  
   if (step.info) {
     const infoEl = document.createElement('div');
-    infoEl.style.cssText = 'margin-top:8px;padding:8px 12px;background:rgba(108,92,231,0.08);border-radius:6px;font-size:0.78rem;color:var(--accent2);font-family:\'Inter\',sans-serif;line-height:1.5';
-    infoEl.textContent = step.info;
-    const existing = document.querySelector('.step-info');
-    if (existing) existing.remove();
     infoEl.className = 'step-info';
+    infoEl.textContent = step.info;
     outEl.after(infoEl);
   }
   
-  // Update buttons
-  const stepBtn = document.getElementById('step-btn');
-  const resetBtn = document.getElementById('reset-btn');
-  stepBtn.disabled = stepIdx >= ex.steps.length - 1;
+  document.getElementById('step-btn').disabled = stepIdx >= ex.steps.length - 1;
 }
 
 function stepOnce() {
