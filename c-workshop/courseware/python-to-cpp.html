@@ -16,7 +16,7 @@
     --py: #f7df1e; --cpp: #00599c;
   }
 
-  body { font-family: 'Inter', sans-ser<code>if</code>; background: var(--bg); color: var(--text); <code>min</code>-height: 100vh; padding: 24px; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 24px; }
   
   .top-bar { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
   .back-btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); color: var(--text-dim); text-decoration: none; font-size: 0.82rem; font-weight: 600; transition: all 0.2s; }
@@ -25,40 +25,40 @@
   .top-bar h1 { font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, var(--py), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   .top-bar .sub { font-size: 0.78rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
 
-  .workspace { <code>max</code>-width: 1100px; margin: 0 <code>auto</code>; }
+  .workspace { max-width: 1100px; margin: 0 auto; }
 
   .topic-nav { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
-  .topic-btn { padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text-dim); font-family: 'Inter', sans-ser<code>if</code>; font-size: 0.78rem; cursor: po<code>int</code>er; transition: all 0.2s; }
+  .topic-btn { padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text-dim); font-family: 'Inter', sans-serif; font-size: 0.78rem; cursor: pointer; transition: all 0.2s; }
   .topic-btn:hover { border-color: var(--accent); color: var(--text); }
   .topic-btn.active { border-color: var(--accent); background: rgba(108,92,231,0.15); color: var(--text); }
 
   .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  @media (<code>max</code>-width: 800px) { .compare-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 800px) { .compare-grid { grid-template-columns: 1fr; } }
 
   .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
   .panel-header { padding: 10px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
-  .panel-header .lang-label { font-size: 0.72rem; font-weight: 700; text-trans<code>for</code>m: uppercase; letter-spa<code>cin</code>g: 1px; }
+  .panel-header .lang-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
   .panel-header .py-label { color: var(--py); }
   .panel-header .cpp-label { color: var(--cyan); }
   .panel-body { padding: 20px; }
 
-  .code-block { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.8; white-space: pre; overflow-x: <code>auto</code>; color: var(--text); letter-spa<code>cin</code>g: 0.5px; }
+  .code-block { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.8; white-space: pre; overflow-x: auto; color: var(--text); letter-spacing: 0.5px; }
   .code-block .kw { color: var(--accent2); } .code-block .type { color: var(--cyan); }
   .code-block .num { color: var(--orange); } .code-block .str { color: var(--green); }
   .code-block .comment { color: var(--text-dim); font-style: italic; }
   .code-block .fn { color: var(--pink); } .code-block .builtin { color: #ffd700; }
   .code-block .line-num { color: #3a3a6a; user-select: none; margin-right: 10px; }
-  .code-block .d<code>if</code>f-add { background: rgba(0,230,118,0.08); border-left: 2px solid var(--green); padding-left: 6px; }
+  .code-block .diff-add { background: rgba(0,230,118,0.08); border-left: 2px solid var(--green); padding-left: 6px; }
 
-  .d<code>if</code>f-box { grid-column: 1 / -1; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; }
-  .d<code>if</code>f-box .title { font-size: 0.75rem; font-weight: 600; color: var(--accent2); text-trans<code>for</code>m: uppercase; letter-spa<code>cin</code>g: 1px; margin-bottom: 8px; }
-  .d<code>if</code>f-box ul { list-style: none; padding: 0; }
-  .d<code>if</code>f-box li { padding: 6px 0; font-size: 0.85rem; color: var(--text); line-height: 1.6; padding-left: 16px; position: relative; }
-  .d<code>if</code>f-box li::be<code>for</code>e { content: '→'; position: absolute; left: 0; color: var(--accent); }
-  .d<code>if</code>f-box li strong { color: var(--cyan); }
+  .diff-box { grid-column: 1 / -1; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; }
+  .diff-box .title { font-size: 0.75rem; font-weight: 600; color: var(--accent2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .diff-box ul { list-style: none; padding: 0; }
+  .diff-box li { padding: 6px 0; font-size: 0.85rem; color: var(--text); line-height: 1.6; padding-left: 16px; position: relative; }
+  .diff-box li::before { content: '→'; position: absolute; left: 0; color: var(--accent); }
+  .diff-box li strong { color: var(--cyan); }
 
   .tip-box { margin-top: 12px; padding: 12px 16px; background: rgba(0,229,255,0.06); border: 1px solid rgba(0,229,255,0.15); border-radius: 8px; }
-  .tip-box .tip-label { font-size: 0.68rem; font-weight: 700; color: var(--cyan); text-trans<code>for</code>m: uppercase; letter-spa<code>cin</code>g: 1px; margin-bottom: 4px; }
+  .tip-box .tip-label { font-size: 0.68rem; font-weight: 700; color: var(--cyan); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
   .tip-box .tip-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
 </style>
 </head>

@@ -143,8 +143,8 @@
       <div class="kcard">
         <div class="kcard-title">scanf 的 &amp; 很重要！</div>
         <div class="kcard-text">
-          <code>scanf("%d", &amp;a);</code> — 必须加 <strong>&amp;</strong>（取地址）<br>
-          <code>scanf("%d", a);</code> — <strong>错误！</strong>编译可能通过但运行崩溃<br>
+          <code>scanf</code>("%d", &amp;a) — 必须加 <strong>&amp;</strong>（取地址）<br>
+          <code>scanf</code>("%d", a) — <strong>错误！</strong>编译可能通过但运行崩溃<br>
           因为 scanf 需要知道变量在内存中的<span class="term" data-term="address">地址</span>才能写入。<br>
           <strong>例外</strong>：读字符串到数组时不需要 &amp;（数组名就是地址）。
         </div>
@@ -163,7 +163,7 @@
         <div class="kcard-title">scanf vs cin 速度</div>
         <div class="kcard-text">
           scanf/printf <strong>天然快</strong>，不需要额外优化。<br>
-          cin/cout 默认较慢，加 <code>ios::sync_with_stdio(false)</code> 后接近。<br>
+          cin/cout 默认较慢，加 <code>ios</code>::<code>sync_with_stdio</code>(<code>false</code>) 后接近。<br>
           <strong>竞赛经验</strong>：百万级数据用 scanf/printf 更保险。<br>
           GESP 考试数据量小，用哪个都行。
         </div>
@@ -326,7 +326,7 @@ const TERM_DEFS = {
   'overflow': {
     icon: '💥',
     title: '溢出（Overflow）',
-    body: '变量装不下了！<br><br><code>int</code> 最大存 21 亿多，你存 30 亿进去，它装不下就"溢出"了，结果变成一个莫名其妙的负数。<br><br>用 <code>long long</code>（最大 9.2×10¹⁸）可以装更大的数。<code>%lld</code> 是 <code>long</code> <code>long</code> 的格式符，用错了 %d 就会截断溢出。<br><br>Python 不会溢出（<code>int</code> 无限大），C++ 会。'
+    body: '变量装不下了！<br><br><code>int</code> 最大存 21 亿多，你存 30 亿进去，它装不下就"溢出"了，结果变成一个莫名其妙的负数。<br><br>用 <code>long</code> <code>long</code>（最大 9.2×10¹⁸）可以装更大的数。<code>%lld</code> 是 <code>long</code> <code>long</code> 的格式符，用错了 %d 就会截断溢出。<br><br>Python 不会溢出（<code>int</code> 无限大），C++ 会。'
   }
 };
 

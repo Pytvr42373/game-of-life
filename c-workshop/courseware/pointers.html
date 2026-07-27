@@ -350,9 +350,9 @@ function drawArrow(svg, from, to) {
   const fRect = fromEl.getBoundingClientRect();
   const tRect = toEl.getBoundingClientRect();
 
-  const x1 = fRect.right - cRect.left;
+  const x1 = fRect.left - cRect.left;
   const y1 = fRect.top + fRect.height / 2 - cRect.top;
-  const x2 = tRect.left - cRect.left;
+  const x2 = tRect.right - cRect.left;
   const y2 = tRect.top + tRect.height / 2 - cRect.top;
 
   // Draw right-angle connector

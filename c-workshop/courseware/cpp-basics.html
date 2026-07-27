@@ -333,10 +333,11 @@ function getCodeHTML(code) {
     let hl = line;
     // Escape angle brackets first so <iostream> doesn't become an HTML tag
     hl = hl.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    hl = hl.replace(/\b(int|double|float|char|string|bool|void|long|auto|for|while|do|if|else|return|break|continue|cout|cin|endl|main|using|namespace|include|true|false)\b/g, '<span class="kw">$1</span>');
-    hl = hl.replace(/\/\/.*/g, '<span class="comment">$&</span>');
-    hl = hl.replace(/\b(\d+\.?\d*)\b/g, '<span class="num">$1</span>');
+    // Strings FIRST — before keyword/comment/number spans introduce quoted text
     hl = hl.replace(/"([^"]*)"/g, '<span class="str">"$1"</span>');
+    hl = hl.replace(/\/\/.*/g, '<span class="comment">$&</span>');
+    hl = hl.replace(/\b(int|double|float|char|string|bool|void|long|auto|for|while|do|if|else|return|break|continue|cout|cin|endl|main|using|namespace|include|true|false)\b/g, '<span class="kw">$1</span>');
+    hl = hl.replace(/\b(\d+\.?\d*)\b/g, '<span class="num">$1</span>');
     hl = hl.replace(/&lt;(\w+)&gt;/g, '<span class="str">&lt;$1&gt;</span>');
     const cls = (stepIdx > 0 && i === TOPICS[currentIdx].steps[stepIdx]?.line) ? ' hl-yellow' : '';
     return `<div class="${cls}"><span class="line-num">${String(i+1).padStart(2)}</span>${hl}</div>`;

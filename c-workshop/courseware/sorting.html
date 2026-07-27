@@ -10,147 +10,150 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   :root {
-    --bg: #0b0d1a;
-    --surface: #12142a;
-    --surface2: #1a1d3a;
-    --border: #2a2d5a;
-    --accent: #6c5ce7;
-    --accent2: #a29bfe;
-    --green: #00e676;
-    --cyan: #00e5ff;
-    --orange: #ff9100;
-    --pink: #ff4081;
-    --red: #ff5252;
-    --yellow: #ffd740;
-    --text: #e0e0ff;
-    --text-dim: #7878aa;
+    --bg: #0b0d1a; --surface: #12142a; --surface2: #1a1d3a;
+    --border: #2a2d5a; --accent: #6c5ce7; --accent2: #a29bfe;
+    --green: #00e676; --cyan: #00e5ff; --orange: #ff9100;
+    --pink: #ff4081; --red: #ff5252; --yellow: #ffd740;
+    --text: #e0e0ff; --text-dim: #7878aa;
   }
 
   body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 24px; }
 
-  .top-bar {
-    display: flex; align-items: center; gap: 16px; margin-bottom: 32px; flex-wrap: wrap;
-  }
-  .back-btn {
-    display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px;
-    background: var(--surface); border: 1px solid var(--border); color: var(--text-dim);
-    text-decoration: none; font-size: 0.82rem; font-weight: 600; transition: all 0.2s;
-  }
+  /* ── Top Bar ── */
+  .top-bar { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+  .back-btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); color: var(--text-dim); text-decoration: none; font-size: 0.82rem; font-weight: 600; transition: all 0.2s; }
   .back-btn:hover { border-color: var(--accent); color: var(--text); }
   .back-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
   .top-bar h1 { font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, var(--accent2), var(--orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   .top-bar .sub { font-size: 0.78rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
 
-  .workspace { max-width: 1100px; margin: 0 auto; }
-  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 24px; }
+  .workspace { max-width: 1200px; margin: 0 auto; }
+
+  /* ── Panel ── */
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
   .panel-header { padding: 12px 16px; background: var(--surface2); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
   .panel-header .label { font-size: 0.72rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
   .panel-header .action { font-size: 0.72rem; color: var(--accent2); cursor: pointer; padding: 4px 10px; border-radius: 6px; background: rgba(108,92,231,0.1); border: none; font-family: inherit; transition: background 0.2s; }
   .panel-header .action:hover { background: rgba(108,92,231,0.2); }
   .panel-body { padding: 20px; }
 
-  .code-block {
-    font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.8;
-    color: var(--text); white-space: pre; overflow-x: auto; letter-spacing: 0.5px;
-  }
-  .code-block .kw { color: var(--accent2); }
-  .code-block .type { color: var(--cyan); }
-  .code-block .num { color: var(--orange); }
-  .code-block .comment { color: var(--text-dim); font-style: italic; }
-  .code-block .highlight { background: rgba(108,92,231,0.25); border-radius: 3px; padding: 0 2px; }
-  .code-block .highlight-compare { background: rgba(255,215,64,0.2); border-radius: 3px; padding: 0 2px; }
-  .code-block .highlight-swap { background: rgba(255,82,82,0.2); border-radius: 3px; padding: 0 2px; }
-  .code-block .line-num { color: var(--text-dim); user-select: none; margin-right: 12px; }
+  /* ── Tabs ── */
+  .view-tabs { display: flex; gap: 4px; margin-bottom: 0; background: var(--surface2); padding: 4px 4px 0 4px; border-radius: 12px 12px 0 0; border-bottom: 1px solid var(--border); }
+  .view-tab { padding: 10px 20px; border-radius: 8px 8px 0 0; border: none; background: transparent; color: var(--text-dim); font-family: inherit; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .view-tab:hover { color: var(--text); background: rgba(108,92,231,0.08); }
+  .view-tab.active { color: var(--accent2); background: var(--surface); border: 1px solid var(--border); border-bottom: 1px solid var(--surface); margin-bottom: -1px; }
 
-  .algo-selector { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-  .algo-btn {
-    padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border);
-    background: var(--surface); color: var(--text); font-family: 'JetBrains Mono', monospace;
-    font-size: 0.78rem; cursor: pointer; transition: all 0.2s;
-  }
+  .view-content { display: none; }
+  .view-content.active { display: block; }
+
+  /* ── Algorithm Selector ── */
+  .algo-selector { display: flex; gap: 8px; flex-wrap: wrap; }
+  .algo-btn { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; cursor: pointer; transition: all 0.2s; }
   .algo-btn:hover { border-color: var(--accent); }
-  .algo-btn.active { border-color: var(--accent); background: rgba(108,92,231,0.15); }
+  .algo-btn.active { border-color: var(--accent); background: rgba(108,92,231,0.15); color: var(--accent2); }
 
-  .flow-controls { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-  .flow-btn {
-    padding: 8px 18px; border-radius: 8px; border: 1px solid var(--border);
-    background: var(--surface); color: var(--text); font-family: inherit;
-    font-size: 0.8rem; cursor: pointer; transition: all 0.2s;
-  }
+  /* ── Data Input ── */
+  .data-input-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+  .data-input-row label { font-size: 0.78rem; color: var(--text-dim); white-space: nowrap; }
+  .data-input-row input[type="number"] { padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; width: 60px; outline: none; transition: border-color 0.2s; }
+  .data-input-row input[type="number"]:focus { border-color: var(--accent); }
+  .data-input-row input[type="number"].value-input { width: 52px; }
+
+  .data-input-row button { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--accent); background: rgba(108,92,231,0.15); color: var(--accent2); cursor: pointer; font-family: inherit; font-size: 0.78rem; transition: all 0.2s; }
+  .data-input-row button:hover { background: rgba(108,92,231,0.25); }
+  .data-input-row button.secondary { border-color: var(--border); color: var(--text); background: var(--surface); }
+  .data-input-row button.secondary:hover { border-color: var(--accent); }
+
+  .values-input-area { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+  /* ── Flow Controls ── */
+  .flow-controls { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; align-items: center; }
+  .flow-btn { padding: 8px 18px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-family: inherit; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
   .flow-btn:hover { border-color: var(--accent); background: rgba(108,92,231,0.1); }
   .flow-btn.primary { border-color: var(--accent); background: rgba(108,92,231,0.15); color: var(--accent2); }
   .flow-btn.primary:hover { background: rgba(108,92,231,0.25); }
   .flow-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .flow-btn.danger { border-color: var(--red); color: var(--red); }
+  .flow-btn.danger:hover { background: rgba(255,82,82,0.1); }
 
-  /* Array visualization */
-  .array-vis {
-    display: flex; gap: 8px; justify-content: center; align-items: flex-end;
-    padding: 20px; min-height: 220px; flex-wrap: wrap;
-  }
+  .speed-control { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+  .speed-control label { font-size: 0.7rem; color: var(--text-dim); }
+  .speed-control input[type="range"] { width: 60px; accent-color: var(--accent); }
 
-  .array-bar {
-    display: flex; flex-direction: column; align-items: center;
-    transition: all 0.3s; position: relative;
-  }
+  /* ── Array Visualization ── */
+  .array-vis { display: flex; gap: 8px; justify-content: center; align-items: flex-end; padding: 12px 20px 20px; min-height: 240px; flex-wrap: wrap; position: relative; }
 
-  .bar-rect {
-    width: 48px; border-radius: 6px 6px 0 0;
-    background: linear-gradient(180deg, var(--accent), var(--accent2));
-    transition: all 0.3s;
-    min-height: 20px;
-    display: flex; align-items: center; justify-content: center;
-  }
+  .array-bar { display: flex; flex-direction: column; align-items: center; transition: all 0.3s; position: relative; cursor: grab; user-select: none; }
+  .array-bar:active { cursor: grabbing; }
+  .array-bar.dragging { opacity: 0.6; z-index: 10; }
 
-  .bar-rect .bar-val {
-    font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 700;
-    color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-  }
+  .bar-rect { width: 48px; border-radius: 6px 6px 0 0; background: linear-gradient(180deg, var(--accent), var(--accent2)); transition: all 0.3s; min-height: 20px; display: flex; align-items: center; justify-content: center; position: relative; }
+  .bar-rect .bar-val { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 700; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.5); pointer-events: none; }
 
-  .bar-rect.comparing {
-    background: linear-gradient(180deg, var(--yellow), #ffa000);
-    box-shadow: 0 0 16px rgba(255,215,64,0.4);
-  }
+  .bar-rect.comparing { background: linear-gradient(180deg, var(--yellow), #ffa000); box-shadow: 0 0 16px rgba(255,215,64,0.4); }
+  .bar-rect.swapping { background: linear-gradient(180deg, var(--red), #d50000); box-shadow: 0 0 16px rgba(255,82,82,0.4); }
+  .bar-rect.sorted { background: linear-gradient(180deg, var(--green), #00c853); box-shadow: 0 0 12px rgba(0,230,118,0.3); }
+  .bar-rect.pivot { background: linear-gradient(180deg, var(--pink), #c51162); box-shadow: 0 0 16px rgba(255,64,129,0.4); }
+  .bar-rect.key { background: linear-gradient(180deg, var(--orange), #e65100); box-shadow: 0 0 16px rgba(255,145,0,0.4); }
+  .bar-rect.drag-over { box-shadow: 0 0 20px rgba(108,92,231,0.6); border: 2px solid var(--accent2); }
 
-  .bar-rect.swapping {
-    background: linear-gradient(180deg, var(--red), #d50000);
-    box-shadow: 0 0 16px rgba(255,82,82,0.4);
-  }
+  .bar-index { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--text-dim); margin-top: 6px; pointer-events: none; }
 
-  .bar-rect.sorted {
-    background: linear-gradient(180deg, var(--green), #00c853);
-    box-shadow: 0 0 12px rgba(0,230,118,0.3);
-  }
+  .drag-handle { position: absolute; top: -8px; width: 20px; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.15); cursor: grab; }
 
-  .bar-rect.pivot {
-    background: linear-gradient(180deg, var(--pink), #c51162);
-    box-shadow: 0 0 16px rgba(255,64,129,0.4);
-  }
-
-  .bar-index {
-    font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
-    color: var(--text-dim); margin-top: 6px;
-  }
-
-  .state-info { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
-  .state-item {
-    padding: 6px 12px; border-radius: 6px; background: rgba(0,0,0,0.2);
-    font-size: 0.72rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace;
-  }
-  .state-item strong { color: var(--accent2); font-weight: 600; }
+  /* ── Step Info ── */
+  .step-info { display: flex; gap: 16px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
+  .step-info .stat { padding: 4px 10px; border-radius: 6px; background: rgba(0,0,0,0.2); font-size: 0.72rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+  .step-info .stat strong { color: var(--accent2); font-weight: 600; }
+  .step-desc { padding: 10px 16px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-top: 12px; font-size: 0.85rem; color: var(--text); line-height: 1.5; min-height: 44px; }
 
   .legend { display: flex; gap: 16px; margin-top: 12px; flex-wrap: wrap; }
   .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--text-dim); }
-  .legend-color { width: 14px; height: 14px; border-radius: 4px; }
+  .legend-color { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
 
-  .step-desc {
-    padding: 10px 16px; background: rgba(0,0,0,0.2); border-radius: 8px;
-    margin-top: 12px; font-size: 0.85rem; color: var(--text); line-height: 1.5;
-  }
+  /* ── Code Block ── */
+  .code-block { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 1.7; color: var(--text); white-space: pre; overflow-x: auto; letter-spacing: 0.5px; }
+  .code-block .line { display: flex; align-items: center; padding: 1px 0; border-radius: 3px; transition: background 0.15s; }
+  .code-block .line-num { color: var(--text-dim); user-select: none; margin-right: 12px; min-width: 24px; text-align: right; font-size: 0.75rem; }
+  .code-block .line.highlight { background: rgba(108,92,231,0.2); border-left: 3px solid var(--accent); }
+  .code-block .line.highlight-compare { background: rgba(255,215,64,0.15); border-left: 3px solid var(--yellow); }
+  .code-block .line.highlight-swap { background: rgba(255,82,82,0.15); border-left: 3px solid var(--red); }
+  .code-block .line.highlight-sorted { background: rgba(0,230,118,0.12); border-left: 3px solid var(--green); }
+  .code-block .line.highlight-key { background: rgba(255,145,0,0.12); border-left: 3px solid var(--orange); }
+  .code-block .kw { color: var(--accent2); }
+  .code-block .type { color: var(--cyan); }
+  .code-block .num { color: var(--orange); }
+  .code-block .comment { color: var(--text-dim); font-style: italic; }
+  .code-block .fn { color: var(--green); }
+  .code-block .str { color: var(--green); }
 
-  .comparison-count {
-    font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
-    color: var(--text-dim); padding: 4px 12px; background: rgba(0,0,0,0.2);
-    border-radius: 6px; display: inline-block;
+  /* ── Split View (Code Tab) ── */
+  .split-view { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; min-height: 400px; }
+  @media (max-width: 800px) { .split-view { grid-template-columns: 1fr; } }
+  .split-view .code-panel { overflow: auto; max-height: 500px; }
+  .split-view .vis-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+  .split-view .array-vis { min-height: 180px; padding: 10px; }
+  .split-view .bar-rect { width: 36px; }
+  .split-view .bar-rect .bar-val { font-size: 0.7rem; }
+  .split-view .bar-index { font-size: 0.55rem; }
+
+  /* ── No-data state ── */
+  .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 180px; color: var(--text-dim); }
+  .empty-state svg { width: 48px; height: 48px; stroke: var(--text-dim); fill: none; stroke-width: 1.5; margin-bottom: 12px; opacity: 0.4; }
+  .empty-state p { font-size: 0.85rem; }
+
+  /* ── Drag ghost ── */
+  .drag-ghost { position: fixed; pointer-events: none; z-index: 1000; opacity: 0.8; transform: scale(1.05); }
+  .drag-placeholder { width: 48px; min-height: 40px; background: rgba(108,92,231,0.15); border: 2px dashed var(--accent); border-radius: 6px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    body { padding: 12px; }
+    .bar-rect { width: 36px; }
+    .split-view .bar-rect { width: 28px; }
+    .data-input-row { flex-direction: column; align-items: flex-start; }
+    .speed-control { margin-left: 0; }
   }
 </style>
 </head>
@@ -166,46 +169,103 @@
 </div>
 
 <div class="workspace">
-  <div class="panel">
-    <div class="panel-header">
-      <span class="label">C 代码</span>
-      <button class="action" onclick="resetAlgo()">重置</button>
-    </div>
-    <div class="panel-body">
+  <!-- Algorithm Selector -->
+  <div class="panel" style="margin-bottom:16px">
+    <div class="panel-body" style="padding:12px 20px">
       <div class="algo-selector" id="algo-selector"></div>
-      <div class="code-block" id="code-display"></div>
-      <div class="flow-controls">
-        <button class="flow-btn primary" id="step-btn" onclick="stepForward()">▶ 单步执行</button>
-        <button class="flow-btn" onclick="runAll()">⏩ 运行全部</button>
-        <span class="comparison-count" id="cmp-count">比较: 0</span>
+    </div>
+  </div>
+
+  <!-- View Tabs -->
+  <div class="view-tabs" id="view-tabs">
+    <button class="view-tab active" data-view="main">📊 可视化主界面</button>
+    <button class="view-tab" data-view="code">📝 代码对照</button>
+  </div>
+
+  <!-- ── MAIN VIEW ── -->
+  <div class="view-content active" id="view-main">
+    <div class="panel" style="border-radius:0 0 12px 12px;margin-top:0">
+      <div class="panel-body">
+        <!-- Data Input -->
+        <div class="data-input-row">
+          <label>元素个数:</label>
+          <input type="number" id="count-input" value="6" min="2" max="12">
+          <button onclick="generateRandom()">🎲 生成随机</button>
+          <span style="color:var(--text-dim);font-size:0.75rem">|</span>
+          <label>自定义数值:</label>
+          <div class="values-input-area" id="values-input-area"></div>
+          <button onclick="applyCustomValues()">✓ 应用</button>
+          <button class="secondary" onclick="resetToInitial()">↺ 重置</button>
+        </div>
+
+        <!-- Array Visualization -->
+        <div class="array-vis" id="array-vis"></div>
+
+        <!-- Step Description -->
+        <div class="step-desc" id="step-desc">👆 输入数据后点击"生成随机"或输入自定义数值，然后使用下方控制按钮观察排序过程</div>
+
+        <!-- Step Info -->
+        <div class="step-info">
+          <span class="stat">步骤: <strong id="step-counter">0 / 0</strong></span>
+          <span class="stat">比较: <strong id="cmp-count">0</strong></span>
+          <span class="stat">交换: <strong id="swap-count">0</strong></span>
+        </div>
+
+        <!-- Flow Controls -->
+        <div class="flow-controls">
+          <button class="flow-btn" id="btn-prev" onclick="stepPrev()" disabled>◀ 上一步</button>
+          <button class="flow-btn primary" id="btn-next" onclick="stepNext()" disabled>▶ 下一步</button>
+          <button class="flow-btn" id="btn-play" onclick="togglePlay()" disabled>⏩ 自动运行</button>
+          <button class="flow-btn danger" id="btn-reset-steps" onclick="resetSteps()" disabled>⟳ 重置步骤</button>
+          <div class="speed-control">
+            <label>速度</label>
+            <input type="range" id="speed-range" min="1" max="5" value="3" step="1">
+            <span style="font-size:0.7rem;color:var(--text-dim);font-family:'JetBrains Mono',monospace" id="speed-label">3</span>
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+          <div class="legend-item"><div class="legend-color" style="background:linear-gradient(180deg,var(--accent),var(--accent2))"></div> 未排序</div>
+          <div class="legend-item"><div class="legend-color" style="background:linear-gradient(180deg,var(--yellow),#ffa000)"></div> 正在比较</div>
+          <div class="legend-item"><div class="legend-color" style="background:linear-gradient(180deg,var(--red),#d50000)"></div> 正在交换</div>
+          <div class="legend-item"><div class="legend-color" style="background:linear-gradient(180deg,var(--green),#00c853)"></div> 已排序</div>
+          <div class="legend-item"><div class="legend-color" style="background:linear-gradient(180deg,var(--pink),#c51162)"></div> 最小值/关键值</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="panel">
-    <div class="panel-header">
-      <span class="label">数组可视化</span>
-      <span class="action" style="cursor:default;background:transparent;color:var(--text-dim)" id="step-counter">步骤 0</span>
-    </div>
-    <div class="panel-body">
-      <div class="array-vis" id="array-vis"></div>
-      <div class="step-desc" id="step-desc">点击"单步执行"开始观察排序过程</div>
-      <div class="state-info" id="state-info"></div>
-      <div class="legend">
-        <div class="legend-item"><div class="legend-color" style="background:linear-gradient(180deg,var(--accent),var(--accent2))"></div> 未排序</div>
-        <div class="legend-item"><div class="legend-color" style="background:linear-gradient(180deg,var(--yellow),#ffa000)"></div> 正在比较</div>
-        <div class="legend-item"><div class="legend-color" style="background:linear-gradient(180deg,var(--red),#d50000)"></div> 正在交换</div>
-        <div class="legend-item"><div class="legend-color" style="background:linear-gradient(180deg,var(--green),#00c853)"></div> 已排序</div>
+  <!-- ── CODE VIEW ── -->
+  <div class="view-content" id="view-code">
+    <div class="panel" style="border-radius:0 0 12px 12px;margin-top:0">
+      <div class="panel-body">
+        <div class="split-view">
+          <div class="code-panel">
+            <div style="margin-bottom:8px;font-size:0.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;font-weight:600">C 代码</div>
+            <div class="code-block" id="code-display"></div>
+          </div>
+          <div class="vis-panel">
+            <div style="margin-bottom:8px;font-size:0.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;font-weight:600">可视化</div>
+            <div class="array-vis" id="code-vis"></div>
+            <div class="step-desc" id="code-step-desc" style="margin-top:8px;font-size:0.78rem;min-height:36px;padding:8px 12px">👆 在主界面开始排序后，在此查看代码与可视化同步</div>
+            <div class="step-info" style="margin-top:8px;justify-content:center">
+              <span class="stat">步骤: <strong id="code-step-counter">0 / 0</strong></span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-const ALGOS = [
-  {
+// ─── Algorithm Definitions ───
+
+const C_CODE = {
+  bubble: {
     name: '冒泡排序',
-    code: [
+    lines: [
       'void bubble_sort(int arr[], int n) {',
       '    for (int i = 0; i < n-1; i++) {',
       '        for (int j = 0; j < n-1-i; j++) {',
@@ -218,32 +278,36 @@ const ALGOS = [
       '    }',
       '}'
     ],
-    initialArray: [29, 10, 14, 37, 13],
     generateSteps(arr) {
       const a = [...arr];
-      const steps = [];
       const n = a.length;
-      
-      steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], sorted: [], desc: '初始数组' });
-      
+      const steps = [];
+      steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], sorted: [], line: 0, desc: '初始数组，准备开始冒泡排序' });
       for (let i = 0; i < n - 1; i++) {
+        steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], sorted: [], line: 1, desc: `第 ${i+1} 轮外层循环：i = ${i}` });
         for (let j = 0; j < n - 1 - i; j++) {
-          steps.push({ array: [...a], compare: [j, j+1], swap: [-1,-1], sorted: [], desc: `比较 arr[${j}]=${a[j]} 和 arr[${j+1}]=${a[j+1]}` });
+          steps.push({ array: [...a], compare: [j, j+1], swap: [-1,-1], sorted: [], line: 2, desc: `内层循环：j = ${j}，比较 arr[${j}] 和 arr[${j+1}]` });
+          steps.push({ array: [...a], compare: [j, j+1], swap: [-1,-1], sorted: [], line: 3, desc: `比较 arr[${j}]=${a[j]} 和 arr[${j+1}]=${a[j+1]}` });
           if (a[j] > a[j+1]) {
             [a[j], a[j+1]] = [a[j+1], a[j]];
-            steps.push({ array: [...a], compare: [-1,-1], swap: [j, j+1], sorted: [], desc: `交换 → ${a[j+1]} 和 ${a[j]} 换位置` });
+            steps.push({ array: [...a], compare: [-1,-1], swap: [j, j+1], sorted: [], line: 4, desc: `arr[${j}] > arr[${j+1}]，交换两个元素` });
+            steps.push({ array: [...a], compare: [-1,-1], swap: [j, j+1], sorted: [], line: 5, desc: `tmp = arr[${j}] = ${a[j+1]}` });
+            steps.push({ array: [...a], compare: [-1,-1], swap: [j, j+1], sorted: [], line: 6, desc: `arr[${j}] = arr[${j+1}] = ${a[j]}` });
+            steps.push({ array: [...a], compare: [-1,-1], swap: [j, j+1], sorted: [], line: 7, desc: `arr[${j+1}] = tmp = ${a[j+1]}，交换完成` });
           }
         }
-        steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], sorted: [n-1-i], desc: `第 ${i+1} 轮结束，arr[${n-1-i}]=${a[n-1-i]} 已归位` });
+        const sortedIndices = [];
+        for (let k = n - 1 - i; k < n; k++) sortedIndices.push(k);
+        steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], sorted: sortedIndices, line: 0, desc: `第 ${i+1} 轮结束，arr[${n-1-i}] = ${a[n-1-i]} 已归位` });
       }
-      steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], sorted: [0,1,2,3,4], desc: '✅ 排序完成！' });
-      
+      const allSorted = Array.from({length: n}, (_, i) => i);
+      steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], sorted: allSorted, line: 0, desc: '✅ 排序完成！数组已有序' });
       return steps;
     }
   },
-  {
+  selection: {
     name: '选择排序',
-    code: [
+    lines: [
       'void selection_sort(int arr[], int n) {',
       '    for (int i = 0; i < n-1; i++) {',
       '        int min = i;',
@@ -258,41 +322,40 @@ const ALGOS = [
       '    }',
       '}'
     ],
-    initialArray: [29, 10, 14, 37, 13],
     generateSteps(arr) {
       const a = [...arr];
-      const steps = [];
       const n = a.length;
-      let minIdx = -1;
-      
-      steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], minIdx: -1, sorted: [], desc: '初始数组' });
-      
+      const steps = [];
+      steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], sorted: [], minIdx: -1, line: 0, desc: '初始数组，准备开始选择排序' });
       for (let i = 0; i < n - 1; i++) {
-        minIdx = i;
-        steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], minIdx: i, sorted: [], desc: `第 ${i+1} 轮：假设 arr[${i}]=${a[i]} 最小` });
-        
+        steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], sorted: [], minIdx: -1, line: 1, desc: `第 ${i+1} 轮：从 arr[${i}] 开始找最小元素` });
+        let minIdx = i;
+        steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], sorted: [], minIdx, line: 2, desc: `假设 arr[${i}] = ${a[i]} 为当前最小值` });
         for (let j = i + 1; j < n; j++) {
-          steps.push({ array: [...a], compare: [j, minIdx], swap: [-1,-1], minIdx, sorted: [], desc: `比较 arr[${j}]=${a[j]} 和当前最小值 arr[${minIdx}]=${a[minIdx]}` });
+          steps.push({ array: [...a], compare: [j, minIdx], swap: [-1,-1], sorted: [], minIdx, line: 3, desc: `比较 arr[${j}] = ${a[j]} 和 arr[${minIdx}] = ${a[minIdx]}` });
           if (a[j] < a[minIdx]) {
             minIdx = j;
-            steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], minIdx, sorted: [], desc: `找到更小的！arr[${j}]=${a[j]} < arr[${minIdx}]=${a[minIdx]}` });
+            steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], sorted: [], minIdx, line: 4, desc: `找到更小的！arr[${j}] = ${a[j]} < ${a[minIdx === j ? a[i] : a[minIdx]]}，更新 min = ${j}` });
           }
         }
-        
         if (minIdx !== i) {
+          steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], sorted: [], minIdx, line: 5, desc: `交换 arr[${i}] = ${a[i]} 和 arr[${minIdx}] = ${a[minIdx]}` });
           [a[i], a[minIdx]] = [a[minIdx], a[i]];
-          steps.push({ array: [...a], compare: [-1,-1], swap: [i, minIdx], minIdx: -1, sorted: [], desc: `交换 arr[${i}] 和 arr[${minIdx}]` });
+          steps.push({ array: [...a], compare: [-1,-1], swap: [i, minIdx], sorted: [], minIdx: -1, line: 6, desc: `arr[${i}] = ${a[i]}, arr[${minIdx}] = ${a[minIdx === i ? a[i] : a[minIdx]]}` });
+          steps.push({ array: [...a], compare: [-1,-1], swap: [i, minIdx], sorted: [], minIdx: -1, line: 7, desc: `交换完成` });
         }
-        steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], minIdx: -1, sorted: [i], desc: `第 ${i+1} 轮结束，arr[${i}]=${a[i]} 已归位` });
+        const sortedIndices = [];
+        for (let k = 0; k <= i; k++) sortedIndices.push(k);
+        steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], sorted: sortedIndices, minIdx: -1, line: 0, desc: `第 ${i+1} 轮结束，arr[${i}] = ${a[i]} 已归位` });
       }
-      steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], minIdx: -1, sorted: [0,1,2,3,4], desc: '✅ 排序完成！' });
-      
+      const allSorted = Array.from({length: n}, (_, i) => i);
+      steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], sorted: allSorted, minIdx: -1, line: 0, desc: '✅ 排序完成！数组已有序' });
       return steps;
     }
   },
-  {
+  insertion: {
     name: '插入排序',
-    code: [
+    lines: [
       'void insertion_sort(int arr[], int n) {',
       '    for (int i = 1; i < n; i++) {',
       '        int key = arr[i];',
@@ -305,172 +368,451 @@ const ALGOS = [
       '    }',
       '}'
     ],
-    initialArray: [29, 10, 14, 37, 13],
     generateSteps(arr) {
       const a = [...arr];
-      const steps = [];
       const n = a.length;
-      
-      steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], sorted: [0], key: -1, keyIdx: -1, desc: '初始数组，arr[0] 视为已排序' });
-      
+      const steps = [];
+      steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], sorted: [0], key: -1, keyIdx: -1, line: 0, desc: '初始数组，arr[0] 视为已排序部分' });
       for (let i = 1; i < n; i++) {
         const key = a[i];
         let j = i - 1;
-        steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], sorted: Array.from({length: i}, (_, k) => k), key, keyIdx: i, desc: `取出 arr[${i}]=${key}，准备插入已排序部分` });
-        
+        const sortedBefore = Array.from({length: i}, (_, k) => k);
+        steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], sorted: sortedBefore, key, keyIdx: i, line: 1, desc: `取出 arr[${i}] = ${key}，准备插入已排序部分` });
+        steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], sorted: sortedBefore, key, keyIdx: i, line: 2, desc: `key = arr[${i}] = ${key}` });
+        steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], sorted: sortedBefore, key, keyIdx: i, line: 3, desc: `j = i - 1 = ${j}` });
         while (j >= 0 && a[j] > key) {
-          steps.push({ array: [...a], compare: [j, -1], swap: [-1,-1], sorted: Array.from({length: i}, (_, k) => k), key, keyIdx: j+1, desc: `arr[${j}]=${a[j]} > ${key}，右移` });
+          steps.push({ array: [...a], compare: [j, -1], swap: [-1,-1], sorted: [], key, keyIdx: j+1, line: 4, desc: `arr[${j}] = ${a[j]} > key = ${key}，需要右移` });
           a[j+1] = a[j];
-          steps.push({ array: [...a], compare: [-1,-1], swap: [j, j+1], sorted: [], key, keyIdx: j+1, desc: `arr[${j+1}] ← arr[${j}]` });
+          steps.push({ array: [...a], compare: [-1,-1], swap: [j, j+1], sorted: [], key, keyIdx: j+1, line: 5, desc: `arr[${j+1}] = arr[${j}] = ${a[j]}` });
           j--;
+          steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], sorted: [], key, keyIdx: j+1, line: 6, desc: `j-- → j = ${j}` });
         }
-        
         a[j+1] = key;
-        steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], sorted: Array.from({length: i+1}, (_, k) => k), key: -1, keyIdx: -1, desc: `插入 ${key} 到 arr[${j+1}]，已完成 ${i+1} 个元素` });
+        const sortedAfter = Array.from({length: i+1}, (_, k) => k);
+        steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], sorted: sortedAfter, key: -1, keyIdx: -1, line: 7, desc: `arr[${j+1}] = ${key}，插入完成，已排序 ${i+1} 个元素` });
       }
-      steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], sorted: [0,1,2,3,4], key: -1, keyIdx: -1, desc: '✅ 排序完成！' });
-      
+      const allSorted = Array.from({length: n}, (_, i) => i);
+      steps.push({ array: [...a], compare: [-1,-1], swap: [-1,-1], sorted: allSorted, key: -1, keyIdx: -1, line: 0, desc: '✅ 排序完成！数组已有序' });
       return steps;
     }
   }
-];
+};
 
-let currentIdx = 0;
-let currentStep = 0;
+const ALGO_KEYS = ['bubble', 'selection', 'insertion'];
+
+// ─── State ───
+
+let currentAlgo = 'bubble';
+let currentArray = [];
 let steps = [];
-let isRunning = false;
+let currentStep = 0;
+let isPlaying = false;
+let playTimer = null;
 
-function getCodeHTML(algo, stepIdx) {
-  const step = steps[Math.min(stepIdx, steps.length - 1)];
-  const code = algo.code;
-  let html = '';
-  code.forEach((line, i) => {
-    let cls = '';
-    // Highlight based on what's happening
-    if (step && step.compare && step.compare[0] >= 0 && i === 3) cls = 'highlight-compare';
-    if (step && step.swap && step.swap[0] >= 0 && (i === 4 || i === 5 || i === 6)) cls = 'highlight-swap';
-    if (step && step.minIdx !== undefined && step.minIdx >= 0 && i === 2) cls = 'highlight';
-    html += `<div class="${cls}"><span class="line-num">${String(i + 1).padStart(2)}</span>${escapeHtml(line)}</div>`;
+// ─── Init ───
+
+function init() {
+  // Algorithm selector
+  const sel = document.getElementById('algo-selector');
+  ALGO_KEYS.forEach((key, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'algo-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = C_CODE[key].name;
+    btn.dataset.algo = key;
+    btn.onclick = () => selectAlgo(key);
+    sel.appendChild(btn);
   });
-  return html;
+
+  // View tabs
+  document.querySelectorAll('.view-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.view-content').forEach(c => c.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('view-' + tab.dataset.view).classList.add('active');
+    });
+  });
+
+  // Speed control
+  document.getElementById('speed-range').addEventListener('input', function() {
+    document.getElementById('speed-label').textContent = this.value;
+  });
+
+  // Initial data
+  currentArray = [29, 10, 14, 37, 13, 25];
+  generateValueInputs();
+  selectAlgo('bubble');
 }
 
-function escapeHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+// ─── Value Inputs ───
 
-function renderArray(step) {
-  const vis = document.getElementById('array-vis');
-  const arr = step.array;
-  const maxVal = Math.max(...arr);
-  vis.innerHTML = '';
-  
+function generateValueInputs() {
+  const area = document.getElementById('values-input-area');
+  area.innerHTML = '';
+  currentArray.forEach((val, i) => {
+    const inp = document.createElement('input');
+    inp.type = 'number';
+    inp.className = 'value-input';
+    inp.value = val;
+    inp.min = 1;
+    inp.max = 99;
+    inp.dataset.idx = i;
+    inp.addEventListener('change', () => {
+      const v = parseInt(inp.value);
+      if (!isNaN(v) && v >= 1 && v <= 99) {
+        currentArray[i] = v;
+        regenerateSteps();
+      }
+    });
+    area.appendChild(inp);
+    if (i < currentArray.length - 1) {
+      const sep = document.createElement('span');
+      sep.style.cssText = 'color:var(--text-dim);font-size:0.7rem';
+      sep.textContent = ',';
+      area.appendChild(sep);
+    }
+  });
+}
+
+function syncValueInputs() {
+  const inputs = document.querySelectorAll('.value-input');
+  inputs.forEach((inp, i) => {
+    if (i < currentArray.length) inp.value = currentArray[i];
+  });
+}
+
+// ─── Random / Custom / Reset ───
+
+function generateRandom() {
+  const count = parseInt(document.getElementById('count-input').value) || 6;
+  const clamped = Math.max(2, Math.min(12, count));
+  document.getElementById('count-input').value = clamped;
+  currentArray = [];
+  const used = new Set();
+  for (let i = 0; i < clamped; i++) {
+    let v;
+    do { v = Math.floor(Math.random() * 90) + 5; } while (used.has(v));
+    used.add(v);
+    currentArray.push(v);
+  }
+  generateValueInputs();
+  selectAlgo(currentAlgo);
+}
+
+function applyCustomValues() {
+  const inputs = document.querySelectorAll('.value-input');
+  const vals = [];
+  inputs.forEach(inp => {
+    const v = parseInt(inp.value);
+    if (!isNaN(v) && v >= 1 && v <= 99) vals.push(v);
+  });
+  if (vals.length < 2) { alert('至少需要 2 个有效数值'); return; }
+  currentArray = vals;
+  document.getElementById('count-input').value = vals.length;
+  generateValueInputs();
+  selectAlgo(currentAlgo);
+}
+
+function resetToInitial() {
+  currentArray = [29, 10, 14, 37, 13, 25];
+  document.getElementById('count-input').value = 6;
+  generateValueInputs();
+  selectAlgo(currentAlgo);
+}
+
+// ─── Algorithm Selection ───
+
+function selectAlgo(key) {
+  stopPlay();
+  currentAlgo = key;
+  document.querySelectorAll('.algo-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.algo === key);
+  });
+  regenerateSteps();
+}
+
+function regenerateSteps() {
+  const algo = C_CODE[currentAlgo];
+  steps = algo.generateSteps(currentArray);
+  currentStep = 0;
+  render();
+  updateControls();
+  syncCodeView();
+}
+
+// ─── Rendering ───
+
+function render() {
+  const step = steps[currentStep] || steps[0];
+  renderBars('array-vis', step, false);
+  updateStepInfo(step);
+  syncCodeView();
+}
+
+function renderBars(containerId, step, compact) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const arr = step.array || currentArray;
+  const maxVal = Math.max(...arr, 1);
+  const barWidth = compact ? 36 : 48;
+  container.innerHTML = '';
+
   arr.forEach((val, i) => {
     const bar = document.createElement('div');
     bar.className = 'array-bar';
-    
+    bar.dataset.idx = i;
+
+    // Drag handle
+    const handle = document.createElement('div');
+    handle.className = 'drag-handle';
+    bar.appendChild(handle);
+
     const rect = document.createElement('div');
     rect.className = 'bar-rect';
     const height = 20 + (val / maxVal) * 160;
     rect.style.height = height + 'px';
-    
+    rect.style.width = barWidth + 'px';
+
+    // Determine color class
     let cls = '';
-    if (step.sorted && step.sorted.includes(i)) cls = 'sorted';
-    else if (step.swap && step.swap.includes(i)) cls = 'swapping';
-    else if (step.compare && step.compare.includes(i)) cls = 'comparing';
+    const sorted = step.sorted || [];
+    const compare = step.compare || [-1, -1];
+    const swap = step.swap || [-1, -1];
+
+    if (sorted.includes(i)) cls = 'sorted';
+    else if (swap.includes(i)) cls = 'swapping';
+    else if (compare.includes(i)) cls = 'comparing';
     else if (step.minIdx === i) cls = 'pivot';
-    else if (step.keyIdx === i) cls = 'pivot';
+    else if (step.keyIdx === i) cls = 'key';
     if (cls) rect.classList.add(cls);
-    
+
     const valSpan = document.createElement('span');
     valSpan.className = 'bar-val';
     valSpan.textContent = val;
     rect.appendChild(valSpan);
-    
+
     const idx = document.createElement('div');
     idx.className = 'bar-index';
     idx.textContent = i;
-    
+
     bar.appendChild(rect);
     bar.appendChild(idx);
-    vis.appendChild(bar);
+
+    // Drag events
+    bar.addEventListener('mousedown', (e) => startDrag(e, i));
+    bar.addEventListener('touchstart', (e) => startDragTouch(e, i), { passive: false });
+
+    container.appendChild(bar);
   });
 }
 
-function renderState(step) {
-  const info = document.getElementById('state-info');
-  let html = '';
-  if (step.desc) {
-    document.getElementById('step-desc').textContent = step.desc;
-  }
-  // Count comparisons
-  let cmpCount = 0;
-  for (let i = 0; i <= Math.min(currentStep, steps.length - 1); i++) {
-    if (steps[i].compare && steps[i].compare[0] >= 0) cmpCount++;
-  }
-  document.getElementById('cmp-count').textContent = `比较: ${cmpCount}`;
-  document.getElementById('step-counter').textContent = `步骤 ${currentStep + 1}/${steps.length}`;
+function updateStepInfo(step) {
+  const cmpCount = steps.slice(0, currentStep + 1).filter(s => s.compare && s.compare[0] >= 0).length;
+  const swapCount = steps.slice(0, currentStep + 1).filter(s => s.swap && s.swap[0] >= 0).length;
+  document.getElementById('step-counter').textContent = `${currentStep + 1} / ${steps.length}`;
+  document.getElementById('cmp-count').textContent = cmpCount;
+  document.getElementById('swap-count').textContent = swapCount;
+  document.getElementById('step-desc').textContent = step.desc || '';
 }
 
-function selectAlgo(idx) {
-  currentIdx = idx;
-  currentStep = 0;
-  const algo = ALGOS[idx];
-  steps = algo.generateSteps(algo.initialArray);
-  
-  document.querySelectorAll('.algo-btn').forEach((btn, i) => btn.classList.toggle('active', i === idx));
-  document.getElementById('code-display').innerHTML = getCodeHTML(algo, -1);
-  renderArray(steps[0]);
-  renderState(steps[0]);
-  document.getElementById('step-btn').disabled = false;
+function updateControls() {
+  const hasSteps = steps.length > 0;
+  document.getElementById('btn-prev').disabled = !hasSteps || currentStep <= 0;
+  document.getElementById('btn-next').disabled = !hasSteps || currentStep >= steps.length - 1;
+  document.getElementById('btn-play').disabled = !hasSteps || currentStep >= steps.length - 1;
+  document.getElementById('btn-play').textContent = isPlaying ? '⏹ 停止' : '⏩ 自动运行';
+  document.getElementById('btn-reset-steps').disabled = !hasSteps || currentStep <= 0;
 }
 
-function stepForward() {
+// ─── Step Navigation ───
+
+function stepNext() {
   if (currentStep >= steps.length - 1) return;
   currentStep++;
-  const algo = ALGOS[currentIdx];
-  document.getElementById('code-display').innerHTML = getCodeHTML(algo, currentStep);
-  renderArray(steps[currentStep]);
-  renderState(steps[currentStep]);
-  if (currentStep >= steps.length - 1) document.getElementById('step-btn').disabled = true;
+  render();
+  updateControls();
 }
 
-function runAll() {
-  if (isRunning) return;
-  isRunning = true;
-  document.getElementById('step-btn').disabled = true;
-  const algo = ALGOS[currentIdx];
-  let i = currentStep;
-  const interval = setInterval(() => {
-    currentStep = i;
-    document.getElementById('code-display').innerHTML = getCodeHTML(algo, i);
-    renderArray(steps[i]);
-    renderState(steps[i]);
-    i++;
-    if (i >= steps.length) { clearInterval(interval); isRunning = false; }
-  }, 500);
+function stepPrev() {
+  if (currentStep <= 0) return;
+  currentStep--;
+  render();
+  updateControls();
 }
 
-function resetAlgo() {
-  const algo = ALGOS[currentIdx];
-  steps = algo.generateSteps(algo.initialArray);
+function resetSteps() {
+  stopPlay();
   currentStep = 0;
-  document.getElementById('code-display').innerHTML = getCodeHTML(algo, -1);
-  renderArray(steps[0]);
-  renderState(steps[0]);
-  document.getElementById('step-btn').disabled = false;
+  render();
+  updateControls();
 }
 
-function init() {
-  const selector = document.getElementById('algo-selector');
-  ALGOS.forEach((a, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'algo-btn' + (i === 0 ? ' active' : '');
-    btn.textContent = a.name;
-    btn.onclick = () => selectAlgo(i);
-    selector.appendChild(btn);
+function togglePlay() {
+  if (isPlaying) { stopPlay(); return; }
+  if (currentStep >= steps.length - 1) {
+    currentStep = 0;
+    render();
+  }
+  isPlaying = true;
+  updateControls();
+  const speed = parseInt(document.getElementById('speed-range').value);
+  const delay = [800, 500, 300, 180, 80][speed - 1] || 300;
+  playTimer = setInterval(() => {
+    if (currentStep >= steps.length - 1) { stopPlay(); return; }
+    stepNext();
+  }, delay);
+}
+
+function stopPlay() {
+  isPlaying = false;
+  if (playTimer) { clearInterval(playTimer); playTimer = null; }
+  updateControls();
+}
+
+// ─── Code View Sync ───
+
+function syncCodeView() {
+  const algo = C_CODE[currentAlgo];
+  const step = steps[currentStep] || steps[0];
+  if (!step) return;
+
+  const lines = algo.lines;
+  const hlLine = step.line !== undefined ? step.line : -1;
+  const compare = step.compare || [-1, -1];
+  const swap = step.swap || [-1, -1];
+  const sorted = step.sorted || [];
+
+  // Highlight class based on step type
+  let hlClass = 'highlight';
+  if (compare[0] >= 0) hlClass = 'highlight-compare';
+  else if (swap[0] >= 0) hlClass = 'highlight-swap';
+  else if (sorted.length > 0 && sorted.length === currentArray.length) hlClass = 'highlight-sorted';
+  else if (step.keyIdx >= 0) hlClass = 'highlight-key';
+
+  let html = '';
+  lines.forEach((line, i) => {
+    const isHl = i === hlLine;
+    const cls = isHl ? hlClass : '';
+    html += `<div class="line ${cls}"><span class="line-num">${String(i + 1).padStart(2)}</span>${escapeHtml(line)}</div>`;
   });
-  selectAlgo(0);
+  document.getElementById('code-display').innerHTML = html;
+
+  // Code view visualization
+  renderBars('code-vis', step, true);
+  document.getElementById('code-step-desc').textContent = step.desc || '';
+  document.getElementById('code-step-counter').textContent = `${currentStep + 1} / ${steps.length}`;
 }
 
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// ─── Drag & Drop Sorting ───
+
+let dragState = null;
+
+function startDrag(e, idx) {
+  if (isPlaying) return;
+  e.preventDefault();
+  const bars = document.querySelectorAll('#array-vis .array-bar');
+  const rect = bars[idx].getBoundingClientRect();
+  dragState = {
+    dragIdx: idx,
+    startX: e.clientX,
+    startY: e.clientY,
+    barWidth: rect.width,
+    gap: 8,
+    containerRect: document.getElementById('array-vis').getBoundingClientRect()
+  };
+  bars[idx].classList.add('dragging');
+  document.addEventListener('mousemove', onDrag);
+  document.addEventListener('mouseup', endDrag);
+}
+
+function startDragTouch(e, idx) {
+  if (isPlaying) return;
+  const touch = e.touches[0];
+  e.preventDefault();
+  const bars = document.querySelectorAll('#array-vis .array-bar');
+  const rect = bars[idx].getBoundingClientRect();
+  dragState = {
+    dragIdx: idx,
+    startX: touch.clientX,
+    startY: touch.clientY,
+    barWidth: rect.width,
+    gap: 8,
+    containerRect: document.getElementById('array-vis').getBoundingClientRect()
+  };
+  bars[idx].classList.add('dragging');
+  document.addEventListener('touchmove', onDragTouch, { passive: false });
+  document.addEventListener('touchend', endDragTouch);
+}
+
+function onDrag(e) {
+  if (!dragState) return;
+  updateDragOver(e.clientX);
+}
+
+function onDragTouch(e) {
+  if (!dragState) return;
+  e.preventDefault();
+  updateDragOver(e.touches[0].clientX);
+}
+
+function updateDragOver(clientX) {
+  const bars = document.querySelectorAll('#array-vis .array-bar');
+  const offsetX = clientX - dragState.containerRect.left;
+  const totalWidth = dragState.barWidth + dragState.gap;
+  const newIdx = Math.round(offsetX / totalWidth);
+  const clampedIdx = Math.max(0, Math.min(bars.length - 1, newIdx));
+
+  // Remove all drag-over
+  bars.forEach(b => b.querySelector('.bar-rect').classList.remove('drag-over'));
+
+  if (clampedIdx !== dragState.dragIdx) {
+    bars[clampedIdx].querySelector('.bar-rect').classList.add('drag-over');
+  }
+
+  dragState.overIdx = clampedIdx;
+}
+
+function endDrag(e) {
+  document.removeEventListener('mousemove', onDrag);
+  document.removeEventListener('mouseup', endDrag);
+  finishDrag();
+}
+
+function endDragTouch(e) {
+  document.removeEventListener('touchmove', onDragTouch);
+  document.removeEventListener('touchend', endDragTouch);
+  finishDrag();
+}
+
+function finishDrag() {
+  if (!dragState) return;
+  const bars = document.querySelectorAll('#array-vis .array-bar');
+  bars.forEach(b => {
+    b.classList.remove('dragging');
+    b.querySelector('.bar-rect').classList.remove('drag-over');
+  });
+
+  const fromIdx = dragState.dragIdx;
+  const toIdx = dragState.overIdx !== undefined ? dragState.overIdx : fromIdx;
+
+  if (fromIdx !== toIdx) {
+    // Move element in array
+    const item = currentArray.splice(fromIdx, 1)[0];
+    currentArray.splice(toIdx, 0, item);
+    // Update value inputs to match
+    syncValueInputs();
+    // Regenerate steps
+    regenerateSteps();
+  }
+
+  dragState = null;
+}
+
+// ─── Init on load ───
 init();
 </script>
 </body>

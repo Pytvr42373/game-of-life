@@ -140,7 +140,7 @@
       <div class="kcard">
         <div class="kcard-title">using namespace std; 的含义</div>
         <div class="kcard-text">
-          <code>using namespace std;</code> 相当于说"这一页用到 std 家族的人就不用加姓氏了"。<br>
+          <code>using</code> <code>namespace</code> <code>std</code>; 相当于说"这一页用到 std 家族的人就不用加姓氏了"。<br>
           写了它：直接用 <strong>cout</strong><br>
           不写它：必须写 <strong>std::cout</strong><br>
           竞赛中几乎都写，省时间少打字。
@@ -157,9 +157,9 @@
       <div class="kcard">
         <div class="kcard-title">Python 对比</div>
         <div class="kcard-text">
-          Python 的 <code>import math</code> 要求写 <strong>math.sqrt()</strong>，相当于"带姓氏"。<br>
-          Python 的 <code>from math import *</code> 可以直接写 <strong>sqrt()</strong>，相当于 <strong>using namespace</strong>。<br>
-          C++ 的 <code>using namespace std;</code> 就是 <span class="term" data-term="py-star">from std import *</span> 的意思。
+          Python 的 <code>import</code> <code>math</code> 要求写 <strong>math.sqrt()</strong>，相当于"带姓氏"。<br>
+          Python 的 <code>from</code> <code>math</code> <code>import</code> * 可以直接写 <strong>sqrt()</strong>，相当于 <strong>using namespace</strong>。<br>
+          C++ 的 <code>using</code> <code>namespace</code> <code>std</code>; 就是 <span class="term" data-term="py-star">from std import *</span> 的意思。
         </div>
       </div>
     </div>
@@ -275,12 +275,12 @@ const TERM_DEFS = {
   'stdlib2': {
     icon: '📚',
     title: '标准库（Standard Library）',
-    body: 'C++ 官方自带的工具箱，包含几百个常用函数和类。<br><br><code>cout</code>、<code>cin</code>、<code>sort</code>、<code>vector</code>、<code>max</code>、<code>min</code>... 全都在标准库里。<br><br>相当于 Python 的 <code>import math</code>、<code>import os</code> 等自带模块，不用额外安装。'
+    body: 'C++ 官方自带的工具箱，包含几百个常用函数和类。<br><br><code>cout</code>、<code>cin</code>、<code>sort</code>、<code>vector</code>、<code>max</code>、<code>min</code>... 全都在标准库里。<br><br>相当于 Python 的 <code>import</code> <code>math</code>、<code>import</code> <code>os</code> 等自带模块，不用额外安装。'
   },
   'compiler2': {
     icon: '🏗️',
     title: '编译器（Compiler）',
-    body: '把 C++ 代码翻译成机器码的程序。<br><br>编译器看到 <code>cout</code> 时，需要知道它是什么。如果没写 <code>using namespace std;</code>，编译器只认识 <code>std::cout</code>，会报错"<code>cout</code> 是什么？"<br><br>常见的编译器：g++、clang++、MSVC。'
+    body: '把 C++ 代码翻译成机器码的程序。<br><br>编译器看到 <code>cout</code> 时，需要知道它是什么。如果没写 <code>using</code> <code>namespace</code> <code>std</code>;，编译器只认识 <code>std::cout</code>，会报错"<code>cout</code> 是什么？"<br><br>常见的编译器：g++、clang++、MSVC。'
   },
   'conflict': {
     icon: '⚠️',
@@ -290,7 +290,7 @@ const TERM_DEFS = {
   'py-star': {
     icon: '🐍',
     title: 'from X import *',
-    body: 'Python 的写法，把模块里<strong>所有名字</strong>直接导入，不用加模块名前缀。<br><br><code>from math import *</code> 之后可以直接写 <code>sqrt(4)</code> 而不用 <code>math.sqrt(4)</code>。<br><br>C++ 的 <code>using namespace std;</code> 完全对应这个：之后写 <code>cout</code> 而不用 <code>std::cout</code>。'
+    body: 'Python 的写法，把模块里<strong>所有名字</strong>直接导入，不用加模块名前缀。<br><br><code>from</code> <code>math</code> <code>import</code> * 之后可以直接写 <code>sqrt(4)</code> 而不用 <code>math.sqrt(4)</code>。<br><br>C++ 的 <code>using</code> <code>namespace</code> <code>std</code>; 完全对应这个：之后写 <code>cout</code> 而不用 <code>std::cout</code>。'
   }
 };
 
