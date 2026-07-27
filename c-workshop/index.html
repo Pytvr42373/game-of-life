@@ -139,6 +139,33 @@
   .dot.orange { background: var(--orange); }
   .dot.pink { background: var(--pink); }
 
+  /* Section headers */
+  .section-header {
+    grid-column: 1 / -1;
+    margin: 16px 0 8px;
+    padding: 0;
+  }
+
+  .section-header h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .section-header .section-sub {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+  }
+
+  .section-header .section-line {
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    margin-top: 10px;
+    border-radius: 2px;
+    opacity: 0.4;
+  }
+
   /* Course grid */
   .course-grid {
     display: grid;
@@ -309,7 +336,7 @@
     <div class="stats-bar">
       <div class="stat-item">
         <span class="dot green"></span>
-        <span class="num" id="course-count">12</span>
+        <span class="num" id="course-count">14</span>
         <span>个交互课件</span>
       </div>
       <div class="stat-item">
@@ -331,7 +358,12 @@
 </div>
 
 <script>
-const COURSES = [
+const SECTIONS = [
+  {
+    title: '📖 零基础入门 · GESP 1级',
+    sub: 'C++ 语法核心：变量、运算、输入输出、分支、循环',
+    lineColor: 'var(--accent)'
+  },
   {
     num: '01',
     icon: '🐍➜⚡',
@@ -340,96 +372,92 @@ const COURSES = [
     desc: '从 Python 出发快速上手 C++：输入输出、数据类型、字符串、数组、循环、函数，左右对比一目了然。',
     tags: ['过渡', '对比', '信息学奥赛'],
     tagClass: 'tag-purple',
-    file: 'courseware/python-to-cpp.html',
-    color: 'var(--accent)'
+    file: 'courseware/python-to-cpp.html'
   },
   {
     num: '02',
-    icon: '🔄⚡',
-    iconClass: 'icon-cyan',
-    title: 'C++ 循环与运算符',
-    desc: 'i++ 与 ++i 的区别、for/while/do-while 执行流程、break/continue、嵌套循环，单步执行看清楚每一步。',
-    tags: ['自增自减', '循环细节', '陷阱'],
-    tagClass: 'tag-cyan',
-    file: 'courseware/cpp-loops-and-ops.html',
-    color: 'var(--cyan)'
+    icon: '🧩',
+    iconClass: 'icon-purple',
+    title: '变量与数据类型',
+    desc: 'int / long long / float / double / char / bool，每种类型占多大内存？范围是多少？',
+    tags: ['类型系统', '内存大小', 'GESP 1级'],
+    tagClass: 'tag-purple',
+    file: 'courseware/variables.html'
   },
   {
     num: '03',
-    icon: '🧩',
-    iconClass: 'icon-purple',
-    title: '变量与内存',
-    desc: 'int 占几格？float 呢？char 呢？每种类型的变量在内存里占多大地方，一目了然。',
-    tags: ['类型系统', '内存大小', '基础'],
-    tagClass: 'tag-purple',
-    file: 'courseware/variables.html',
-    color: 'var(--accent)'
+    icon: '➕➖',
+    iconClass: 'icon-orange',
+    title: '算术运算与赋值',
+    desc: '加减乘除、取模、复合赋值、类型转换、自增自减，C++ 运算的完整细节。',
+    tags: ['运算符', '类型转换', 'GESP 1级'],
+    tagClass: 'tag-orange',
+    file: 'courseware/arithmetic.html'
   },
   {
     num: '04',
+    icon: '⌨️',
+    iconClass: 'icon-orange',
+    title: '输入输出',
+    desc: 'cin/cout 与 scanf/printf 的格式控制、宽度对齐、小数精度、竞赛常用技巧。',
+    tags: ['printf', 'scanf', 'GESP 1级'],
+    tagClass: 'tag-orange',
+    file: 'courseware/stdio.html'
+  },
+  {
+    num: '05',
+    icon: '🎮',
+    iconClass: 'icon-purple',
+    title: '分支结构',
+    desc: 'if-else if-else、switch-case、条件表达式、多层嵌套，单步执行看条件怎么走。',
+    tags: ['条件', '分支', 'GESP 1级'],
+    tagClass: 'tag-purple',
+    file: 'courseware/control-flow.html'
+  },
+  {
+    num: '06',
+    icon: '🔄⚡',
+    iconClass: 'icon-cyan',
+    title: '循环与运算符',
+    desc: 'i++ 与 ++i 的区别、for/while/do-while 执行流程、break/continue、嵌套循环，单步执行看清楚每一步。',
+    tags: ['自增自减', '循环细节', 'GESP 1级'],
+    tagClass: 'tag-cyan',
+    file: 'courseware/cpp-loops-and-ops.html'
+  },
+  {
+    title: '📐 进阶语法 · GESP 2级',
+    sub: '数组、字符串、函数、结构体、位运算',
+    lineColor: 'var(--green)'
+  },
+  {
+    num: '07',
     icon: '📊',
     iconClass: 'icon-green',
     title: '数组',
     desc: '一排连续的内存格子。索引就是偏移量，鼠标悬停看地址，理解 arr[i] 的本质。',
-    tags: ['连续内存', '索引', '偏移量'],
+    tags: ['连续内存', '索引', 'GESP 2级'],
     tagClass: 'tag-green',
-    file: 'courseware/arrays.html',
-    color: 'var(--green)'
-  },
-  {
-    num: '05',
-    icon: '🎯',
-    iconClass: 'icon-cyan',
-    title: '指针入门',
-    desc: '& 取地址，* 解引用。指针就是一个箭头，指向内存里的某个位置。',
-    tags: ['地址', '箭头', '解引用'],
-    tagClass: 'tag-cyan',
-    file: 'courseware/pointers.html',
-    color: 'var(--cyan)'
-  },
-  {
-    num: '06',
-    icon: '🔤',
-    iconClass: 'icon-orange',
-    title: '字符串',
-    desc: 'C 语言没有字符串类型！每个字符占一格，末尾藏着 \\0。',
-    tags: ['char[]', '\\0结尾', '字符数组'],
-    tagClass: 'tag-orange',
-    file: 'courseware/strings.html',
-    color: 'var(--orange)'
-  },
-  {
-    num: '07',
-    icon: '🔄',
-    iconClass: 'icon-pink',
-    title: '函数传参',
-    desc: '值传递复制一份，指针传递指向同一份。看函数调用时栈帧里发生了什么。',
-    tags: ['值传递', '指针传递', '栈帧'],
-    tagClass: 'tag-pink',
-    file: 'courseware/functions.html',
-    color: 'var(--pink)'
+    file: 'courseware/arrays.html'
   },
   {
     num: '08',
-    icon: '🎮',
-    iconClass: 'icon-purple',
-    title: '控制流',
-    desc: 'if-else / for / while / switch-case，单步执行看代码怎么跑，变量怎么变。',
-    tags: ['条件', '循环', '执行流'],
-    tagClass: 'tag-purple',
-    file: 'courseware/control-flow.html',
-    color: 'var(--accent)'
+    icon: '🔤',
+    iconClass: 'icon-orange',
+    title: '字符串',
+    desc: 'C 语言没有字符串类型！每个字符占一格，末尾藏着 \\0。string 类操作函数。',
+    tags: ['char[]', '\\0结尾', 'GESP 2级'],
+    tagClass: 'tag-orange',
+    file: 'courseware/strings.html'
   },
   {
     num: '09',
-    icon: '⌨️',
-    iconClass: 'icon-orange',
-    title: '输入输出',
-    desc: 'printf / scanf 格式化输出、宽度对齐、小数精度、竞赛常用技巧。',
-    tags: ['printf', 'scanf', '格式化'],
-    tagClass: 'tag-orange',
-    file: 'courseware/stdio.html',
-    color: 'var(--orange)'
+    icon: '🔄',
+    iconClass: 'icon-pink',
+    title: '函数传参',
+    desc: '值传递复制一份，引用传递指向同一份。看函数调用时栈帧里发生了什么。',
+    tags: ['值传递', '引用传递', 'GESP 2级'],
+    tagClass: 'tag-pink',
+    file: 'courseware/functions.html'
   },
   {
     num: '10',
@@ -437,54 +465,91 @@ const COURSES = [
     iconClass: 'icon-pink',
     title: '结构体',
     desc: 'struct 自定义类型，嵌套结构体，内存对齐，typedef 简化，看内存布局一目了然。',
-    tags: ['struct', '自定义类型', '内存对齐'],
+    tags: ['struct', '自定义类型', 'GESP 2级'],
     tagClass: 'tag-pink',
-    file: 'courseware/structs.html',
-    color: 'var(--pink)'
+    file: 'courseware/structs.html'
   },
   {
     num: '11',
+    icon: '🔢',
+    iconClass: 'icon-cyan',
+    title: '位运算',
+    desc: '& | ~ ^ << >>，位运算在竞赛中的妙用：状态压缩、快速乘除、奇偶判断。',
+    tags: ['位运算', '状态压缩', 'GESP 2级'],
+    tagClass: 'tag-cyan',
+    file: 'courseware/bitwise.html'
+  },
+  {
+    title: '⚙️ 算法入门 · GESP 3-4级',
+    sub: '指针、枚举、模拟、排序、查找、递归',
+    lineColor: 'var(--orange)'
+  },
+  {
+    num: '12',
+    icon: '🎯',
+    iconClass: 'icon-cyan',
+    title: '指针入门',
+    desc: '& 取地址，* 解引用。指针就是一个箭头，指向内存里的某个位置。',
+    tags: ['地址', '箭头', 'GESP 3级'],
+    tagClass: 'tag-cyan',
+    file: 'courseware/pointers.html'
+  },
+  {
+    num: '13',
     icon: '📡',
     iconClass: 'icon-green',
     title: '排序算法',
     desc: '冒泡 / 选择 / 插入排序，柱状图可视化，每一步比较和交换都看得清清楚楚。',
-    tags: ['算法', '可视化', '排序'],
+    tags: ['算法', '可视化', 'GESP 3级'],
     tagClass: 'tag-green',
-    file: 'courseware/sorting.html',
-    color: 'var(--green)'
+    file: 'courseware/sorting.html'
   },
   {
-    num: '12',
+    num: '14',
     icon: '🔍',
     iconClass: 'icon-cyan',
     title: '查找算法',
     desc: '线性查找 vs 二分查找，动态输入目标值，看 left/right/mid 边界怎么移动。',
-    tags: ['算法', '二分', '搜索'],
+    tags: ['算法', '二分', 'GESP 3级'],
     tagClass: 'tag-cyan',
-    file: 'courseware/searching.html',
-    color: 'var(--cyan)'
+    file: 'courseware/searching.html'
   }
 ];
 
 const grid = document.getElementById('course-grid');
+let seq = 0;
 
-COURSES.forEach(c => {
-  const card = document.createElement('a');
-  card.className = 'course-card';
-  card.href = c.file;
-  card.innerHTML = `
-    <div class="card-number">${c.num}</div>
-    <div class="card-icon ${c.iconClass}">${c.icon}</div>
-    <h2>${c.title}</h2>
-    <p>${c.desc}</p>
-    <div class="card-tags">
-      ${c.tags.map(t => `<span class="tag ${c.tagClass}">${t}</span>`).join('')}
-    </div>
-    <div class="card-arrow">
-      <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-    </div>
-  `;
-  grid.appendChild(card);
+SECTIONS.forEach(item => {
+  if (item.title && !item.num) {
+    // Section header
+    const header = document.createElement('div');
+    header.className = 'section-header';
+    header.innerHTML = `
+      <h2>${item.title}</h2>
+      <div class="section-sub">${item.sub}</div>
+      <div class="section-line" style="background:linear-gradient(90deg, ${item.lineColor}, transparent)"></div>
+    `;
+    grid.appendChild(header);
+  } else {
+    seq++;
+    const c = item;
+    const card = document.createElement('a');
+    card.className = 'course-card';
+    card.href = c.file;
+    card.innerHTML = `
+      <div class="card-number">${String(seq).padStart(2, '0')}</div>
+      <div class="card-icon ${c.iconClass}">${c.icon}</div>
+      <h2>${c.title}</h2>
+      <p>${c.desc}</p>
+      <div class="card-tags">
+        ${c.tags.map(t => `<span class="tag ${c.tagClass}">${t}</span>`).join('')}
+      </div>
+      <div class="card-arrow">
+        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+    `;
+    grid.appendChild(card);
+  }
 });
 </script>
 
