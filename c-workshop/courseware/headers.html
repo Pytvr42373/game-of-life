@@ -95,7 +95,7 @@
   .term { border-bottom: 2px dotted var(--accent2); cursor: help; color: var(--accent2); font-weight: 600; position: relative; }
   .term:hover { background: rgba(108,92,231,0.12); border-radius: 3px; }
   .term-card {
-    position: absolute; z-index: 100; left: 50%; transform: translateX(-50%); top: calc(100% + 10px);
+    position: fixed; z-index: 9999;
     width: 340px; max-width: 90vw;
     background: var(--surface2); border: 1px solid var(--accent); border-radius: 12px;
     padding: 14px 18px; box-shadow: 0 8px 32px rgba(108,92,231,0.25);
@@ -108,10 +108,6 @@
   .term-card .tc-body strong { color: var(--text); }
   .term-card .tc-body code { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--orange); background: rgba(255,145,0,0.08); padding: 1px 5px; border-radius: 3px; }
   .term-card .tc-icon { font-size: 1.1rem; margin-bottom: 4px; }
-  .term-card::before {
-    content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%) rotate(45deg);
-    width: 10px; height: 10px; background: var(--surface2); border-left: 1px solid var(--accent); border-top: 1px solid var(--accent);
-  }
 </style>
 </head>
 <body>
