@@ -34,7 +34,7 @@
   .panel-header .action:hover { background: rgba(108,92,231,0.2); }
   .panel-body { padding: 20px; }
 
-  .code-block { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 2; color: var(--text); white-space: pre; overflow-x: auto; }
+  .code-block { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.8; color: var(--text); white-space: pre; overflow-x: auto; letter-spacing: 0.5px; }
   .code-block .kw { color: var(--accent2); } .code-block .type { color: var(--cyan); }
   .code-block .num { color: var(--orange); } .code-block .str { color: var(--green); }
   .code-block .comment { color: var(--text-dim); font-style: italic; }
@@ -167,40 +167,6 @@ const EXAMPLES = [
     info: 'Point 只占 8 字节（两个 int）。三种初始化方式等价，建议用方式1最简洁'
   },
   {
-    name: '嵌套结构体',
-    code: [
-      'struct Date {',
-      '    int year;',
-      '    int month;',
-      '    int day;',
-      '};',
-      '',
-      'struct Book {',
-      '    char title[30];',
-      '    struct Date pub_date;',
-      '    float price;',
-      '};',
-      '',
-      'int main() {',
-      '    struct Book b = {',
-      '        "C Primer Plus",',
-      '        {2024, 6, 1},',
-      '        79.9',
-      '    };',
-      '    return 0;',
-      '}'
-    ],
-    fields: [
-      { name: 'title', type: 'char[30]', size: 30, color: 'field-char', bytes: 'C Primer Plus\\0...' },
-      { name: 'pub_date.year', type: 'int', size: 4, color: 'field-int', bytes: '2024' },
-      { name: 'pub_date.month', type: 'int', size: 4, color: 'field-int', bytes: '6' },
-      { name: 'pub_date.day', type: 'int', size: 4, color: 'field-int', bytes: '1' },
-      { name: 'price', type: 'float', size: 4, color: 'field-float', bytes: '79.9' }
-    ],
-    totalSize: 46,
-    info: '结构体可以嵌套！b.pub_date.year 访问内部成员。总大小 = 30 + 12 + 4 = 46 字节'
-  },
-  {
     name: '结构体指针',
     code: [
       'struct Rectangle {',
@@ -223,35 +189,6 @@ const EXAMPLES = [
     ],
     totalSize: 8,
     info: 'p->width 等价于 (*p).width。箭头 -> 是结构体指针访问成员的专用语法'
-  },
-  {
-    name: 'typedef 简化',
-    code: [
-      'typedef struct {',
-      '    double real;',
-      '    double imag;',
-      '} Complex;',
-      '',
-      'Complex add(Complex a, Complex b) {',
-      '    Complex c;',
-      '    c.real = a.real + b.real;',
-      '    c.imag = a.imag + b.imag;',
-      '    return c;',
-      '}',
-      '',
-      'int main() {',
-      '    Complex z1 = {1.0, 2.0};',
-      '    Complex z2 = {3.0, 4.0};',
-      '    Complex z3 = add(z1, z2);',
-      '    return 0;',
-      '}'
-    ],
-    fields: [
-      { name: 'real', type: 'double', size: 8, color: 'field-double', bytes: '1.0' },
-      { name: 'imag', type: 'double', size: 8, color: 'field-double', bytes: '2.0' }
-    ],
-    totalSize: 16,
-    info: 'typedef 给结构体起别名，之后不用写 struct 关键字。Complex 就是类型名，可以直接用'
   },
   {
     name: '内存对齐',
@@ -286,6 +223,7 @@ let currentIdx = 0;
 function getCodeHTML(ex) {
   return ex.code.map((line, i) => {
     let hl = line;
+    hl = hl.replace(/</g, '&lt;').replace(/>/g, '&gt;');
     hl = hl.replace(/\b(struct|typedef|int|char|float|double|void|return|strcpy)\b/g, '<span class="kw">$1</span>');
     hl = hl.replace(/\/\/.*/g, '<span class="comment">$&</span>');
     hl = hl.replace(/\b(\d+\.?\d*)\b/g, '<span class="num">$1</span>');

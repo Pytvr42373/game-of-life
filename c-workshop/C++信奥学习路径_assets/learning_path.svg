@@ -1,0 +1,202 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1600" font-family="'Microsoft YaHei', 'PingFang SC', sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#4A5568"/>
+    </marker>
+    <linearGradient id="stage1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#48BB78;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#38A169;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="stage2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4299E1;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#3182CE;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="stage3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ED8936;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#DD6B20;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="stage4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#9F7AEA;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#805AD5;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="stage5" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F56565;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#E53E3E;stop-opacity:1"/>
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="2" dy="3" stdDeviation="3" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="1200" height="1600" fill="#F7FAFC" rx="10"/>
+
+  <!-- 标题 -->
+  <rect x="200" y="20" width="800" height="60" rx="30" fill="#2D3748"/>
+  <text x="600" y="58" text-anchor="middle" fill="white" font-size="24" font-weight="bold">C++ 信息学奥赛完整学习路径图</text>
+
+  <!-- 阶段一：零基础入门 -->
+  <rect x="50" y="110" width="1100" height="240" rx="12" fill="white" stroke="#48BB78" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="50" y="110" width="1100" height="45" rx="12" fill="url(#stage1)"/>
+  <rect x="50" y="143" width="1100" height="12" fill="url(#stage1)"/>
+  <text x="80" y="140" fill="white" font-size="20" font-weight="bold">阶段一：零基础入门（0-3个月）</text>
+  <text x="1050" y="140" text-anchor="end" fill="white" font-size="14">目标：GESP 1-2级 / 建立代码手感</text>
+
+  <text x="80" y="185" fill="#2D3748" font-size="14" font-weight="bold">C++语法基础（第1-6周）</text>
+  <text x="80" y="208" fill="#4A5568" font-size="13">• 开发环境配置（Dev-C++ / Code::Blocks / VS Code）</text>
+  <text x="80" y="228" fill="#4A5568" font-size="13">• 变量与数据类型（int, long long, float, double, char, bool）</text>
+  <text x="80" y="248" fill="#4A5568" font-size="13">• 输入输出（cin/cout, scanf/printf）</text>
+  <text x="80" y="268" fill="#4A5568" font-size="13">• 分支结构（if-else, switch）</text>
+  <text x="80" y="288" fill="#4A5568" font-size="13">• 循环结构（for, while, do-while）</text>
+
+  <text x="480" y="185" fill="#2D3748" font-size="14" font-weight="bold">算法启蒙（第7-10周）</text>
+  <text x="480" y="208" fill="#4A5568" font-size="13">• 数组与字符串操作</text>
+  <text x="480" y="228" fill="#4A5568" font-size="13">• 函数与递归初步</text>
+  <text x="480" y="248" fill="#4A5568" font-size="13">• 枚举法与模拟法</text>
+  <text x="480" y="268" fill="#4A5568" font-size="13">• 简单排序（冒泡/选择/插入）</text>
+  <text x="480" y="288" fill="#4A5568" font-size="13">• 基础数论（因数/倍数/质数/辗转相除法）</text>
+
+  <text x="850" y="185" fill="#2D3748" font-size="14" font-weight="bold">练习目标</text>
+  <text x="850" y="208" fill="#4A5568" font-size="13">• 每日2-3道小程序</text>
+  <text x="850" y="228" fill="#4A5568" font-size="13">• 完成洛谷「新手村」</text>
+  <text x="850" y="248" fill="#4A5568" font-size="13">• 累计刷题 30-50 道</text>
+  <text x="850" y="268" fill="#4A5568" font-size="13">• 推荐教材：《啊哈！算法》</text>
+  <text x="850" y="288" fill="#4A5568" font-size="13">  《信息学奥赛一本通》</text>
+
+  <!-- 箭头 -->
+  <line x1="600" y1="355" x2="600" y2="385" stroke="#4A5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 阶段二：普及组突破 -->
+  <rect x="50" y="390" width="1100" height="260" rx="12" fill="white" stroke="#4299E1" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="50" y="390" width="1100" height="45" rx="12" fill="url(#stage2)"/>
+  <rect x="50" y="423" width="1100" height="12" fill="url(#stage2)"/>
+  <text x="80" y="420" fill="white" font-size="20" font-weight="bold">阶段二：普及组突破（3-6个月）</text>
+  <text x="1050" y="420" text-anchor="end" fill="white" font-size="14">目标：CSP-J 一等奖 / 洛谷橙名</text>
+
+  <text x="80" y="465" fill="#2D3748" font-size="14" font-weight="bold">数据结构入门</text>
+  <text x="80" y="488" fill="#4A5568" font-size="13">• 栈（stack）与队列（queue）</text>
+  <text x="80" y="508" fill="#4A5568" font-size="13">• 链表（单链表/双向链表）</text>
+  <text x="80" y="528" fill="#4A5568" font-size="13">• 树与二叉树（定义/遍历）</text>
+  <text x="80" y="548" fill="#4A5568" font-size="13">• 完全二叉树与堆</text>
+  <text x="80" y="568" fill="#4A5568" font-size="13">• 图的存储（邻接矩阵/邻接表）</text>
+  <text x="80" y="588" fill="#4A5568" font-size="13">• STL基础（sort/vector/stack/queue）</text>
+
+  <text x="480" y="465" fill="#2D3748" font-size="14" font-weight="bold">核心算法</text>
+  <text x="480" y="488" fill="#4A5568" font-size="13">• 贪心法</text>
+  <text x="480" y="508" fill="#4A5568" font-size="13">• 递推与递归</text>
+  <text x="480" y="528" fill="#4A5568" font-size="13">• 二分法与倍增法</text>
+  <text x="480" y="548" fill="#4A5568" font-size="13">• 前缀和与差分</text>
+  <text x="480" y="568" fill="#4A5568" font-size="13">• 高精度运算</text>
+  <text x="480" y="588" fill="#4A5568" font-size="13">• DFS / BFS 搜索</text>
+
+  <text x="850" y="465" fill="#2D3748" font-size="14" font-weight="bold">动态规划入门</text>
+  <text x="850" y="488" fill="#4A5568" font-size="13">• DP基本思想与状态设计</text>
+  <text x="850" y="508" fill="#4A5568" font-size="13">• 线性DP（数字三角形等）</text>
+  <text x="850" y="528" fill="#4A5568" font-size="13">• 背包DP（0-1/完全/多重）</text>
+  <text x="850" y="548" fill="#4A5568" font-size="13">• 简单区间DP</text>
+  <text x="850" y="568" fill="#4A5568" font-size="13">• 累计刷题 50-150 道</text>
+  <text x="850" y="588" fill="#4A5568" font-size="13">• 教材：《一本通》算法篇</text>
+
+  <!-- 箭头 -->
+  <line x1="600" y1="655" x2="600" y2="685" stroke="#4A5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 阶段三：提高组进阶 -->
+  <rect x="50" y="690" width="1100" height="280" rx="12" fill="white" stroke="#ED8936" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="50" y="690" width="1100" height="45" rx="12" fill="url(#stage3)"/>
+  <rect x="50" y="723" width="1100" height="12" fill="url(#stage3)"/>
+  <text x="80" y="720" fill="white" font-size="20" font-weight="bold">阶段三：提高组进阶（6-12个月）</text>
+  <text x="1050" y="720" text-anchor="end" fill="white" font-size="14">目标：CSP-S 省一 / NOIP 一等奖 / 洛谷黄名</text>
+
+  <text x="80" y="765" fill="#2D3748" font-size="14" font-weight="bold">C++进阶与STL</text>
+  <text x="80" y="788" fill="#4A5568" font-size="13">• 类（class）与运算符重载</text>
+  <text x="80" y="808" fill="#4A5568" font-size="13">• set/multiset/map/multimap</text>
+  <text x="80" y="828" fill="#4A5568" font-size="13">• deque/priority_queue/bitset</text>
+  <text x="80" y="848" fill="#4A5568" font-size="13">• pair/tuple/迭代器</text>
+
+  <text x="350" y="765" fill="#2D3748" font-size="14" font-weight="bold">高级数据结构</text>
+  <text x="350" y="788" fill="#4A5568" font-size="13">• 并查集与ST表</text>
+  <text x="350" y="808" fill="#4A5568" font-size="13">• 树状数组与线段树</text>
+  <text x="350" y="828" fill="#4A5568" font-size="13">• 字典树（Trie）</text>
+  <text x="350" y="848" fill="#4A5568" font-size="13">• 单调队列与优先队列</text>
+  <text x="350" y="868" fill="#4A5568" font-size="13">• 哈希表与字符串哈希</text>
+
+  <text x="620" y="765" fill="#2D3748" font-size="14" font-weight="bold">图论算法</text>
+  <text x="620" y="788" fill="#4A5568" font-size="13">• 最小生成树（Prim/Kruskal）</text>
+  <text x="620" y="808" fill="#4A5568" font-size="13">• 最短路（Dijkstra/SPFA/Floyd）</text>
+  <text x="620" y="828" fill="#4A5568" font-size="13">• 拓扑排序与欧拉路</text>
+  <text x="620" y="848" fill="#4A5568" font-size="13">• 强连通分量 / 割点割边</text>
+  <text x="620" y="868" fill="#4A5568" font-size="13">• LCA / 树上差分 / 树的重心</text>
+
+  <text x="880" y="765" fill="#2D3748" font-size="14" font-weight="bold">DP进阶与数学</text>
+  <text x="880" y="788" fill="#4A5568" font-size="13">• 树形DP / 状压DP</text>
+  <text x="880" y="808" fill="#4A5568" font-size="13">• KMP字符串匹配</text>
+  <text x="880" y="828" fill="#4A5568" font-size="13">• 搜索剪枝/双向BFS/IDA*</text>
+  <text x="880" y="848" fill="#4A5568" font-size="13">• 数论：欧拉定理/逆元/CRT</text>
+  <text x="880" y="868" fill="#4A5568" font-size="13">• 矩阵运算与高斯消元</text>
+  <text x="880" y="888" fill="#4A5568" font-size="13">• 组合数学（容斥/卡特兰数）</text>
+
+  <text x="80" y="905" fill="#718096" font-size="13">• 累计刷题 150-300 道 | 每周参加 Codeforces Div2 / 洛谷月赛 | 教材：《深入浅出程序设计竞赛》《算法竞赛进阶指南》</text>
+
+  <!-- 箭头 -->
+  <line x1="600" y1="975" x2="600" y2="1005" stroke="#4A5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 阶段四：省选备战 -->
+  <rect x="50" y="1010" width="1100" height="240" rx="12" fill="white" stroke="#9F7AEA" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="50" y="1010" width="1100" height="45" rx="12" fill="url(#stage4)"/>
+  <rect x="50" y="1043" width="1100" height="12" fill="url(#stage4)"/>
+  <text x="80" y="1040" fill="white" font-size="20" font-weight="bold">阶段四：省选备战（12个月+）</text>
+  <text x="1050" y="1040" text-anchor="end" fill="white" font-size="14">目标：省队选拔 / NOI 参赛资格 / 洛谷蓝名</text>
+
+  <text x="80" y="1085" fill="#2D3748" font-size="14" font-weight="bold">高级数据结构</text>
+  <text x="80" y="1108" fill="#4A5568" font-size="13">• 平衡树（Treap / Splay）</text>
+  <text x="80" y="1128" fill="#4A5568" font-size="13">• 树链剖分</text>
+  <text x="80" y="1148" fill="#4A5568" font-size="13">• 可持久化线段树</text>
+  <text x="80" y="1168" fill="#4A5568" font-size="13">• 左偏树 / 笛卡尔树</text>
+  <text x="80" y="1188" fill="#4A5568" font-size="13">• 分块与莫队算法</text>
+
+  <text x="450" y="1085" fill="#2D3748" font-size="14" font-weight="bold">高级算法与数学</text>
+  <text x="450" y="1108" fill="#4A5568" font-size="13">• Manacher / AC自动机</text>
+  <text x="450" y="1128" fill="#4A5568" font-size="13">• 网络流（最大流/费用流）</text>
+  <text x="450" y="1148" fill="#4A5568" font-size="13">• 二分图匹配（匈牙利）</text>
+  <text x="450" y="1168" fill="#4A5568" font-size="13">• 2-SAT / 基环树</text>
+  <text x="450" y="1188" fill="#4A5568" font-size="13">• 计算几何（凸包/半平面交）</text>
+
+  <text x="820" y="1085" fill="#2D3748" font-size="14" font-weight="bold">训练策略</text>
+  <text x="820" y="1108" fill="#4A5568" font-size="13">• 每日：专题训练3h+模拟赛4h</text>
+  <text x="820" y="1128" fill="#4A5568" font-size="13">• 每周参加模拟赛</text>
+  <text x="820" y="1148" fill="#4A5568" font-size="13">• 刷各省省选真题</text>
+  <text x="820" y="1168" fill="#4A5568" font-size="13">• 累计刷题 300-500 道</text>
+  <text x="820" y="1188" fill="#4A5568" font-size="13">• 教材：OI Wiki / 国家队论文</text>
+
+  <!-- 箭头 -->
+  <line x1="600" y1="1255" x2="600" y2="1285" stroke="#4A5568" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 阶段五：NOI国赛 -->
+  <rect x="50" y="1290" width="1100" height="210" rx="12" fill="white" stroke="#F56565" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="50" y="1290" width="1100" height="45" rx="12" fill="url(#stage5)"/>
+  <rect x="50" y="1323" width="1100" height="12" fill="url(#stage5)"/>
+  <text x="80" y="1320" fill="white" font-size="20" font-weight="bold">阶段五：NOI 国赛冲刺</text>
+  <text x="1050" y="1320" text-anchor="end" fill="white" font-size="14">目标：NOI 奖牌 / 保送清北 / 洛谷紫/黑名</text>
+
+  <text x="80" y="1365" fill="#2D3748" font-size="14" font-weight="bold">NOI级核心</text>
+  <text x="80" y="1388" fill="#4A5568" font-size="13">• LCT / 后缀自动机（SAM）</text>
+  <text x="80" y="1408" fill="#4A5568" font-size="13">• 一般图匹配 / KM算法</text>
+  <text x="80" y="1428" fill="#4A5568" font-size="13">• 莫比乌斯反演 / 斯特林数</text>
+  <text x="80" y="1448" fill="#4A5568" font-size="13">• FFT / 生成函数 / 多项式</text>
+
+  <text x="450" y="1365" fill="#2D3748" font-size="14" font-weight="bold">综合能力</text>
+  <text x="450" y="1388" fill="#4A5568" font-size="13">• 复杂DP模型构建与优化</text>
+  <text x="450" y="1408" fill="#4A5568" font-size="13">• 多算法综合题</text>
+  <text x="450" y="1428" fill="#4A5568" font-size="13">• 博弈论（Nim / SG函数）</text>
+  <text x="450" y="1448" fill="#4A5568" font-size="13">• 概率论与期望</text>
+
+  <text x="820" y="1365" fill="#2D3748" font-size="14" font-weight="bold">赛前准备</text>
+  <text x="820" y="1388" fill="#4A5568" font-size="13">• 全真模拟赛每天一套</text>
+  <text x="820" y="1408" fill="#4A5568" font-size="13">• 心理素质训练</text>
+  <text x="820" y="1428" fill="#4A5568" font-size="13">• 团队项目配合</text>
+  <text x="820" y="1448" fill="#4A5568" font-size="13">• 累计刷题 500+ 道</text>
+
+  <!-- 底部信息 -->
+  <text x="600" y="1540" text-anchor="middle" fill="#A0AEC0" font-size="12">数据来源：NOI官方大纲(2025修订版) | OI Wiki | 洛谷社区 | 完成日期：2026-07-27</text>
+  <text x="600" y="1560" text-anchor="middle" fill="#A0AEC0" font-size="12">注：各阶段时间跨度仅供参考，实际进度因个人基础、投入时间、天赋而异</text>
+</svg>
