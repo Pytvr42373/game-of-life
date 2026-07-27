@@ -81,15 +81,14 @@
 
   .term { border-bottom: 2px dotted var(--accent2); cursor: help; color: var(--accent2); font-weight: 600; position: relative; }
   .term:hover { background: rgba(108,92,231,0.12); border-radius: 3px; }
-  .term-card { position: absolute; z-index: 100; left: 50%; transform: translateX(-50%); top: calc(100% + 10px); width: 340px; max-width: 90vw; background: var(--surface2); border: 1px solid var(--accent); border-radius: 12px; padding: 14px 18px; box-shadow: 0 8px 32px rgba(108,92,231,0.25); display: none; pointer-events: none; }
+  .term-card { position: fixed; z-index: 9999; width: 340px; max-width: 90vw; background: var(--surface2); border: 1px solid var(--accent); border-radius: 12px; padding: 14px 18px; box-shadow: 0 8px 32px rgba(108,92,231,0.25); display: none; pointer-events: none; }
   .term-card.show { display: block; animation: termFadeIn 0.18s ease-out; }
-  @keyframes termFadeIn { from { opacity: 0; transform: translateX(-50%) translateY(-4px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+  @keyframes termFadeIn { from { opacity: 0; } to { opacity: 1; } }
   .term-card .tc-title { font-size: 0.82rem; font-weight: 700; color: var(--cyan); margin-bottom: 6px; }
   .term-card .tc-body { font-size: 0.8rem; color: var(--text-dim); line-height: 1.7; }
   .term-card .tc-body strong { color: var(--text); }
   .term-card .tc-body code { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--orange); background: rgba(255,145,0,0.08); padding: 1px 5px; border-radius: 3px; }
   .term-card .tc-icon { font-size: 1.1rem; margin-bottom: 4px; }
-  .term-card::before { content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%) rotate(45deg); width: 10px; height: 10px; background: var(--surface2); border-left: 1px solid var(--accent); border-top: 1px solid var(--accent); }
 </style>
 </head>
 <body>
@@ -304,23 +303,36 @@ const TERM_DEFS = {
 };
 
 function initTerms() {
+  let currentCard = null;
   document.addEventListener('mouseover', (e) => {
     const term = e.target.closest('.term');
     if (!term) return;
     const key = term.dataset.term;
     const def = TERM_DEFS[key];
     if (!def) return;
-    document.querySelectorAll('.term-card.show').forEach(c => c.remove());
+    if (currentCard) currentCard.remove();
     const card = document.createElement('div');
     card.className = 'term-card show';
     card.innerHTML = `<div class="tc-icon">${def.icon}</div><div class="tc-title">${def.title}</div><div class="tc-body">${def.body}</div>`;
-    term.appendChild(card);
+    document.body.appendChild(card);
+    const rect = term.getBoundingClientRect();
+    let left = rect.left + rect.width / 2 - 170;
+    let top = rect.bottom + 8;
+    // 防止超出右边界
+    if (left + 340 > window.innerWidth) left = window.innerWidth - 350;
+    // 防止超出底部
+    if (top + 200 > window.innerHeight) top = rect.top - 208;
+    if (left < 10) left = 10;
+    card.style.left = left + 'px';
+    card.style.top = top + 'px';
+    currentCard = card;
   });
   document.addEventListener('mouseout', (e) => {
     const term = e.target.closest('.term');
     if (!term) return;
-    const card = term.querySelector('.term-card');
-    if (card) card.remove();
+    const related = e.relatedTarget;
+    if (related && term.contains(related)) return;
+    if (currentCard) { currentCard.remove(); currentCard = null; }
   });
 }
 initTerms();
