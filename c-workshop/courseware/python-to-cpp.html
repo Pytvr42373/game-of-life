@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python → C++ — C 语言交互实验室</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0b0d1a; --surface: #12142a; --surface2: #1a1d3a; --border: #2a2d5a;
+    --accent: #6c5ce7; --accent2: #a29bfe; --green: #00e676; --cyan: #00e5ff;
+    --orange: #ff9100; --pink: #ff4081; --text: #e0e0ff; --text-dim: #7878aa;
+    --py: #f7df1e; --cpp: #00599c;
+  }
+
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 24px; }
+  
+  .top-bar { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
+  .back-btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); color: var(--text-dim); text-decoration: none; font-size: 0.82rem; font-weight: 600; transition: all 0.2s; }
+  .back-btn:hover { border-color: var(--accent); color: var(--text); }
+  .back-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+  .top-bar h1 { font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, var(--py), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .top-bar .sub { font-size: 0.78rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+
+  .workspace { max-width: 1100px; margin: 0 auto; }
+
+  .topic-nav { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+  .topic-btn { padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text-dim); font-family: 'Inter', sans-serif; font-size: 0.78rem; cursor: pointer; transition: all 0.2s; }
+  .topic-btn:hover { border-color: var(--accent); color: var(--text); }
+  .topic-btn.active { border-color: var(--accent); background: rgba(108,92,231,0.15); color: var(--text); }
+
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 800px) { .compare-grid { grid-template-columns: 1fr; } }
+
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .panel-header { padding: 10px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+  .panel-header .lang-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .panel-header .py-label { color: var(--py); }
+  .panel-header .cpp-label { color: var(--cyan); }
+  .panel-body { padding: 16px; }
+
+  .code-block { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.9; white-space: pre; overflow-x: auto; color: var(--text); }
+  .code-block .kw { color: var(--accent2); } .code-block .type { color: var(--cyan); }
+  .code-block .num { color: var(--orange); } .code-block .str { color: var(--green); }
+  .code-block .comment { color: var(--text-dim); font-style: italic; }
+  .code-block .fn { color: var(--pink); } .code-block .builtin { color: #ffd700; }
+  .code-block .line-num { color: #3a3a6a; user-select: none; margin-right: 10px; }
+  .code-block .diff-add { background: rgba(0,230,118,0.08); border-left: 2px solid var(--green); padding-left: 6px; }
+
+  .diff-box { grid-column: 1 / -1; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; }
+  .diff-box .title { font-size: 0.75rem; font-weight: 600; color: var(--accent2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .diff-box ul { list-style: none; padding: 0; }
+  .diff-box li { padding: 6px 0; font-size: 0.85rem; color: var(--text); line-height: 1.6; padding-left: 16px; position: relative; }
+  .diff-box li::before { content: '→'; position: absolute; left: 0; color: var(--accent); }
+  .diff-box li strong { color: var(--cyan); }
+
+  .tip-box { margin-top: 12px; padding: 12px 16px; background: rgba(0,229,255,0.06); border: 1px solid rgba(0,229,255,0.15); border-radius: 8px; }
+  .tip-box .tip-label { font-size: 0.68rem; font-weight: 700; color: var(--cyan); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .tip-box .tip-text { font-size: 0.82rem; color: var(--text-dim); line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="../index.html" class="back-btn">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    返回
+  </a>
+  <h1>Python → C++ 衔接</h1>
+  <span class="sub">从 Python 出发，快速上手 C++</span>
+</div>
+
+<div class="workspace">
+  <div class="topic-nav" id="topic-nav"></div>
+
+  <div class="compare-grid" id="compare-grid"></div>
+
+  <div class="diff-box" id="diff-box" style="margin-top: 20px;">
+    <div class="title">💡 关键差异</div>
+    <ul id="diff-list"></ul>
+  </div>
+</div>
+
+<script>
+const TOPICS = [
+  {
+    name: 'Hello World',
+    py: [
+      '# Python 第一个程序',
+      'print("Hello, World!")'
+    ],
+    cpp: [
+      '// C++ 第一个程序',
+      '#include <iostream>',
+      'using namespace std;',
+      'int main() {',
+      '    cout << "Hello, World!" << endl;',
+      '    return 0;',
+      '}'
+    ],
+    diffs: [
+      'C++ 需要 <strong>#include</strong> 导入头文件，Python 不需要',
+      'C++ 程序必须写在 <strong>main()</strong> 函数里，Python 直接写顶层代码',
+      'C++ 每句以 <strong>分号 ;</strong> 结尾，Python 用换行',
+      'C++ 用 <strong>cout <<</strong> 输出，Python 用 <strong>print()</strong>',
+      'C++ 的 <strong>endl</strong> 相当于换行，Python 的 print 默认换行'
+    ],
+    tip: 'using namespace std; 可以省略 std:: 前缀，竞赛中几乎都用。相当于 Python 的 from ... import *'
+  },
+  {
+    name: '输入输出',
+    py: [
+      '# Python 输入输出',
+      'name = input("名字: ")',
+      'age = int(input("年龄: "))',
+      'print(f"我叫{name}，今年{age}岁")'
+    ],
+    cpp: [
+      '// C++ 输入输出',
+      '#include <iostream>',
+      'using namespace std;',
+      'int main() {',
+      '    string name;',
+      '    int age;',
+      '    cout << "名字: ";',
+      '    cin >> name;',
+      '    cout << "年龄: ";',
+      '    cin >> age;',
+      '    cout << "我叫" << name << "，今年" << age << "岁" << endl;',
+      '    return 0;',
+      '}'
+    ],
+    diffs: [
+      'Python 用 <strong>input()</strong> 读入；C++ 用 <strong>cin >></strong>',
+      'Python 用 <strong>print()</strong> 输出；C++ 用 <strong>cout <<</strong>',
+      'C++ 的变量必须先 <strong>声明类型</strong>（如 int age;），Python 不需要',
+      'C++ 的字符串用 <strong>string</strong> 类型，需包含头文件',
+      'C++ 没有 f-string，用 <strong><<</strong> 拼接输出'
+    ],
+    tip: 'cin >> 遇到空格/换行会自动分隔。要读一行用 getline(cin, str)。竞赛中 scanf/printf 比 cin/cout 快'
+  },
+  {
+    name: '变量与类型',
+    py: [
+      '# Python 动态类型',
+      'x = 10          # int',
+      'y = 3.14        # float',
+      'name = "Tom"    # str',
+      'flag = True     # bool',
+      'x = "hello"     # 可以重新赋值不同类型'
+    ],
+    cpp: [
+      '// C++ 静态类型',
+      'int x = 10;          // 整数',
+      'double y = 3.14;     // 双精度浮点',
+      'string name = "Tom"; // 字符串',
+      'bool flag = true;    // 布尔',
+      '// x = "hello";      // 编译错误！类型固定',
+      '// 类型对比:',
+      'short a;             // 短整数',
+      'long long b;         // 长长整数',
+      'float c;             // 单精度浮点',
+      'char ch = \'A\';      // 单个字符'
+    ],
+    diffs: [
+      'Python 是 <strong>动态类型</strong>，变量可以随时换类型；C++ 是 <strong>静态类型</strong>，声明后不可变',
+      'C++ 的整数有 <strong>多种精度</strong>：short(2B) / int(4B) / long long(8B)；Python 只有一种无限精度 int',
+      'C++ 的浮点分 <strong>float(单精度)</strong> 和 <strong>double(双精度)</strong>；Python 只有 float（等价 double）',
+      'C++ 有独立的 <strong>char</strong> 类型存放单个字符，Python 用长度为 1 的 str',
+      'C++ 的 bool 值写 <strong>true/false</strong>（小写），Python 写 <strong>True/False</strong>（大写）'
+    ],
+    tip: 'C++ 变量不初始化会包含"垃圾值"（随机数），一定要初始化！Python 没有这个问题'
+  },
+  {
+    name: '字符串',
+    py: [
+      '# Python 字符串',
+      's = "Hello"',
+      'print(s[0])       # H',
+      'print(s[1:4])     # ell',
+      'print(len(s))     # 5',
+      'print(s + "!")    # Hello!',
+      'print(s.upper())  # HELLO'
+    ],
+    cpp: [
+      '// C++ 字符串',
+      '#include <iostream>',
+      '#include <string>',
+      'using namespace std;',
+      'int main() {',
+      '    string s = "Hello";',
+      '    cout << s[0] << endl;         // H',
+      '    cout << s.substr(1, 3) << endl; // ell',
+      '    cout << s.size() << endl;      // 5',
+      '    cout << s + "!" << endl;       // Hello!',
+      '    for (char c : s) {',
+      '        c = toupper(c);',
+      '        cout << c;',
+      '    }',
+      '    cout << endl;  // HELLO',
+      '    return 0;',
+      '}'
+    ],
+    diffs: [
+      'Python 用 <strong>len()</strong> 函数；C++ 用 <strong>s.size()</strong> 或 <strong>s.length()</strong>',
+      'Python 切片 <strong>s[1:4]</strong>；C++ 用 <strong>s.substr(1, 3)</strong>（位置，长度）',
+      'Python 字符串拼接用 <strong>+</strong>；C++ 同样支持 <strong>+</strong>',
+      'Python 字符串方法多（如 upper()）；C++ 需要 <strong>&lt;cctype&gt;</strong> 或 <strong>&lt;algorithm&gt;</strong>',
+      'C++ 还有 <strong>char[]</strong> 风格（C 风格字符串），以 \\0 结尾'
+    ],
+    tip: 'C++ 的 string 是可变的！s[0] = \'h\' 可以直接修改，Python 的 str 不可变'
+  },
+  {
+    name: '数组与 vector',
+    py: [
+      '# Python 列表（动态）',
+      'arr = [1, 2, 3, 4, 5]',
+      'arr.append(6)',
+      'print(arr[2])      # 3',
+      'print(len(arr))    # 6',
+      'for x in arr:',
+      '    print(x, end=" ")'
+    ],
+    cpp: [
+      '// C++ 数组 vs vector',
+      '#include <iostream>',
+      '#include <vector>',
+      'using namespace std;',
+      'int main() {',
+      '    // 固定数组（大小编译期确定）',
+      '    int arr[5] = {1, 2, 3, 4, 5};',
+      '    // 动态数组（类似 Python list）',
+      '    vector<int> v = {1, 2, 3, 4, 5};',
+      '    v.push_back(6);          // 追加',
+      '    cout << v[2] << endl;    // 3',
+      '    cout << v.size() << endl; // 6',
+      '    for (int x : v) {',
+      '        cout << x << " ";',
+      '    }',
+      '    return 0;',
+      '}'
+    ],
+    diffs: [
+      'Python 只有 <strong>list</strong>（动态）；C++ 有 <strong>固定数组</strong> 和 <strong>vector</strong>（动态）',
+      'Python 的 <strong>append()</strong> 相当于 C++ 的 <strong>push_back()</strong>',
+      'Python 的 <strong>len()</strong> 相当于 C++ 的 <strong>size()</strong>',
+      'C++ 的固定数组 <strong>大小不可变</strong>，vector 才可变',
+      'C++ 的 vector 需要指定元素类型，如 <strong>vector&lt;int&gt;</strong>'
+    ],
+    tip: '竞赛中一般用 vector 替代数组，方便动态扩容。固定大小用 int arr[N] 更快'
+  },
+  {
+    name: '条件判断',
+    py: [
+      '# Python 条件',
+      'score = 85',
+      'if score >= 90:',
+      '    grade = "A"',
+      'elif score >= 80:',
+      '    grade = "B"',
+      'else:',
+      '    grade = "C"',
+      'print(grade)'
+    ],
+    cpp: [
+      '// C++ 条件',
+      '#include <iostream>',
+      'using namespace std;',
+      'int main() {',
+      '    int score = 85;',
+      '    string grade;',
+      '    if (score >= 90) {',
+      '        grade = "A";',
+      '    } else if (score >= 80) {',
+      '        grade = "B";',
+      '    } else {',
+      '        grade = "C";',
+      '    }',
+      '    cout << grade << endl;',
+      '    return 0;',
+      '}'
+    ],
+    diffs: [
+      'C++ 的条件必须用 <strong>()</strong> 括起来，如 if (score >= 90)',
+      'C++ 用 <strong>else if</strong>（两个词），Python 用 <strong>elif</strong>',
+      'C++ 用 <strong>{}</strong> 表示代码块，Python 用 <strong>缩进</strong>',
+      'C++ 的逻辑运算符：<strong>&&</strong>(与) <strong>||</strong>(或) <strong>!</strong>(非)；Python 用 and/or/not',
+      'C++ 的 <strong>==</strong> 比较是否相等，Python 也是 =='
+    ],
+    tip: 'Python 的 and/or/not 不能用在 C++ 中！必须用 && / || / !'
+  },
+  {
+    name: '循环',
+    py: [
+      '# Python 循环',
+      '# for 循环',
+      'for i in range(5):',
+      '    print(i)',
+      '',
+      '# while 循环',
+      'n = 5',
+      'while n > 0:',
+      '    print(n)',
+      '    n -= 1'
+    ],
+    cpp: [
+      '// C++ 循环',
+      '#include <iostream>',
+      'using namespace std;',
+      'int main() {',
+      '    // for 循环',
+      '    for (int i = 0; i < 5; i++) {',
+      '        cout << i << endl;',
+      '    }',
+      '    // while 循环',
+      '    int n = 5;',
+      '    while (n > 0) {',
+      '        cout << n << endl;',
+      '        n--;',
+      '    }',
+      '    return 0;',
+      '}'
+    ],
+    diffs: [
+      'Python 的 <strong>for i in range(5)</strong> 相当于 C++ 的 <strong>for (int i = 0; i < 5; i++)</strong>',
+      'C++ 的 for 循环必须写 <strong>三部分</strong>：初始化; 条件; 更新',
+      'C++ 的 <strong>i++</strong> 相当于 Python 的 <strong>i += 1</strong>',
+      'C++ 的 <strong>n--</strong> 相当于 Python 的 <strong>n -= 1</strong>',
+      'C++ 的遍历容器：<strong>for (int x : v)</strong> 类似 Python 的 <strong>for x in arr</strong>'
+    ],
+    tip: 'C++ 的 for 循环条件用 < 而不是 range() 控制次数。注意循环变量 i 的作用域！'
+  },
+  {
+    name: '函数',
+    py: [
+      '# Python 函数',
+      'def add(a, b):',
+      '    return a + b',
+      '',
+      'def greet(name):',
+      '    return f"Hello, {name}"',
+      '',
+      'result = add(3, 5)',
+      'print(greet("Tom"))'
+    ],
+    cpp: [
+      '// C++ 函数',
+      '#include <iostream>',
+      'using namespace std;',
+      '',
+      'int add(int a, int b) {',
+      '    return a + b;',
+      '}',
+      '',
+      'string greet(string name) {',
+      '    return "Hello, " + name;',
+      '}',
+      '',
+      'int main() {',
+      '    int result = add(3, 5);',
+      '    cout << greet("Tom") << endl;',
+      '    return 0;',
+      '}'
+    ],
+    diffs: [
+      'C++ 必须声明 <strong>返回值类型</strong>（如 int, string），Python 用 def 不需要',
+      'C++ 必须声明 <strong>参数类型</strong>（如 int a），Python 不需要',
+      'C++ 的函数体用 <strong>{}</strong>，Python 用 <strong>缩进</strong>',
+      'C++ 没有 <strong>f-string</strong>，用 + 拼接字符串',
+      'C++ 的函数可以 <strong>重载</strong>（同名不同参数），Python 不支持'
+    ],
+    tip: 'C++ 的函数如果写在 main 后面，需要在 main 前面声明（函数原型）。但竞赛中常把函数全写在 main 前面'
+  },
+  {
+    name: '竞赛常用模板',
+    py: [
+      '# Python 竞赛模板',
+      'n = int(input())',
+      'arr = list(map(int, input().split()))',
+      'arr.sort()',
+      'for x in arr:',
+      '    print(x, end=" ")'
+    ],
+    cpp: [
+      '// C++ 竞赛常用模板',
+      '#include <bits/stdc++.h>',
+      'using namespace std;',
+      'int main() {',
+      '    int n;',
+      '    cin >> n;',
+      '    vector<int> arr(n);',
+      '    for (int i = 0; i < n; i++) {',
+      '        cin >> arr[i];',
+      '    }',
+      '    sort(arr.begin(), arr.end());',
+      '    for (int x : arr) {',
+      '        cout << x << " ";',
+      '    }',
+      '    return 0;',
+      '}'
+    ],
+    diffs: [
+      'Python 用 <strong>input().split()</strong> 读入一行；C++ 在 <strong>for 循环</strong> 中逐个读入',
+      'Python 的 <strong>sort()</strong> 直接调用；C++ 用 <strong>sort(v.begin(), v.end())</strong>',
+      'Python 的 <strong>map(int, ...)</strong> 转类型；C++ 在声明时已指定类型',
+      'C++ 的 <strong>#include &lt;bits/stdc++.h&gt;</strong> 包含所有标准库（竞赛专用，简洁但编译慢）',
+      'C++ 的 <strong>vector&lt;int&gt; arr(n)</strong> 直接创建大小为 n 的数组'
+    ],
+    tip: '竞赛中常用 #include <bits/stdc++.h> 一劳永逸。但正式项目建议逐个包含具体头文件'
+  }
+];
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function highlightCode(code, lang) {
+  return code.map((line, i) => {
+    let hl = escapeHtml(line);
+    // Python syntax highlighting
+    if (lang === 'py') {
+      hl = hl.replace(/\b(def|if|elif|else|for|while|return|in|not|and|or|True|False|None|import|from|class|print|input|len|range|int|float|str|list|map|sorted|split|end)\b/g, '<span class="kw">$1</span>');
+      hl = hl.replace(/# .*/g, '<span class="comment">$&</span>');
+    }
+    // C++ syntax highlighting
+    if (lang === 'cpp') {
+      hl = hl.replace(/\b(int|double|float|char|string|bool|void|long|short|auto|vector|true|false|if|else|for|while|return|using|namespace|include|endl|main|size_t|push_back|begin|end|sort|cin|cout|substr|size)\b/g, '<span class="kw">$1</span>');
+      hl = hl.replace(/\/\/.*/g, '<span class="comment">$&</span>');
+      hl = hl.replace(/\b(\d+)\b/g, '<span class="num">$1</span>');
+    }
+    return `<div><span class="line-num">${String(i+1).padStart(2)}</span>${hl}</div>`;
+  }).join('');
+}
+
+function renderTopic(idx) {
+  const topic = TOPICS[idx];
+  const grid = document.getElementById('compare-grid');
+  
+  grid.innerHTML = `
+    <div class="panel">
+      <div class="panel-header">
+        <span class="lang-label py-label">🐍 Python</span>
+      </div>
+      <div class="panel-body">
+        <div class="code-block">${highlightCode(topic.py, 'py')}</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <span class="lang-label cpp-label">⚡ C++</span>
+      </div>
+      <div class="panel-body">
+        <div class="code-block">${highlightCode(topic.cpp, 'cpp')}</div>
+      </div>
+    </div>
+  `;
+
+  // Diffs
+  const diffList = document.getElementById('diff-list');
+  diffList.innerHTML = topic.diffs.map(d => `<li>${d}</li>`).join('');
+
+  // Tip
+  if (topic.tip) {
+    const tip = document.createElement('div');
+    tip.className = 'tip-box';
+    tip.innerHTML = `<div class="tip-label">📌 竞赛小贴士</div><div class="tip-text">${topic.tip}</div>`;
+    const existingTip = document.querySelector('.tip-box');
+    if (existingTip) existingTip.remove();
+    document.getElementById('diff-box').after(tip);
+  }
+
+  // Topic nav
+  document.querySelectorAll('.topic-btn').forEach((btn, i) => btn.classList.toggle('active', i === idx));
+}
+
+function init() {
+  const nav = document.getElementById('topic-nav');
+  TOPICS.forEach((t, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'topic-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = t.name;
+    btn.onclick = () => renderTopic(i);
+    nav.appendChild(btn);
+  });
+  renderTopic(0);
+}
+
+init();
+</script>
+</body>
+</html>

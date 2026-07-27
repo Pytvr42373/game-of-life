@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>结构体 — C 语言交互实验室</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0b0d1a; --surface: #12142a; --surface2: #1a1d3a; --border: #2a2d5a;
+    --accent: #6c5ce7; --accent2: #a29bfe; --green: #00e676; --cyan: #00e5ff;
+    --orange: #ff9100; --pink: #ff4081; --text: #e0e0ff; --text-dim: #7878aa;
+  }
+
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 24px; }
+  
+  .top-bar { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
+  .back-btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); color: var(--text-dim); text-decoration: none; font-size: 0.82rem; font-weight: 600; transition: all 0.2s; }
+  .back-btn:hover { border-color: var(--accent); color: var(--text); }
+  .back-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+  .top-bar h1 { font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, var(--orange), var(--pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .top-bar .sub { font-size: 0.78rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+
+  .workspace { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 800px) { .workspace { grid-template-columns: 1fr; } }
+
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .panel-header { padding: 12px 16px; background: var(--surface2); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .panel-header .label { font-size: 0.72rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+  .panel-header .action { font-size: 0.72rem; color: var(--accent2); cursor: pointer; padding: 4px 10px; border-radius: 6px; background: rgba(108,92,231,0.1); border: none; font-family: inherit; transition: background 0.2s; }
+  .panel-header .action:hover { background: rgba(108,92,231,0.2); }
+  .panel-body { padding: 20px; }
+
+  .code-block { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 2; color: var(--text); white-space: pre; overflow-x: auto; }
+  .code-block .kw { color: var(--accent2); } .code-block .type { color: var(--cyan); }
+  .code-block .num { color: var(--orange); } .code-block .str { color: var(--green); }
+  .code-block .comment { color: var(--text-dim); font-style: italic; }
+  .code-block .hl-struct { color: #ff6b6b; font-weight: 700; }
+  .code-block .hl-member { color: #ffd93d; }
+  .code-block .line-num { color: #3a3a6a; user-select: none; margin-right: 12px; }
+
+  .example-selector { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .example-btn { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; cursor: pointer; transition: all 0.2s; }
+  .example-btn:hover { border-color: var(--accent); }
+  .example-btn.active { border-color: var(--accent); background: rgba(108,92,231,0.15); }
+
+  /* Memory Visualizer */
+  .memory-viz { padding: 16px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-top: 12px; }
+  .mem-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+  .mem-label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-dim); min-width: 60px; }
+  .mem-addr { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: #4a4a7a; min-width: 70px; }
+  .mem-cell { display: flex; align-items: center; justify-content: center; width: 42px; height: 36px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text); border: 1px solid var(--border); background: var(--surface2); }
+  .mem-cell.highlight { border-color: var(--accent2); box-shadow: 0 0 8px rgba(108,92,231,0.3); }
+  .mem-cell.field-name { font-size: 0.6rem; color: var(--text-dim); border: none; background: transparent; width: auto; }
+  .mem-cell.field-int { background: rgba(108,92,231,0.15); border-color: var(--accent); }
+  .mem-cell.field-char { background: rgba(0,230,118,0.15); border-color: var(--green); }
+  .mem-cell.field-float { background: rgba(0,229,255,0.15); border-color: var(--cyan); }
+  .mem-cell.field-double { background: rgba(255,145,0,0.15); border-color: var(--orange); }
+  .mem-cell.field-padding { background: rgba(255,255,255,0.03); border-color: transparent; color: #3a3a3a; }
+
+  .mem-legend { display: flex; gap: 16px; margin-top: 12px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.68rem; color: var(--text-dim); }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--border); }
+
+  .state-info { display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+  .state-item { padding: 6px 12px; border-radius: 6px; background: rgba(0,0,0,0.2); font-size: 0.72rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+  .state-item strong { color: var(--accent2); font-weight: 600; }
+
+  .struct-info { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .info-item { padding: 8px 12px; background: rgba(0,0,0,0.2); border-radius: 6px; }
+  .info-item .label { font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+  .info-item .value { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--text); margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="../index.html" class="back-btn">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    返回
+  </a>
+  <h1>结构体</h1>
+  <span class="sub">struct · 自定义类型 · 内存布局</span>
+</div>
+
+<div class="workspace">
+  <div class="panel">
+    <div class="panel-header">
+      <span class="label">C 代码</span>
+    </div>
+    <div class="panel-body">
+      <div class="example-selector" id="example-selector"></div>
+      <div class="code-block" id="code-display"></div>
+      <div class="state-info" id="state-info" style="margin-top: 8px;"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <span class="label">内存布局</span>
+      <span class="action" style="cursor:default;background:transparent;color:var(--text-dim)">每格 = 1 字节</span>
+    </div>
+    <div class="panel-body">
+      <div class="memory-viz" id="memory-viz">
+        <div style="color:var(--text-dim);font-size:0.82rem;">点击左侧例子查看内存布局</div>
+      </div>
+      <div class="struct-info" id="struct-info" style="margin-top: 12px;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const EXAMPLES = [
+  {
+    name: '学生结构体',
+    code: [
+      'struct Student {',
+      '    char name[20];  // 姓名',
+      '    int age;        // 年龄',
+      '    float score;    // 成绩',
+      '};',
+      '',
+      'int main() {',
+      '    struct Student s1;',
+      '    strcpy(s1.name, "Tom");',
+      '    s1.age = 18;',
+      '    s1.score = 92.5;',
+      '    return 0;',
+      '}'
+    ],
+    fields: [
+      { name: 'name', type: 'char[20]', size: 20, color: 'field-char', bytes: 'T o m \\0 ...' },
+      { name: 'age', type: 'int', size: 4, color: 'field-int', bytes: '18' },
+      { name: 'score', type: 'float', size: 4, color: 'field-float', bytes: '92.5' }
+    ],
+    totalSize: 28,
+    info: 'struct Student 共 28 字节。name[20] 存储"Tom\\0"，age 占 4 字节，score 占 4 字节'
+  },
+  {
+    name: '结构体初始化',
+    code: [
+      'struct Point {',
+      '    int x;',
+      '    int y;',
+      '};',
+      '',
+      'int main() {',
+      '    // 方式1: 顺序初始化',
+      '    struct Point p1 = {3, 5};',
+      '    // 方式2: 指定成员（C99）',
+      '    struct Point p2 = {.x = 10, .y = 20};',
+      '    // 方式3: 先声明再赋值',
+      '    struct Point p3;',
+      '    p3.x = 7;',
+      '    p3.y = 8;',
+      '    return 0;',
+      '}'
+    ],
+    fields: [
+      { name: 'x', type: 'int', size: 4, color: 'field-int', bytes: '3' },
+      { name: 'y', type: 'int', size: 4, color: 'field-int', bytes: '5' }
+    ],
+    totalSize: 8,
+    info: 'Point 只占 8 字节（两个 int）。三种初始化方式等价，建议用方式1最简洁'
+  },
+  {
+    name: '嵌套结构体',
+    code: [
+      'struct Date {',
+      '    int year;',
+      '    int month;',
+      '    int day;',
+      '};',
+      '',
+      'struct Book {',
+      '    char title[30];',
+      '    struct Date pub_date;',
+      '    float price;',
+      '};',
+      '',
+      'int main() {',
+      '    struct Book b = {',
+      '        "C Primer Plus",',
+      '        {2024, 6, 1},',
+      '        79.9',
+      '    };',
+      '    return 0;',
+      '}'
+    ],
+    fields: [
+      { name: 'title', type: 'char[30]', size: 30, color: 'field-char', bytes: 'C Primer Plus\\0...' },
+      { name: 'pub_date.year', type: 'int', size: 4, color: 'field-int', bytes: '2024' },
+      { name: 'pub_date.month', type: 'int', size: 4, color: 'field-int', bytes: '6' },
+      { name: 'pub_date.day', type: 'int', size: 4, color: 'field-int', bytes: '1' },
+      { name: 'price', type: 'float', size: 4, color: 'field-float', bytes: '79.9' }
+    ],
+    totalSize: 46,
+    info: '结构体可以嵌套！b.pub_date.year 访问内部成员。总大小 = 30 + 12 + 4 = 46 字节'
+  },
+  {
+    name: '结构体指针',
+    code: [
+      'struct Rectangle {',
+      '    int width;',
+      '    int height;',
+      '};',
+      '',
+      'int main() {',
+      '    struct Rectangle r = {10, 20};',
+      '    struct Rectangle *p = &r;',
+      '    // 用 -> 访问成员',
+      '    int area = p->width * p->height;',
+      '    // 等价于 (*p).width',
+      '    return 0;',
+      '}'
+    ],
+    fields: [
+      { name: 'width', type: 'int', size: 4, color: 'field-int', bytes: '10' },
+      { name: 'height', type: 'int', size: 4, color: 'field-int', bytes: '20' }
+    ],
+    totalSize: 8,
+    info: 'p->width 等价于 (*p).width。箭头 -> 是结构体指针访问成员的专用语法'
+  },
+  {
+    name: 'typedef 简化',
+    code: [
+      'typedef struct {',
+      '    double real;',
+      '    double imag;',
+      '} Complex;',
+      '',
+      'Complex add(Complex a, Complex b) {',
+      '    Complex c;',
+      '    c.real = a.real + b.real;',
+      '    c.imag = a.imag + b.imag;',
+      '    return c;',
+      '}',
+      '',
+      'int main() {',
+      '    Complex z1 = {1.0, 2.0};',
+      '    Complex z2 = {3.0, 4.0};',
+      '    Complex z3 = add(z1, z2);',
+      '    return 0;',
+      '}'
+    ],
+    fields: [
+      { name: 'real', type: 'double', size: 8, color: 'field-double', bytes: '1.0' },
+      { name: 'imag', type: 'double', size: 8, color: 'field-double', bytes: '2.0' }
+    ],
+    totalSize: 16,
+    info: 'typedef 给结构体起别名，之后不用写 struct 关键字。Complex 就是类型名，可以直接用'
+  },
+  {
+    name: '内存对齐',
+    code: [
+      '// 注意成员顺序影响大小！',
+      'struct Packed {',
+      '    char a;     // 1B',
+      '    int b;      // 4B',
+      '    char c;     // 1B',
+      '};  // 实际: 12B（有填充）',
+      '',
+      'struct Optimized {',
+      '    int b;      // 4B',
+      '    char a;     // 1B',
+      '    char c;     // 1B',
+      '};  // 实际: 8B（无填充）'
+    ],
+    fields: [
+      { name: 'a', type: 'char', size: 1, color: 'field-char', bytes: 'X' },
+      { name: '(填充)', type: 'padding', size: 3, color: 'field-padding', bytes: '···' },
+      { name: 'b', type: 'int', size: 4, color: 'field-int', bytes: '42' },
+      { name: 'c', type: 'char', size: 1, color: 'field-char', bytes: 'Y' },
+      { name: '(填充)', type: 'padding', size: 3, color: 'field-padding', bytes: '···' }
+    ],
+    totalSize: 12,
+    info: 'CPU 要求 int 从 4 的倍数地址开始，所以 char a 后面会填充 3 个字节。调整成员顺序可节省内存！'
+  }
+];
+
+let currentIdx = 0;
+
+function getCodeHTML(ex) {
+  return ex.code.map((line, i) => {
+    let hl = line;
+    hl = hl.replace(/\b(struct|typedef|int|char|float|double|void|return|strcpy)\b/g, '<span class="kw">$1</span>');
+    hl = hl.replace(/\/\/.*/g, '<span class="comment">$&</span>');
+    hl = hl.replace(/\b(\d+\.?\d*)\b/g, '<span class="num">$1</span>');
+    hl = hl.replace(/"([^"]*)"/g, '<span class="str">"$1"</span>');
+    return `<div><span class="line-num">${String(i+1).padStart(2)}</span>${hl}</div>`;
+  }).join('');
+}
+
+function renderMemory(ex) {
+  const viz = document.getElementById('memory-viz');
+  let html = '<div class="mem-legend">';
+  html += '<div class="legend-item"><div class="legend-dot" style="background:rgba(108,92,231,0.15);border-color:var(--accent)"></div>int</div>';
+  html += '<div class="legend-item"><div class="legend-dot" style="background:rgba(0,230,118,0.15);border-color:var(--green)"></div>char</div>';
+  html += '<div class="legend-item"><div class="legend-dot" style="background:rgba(0,229,255,0.15);border-color:var(--cyan)"></div>float</div>';
+  html += '<div class="legend-item"><div class="legend-dot" style="background:rgba(255,145,0,0.15);border-color:var(--orange)"></div>double</div>';
+  html += '<div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.03);border-color:transparent"></div>填充</div>';
+  html += '</div>';
+
+  let addr = 0x1000;
+  let byteIdx = 0;
+  
+  ex.fields.forEach((field, fi) => {
+    const fieldSize = field.size;
+    let displayBytes = field.bytes || '';
+    
+    // Row for field name
+    html += `<div class="mem-row">`;
+    html += `<span class="mem-label">${field.name}</span>`;
+    html += `<span class="mem-addr">0x${(addr + byteIdx).toString(16)}</span>`;
+    
+    // Draw cells
+    for (let b = 0; b < fieldSize; b++) {
+      const isFirst = b === 0;
+      const isLast = b === fieldSize - 1;
+      let cellContent = '';
+      if (field.type === 'padding') {
+        cellContent = '·';
+      } else if (fieldSize <= 4 && displayBytes.length > 0) {
+        if (fieldSize === 1) {
+          cellContent = displayBytes;
+        } else if (isFirst) {
+          cellContent = displayBytes;
+        } else {
+          cellContent = '';
+        }
+      } else {
+        cellContent = '';
+      }
+      
+      html += `<div class="mem-cell ${field.color} ${isFirst ? 'highlight' : ''}">${cellContent}</div>`;
+    }
+    
+    html += '</div>';
+    byteIdx += fieldSize;
+  });
+
+  // Total size row
+  html += `<div class="mem-row" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">`;
+  html += `<span class="mem-label" style="font-weight:600;color:var(--accent2)">总计</span>`;
+  html += `<span style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:var(--text)">${ex.totalSize} 字节</span>`;
+  html += '</div>';
+
+  viz.innerHTML = html;
+
+  // Struct info
+  const info = document.getElementById('struct-info');
+  info.innerHTML = `
+    <div class="info-item">
+      <div class="label">成员数</div>
+      <div class="value">${ex.fields.length}</div>
+    </div>
+    <div class="info-item">
+      <div class="label">总大小</div>
+      <div class="value">${ex.totalSize} 字节</div>
+    </div>
+    <div class="info-item" style="grid-column:1/-1">
+      <div class="label">说明</div>
+      <div class="value" style="font-family:'Inter',sans-serif;font-size:0.82rem;color:var(--text-dim);line-height:1.6">${ex.info}</div>
+    </div>
+  `;
+}
+
+function selectExample(idx) {
+  currentIdx = idx;
+  const ex = EXAMPLES[idx];
+  
+  document.querySelectorAll('.example-btn').forEach((btn, i) => btn.classList.toggle('active', i === idx));
+  document.getElementById('code-display').innerHTML = getCodeHTML(ex);
+  
+  const info = document.getElementById('state-info');
+  const total = ex.fields.reduce((s, f) => s + f.size, 0);
+  info.innerHTML = `
+    <div class="state-item">📦 成员: ${ex.fields.length} 个</div>
+    <div class="state-item">📏 大小: ${ex.totalSize} 字节</div>
+  `;
+  
+  renderMemory(ex);
+}
+
+function init() {
+  const selector = document.getElementById('example-selector');
+  EXAMPLES.forEach((ex, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'example-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = ex.name;
+    btn.onclick = () => selectExample(i);
+    selector.appendChild(btn);
+  });
+  selectExample(0);
+}
+
+init();
+</script>
+</body>
+</html>

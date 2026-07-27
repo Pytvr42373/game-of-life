@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>查找算法 — C 语言交互实验室</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0b0d1a; --surface: #12142a; --surface2: #1a1d3a; --border: #2a2d5a;
+    --accent: #6c5ce7; --accent2: #a29bfe; --green: #00e676; --cyan: #00e5ff;
+    --orange: #ff9100; --pink: #ff4081; --red: #ff5252; --yellow: #ffd740;
+    --text: #e0e0ff; --text-dim: #7878aa;
+  }
+
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 24px; }
+
+  .top-bar { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
+  .back-btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); color: var(--text-dim); text-decoration: none; font-size: 0.82rem; font-weight: 600; transition: all 0.2s; }
+  .back-btn:hover { border-color: var(--accent); color: var(--text); }
+  .back-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+  .top-bar h1 { font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, var(--accent2), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .top-bar .sub { font-size: 0.78rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+
+  .workspace { max-width: 1100px; margin: 0 auto; }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 24px; }
+  .panel-header { padding: 12px 16px; background: var(--surface2); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .panel-header .label { font-size: 0.72rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+  .panel-header .action { font-size: 0.72rem; color: var(--accent2); cursor: pointer; padding: 4px 10px; border-radius: 6px; background: rgba(108,92,231,0.1); border: none; font-family: inherit; transition: background 0.2s; }
+  .panel-header .action:hover { background: rgba(108,92,231,0.2); }
+  .panel-body { padding: 20px; }
+
+  .code-block { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 2; color: var(--text); white-space: pre; overflow-x: auto; }
+  .code-block .kw { color: var(--accent2); } .code-block .type { color: var(--cyan); }
+  .code-block .num { color: var(--orange); } .code-block .comment { color: var(--text-dim); font-style: italic; }
+  .code-block .highlight { background: rgba(108,92,231,0.25); border-radius: 3px; }
+  .code-block .highlight-found { background: rgba(0,230,118,0.25); border-radius: 3px; }
+  .code-block .highlight-mid { background: rgba(255,215,64,0.2); border-radius: 3px; }
+  .code-block .line-num { color: var(--text-dim); user-select: none; margin-right: 12px; }
+
+  .algo-selector { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .algo-btn { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; cursor: pointer; transition: all 0.2s; }
+  .algo-btn:hover { border-color: var(--accent); }
+  .algo-btn.active { border-color: var(--accent); background: rgba(108,92,231,0.15); }
+
+  .flow-controls { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .flow-btn { padding: 8px 18px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-family: inherit; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+  .flow-btn:hover { border-color: var(--accent); background: rgba(108,92,231,0.1); }
+  .flow-btn.primary { border-color: var(--accent); background: rgba(108,92,231,0.15); color: var(--accent2); }
+  .flow-btn.primary:hover { background: rgba(108,92,231,0.25); }
+  .flow-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .array-vis { display: flex; gap: 8px; justify-content: center; align-items: flex-end; padding: 20px; min-height: 200px; flex-wrap: wrap; }
+  .array-bar { display: flex; flex-direction: column; align-items: center; transition: all 0.3s; position: relative; }
+  .bar-rect { width: 48px; border-radius: 6px; background: linear-gradient(180deg, var(--accent), var(--accent2)); transition: all 0.3s; min-height: 20px; display: flex; align-items: center; justify-content: center; }
+  .bar-rect .bar-val { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 700; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+  .bar-rect.checking { background: linear-gradient(180deg, var(--yellow), #ffa000); box-shadow: 0 0 16px rgba(255,215,64,0.4); }
+  .bar-rect.found { background: linear-gradient(180deg, var(--green), #00c853); box-shadow: 0 0 16px rgba(0,230,118,0.4); }
+  .bar-rect.eliminated { background: linear-gradient(180deg, var(--text-dim), #555); opacity: 0.4; }
+  .bar-rect.mid { background: linear-gradient(180deg, var(--pink), #c51162); box-shadow: 0 0 16px rgba(255,64,129,0.4); }
+  .bar-index { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--text-dim); margin-top: 6px; }
+
+  .state-info { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+  .state-item { padding: 6px 12px; border-radius: 6px; background: rgba(0,0,0,0.2); font-size: 0.72rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+  .state-item strong { color: var(--accent2); font-weight: 600; }
+
+  .step-desc { padding: 10px 16px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-top: 12px; font-size: 0.85rem; color: var(--text); line-height: 1.5; }
+
+  .legend { display: flex; gap: 16px; margin-top: 12px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--text-dim); }
+  .legend-color { width: 14px; height: 14px; border-radius: 4px; }
+
+  .search-input { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .search-input label { font-size: 0.78rem; color: var(--text-dim); }
+  .search-input input { padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; width: 80px; outline: none; transition: border-color 0.2s; }
+  .search-input input:focus { border-color: var(--accent); }
+  .search-input button { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--accent); background: rgba(108,92,231,0.15); color: var(--accent2); cursor: pointer; font-family: inherit; font-size: 0.78rem; transition: all 0.2s; }
+  .search-input button:hover { background: rgba(108,92,231,0.25); }
+
+  .result-badge { display: inline-block; padding: 6px 16px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; margin-top: 8px; }
+  .result-badge.found { background: rgba(0,230,118,0.15); color: var(--green); border: 1px solid rgba(0,230,118,0.3); }
+  .result-badge.not-found { background: rgba(255,82,82,0.15); color: var(--red); border: 1px solid rgba(255,82,82,0.3); }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="../index.html" class="back-btn">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    返回
+  </a>
+  <h1>查找算法</h1>
+  <span class="sub">线性查找 · 二分查找</span>
+</div>
+
+<div class="workspace">
+  <div class="panel">
+    <div class="panel-header">
+      <span class="label">C 代码</span>
+      <button class="action" onclick="resetAlgo()">重置</button>
+    </div>
+    <div class="panel-body">
+      <div class="algo-selector" id="algo-selector"></div>
+      <div class="search-input">
+        <label>查找目标：</label>
+        <input type="number" id="target-input" value="33">
+        <button onclick="startSearch()">开始查找</button>
+      </div>
+      <div class="code-block" id="code-display"></div>
+      <div class="flow-controls">
+        <button class="flow-btn primary" id="step-btn" onclick="stepForward()">▶ 单步执行</button>
+        <button class="flow-btn" onclick="runAll()">⏩ 运行全部</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <span class="label">数组可视化</span>
+      <span class="action" style="cursor:default;background:transparent;color:var(--text-dim)" id="step-counter">步骤 0</span>
+    </div>
+    <div class="panel-body">
+      <div class="array-vis" id="array-vis"></div>
+      <div class="step-desc" id="step-desc">输入目标数字，点击"开始查找"</div>
+      <div class="state-info" id="state-info"></div>
+      <div id="result-display"></div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-color" style="background:linear-gradient(180deg,var(--accent),var(--accent2))"></div> 未检查</div>
+        <div class="legend-item"><div class="legend-color" style="background:linear-gradient(180deg,var(--yellow),#ffa000)"></div> 正在检查</div>
+        <div class="legend-item"><div class="legend-color" style="background:linear-gradient(180deg,var(--green),#00c853)"></div> 找到！</div>
+        <div class="legend-item"><div class="legend-color" style="background:linear-gradient(180deg,var(--pink),#c51162)"></div> 中间值</div>
+        <div class="legend-item"><div class="legend-color" style="background:linear-gradient(180deg,var(--text-dim),#555)"></div> 已排除</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const ALGOS = [
+  {
+    name: '线性查找',
+    code: [
+      'int linear_search(int arr[], int n, int target) {',
+      '    for (int i = 0; i < n; i++) {',
+      '        if (arr[i] == target) {',
+      '            return i;  // 找到，返回下标',
+      '        }',
+      '    }',
+      '    return -1;  // 没找到',
+      '}'
+    ],
+    initialArray: [5, 18, 33, 7, 42, 9, 15, 27],
+    generateSteps(arr, target) {
+      const steps = [];
+      steps.push({ array: [...arr], checking: -1, eliminated: [], found: -1, desc: `从头开始查找 ${target}` });
+      for (let i = 0; i < arr.length; i++) {
+        steps.push({ array: [...arr], checking: i, eliminated: [], found: -1, desc: `检查 arr[${i}]=${arr[i]}，是否等于 ${target}？` });
+        if (arr[i] === target) {
+          steps.push({ array: [...arr], checking: -1, eliminated: [], found: i, desc: `✅ 找到了！arr[${i}]=${target}` });
+          return steps;
+        }
+      }
+      steps.push({ array: [...arr], checking: -1, eliminated: Array.from({length: arr.length}, (_, k) => k), found: -1, desc: `❌ 遍历完整个数组，未找到 ${target}` });
+      return steps;
+    }
+  },
+  {
+    name: '二分查找',
+    code: [
+      'int binary_search(int arr[], int n, int target) {',
+      '    int left = 0, right = n - 1;',
+      '    while (left <= right) {',
+      '        int mid = left + (right - left) / 2;',
+      '        if (arr[mid] == target)',
+      '            return mid;',
+      '        if (arr[mid] < target)',
+      '            left = mid + 1;',
+      '        else',
+      '            right = mid - 1;',
+      '    }',
+      '    return -1;',
+      '}'
+    ],
+    initialArray: [5, 7, 9, 15, 18, 27, 33, 42],
+    generateSteps(arr, target) {
+      const steps = [];
+      let left = 0, right = arr.length - 1;
+      const eliminated = new Array(arr.length).fill(false);
+      
+      steps.push({ array: [...arr], left, right, mid: -1, checking: -1, found: -1, eliminated: [...eliminated], desc: `二分查找开始：left=${left}, right=${right}, 查找 ${target}` });
+      
+      while (left <= right) {
+        const mid = left + Math.floor((right - left) / 2);
+        steps.push({ array: [...arr], left, right, mid, checking: -1, found: -1, eliminated: [...eliminated], desc: `计算 mid = ${left} + (${right} - ${left})/2 = ${mid}，arr[${mid}]=${arr[mid]}` });
+        
+        if (arr[mid] === target) {
+          steps.push({ array: [...arr], left, right, mid, checking: -1, found: mid, eliminated: [...eliminated], desc: `✅ 找到了！arr[${mid}]=${target}` });
+          return steps;
+        }
+        
+        if (arr[mid] < target) {
+          for (let i = left; i <= mid; i++) eliminated[i] = true;
+          left = mid + 1;
+          steps.push({ array: [...arr], left, right, mid: -1, checking: -1, found: -1, eliminated: [...eliminated], desc: `${arr[mid]} < ${target}，丢弃左半部分，left=${left}` });
+        } else {
+          for (let i = mid; i <= right; i++) eliminated[i] = true;
+          right = mid - 1;
+          steps.push({ array: [...arr], left, right, mid: -1, checking: -1, found: -1, eliminated: [...eliminated], desc: `${arr[mid]} > ${target}，丢弃右半部分，right=${right}` });
+        }
+      }
+      
+      steps.push({ array: [...arr], left, right, mid: -1, checking: -1, found: -1, eliminated: [...eliminated.map(() => true)], desc: `❌ 未找到 ${target}` });
+      return steps;
+    }
+  }
+];
+
+let currentIdx = 0;
+let currentStep = 0;
+let steps = [];
+let isRunning = false;
+let currentTarget = 33;
+
+function getCodeHTML(algo, stepIdx) {
+  const step = steps[Math.min(stepIdx, steps.length - 1)];
+  let html = '';
+  algo.code.forEach((line, i) => {
+    let cls = '';
+    if (step && step.found >= 0 && i === 3) cls = 'highlight-found';
+    if (step && step.mid >= 0 && i === 3) cls = 'highlight-mid';
+    if (step && step.checking >= 0 && i === 2) cls = 'highlight';
+    html += `<div class="${cls}"><span class="line-num">${String(i + 1).padStart(2)}</span>${escapeHtml(line)}</div>`;
+  });
+  return html;
+}
+
+function escapeHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function renderArray(step) {
+  const vis = document.getElementById('array-vis');
+  const arr = step.array;
+  const maxVal = Math.max(...arr);
+  vis.innerHTML = '';
+  
+  arr.forEach((val, i) => {
+    const bar = document.createElement('div');
+    bar.className = 'array-bar';
+    const rect = document.createElement('div');
+    rect.className = 'bar-rect';
+    const height = 20 + (val / maxVal) * 160;
+    rect.style.height = height + 'px';
+    
+    if (step.found === i) rect.classList.add('found');
+    else if (step.checking === i) rect.classList.add('checking');
+    else if (step.mid === i) rect.classList.add('mid');
+    else if (step.eliminated && step.eliminated[i]) rect.classList.add('eliminated');
+    
+    const valSpan = document.createElement('span');
+    valSpan.className = 'bar-val'; valSpan.textContent = val;
+    rect.appendChild(valSpan);
+    
+    const idx = document.createElement('div');
+    idx.className = 'bar-index'; idx.textContent = i;
+    
+    // Add left/right markers
+    if (step.left !== undefined && i === step.left) {
+      idx.textContent = `${i} ← L`;
+      idx.style.color = 'var(--green)';
+    }
+    if (step.right !== undefined && i === step.right) {
+      idx.textContent = `${i} → R`;
+      idx.style.color = 'var(--red)';
+    }
+    if (step.left !== undefined && step.right !== undefined && i === step.left && i === step.right) {
+      idx.textContent = `${i} ← L/R →`;
+      idx.style.color = 'var(--yellow)';
+    }
+    
+    bar.appendChild(rect);
+    bar.appendChild(idx);
+    vis.appendChild(bar);
+  });
+}
+
+function renderState(step) {
+  document.getElementById('step-desc').textContent = step.desc;
+  document.getElementById('step-counter').textContent = `步骤 ${currentStep + 1}/${steps.length}`;
+  
+  const info = document.getElementById('state-info');
+  let html = '';
+  if (step.left !== undefined) html += `<div class="state-item">left = <strong>${step.left}</strong></div>`;
+  if (step.right !== undefined) html += `<div class="state-item">right = <strong>${step.right}</strong></div>`;
+  if (step.mid >= 0) html += `<div class="state-item">mid = <strong>${step.mid}</strong></div>`;
+  if (step.checking >= 0) html += `<div class="state-item">检查下标 <strong>${step.checking}</strong></div>`;
+  info.innerHTML = html;
+  
+  const result = document.getElementById('result-display');
+  if (step.found >= 0) {
+    result.innerHTML = `<div class="result-badge found">✅ 找到！目标 ${currentTarget} 在下标 ${step.found}</div>`;
+  } else if (currentStep === steps.length - 1 && step.found === -1) {
+    result.innerHTML = `<div class="result-badge not-found">❌ 未找到目标 ${currentTarget}</div>`;
+  } else {
+    result.innerHTML = '';
+  }
+}
+
+function startSearch() {
+  const target = parseInt(document.getElementById('target-input').value) || 0;
+  currentTarget = target;
+  const algo = ALGOS[currentIdx];
+  steps = algo.generateSteps(algo.initialArray, target);
+  currentStep = 0;
+  document.getElementById('code-display').innerHTML = getCodeHTML(algo, 0);
+  renderArray(steps[0]);
+  renderState(steps[0]);
+  document.getElementById('step-btn').disabled = false;
+  document.getElementById('result-display').innerHTML = '';
+}
+
+function selectAlgo(idx) {
+  currentIdx = idx;
+  startSearch();
+  document.querySelectorAll('.algo-btn').forEach((btn, i) => btn.classList.toggle('active', i === idx));
+}
+
+function stepForward() {
+  if (currentStep >= steps.length - 1) return;
+  currentStep++;
+  const algo = ALGOS[currentIdx];
+  document.getElementById('code-display').innerHTML = getCodeHTML(algo, currentStep);
+  renderArray(steps[currentStep]);
+  renderState(steps[currentStep]);
+  if (currentStep >= steps.length - 1) document.getElementById('step-btn').disabled = true;
+}
+
+function runAll() {
+  if (isRunning) return;
+  isRunning = true;
+  document.getElementById('step-btn').disabled = true;
+  const algo = ALGOS[currentIdx];
+  let i = currentStep;
+  const interval = setInterval(() => {
+    currentStep = i;
+    document.getElementById('code-display').innerHTML = getCodeHTML(algo, i);
+    renderArray(steps[i]);
+    renderState(steps[i]);
+    i++;
+    if (i >= steps.length) { clearInterval(interval); isRunning = false; }
+  }, 500);
+}
+
+function resetAlgo() {
+  startSearch();
+}
+
+function init() {
+  const selector = document.getElementById('algo-selector');
+  ALGOS.forEach((a, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'algo-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = a.name;
+    btn.onclick = () => selectAlgo(i);
+    selector.appendChild(btn);
+  });
+  startSearch();
+}
+
+init();
+</script>
+</body>
+</html>
