@@ -336,7 +336,7 @@
     <div class="stats-bar">
       <div class="stat-item">
         <span class="dot green"></span>
-        <span class="num" id="course-count">14</span>
+        <span class="num" id="course-count">18</span>
         <span>个交互课件</span>
       </div>
       <div class="stat-item">
@@ -360,17 +360,57 @@
 <script>
 const SECTIONS = [
   {
-    title: '🐍 Python → C++ 衔接',
-    sub: '从 Python 出发，快速理解 C++ 的异同',
+    title: '🐍 Python → C++ 衔接（逐行讲解）',
+    sub: '从 Python 出发，逐行拆解 C++ 的每个关键概念',
     lineColor: 'var(--accent2)'
   },
   {
     num: '01',
+    icon: '📦',
+    iconClass: 'icon-purple',
+    title: '头文件详解',
+    desc: '#include 是什么？<iostream> vs <cstdio>？尖括号 vs 双引号？点击代码逐行查看解释。',
+    tags: ['#include', '预处理', '头文件'],
+    tagClass: 'tag-purple',
+    file: 'courseware/headers.html'
+  },
+  {
+    num: '02',
+    icon: '🏷️',
+    iconClass: 'icon-purple',
+    title: '命名空间详解',
+    desc: 'using namespace std 是什么？std:: 前缀可以省吗？为什么需要命名空间？和 Python import 对比。',
+    tags: ['namespace', 'std', '命名冲突'],
+    tagClass: 'tag-purple',
+    file: 'courseware/namespace.html'
+  },
+  {
+    num: '03',
+    icon: '⬅️',
+    iconClass: 'icon-green',
+    title: 'cin / cout 详解',
+    desc: '>> 和 << 的方向、cin 自动分隔、endl vs \\n、缓冲区、速度优化。点击代码逐行讲解。',
+    tags: ['cin', 'cout', '流'],
+    tagClass: 'tag-green',
+    file: 'courseware/cin-cout.html'
+  },
+  {
+    num: '04',
+    icon: '⌨️',
+    iconClass: 'icon-orange',
+    title: 'scanf / printf 详解',
+    desc: '%d %f %lf %c %s 格式控制、& 取地址、宽度对齐精度、竞赛中的速度优势。逐行讲解。',
+    tags: ['scanf', 'printf', '格式控制'],
+    tagClass: 'tag-orange',
+    file: 'courseware/scanf-printf.html'
+  },
+  {
+    num: '05',
     icon: '🐍➜⚡',
     iconClass: 'icon-purple',
-    title: 'Python → C++ 衔接',
-    desc: '从 Python 出发快速上手 C++：输入输出、数据类型、字符串、数组、循环、函数，左右对比一目了然。',
-    tags: ['过渡', '对比', '信息学奥赛'],
+    title: 'Python → C++ 综合对比',
+    desc: '从 Python 出发快速上手 C++：输入输出、数据类型、条件判断，左右对比一目了然。',
+    tags: ['过渡', '对比', '综合'],
     tagClass: 'tag-purple',
     file: 'courseware/python-to-cpp.html'
   },

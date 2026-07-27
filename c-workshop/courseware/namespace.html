@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>命名空间详解 — C 语言交互实验室</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0b0d1a; --surface: #12142a; --surface2: #1a1d3a; --border: #2a2d5a;
+    --accent: #6c5ce7; --accent2: #a29bfe; --green: #00e676; --cyan: #00e5ff;
+    --orange: #ff9100; --pink: #ff4081; --text: #e0e0ff; --text-dim: #7878aa;
+    --py: #f7df1e;
+  }
+
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 24px; }
+
+  .top-bar { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
+  .back-btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); color: var(--text-dim); text-decoration: none; font-size: 0.82rem; font-weight: 600; transition: all 0.2s; }
+  .back-btn:hover { border-color: var(--accent); color: var(--text); }
+  .back-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+  .top-bar h1 { font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, var(--accent2), var(--pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .top-bar .sub { font-size: 0.78rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+
+  .workspace { max-width: 1100px; margin: 0 auto; }
+
+  .code-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 800px) { .code-layout { grid-template-columns: 1fr; } }
+
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .panel-header { padding: 10px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+  .panel-header .label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  .panel-header .cpp-label { color: var(--cyan); }
+  .panel-body { padding: 20px; }
+
+  .code-block { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.8; color: var(--text); white-space: pre; overflow-x: auto; letter-spacing: 0.5px; }
+  .code-block .kw { color: var(--accent2); }
+  .code-block .type { color: var(--cyan); }
+  .code-block .num { color: var(--orange); }
+  .code-block .str { color: var(--green); }
+  .code-block .comment { color: var(--text-dim); font-style: italic; }
+  .code-block .line-num { color: #3a3a6a; user-select: none; margin-right: 10px; }
+
+  .code-line { cursor: pointer; padding: 0 4px; border-radius: 4px; transition: background 0.15s; }
+  .code-line:hover { background: rgba(108,92,231,0.12); }
+  .code-line.active { background: rgba(108,92,231,0.22); border-left: 3px solid var(--accent); padding-left: 4px; }
+
+  .explain-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; min-height: 200px; }
+  .explain-header { padding: 10px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+  .explain-header .label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--accent2); }
+  .explain-body { padding: 20px; min-height: 160px; }
+  .explain-body .placeholder { color: var(--text-dim); font-size: 0.85rem; line-height: 1.7; }
+  .explain-body .line-ref { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--cyan); margin-bottom: 8px; }
+  .explain-body .line-code { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--green); background: rgba(0,230,118,0.08); padding: 6px 10px; border-radius: 6px; margin-bottom: 12px; }
+  .explain-body .line-desc { font-size: 0.88rem; color: var(--text); line-height: 1.8; }
+  .explain-body .line-desc strong { color: var(--accent2); }
+  .explain-body .line-desc em { color: var(--orange); font-style: normal; font-weight: 600; }
+
+  .knowledge-section { margin-top: 24px; }
+  .knowledge-section .ktitle { font-size: 0.75rem; font-weight: 700; color: var(--accent2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+  .knowledge-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 800px) { .knowledge-grid { grid-template-columns: 1fr; } }
+  .kcard { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; }
+  .kcard .kcard-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .kcard .kcard-text { font-size: 0.82rem; color: var(--text-dim); line-height: 1.7; }
+  .kcard .kcard-text strong { color: var(--cyan); }
+  .kcard .kcard-text code { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--orange); background: rgba(255,145,0,0.08); padding: 1px 6px; border-radius: 4px; }
+
+  .tip-box { margin-top: 16px; padding: 12px 16px; background: rgba(0,229,255,0.06); border: 1px solid rgba(0,229,255,0.15); border-radius: 8px; }
+  .tip-box .tip-label { font-size: 0.68rem; font-weight: 700; color: var(--cyan); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .tip-box .tip-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.7; }
+  .tip-box .tip-text strong { color: var(--text); }
+
+  .next-link { display: flex; justify-content: space-between; margin-top: 24px; }
+  .next-link a { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); color: var(--text-dim); text-decoration: none; font-size: 0.82rem; font-weight: 600; transition: all 0.2s; }
+  .next-link a:hover { border-color: var(--accent); color: var(--text); }
+  .next-link a svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="../index.html" class="back-btn">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    返回
+  </a>
+  <h1>命名空间详解</h1>
+  <span class="sub">using namespace std · std:: · 命名冲突</span>
+</div>
+
+<div class="workspace">
+
+  <div class="code-layout">
+    <div class="panel">
+      <div class="panel-header">
+        <span class="label cpp-label">⚡ C++ 代码（点击每行查看解释）</span>
+      </div>
+      <div class="panel-body">
+        <div class="code-block" id="code-display"></div>
+      </div>
+    </div>
+    <div class="explain-panel">
+      <div class="explain-header">
+        <span class="label">📖 逐行解释</span>
+      </div>
+      <div class="explain-body" id="explain-display">
+        <div class="placeholder">
+          👈 点击左侧代码的任意一行，这里会显示该行的详细解释。<br><br>
+          命名空间是 C++ 解决"名字冲突"的机制——相当于给函数贴上"姓氏"。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="knowledge-section">
+    <div class="ktitle">💡 命名空间核心知识</div>
+    <div class="knowledge-grid">
+      <div class="kcard">
+        <div class="kcard-title">什么是命名空间？</div>
+        <div class="kcard-text">
+          命名空间（namespace）是给名字加"姓氏"的机制。<br>
+          <code>std::cout</code> 表示"std 这个家族里的 cout"。<br>
+          就像学校里有两个"张伟"，用"三年级的张伟"和"五年级的张伟"来区分。
+        </div>
+      </div>
+      <div class="kcard">
+        <div class="kcard-title">using namespace std; 的含义</div>
+        <div class="kcard-text">
+          <code>using namespace std;</code> 相当于说"这一页用到 std 家族的人就不用加姓氏了"。<br>
+          写了它：直接用 <strong>cout</strong><br>
+          不写它：必须写 <strong>std::cout</strong><br>
+          竞赛中几乎都写，省时间少打字。
+        </div>
+      </div>
+      <div class="kcard">
+        <div class="kcard-title">为什么需要命名空间？</div>
+        <div class="kcard-text">
+          C++ 标准库有几千个名字（cout、cin、sort、vector、max、min...）。<br>
+          如果你的代码里也有个 <strong>max</strong> 函数，编译器不知道用哪个。<br>
+          有了命名空间：<strong>std::max</strong> 是标准库的，<strong>::max</strong> 是你的，不会冲突。
+        </div>
+      </div>
+      <div class="kcard">
+        <div class="kcard-title">Python 对比</div>
+        <div class="kcard-text">
+          Python 的 <code>import math</code> 要求写 <strong>math.sqrt()</strong>，相当于"带姓氏"。<br>
+          Python 的 <code>from math import *</code> 可以直接写 <strong>sqrt()</strong>，相当于 <strong>using namespace</strong>。<br>
+          C++ 的 <code>using namespace std;</code> 就是 <strong>from std import *</strong> 的意思。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip-box">
+    <div class="tip-label">📌 竞赛小贴士</div>
+    <div class="tip-text">
+      竞赛代码中 <strong>using namespace std;</strong> 是标配，GESP 考试也建议写。<br>
+      但在大型工程中不推荐，因为容易引发命名冲突。竞赛追求速度，工程追求安全。
+    </div>
+  </div>
+
+  <div class="next-link">
+    <a href="headers.html">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      上一页：头文件详解
+    </a>
+    <a href="cin-cout.html">
+      下一页：cin/cout 详解
+      <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </a>
+  </div>
+</div>
+
+<script>
+const CODE = [
+  '#include <iostream>',
+  '',
+  '// 写法一：带 std:: 前缀（不写 using）',
+  'int main() {',
+  '    std::cout << "Hello" << std::endl;',
+  '    return 0;',
+  '}',
+  '',
+  '// 写法二：using namespace std（竞赛标配）',
+  '#include <iostream>',
+  'using namespace std;',
+  'int main() {',
+  '    cout << "Hello" << endl;',
+  '    return 0;',
+  '}'
+];
+
+const EXPLAINS = [
+  '<strong>#include &lt;iostream&gt;</strong><br>引入输入输出库。cout 和 endl 都属于 std 命名空间。<br>不管用哪种写法，头文件都要先包含。',
+  '<strong>空行</strong><br>分隔说明性注释和代码。',
+  '<strong>写法一：带 std:: 前缀</strong><br>不写 using namespace std; 时，所有标准库的东西都要加 <em>std::</em> 前缀。<br>好处：明确知道每个名字来自哪里，不会冲突。<br>缺点：啰嗦，竞赛中浪费时间。',
+  '<strong>int main()</strong><br>程序入口。两种写法都必须有 main 函数。',
+  '<strong>std::cout &lt;&lt; "Hello" &lt;&lt; std::endl;</strong><br>注意这里每个标准库名字前面都写了 <em>std::</em>。<br>std::cout — std 家族的 cout<br>std::endl — std 家族的 endl（换行+刷新缓冲区）<br>如果不写 std:: 编译器会报错：找不到 cout。',
+  '<strong>return 0;</strong><br>程序正常结束，返回 0。',
+  '<strong>}</strong><br>main 函数结束。这是写法一的完整版本。',
+  '<strong>空行</strong><br>分隔两种写法的演示。',
+  '<strong>写法二：using namespace std</strong><br>第二种写法，加了 <em>using namespace std;</em> 之后就不需要写 std:: 前缀了。',
+  '<strong>#include &lt;iostream&gt;</strong><br>头文件照常包含。两种写法的区别只在命名空间的使用方式。',
+  '<strong>using namespace std;</strong><br>关键一行！告诉编译器："std 命名空间里的名字都可以直接用"。<br>写了这行之后，<em>cout</em>、<em>cin</em>、<em>endl</em>、<em>sort</em>、<em>max</em>、<em>min</em> 等都可以不加前缀。',
+  '<strong>int main()</strong><br>和写法一完全一样的入口函数。',
+  '<strong>cout &lt;&lt; "Hello" &lt;&lt; endl;</strong><br>对比写法一：<em>不再需要 std:: 前缀</em>！<br>因为有 using namespace std; 所以 cout 直接就是 std::cout。<br>效果完全一样，但代码更简洁。',
+  '<strong>return 0;</strong><br>和写法一一样，返回 0 表示正常结束。',
+  '<strong>}</strong><br>main 函数结束。两种写法编译运行结果完全相同。'
+];
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function getCodeHTML() {
+  return CODE.map((line, i) => {
+    let hl = escapeHtml(line);
+    hl = hl.replace(/\b(int|double|float|char|string|bool|void|long|short|return|using|namespace|include|main|std|cout|cin|endl)\b/g, '<span class="kw">$1</span>');
+    hl = hl.replace(/\/\/.*/g, '<span class="comment">$&</span>');
+    hl = hl.replace(/\b(\d+)\b/g, '<span class="num">$1</span>');
+    hl = hl.replace(/&lt;(iostream|cstdio)&gt;/g, '<span class="str">&lt;$1&gt;</span>');
+    hl = hl.replace(/(&lt;&lt;|&gt;&gt;)/g, '<span class="type">$1</span>');
+    const empty = line.trim() === '' ? ' style="opacity:0.3"' : '';
+    return `<div class="code-line" data-idx="${i}"${empty}><span class="line-num">${String(i+1).padStart(2)}</span>${hl || '&nbsp;'}</div>`;
+  }).join('');
+}
+
+function showExplain(idx) {
+  const el = document.getElementById('explain-display');
+  const code = CODE[idx];
+  const explain = EXPLAINS[idx] || '（暂无解释）';
+  el.innerHTML = `
+    <div class="line-ref">第 ${idx+1} 行</div>
+    <div class="line-code">${escapeHtml(code) || '&nbsp;'}</div>
+    <div class="line-desc">${explain}</div>
+  `;
+  document.querySelectorAll('.code-line').forEach((el, i) => {
+    el.classList.toggle('active', i === idx);
+  });
+}
+
+function init() {
+  document.getElementById('code-display').innerHTML = getCodeHTML();
+  document.querySelectorAll('.code-line').forEach(el => {
+    el.addEventListener('click', () => {
+      showExplain(parseInt(el.dataset.idx));
+    });
+  });
+  showExplain(0);
+}
+
+init();
+</script>
+</body>
+</html>
