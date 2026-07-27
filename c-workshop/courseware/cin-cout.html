@@ -78,6 +78,18 @@
   .next-link a { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); color: var(--text-dim); text-decoration: none; font-size: 0.82rem; font-weight: 600; transition: all 0.2s; }
   .next-link a:hover { border-color: var(--accent); color: var(--text); }
   .next-link a svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  .term { border-bottom: 2px dotted var(--accent2); cursor: help; color: var(--accent2); font-weight: 600; position: relative; }
+  .term:hover { background: rgba(108,92,231,0.12); border-radius: 3px; }
+  .term-card { position: absolute; z-index: 100; left: 50%; transform: translateX(-50%); top: calc(100% + 10px); width: 340px; max-width: 90vw; background: var(--surface2); border: 1px solid var(--accent); border-radius: 12px; padding: 14px 18px; box-shadow: 0 8px 32px rgba(108,92,231,0.25); display: none; pointer-events: none; }
+  .term-card.show { display: block; animation: termFadeIn 0.18s ease-out; }
+  @keyframes termFadeIn { from { opacity: 0; transform: translateX(-50%) translateY(-4px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+  .term-card .tc-title { font-size: 0.82rem; font-weight: 700; color: var(--cyan); margin-bottom: 6px; }
+  .term-card .tc-body { font-size: 0.8rem; color: var(--text-dim); line-height: 1.7; }
+  .term-card .tc-body strong { color: var(--text); }
+  .term-card .tc-body code { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--orange); background: rgba(255,145,0,0.08); padding: 1px 5px; border-radius: 3px; }
+  .term-card .tc-icon { font-size: 1.1rem; margin-bottom: 4px; }
+  .term-card::before { content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%) rotate(45deg); width: 10px; height: 10px; background: var(--surface2); border-left: 1px solid var(--accent); border-top: 1px solid var(--accent); }
 </style>
 </head>
 <body>
@@ -132,13 +144,13 @@
         <div class="kcard-text">
           <code>cin &gt;&gt; a &gt;&gt; b</code> 输入 <strong>10 20</strong> 时，cin 遇到空格/换行自动分隔。<br>
           连续读多个：输入 <strong>1 2 3</strong>，<code>cin &gt;&gt; a &gt;&gt; b &gt;&gt; c</code> 分别得到 1、2、3。<br>
-          要读整行（含空格）用 <strong>getline(cin, str)</strong>。
+          要读整行（含空格）用 <span class="term" data-term="getline">getline(cin, str)</span>。
         </div>
       </div>
       <div class="kcard">
         <div class="kcard-title">endl vs \n</div>
         <div class="kcard-text">
-          <code>endl</code> — 换行 <strong>并刷新缓冲区</strong>（把数据立刻推到屏幕）<br>
+          <code>endl</code> — 换行 <strong>并刷新<span class="term" data-term="buffer">缓冲区</span></strong>（把数据立刻推到屏幕）<br>
           <code>\n</code> — 只换行，<strong>不刷新</strong>缓冲区<br><br>
           竞赛中 <strong>\n 更快</strong>，因为不频繁刷新。endl 更安全但更慢。
         </div>
@@ -146,7 +158,7 @@
       <div class="kcard">
         <div class="kcard-title">速度优化</div>
         <div class="kcard-text">
-          cin/cout 默认与 scanf/printf <strong>同步</strong>，速度较慢。<br>
+          cin/cout 默认与 scanf/printf <span class="term" data-term="sync">同步</span>，速度较慢。<br>
           竞赛中常用：<br>
           <code>ios::sync_with_stdio(false);</code><br>
           <code>cin.tie(0);</code><br>
@@ -266,6 +278,52 @@ function init() {
 }
 
 init();
+
+// === 专有名词 tooltip 系统 ===
+const TERM_DEFS = {
+  'buffer': {
+    icon: '🪣',
+    title: '缓冲区（Buffer）',
+    body: '一个<strong>临时存储桶</strong>。<br><br>cout 输出时，数据不是直接显示到屏幕，而是先放进缓冲区这个"桶"里。等桶满了，或者你主动刷新（flush），才一口气倒到屏幕上。<br><br><code>endl</code> 会主动倒桶（刷新），<code>\\n</code> 只在桶里放个换行符不倒。所以 endl 更慢但更及时。'
+  },
+  'sync': {
+    icon: '🔗',
+    title: '同步（Synchronization）',
+    body: 'C++ 为了让 cin/cout 和 scanf/printf <strong>可以混用</strong>，默认让它们共享同一个缓冲区，保持顺序一致。<br><br>但这个"协调"有性能代价。写 <code>ios::sync_with_stdio(false);</code> 就告诉编译器："我保证不混用，不用协调了，给我加速！"<br><br>⚠ 关闭后<strong>不能</strong>同时用 cin 和 scanf，否则顺序会乱。'
+  },
+  'getline': {
+    icon: '📖',
+    title: 'getline(cin, str)',
+    body: '读取<strong>一整行</strong>文本，包括空格。<br><br><code>cin &gt;&gt;</code> 遇到空格就停，但 <code>getline</code> 读到换行才停。<br><br>比如输入 <code>Hello World</code>：<br>cin &gt;&gt; s 只读到 "Hello"<br>getline(cin, s) 读到 "Hello World"<br><br>竞赛中读字符串通常用 getline。'
+  },
+  'stream': {
+    icon: '🌊',
+    title: '流（Stream）',
+    body: '数据像<strong>水流</strong>一样从一个地方流到另一个地方。<br><br>cin 是"从键盘流进来"的流，cout 是"往屏幕流出去"的流。<code>&gt;&gt;</code> 从流中取水，<code>&lt;&lt;</code> 往流里倒水。<br><br>Python 没有这个概念，Python 用函数（print/input）而不是流。'
+  }
+};
+
+function initTerms() {
+  document.addEventListener('mouseover', (e) => {
+    const term = e.target.closest('.term');
+    if (!term) return;
+    const key = term.dataset.term;
+    const def = TERM_DEFS[key];
+    if (!def) return;
+    document.querySelectorAll('.term-card.show').forEach(c => c.remove());
+    const card = document.createElement('div');
+    card.className = 'term-card show';
+    card.innerHTML = `<div class="tc-icon">${def.icon}</div><div class="tc-title">${def.title}</div><div class="tc-body">${def.body}</div>`;
+    term.appendChild(card);
+  });
+  document.addEventListener('mouseout', (e) => {
+    const term = e.target.closest('.term');
+    if (!term) return;
+    const card = term.querySelector('.term-card');
+    if (card) card.remove();
+  });
+}
+initTerms();
 </script>
 </body>
 </html>

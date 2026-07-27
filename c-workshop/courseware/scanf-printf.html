@@ -78,6 +78,18 @@
   .next-link a { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); color: var(--text-dim); text-decoration: none; font-size: 0.82rem; font-weight: 600; transition: all 0.2s; }
   .next-link a:hover { border-color: var(--accent); color: var(--text); }
   .next-link a svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  .term { border-bottom: 2px dotted var(--accent2); cursor: help; color: var(--accent2); font-weight: 600; position: relative; }
+  .term:hover { background: rgba(108,92,231,0.12); border-radius: 3px; }
+  .term-card { position: absolute; z-index: 100; left: 50%; transform: translateX(-50%); top: calc(100% + 10px); width: 340px; max-width: 90vw; background: var(--surface2); border: 1px solid var(--accent); border-radius: 12px; padding: 14px 18px; box-shadow: 0 8px 32px rgba(108,92,231,0.25); display: none; pointer-events: none; }
+  .term-card.show { display: block; animation: termFadeIn 0.18s ease-out; }
+  @keyframes termFadeIn { from { opacity: 0; transform: translateX(-50%) translateY(-4px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+  .term-card .tc-title { font-size: 0.82rem; font-weight: 700; color: var(--cyan); margin-bottom: 6px; }
+  .term-card .tc-body { font-size: 0.8rem; color: var(--text-dim); line-height: 1.7; }
+  .term-card .tc-body strong { color: var(--text); }
+  .term-card .tc-body code { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--orange); background: rgba(255,145,0,0.08); padding: 1px 5px; border-radius: 3px; }
+  .term-card .tc-icon { font-size: 1.1rem; margin-bottom: 4px; }
+  .term-card::before { content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%) rotate(45deg); width: 10px; height: 10px; background: var(--surface2); border-left: 1px solid var(--accent); border-top: 1px solid var(--accent); }
 </style>
 </head>
 <body>
@@ -134,17 +146,17 @@
         <div class="kcard-text">
           <code>scanf("%d", &amp;a);</code> — 必须加 <strong>&amp;</strong>（取地址）<br>
           <code>scanf("%d", a);</code> — <strong>错误！</strong>编译可能通过但运行崩溃<br>
-          因为 scanf 需要知道变量在内存中的<strong>地址</strong>才能写入。<br>
+          因为 scanf 需要知道变量在内存中的<span class="term" data-term="address">地址</span>才能写入。<br>
           <strong>例外</strong>：读字符串到数组时不需要 &amp;（数组名就是地址）。
         </div>
       </div>
       <div class="kcard">
         <div class="kcard-title">宽度与精度</div>
         <div class="kcard-text">
-          <code>%5d</code> — 最少5位宽，右对齐<br>
+          <code>%5d</code> — 最少5位宽，右<span class="term" data-term="align">对齐</span><br>
           <code>%-5d</code> — 左对齐<br>
           <code>%05d</code> — 补前导零<br>
-          <code>%.2f</code> — 保留2位小数<br>
+          <code>%.2f</code> — 保留2位<span class="term" data-term="precision">小数精度</span><br>
           <code>%8.3f</code> — 总宽8，3位小数
         </div>
       </div>
@@ -288,6 +300,57 @@ function init() {
 }
 
 init();
+
+// === 专有名词 tooltip 系统 ===
+const TERM_DEFS = {
+  'address': {
+    icon: '🏠',
+    title: '内存地址（Memory Address）',
+    body: '每个变量在内存中都有一个"门牌号"，就是它的地址。<br><br>想象内存是一排信箱，每个信箱有编号。变量 a 的信箱编号可能是 <code>0x7fff5a3c</code>。<br><br><code>&amp;a</code> 就是"取 a 的信箱编号"，scanf 需要知道编号才能往信箱里塞数据。<br><br>Python 不需要管地址，因为 Python 的变量是标签（引用），不是信箱。'
+  },
+  'align': {
+    icon: '📐',
+    title: '对齐（Alignment）',
+    body: '输出时数字在<strong>固定宽度内怎么摆放</strong>。<br><br><code>%5d</code> 输出 42 → <code>&nbsp;&nbsp;&nbsp;42</code>（右对齐，左边补空格）<br><code>%-5d</code> 输出 42 → <code>42&nbsp;&nbsp;&nbsp;</code>（左对齐，右边补空格）<br><br>就像在格子里写字：右对齐靠右写，左对齐靠左写。'
+  },
+  'precision': {
+    icon: '🎯',
+    title: '小数精度（Precision）',
+    body: '输出小数时<strong>保留几位小数点</strong>。<br><br><code>%.2f</code> 输出 3.14159 → <code>3.14</code>（保留2位）<br><code>%.4f</code> 输出 3.14159 → <code>3.1416</code>（保留4位，自动四舍五入）<br><br>竞赛中经常要求"保留x位小数"，用 <code>%.xf</code> 搞定。'
+  },
+  'format-spec': {
+    icon: '🏷️',
+    title: '格式控制符（Format Specifier）',
+    body: '告诉 scanf/printf <strong>"这个位置放什么类型的数据"</strong>。<br><br><code>%d</code> = 整数，<code>%f</code> = 浮点，<code>%c</code> = 字符，<code>%s</code> = 字符串。<br><br>就像填表的"格型说明"：<br>"这里填数字" → %d<br>"这里填小数" → %f<br>类型写错了，数据就乱套。'
+  },
+  'overflow': {
+    icon: '💥',
+    title: '溢出（Overflow）',
+    body: '变量装不下了！<br><br>int 最大存 21 亿多，你存 30 亿进去，它装不下就"溢出"了，结果变成一个莫名其妙的负数。<br><br>用 <code>long long</code>（最大 9.2×10¹⁸）可以装更大的数。<code>%lld</code> 是 long long 的格式符，用错了 %d 就会截断溢出。<br><br>Python 不会溢出（int 无限大），C++ 会。'
+  }
+};
+
+function initTerms() {
+  document.addEventListener('mouseover', (e) => {
+    const term = e.target.closest('.term');
+    if (!term) return;
+    const key = term.dataset.term;
+    const def = TERM_DEFS[key];
+    if (!def) return;
+    document.querySelectorAll('.term-card.show').forEach(c => c.remove());
+    const card = document.createElement('div');
+    card.className = 'term-card show';
+    card.innerHTML = `<div class="tc-icon">${def.icon}</div><div class="tc-title">${def.title}</div><div class="tc-body">${def.body}</div>`;
+    term.appendChild(card);
+  });
+  document.addEventListener('mouseout', (e) => {
+    const term = e.target.closest('.term');
+    if (!term) return;
+    const card = term.querySelector('.term-card');
+    if (card) card.remove();
+  });
+}
+initTerms();
 </script>
 </body>
 </html>

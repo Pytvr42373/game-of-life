@@ -90,6 +90,28 @@
   .next-link a { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); color: var(--text-dim); text-decoration: none; font-size: 0.82rem; font-weight: 600; transition: all 0.2s; }
   .next-link a:hover { border-color: var(--accent); color: var(--text); }
   .next-link a svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  /* 专有名词 tooltip */
+  .term { border-bottom: 2px dotted var(--accent2); cursor: help; color: var(--accent2); font-weight: 600; position: relative; }
+  .term:hover { background: rgba(108,92,231,0.12); border-radius: 3px; }
+  .term-card {
+    position: absolute; z-index: 100; left: 50%; transform: translateX(-50%); top: calc(100% + 10px);
+    width: 340px; max-width: 90vw;
+    background: var(--surface2); border: 1px solid var(--accent); border-radius: 12px;
+    padding: 14px 18px; box-shadow: 0 8px 32px rgba(108,92,231,0.25);
+    display: none; pointer-events: none;
+  }
+  .term-card.show { display: block; animation: termFadeIn 0.18s ease-out; }
+  @keyframes termFadeIn { from { opacity: 0; transform: translateX(-50%) translateY(-4px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+  .term-card .tc-title { font-size: 0.82rem; font-weight: 700; color: var(--cyan); margin-bottom: 6px; }
+  .term-card .tc-body { font-size: 0.8rem; color: var(--text-dim); line-height: 1.7; }
+  .term-card .tc-body strong { color: var(--text); }
+  .term-card .tc-body code { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--orange); background: rgba(255,145,0,0.08); padding: 1px 5px; border-radius: 3px; }
+  .term-card .tc-icon { font-size: 1.1rem; margin-bottom: 4px; }
+  .term-card::before {
+    content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%) rotate(45deg);
+    width: 10px; height: 10px; background: var(--surface2); border-left: 1px solid var(--accent); border-top: 1px solid var(--accent);
+  }
 </style>
 </head>
 <body>
@@ -133,8 +155,8 @@
       <div class="kcard">
         <div class="kcard-title">#include 是什么？</div>
         <div class="kcard-text">
-          <code>#include</code> 是<strong>预处理指令</strong>，在编译前把头文件的内容原封不动地"粘贴"到你的代码里。<br><br>
-          相当于 Python 的 <code>import</code>，但机制完全不同：C++ 是文本级别的复制粘贴，Python 是运行时的模块加载。
+          <code>#include</code> 是<span class="term" data-term="preprocess">预处理指令</span>，在<span class="term" data-term="compile">编译前</span>把头文件的内容原封不动地"粘贴"到你的代码里。<br><br>
+          相当于 Python 的 <code>import</code>，但机制完全不同：C++ 是<span class="term" data-term="text-paste">文本粘贴</span>，Python 是<span class="term" data-term="module-load">模块加载</span>。
         </div>
       </div>
       <div class="kcard">
@@ -142,7 +164,7 @@
         <div class="kcard-text">
           <strong>&lt;iostream&gt;</strong> — C++ 标准头文件，无 .h 后缀<br>
           <strong>&lt;stdio.h&gt;</strong> — C 标准头文件，带 .h 后缀<br>
-          <strong>&lt;cstdio&gt;</strong> — C 标准头文件的 C++ 版（把内容放进 std 命名空间）<br>
+          <strong>&lt;cstdio&gt;</strong> — C 标准头文件的 C++ 版（把内容放进 <span class="term" data-term="namespace">命名空间</span>）<br>
           <strong>"myheader.h"</strong> — 自定义头文件，用双引号
         </div>
       </div>
@@ -160,9 +182,9 @@
       <div class="kcard">
         <div class="kcard-title">尖括号 vs 双引号</div>
         <div class="kcard-text">
-          <code>&lt;iostream&gt;</code> 用尖括号：编译器去<strong>系统目录</strong>找<br>
-          <code>"myheader.h"</code> 用双引号：编译器先在<strong>当前目录</strong>找，找不到再去系统目录<br><br>
-          竞赛中几乎只用尖括号，因为用的都是标准库。
+          <code>&lt;iostream&gt;</code> 用尖括号：<span class="term" data-term="compiler">编译器</span>去<span class="term" data-term="system-dir">系统目录</span>找<br>
+          <code>"myheader.h"</code> 用双引号：编译器先在<span class="term" data-term="current-dir">当前目录</span>找，找不到再去系统目录<br><br>
+          竞赛中几乎只用尖括号，因为用的都是<span class="term" data-term="stdlib">标准库</span>。
         </div>
       </div>
     </div>
@@ -202,15 +224,15 @@ const CODE = [
 ];
 
 const EXPLAINS = [
-  '<strong>#include &lt;iostream&gt;</strong><br>引入 C++ 标准输入输出库。有了它才能用 <em>cin</em> 和 <em>cout</em>。<br>相当于 Python 的 <strong>import sys</strong>，但机制是文本粘贴而非模块加载。',
-  '<strong>#include &lt;cstdio&gt;</strong><br>引入 C 标准输入输出库。有了它才能用 <em>scanf</em> 和 <em>printf</em>。<br>注意：C++ 版去掉了 .h 后缀，并把函数放进了 std 命名空间。<br>也兼容写 <strong>&lt;stdio.h&gt;</strong>，但推荐用 &lt;cstdio&gt;。',
+  '<strong>#include &lt;iostream&gt;</strong><br>引入 C++ 标准输入输出库。有了它才能用 <em>cin</em> 和 <em>cout</em>。<br>相当于 Python 的 <strong>import sys</strong>，但机制是<span class="term" data-term="text-paste">文本粘贴</span>而非<span class="term" data-term="module-load">模块加载</span>。',
+  '<strong>#include &lt;cstdio&gt;</strong><br>引入 C 标准输入输出库。有了它才能用 <em>scanf</em> 和 <em>printf</em>。<br>注意：C++ 版去掉了 .h 后缀，并把函数放进了 <span class="term" data-term="namespace">命名空间</span>。<br>也兼容写 <strong>&lt;stdio.h&gt;</strong>，但推荐用 &lt;cstdio&gt;。',
   '<strong>#include &lt;cmath&gt;</strong><br>引入数学函数库。有了它才能用 <em>sqrt()</em>、<em>pow()</em>、<em>abs()</em>、<em>floor()</em> 等。<br>相当于 Python 直接用 <strong>math.sqrt()</strong> 不需要 import——但 C++ 必须显式包含。',
   '<strong>空行</strong><br>空行不影响程序运行，只是代码风格。常见做法：头文件区和其他代码之间空一行。',
-  '<strong>using namespace std;</strong><br>把 std 命名空间"打开"，这样不用写 <em>std::cout</em> 而直接写 <em>cout</em>。<br>竞赛中几乎都写这一行。下页详细讲命名空间。',
+  '<strong>using namespace std;</strong><br>把 <span class="term" data-term="namespace">命名空间</span>"打开"，这样不用写 <em>std::cout</em> 而直接写 <em>cout</em>。<br>竞赛中几乎都写这一行。下页详细讲命名空间。',
   '<strong>空行</strong><br>把头文件+命名空间（"准备区"）和 main 函数（"执行区"）分隔开。',
   '<strong>int main()</strong><br>每个 C++ 程序<strong>必须有</strong>一个 main 函数，程序从这里开始执行。<br>int 表示返回值是整数（0 表示正常结束）。Python 没有"必须写 main"的要求。',
   '<strong>double x = 2.0;</strong><br>声明一个双精度浮点变量 x，赋值为 2.0。<br>C++ 必须先声明类型，Python 直接写 x = 2.0 就行。',
-  '<strong>double result = sqrt(x);</strong><br>调用 &lt;cmath&gt; 里的 sqrt() 函数计算 √2，结果存入 result。<br>如果没写 #include &lt;cmath&gt;，编译器不认识 sqrt()。',
+  '<strong>double result = sqrt(x);</strong><br>调用 &lt;cmath&gt; 里的 sqrt() 函数计算 √2，结果存入 result。<br>如果没写 #include &lt;cmath&gt;，<span class="term" data-term="compiler">编译器</span>不认识 sqrt()。',
   '<strong>cout &lt;&lt; "sqrt(2) = " &lt;&lt; result &lt;&lt; endl;</strong><br>用 cout 输出。&lt;&lt; 是"插入运算符"，把右边的东西塞进左边。<br>需要 #include &lt;iostream&gt; 才能用 cout。',
   '<strong>printf("sqrt(2) = %.4f\\n", result);</strong><br>用 printf 输出，%.4f 表示保留 4 位小数。<br>需要 #include &lt;cstdio&gt; 才能用 printf。<br>注意：用 printf 时不需要 & 取地址（输出参数是值），但 scanf 需要。',
   '<strong>return 0;</strong><br>返回 0 表示程序正常结束。操作系统看到 0 就知道"没问题"。<br>这是 main 函数的固定结尾，GESP 考试中必须有。',
@@ -260,6 +282,79 @@ function init() {
 }
 
 init();
+
+// === 专有名词 tooltip 系统 ===
+const TERM_DEFS = {
+  'text-paste': {
+    icon: '📋',
+    title: '文本粘贴（Text Paste）',
+    body: '想象你写了一封信，然后<strong>把另一张纸的内容完整抄写到信里</strong>。C++ 的 #include 就是这个意思：编译器在编译之前，把头文件里的所有代码<strong>一字不差地复制粘贴</strong>到你写的 #include 那个位置。<br><br>所以 #include &lt;iostream&gt; 之后，你的文件里就多了几千行 iostream 库的代码——只是你看不见。'
+  },
+  'module-load': {
+    icon: '📦',
+    title: '模块加载（Module Load）',
+    body: 'Python 的 import 是<strong>在程序运行时</strong>才去找模块文件、加载进来。模块的代码和你的代码是<strong>分开的</strong>，不会抄到你文件里。<br><br>打个比方：文本粘贴是把书的内容<strong>抄进你的笔记本</strong>；模块加载是<strong>在图书馆里翻开那本书</strong>看，不抄。'
+  },
+  'preprocess': {
+    icon: '🔧',
+    title: '预处理指令（Preprocessor）',
+    body: '在<strong>正式编译之前</strong>做的一个"准备步骤"。以 # 开头的指令都是预处理指令。<br><br>就像做菜前先洗菜切菜——预处理不炒菜（不生成可执行文件），只是把材料准备好。<code>#include</code> 抄代码、<code>#define</code> 替换文本，都是预处理。'
+  },
+  'compile': {
+    icon: '🏗️',
+    title: '编译（Compile）',
+    body: '把你写的 C++ 代码<strong>翻译成机器能懂的二进制指令</strong>。<br><br>你写的是人类语言（C++），电脑只懂 0 和 1。编译器就是翻译官，把你的 .cpp 文件翻译成 .exe（可执行文件）。<br><br>编译<strong>之前</strong>会先跑预处理（#include 等指令），编译<strong>之后</strong>还要链接（把多个文件拼起来）。'
+  },
+  'compiler': {
+    icon: '🏗️',
+    title: '编译器（Compiler）',
+    body: '一个程序，负责把 C++ 代码翻译成机器码。常见的有 <strong>g++</strong>、<strong>clang++</strong>、<strong>MSVC</strong>。<br><br>就像翻译官：你写中文（C++），它翻译成英语（机器码）。如果它不认识某个词（函数），就会报错。所以 sqrt() 不 include &lt;cmath&gt; 就用，编译器会说"不认识 sqrt"。'
+  },
+  'namespace': {
+    icon: '🏷️',
+    title: '命名空间（Namespace）',
+    body: '给名字加"姓氏"，防止重名冲突。<br><br>学校有两个张伟：三年级的张伟和五年级的张伟。<code>std::cout</code> 就是"std 家族的 cout"。<br><br><code>using namespace std;</code> 相当于说"这页纸上 std 家族的人不用加姓氏了"，所以直接写 cout 就行。下页详细讲！'
+  },
+  'system-dir': {
+    icon: '📁',
+    title: '系统目录',
+    body: '安装编译器时自带的文件夹，里面放着所有标准库的头文件。<br><br>比如 <code>/usr/include/c++/</code> 之类的路径。用 <code>&lt;iostream&gt;</code> 尖括号时，编译器就去这些系统文件夹里找。你不需要知道具体路径。'
+  },
+  'current-dir': {
+    icon: '📂',
+    title: '当前目录',
+    body: '你的 .cpp 文件所在的文件夹。用 <code>"myheader.h"</code> 双引号时，编译器先在你这个文件夹里找头文件。<br><br>竞赛中你不会自己写头文件，所以几乎用不到双引号。'
+  },
+  'stdlib': {
+    icon: '📚',
+    title: '标准库（Standard Library）',
+    body: 'C++ 官方提供的工具箱，里面有几百个常用函数和类。<br><br>比如 <code>&lt;iostream&gt;</code>（输入输出）、<code>&lt;cmath&gt;</code>（数学）、<code>&lt;algorithm&gt;</code>（算法）。这些是 C++ 自带的，不用安装，<code>#include</code> 就能用。<br><br>相当于 Python 的标准库（import math、import os 等）。'
+  }
+};
+
+function initTerms() {
+  document.addEventListener('mouseover', (e) => {
+    const term = e.target.closest('.term');
+    if (!term) return;
+    const key = term.dataset.term;
+    const def = TERM_DEFS[key];
+    if (!def) return;
+    // 移除已有的卡片
+    document.querySelectorAll('.term-card.show').forEach(c => c.remove());
+    const card = document.createElement('div');
+    card.className = 'term-card show';
+    card.innerHTML = `<div class="tc-icon">${def.icon}</div><div class="tc-title">${def.title}</div><div class="tc-body">${def.body}</div>`;
+    term.appendChild(card);
+  });
+  document.addEventListener('mouseout', (e) => {
+    const term = e.target.closest('.term');
+    if (!term) return;
+    const card = term.querySelector('.term-card');
+    if (card) card.remove();
+  });
+}
+
+initTerms();
 </script>
 </body>
 </html>

@@ -78,6 +78,18 @@
   .next-link a { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); color: var(--text-dim); text-decoration: none; font-size: 0.82rem; font-weight: 600; transition: all 0.2s; }
   .next-link a:hover { border-color: var(--accent); color: var(--text); }
   .next-link a svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  .term { border-bottom: 2px dotted var(--accent2); cursor: help; color: var(--accent2); font-weight: 600; position: relative; }
+  .term:hover { background: rgba(108,92,231,0.12); border-radius: 3px; }
+  .term-card { position: absolute; z-index: 100; left: 50%; transform: translateX(-50%); top: calc(100% + 10px); width: 340px; max-width: 90vw; background: var(--surface2); border: 1px solid var(--accent); border-radius: 12px; padding: 14px 18px; box-shadow: 0 8px 32px rgba(108,92,231,0.25); display: none; pointer-events: none; }
+  .term-card.show { display: block; animation: termFadeIn 0.18s ease-out; }
+  @keyframes termFadeIn { from { opacity: 0; transform: translateX(-50%) translateY(-4px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+  .term-card .tc-title { font-size: 0.82rem; font-weight: 700; color: var(--cyan); margin-bottom: 6px; }
+  .term-card .tc-body { font-size: 0.8rem; color: var(--text-dim); line-height: 1.7; }
+  .term-card .tc-body strong { color: var(--text); }
+  .term-card .tc-body code { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--orange); background: rgba(255,145,0,0.08); padding: 1px 5px; border-radius: 3px; }
+  .term-card .tc-icon { font-size: 1.1rem; margin-bottom: 4px; }
+  .term-card::before { content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%) rotate(45deg); width: 10px; height: 10px; background: var(--surface2); border-left: 1px solid var(--accent); border-top: 1px solid var(--accent); }
 </style>
 </head>
 <body>
@@ -121,7 +133,7 @@
       <div class="kcard">
         <div class="kcard-title">什么是命名空间？</div>
         <div class="kcard-text">
-          命名空间（namespace）是给名字加"姓氏"的机制。<br>
+          <span class="term" data-term="namespace2">命名空间</span>（namespace）是给名字加"姓氏"的机制。<br>
           <code>std::cout</code> 表示"std 这个家族里的 cout"。<br>
           就像学校里有两个"张伟"，用"三年级的张伟"和"五年级的张伟"来区分。
         </div>
@@ -138,9 +150,9 @@
       <div class="kcard">
         <div class="kcard-title">为什么需要命名空间？</div>
         <div class="kcard-text">
-          C++ 标准库有几千个名字（cout、cin、sort、vector、max、min...）。<br>
-          如果你的代码里也有个 <strong>max</strong> 函数，编译器不知道用哪个。<br>
-          有了命名空间：<strong>std::max</strong> 是标准库的，<strong>::max</strong> 是你的，不会冲突。
+          C++ <span class="term" data-term="stdlib2">标准库</span>有几千个名字（cout、cin、sort、vector、max、min...）。<br>
+          如果你的代码里也有个 <strong>max</strong> 函数，<span class="term" data-term="compiler2">编译器</span>不知道用哪个。<br>
+          有了命名空间：<strong>std::max</strong> 是标准库的，<strong>::max</strong> 是你的，不会<span class="term" data-term="conflict">命名冲突</span>。
         </div>
       </div>
       <div class="kcard">
@@ -148,7 +160,7 @@
         <div class="kcard-text">
           Python 的 <code>import math</code> 要求写 <strong>math.sqrt()</strong>，相当于"带姓氏"。<br>
           Python 的 <code>from math import *</code> 可以直接写 <strong>sqrt()</strong>，相当于 <strong>using namespace</strong>。<br>
-          C++ 的 <code>using namespace std;</code> 就是 <strong>from std import *</strong> 的意思。
+          C++ 的 <code>using namespace std;</code> 就是 <span class="term" data-term="py-star">from std import *</span> 的意思。
         </div>
       </div>
     </div>
@@ -253,6 +265,57 @@ function init() {
 }
 
 init();
+
+// === 专有名词 tooltip 系统 ===
+const TERM_DEFS = {
+  'namespace2': {
+    icon: '🏷️',
+    title: '命名空间（Namespace）',
+    body: '想象一个学校，三年级的张伟和五年级的张伟同名。用<strong>"三年级的张伟"</strong>和<strong>"五年级的张伟"</strong>区分，这就是命名空间。<br><br><code>std::cout</code> = "std 家族的 cout"。<br><code>::</code> 就是那个"的"字——<strong>域作用符</strong>，连接姓氏和名字。'
+  },
+  'stdlib2': {
+    icon: '📚',
+    title: '标准库（Standard Library）',
+    body: 'C++ 官方自带的工具箱，包含几百个常用函数和类。<br><br>cout、cin、sort、vector、max、min... 全都在标准库里。<br><br>相当于 Python 的 <code>import math</code>、<code>import os</code> 等自带模块，不用额外安装。'
+  },
+  'compiler2': {
+    icon: '🏗️',
+    title: '编译器（Compiler）',
+    body: '把 C++ 代码翻译成机器码的程序。<br><br>编译器看到 <code>cout</code> 时，需要知道它是什么。如果没写 <code>using namespace std;</code>，编译器只认识 <code>std::cout</code>，会报错"cout 是什么？"<br><br>常见的编译器：g++、clang++、MSVC。'
+  },
+  'conflict': {
+    icon: '⚠️',
+    title: '命名冲突（Name Collision）',
+    body: '两个不同的东西用了<strong>同一个名字</strong>，编译器不知道你说的是哪个。<br><br>比如你写了一个 <code>max</code> 函数求最大值，标准库里也有一个 <code>std::max</code>。如果都叫 max，编译器就懵了：用哪个？<br><br>命名空间解决了这个问题：<code>std::max</code> vs <code>::max</code> 一目了然。'
+  },
+  'py-star': {
+    icon: '🐍',
+    title: 'from X import *',
+    body: 'Python 的写法，把模块里<strong>所有名字</strong>直接导入，不用加模块名前缀。<br><br><code>from math import *</code> 之后可以直接写 <code>sqrt(4)</code> 而不用 <code>math.sqrt(4)</code>。<br><br>C++ 的 <code>using namespace std;</code> 完全对应这个：之后写 <code>cout</code> 而不用 <code>std::cout</code>。'
+  }
+};
+
+function initTerms() {
+  document.addEventListener('mouseover', (e) => {
+    const term = e.target.closest('.term');
+    if (!term) return;
+    const key = term.dataset.term;
+    const def = TERM_DEFS[key];
+    if (!def) return;
+    document.querySelectorAll('.term-card.show').forEach(c => c.remove());
+    const card = document.createElement('div');
+    card.className = 'term-card show';
+    card.innerHTML = `<div class="tc-icon">${def.icon}</div><div class="tc-title">${def.title}</div><div class="tc-body">${def.body}</div>`;
+    term.appendChild(card);
+  });
+  document.addEventListener('mouseout', (e) => {
+    const term = e.target.closest('.term');
+    if (!term) return;
+    const card = term.querySelector('.term-card');
+    if (card) card.remove();
+  });
+}
+initTerms();
 </script>
 </body>
 </html>
