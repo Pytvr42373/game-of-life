@@ -1,4 +1,4 @@
-import { ROWS, COLS, createEmptyGrid, step, randomize, clearGrid, toggleCell, applyPattern } from './game.js';
+import { ROWS, COLS, createEmptyGrid, step, stepDayNight, randomize, clearGrid, toggleCell, applyPattern } from './game.js';
 import { PATTERNS } from './patterns.js';
 import { createGrid, refreshAll, updateStats, updateCellVisual } from './renderer.js';
 
@@ -7,6 +7,7 @@ let generation = 0;
 let playing = false;
 let intervalId = null;
 let speed = 200;
+let dayNight = false;
 
 const gridEl = document.getElementById('grid');
 const genEl = document.getElementById('generation');
@@ -15,6 +16,8 @@ const btnPlay = document.getElementById('btn-play');
 const patternSelect = document.getElementById('pattern-select');
 const speedInput = document.getElementById('speed');
 const speedLabel = document.getElementById('speed-label');
+const modeSelect = document.getElementById('mode-select');
+const rulesEl = document.getElementById('rules-text');
 
 const MAX_HISTORY = 50;
 let history = [];
@@ -61,7 +64,7 @@ function init() {
 }
 
 function doStep() {
-  grid = step(grid);
+  grid = dayNight ? stepDayNight(grid) : step(grid);
   generation++;
   refreshAll(gridEl, grid);
   updateStats(genEl, aliveEl, grid, generation);
@@ -149,6 +152,31 @@ function loadFromLocal() {
   return false;
 }
 
+function handleModeChange() {
+  dayNight = modeSelect.value === 'daynight';
+  stop();
+  generation = 0;
+  clearGrid(grid);
+  refreshAll(gridEl, grid);
+  updateStats(genEl, aliveEl, grid, generation);
+  saveState();
+  updateRulesDisplay();
+}
+
+function updateRulesDisplay() {
+  if (dayNight) {
+    rulesEl.innerHTML =
+      '<strong>规则: Day & Night (B3678/S34678)</strong> — 存活细胞需要 3、4、6、7 或 8 个邻居；' +
+      '死亡细胞在恰好 3、6、7 或 8 个邻居时复活。' +
+      '此规则下许多经典结构行为不同，且会产生独特的混沌模式。';
+  } else {
+    rulesEl.innerHTML =
+      '<strong>规则:</strong> 每个细胞有两种状态 — 存活或死亡。每一轮，根据邻居数决定命运：' +
+      '<strong>存活</strong>的细胞需要恰好2或3个邻居才能继续存活；' +
+      '<strong>死亡</strong>的细胞在恰好3个邻居时会复活。邻居指周围8个方向的细胞。';
+  }
+}
+
 window.togglePlay = togglePlay;
 window.doStep = doStep;
 window.handleRandomize = handleRandomize;
@@ -158,7 +186,9 @@ window.undo = undo;
 window.redo = redo;
 window.saveToLocal = saveToLocal;
 window.loadFromLocal = loadFromLocal;
+window.handleModeChange = handleModeChange;
 
 patternSelect.addEventListener('change', handlePatternSelect);
+modeSelect.addEventListener('change', handleModeChange);
 
 init();

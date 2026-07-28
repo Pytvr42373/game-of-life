@@ -268,6 +268,11 @@
     <option value="acorn">橡子 Acorn</option>
   </select>
 
+  <select id="mode-select">
+    <option value="conway">康威生命 (B3/S23)</option>
+    <option value="daynight">日与夜 (B3678/S34678)</option>
+  </select>
+
   <button class="primary" id="btn-play" onclick="togglePlay()">开始</button>
   <button onclick="doStep()">下一步</button>
   <button onclick="handleRandomize()">随机</button>
@@ -284,7 +289,7 @@
   </div>
 </div>
 
-<div class="rules">
+<div class="rules" id="rules-text">
   <strong>规则:</strong> 每个细胞有两种状态 — 存活或死亡。每一轮，根据邻居数决定命运：
   <strong>存活</strong>的细胞需要恰好2或3个邻居才能继续存活；
   <strong>死亡</strong>的细胞在恰好3个邻居时会复活。邻居指周围8个方向的细胞。

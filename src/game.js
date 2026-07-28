@@ -32,6 +32,22 @@ export function step(grid) {
   return next;
 }
 
+// Day & Night (B3678/S34678)
+export function stepDayNight(grid) {
+  const next = createEmptyGrid();
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const n = countNeighbors(grid, r, c);
+      if (grid[r][c]) {
+        next[r][c] = (n === 3 || n === 4 || n === 6 || n === 7 || n === 8) ? 1 : 0;
+      } else {
+        next[r][c] = (n === 3 || n === 6 || n === 7 || n === 8) ? 1 : 0;
+      }
+    }
+  }
+  return next;
+}
+
 export function randomize(grid, density = 0.25) {
   for (let r = 0; r < ROWS; r++)
     for (let c = 0; c < COLS; c++)
