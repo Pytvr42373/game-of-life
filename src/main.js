@@ -1,6 +1,6 @@
-import { ROWS, COLS, createEmptyGrid, step, stepDayNight, randomize, clearGrid, toggleCell, applyPattern } from './game.js';
+import { ROWS, COLS, createEmptyGrid, step, stepDayNight, randomize, clearGrid, applyPattern } from './game.js';
 import { PATTERNS } from './patterns.js';
-import { createGrid, refreshAll, updateStats, updateCellVisual } from './renderer.js';
+import { createGrid, refreshAll, updateStats } from './renderer.js';
 
 let grid = createEmptyGrid();
 let generation = 0;
@@ -26,7 +26,7 @@ let historyIndex = -1;
 function saveState() {
   const snapshot = grid.map(row => [...row]);
   history = history.slice(0, historyIndex + 1);
-  history.push(snapshot);
+  history.push({ grid: snapshot, gen: generation });
   if (history.length > MAX_HISTORY) history.shift();
   historyIndex = history.length - 1;
 }
@@ -34,7 +34,8 @@ function saveState() {
 function undo() {
   if (historyIndex > 0) {
     historyIndex--;
-    grid = history[historyIndex].map(row => [...row]);
+    grid = history[historyIndex].grid.map(row => [...row]);
+    generation = history[historyIndex].gen;
     refreshAll(gridEl, grid);
     updateStats(genEl, aliveEl, grid, generation);
   }
@@ -43,21 +44,19 @@ function undo() {
 function redo() {
   if (historyIndex < history.length - 1) {
     historyIndex++;
-    grid = history[historyIndex].map(row => [...row]);
+    grid = history[historyIndex].grid.map(row => [...row]);
+    generation = history[historyIndex].gen;
     refreshAll(gridEl, grid);
     updateStats(genEl, aliveEl, grid, generation);
   }
 }
 
 function handleCellClick(r, c) {
-  toggleCell(grid, r, c);
-  updateCellVisual(gridEl, grid, r, c);
   updateStats(genEl, aliveEl, grid, generation);
-  saveState();
 }
 
 function init() {
-  createGrid(gridEl, grid, handleCellClick);
+  createGrid(gridEl, grid, handleCellClick, saveState);
   generation = 0;
   updateStats(genEl, aliveEl, grid, generation);
   saveState();
@@ -140,7 +139,7 @@ function loadFromLocal() {
   if (!raw) return false;
   try {
     const data = JSON.parse(raw);
-    if (data.grid && data.grid.length === ROWS) {
+    if (data.grid && data.grid.length === ROWS && data.grid[0] && data.grid[0].length === COLS) {
       grid = data.grid;
       generation = data.generation || 0;
       refreshAll(gridEl, grid);
@@ -156,6 +155,8 @@ function handleModeChange() {
   dayNight = modeSelect.value === 'daynight';
   stop();
   generation = 0;
+  history = [];
+  historyIndex = -1;
   clearGrid(grid);
   refreshAll(gridEl, grid);
   updateStats(genEl, aliveEl, grid, generation);

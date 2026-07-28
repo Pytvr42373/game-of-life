@@ -1,10 +1,10 @@
-import { ROWS, COLS, countAlive } from './game.js';
+import { ROWS, COLS, countAlive, toggleCell } from './game.js';
 
 let drawing = false;
 let drawMode = 1;
 let mouseUpHandler = null;
 
-export function createGrid(gridEl, grid, onClick) {
+export function createGrid(gridEl, grid, onClick, onDragEnd) {
   if (mouseUpHandler) {
     document.removeEventListener('mouseup', mouseUpHandler);
   }
@@ -16,12 +16,13 @@ export function createGrid(gridEl, grid, onClick) {
       cell.className = 'cell';
       cell.dataset.row = r;
       cell.dataset.col = c;
-      cell.addEventListener('click', () => onClick(r, c));
       cell.addEventListener('mousedown', (e) => {
         e.preventDefault();
         drawing = true;
         drawMode = grid[r][c] ? 0 : 1;
-        onClick(r, c);
+        toggleCell(grid, r, c);
+        updateCellVisual(gridEl, grid, r, c);
+        if (onClick) onClick(r, c);
       });
       cell.addEventListener('mouseenter', () => {
         if (drawing) {
@@ -33,7 +34,10 @@ export function createGrid(gridEl, grid, onClick) {
     }
   }
 
-  mouseUpHandler = () => { drawing = false; };
+  mouseUpHandler = () => {
+    if (drawing && onDragEnd) onDragEnd();
+    drawing = false;
+  };
   document.addEventListener('mouseup', mouseUpHandler);
 }
 
