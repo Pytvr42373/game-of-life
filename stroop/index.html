@@ -10,139 +10,515 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 
-/* ============ 主题1 · 4399橙绿（亮色·默认） ============ */
+/* ============ 4399 主题变量 ============ */
 body[data-theme="4399"]{
   --bg:#f4f8ef; --bg2:#ffffff; --surface:#ffffff; --line:#d8e8cd;
   --text:#24401d; --dim:#6f8a63; --green:#389904; --green2:#448230; --orange:#fb6400; --orange2:#e64e00;
   --tag-bg:#eef5e8; --overlay:rgba(36,64,29,.42);
-  background:linear-gradient(180deg,#f0f7ea 0%,#ffffff 55%,#f7fbf3 100%);color:var(--text);
+  --shadow-sm:0 2px 8px rgba(56,153,4,.10);
+  --shadow-md:0 6px 20px rgba(56,153,4,.15);
+  --shadow-lg:0 12px 36px rgba(56,153,4,.20);
+  --radius:16px;
+  background:linear-gradient(180deg,#eef6e6 0%,#ffffff 50%,#f5fbef 100%);
+  color:var(--text);
 }
 body[data-theme="4399"]::before{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.6;
   background:
-    radial-gradient(circle at 12% 18%, rgba(56,153,4,.08), transparent 40%),
-    radial-gradient(circle at 88% 80%, rgba(251,100,0,.07), transparent 40%);
+    radial-gradient(circle at 10% 15%, rgba(56,153,4,.10), transparent 35%),
+    radial-gradient(circle at 90% 85%, rgba(251,100,0,.08), transparent 35%),
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,.4), transparent 60%);
+}
+body{
+  font-family:'PingFang SC','Microsoft YaHei',sans-serif;
+  min-height:100vh;
+  transition:background .4s,color .4s;
+  -webkit-tap-highlight-color:transparent;
 }
 
-/* ============ 主题2 · 街机厅（暗色） ============ */
-/* 像素网格 */
-/* CRT 扫描线 */
-body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;min-height:100vh;transition:background .4s,color .4s}
+/* ============ 返回主页按钮 ============ */
+.back-home{
+  position:fixed;top:14px;left:14px;z-index:99;
+  text-decoration:none;font-weight:700;
+  padding:8px 16px;border-radius:999px;cursor:pointer;
+  font-size:13px;font-family:inherit;
+  background:rgba(255,255,255,.65);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1.5px solid var(--line);color:var(--green);
+  box-shadow:var(--shadow-sm);
+  transition:transform .18s,background .18s,border-color .18s,box-shadow .18s;
+}
+.back-home:hover{
+  background:rgba(255,255,255,.9);border-color:var(--green);
+  transform:translateY(-2px);box-shadow:var(--shadow-md);
+}
+.back-home:active{transform:translateY(0)}
 
-/* ============ 主题切换器 ============ */
-/* ============ 布局 ============ */
-.wrap{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:76px 16px 40px;display:flex;flex-direction:column;align-items:center;min-height:100vh}
-.back-home{position:fixed;top:14px;left:14px;z-index:99;text-decoration:none;font-weight:700;padding:8px 14px;border-radius:999px;cursor:pointer;font-size:13px;font-family:inherit;background:rgba(255,255,255,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1.5px solid var(--line);color:var(--green);box-shadow:0 2px 8px rgba(56,153,4,.12);transition:transform .18s,background .18s,border-color .18s}
-.back-home:hover{background:rgba(255,255,255,.85);border-color:var(--green);color:var(--green);transform:translateY(-1px)}
-/* 头部 */
-body[data-theme="4399"] .h4399{display:block}
-.h4399{display:none;text-align:center;margin-bottom:20px}
-.h4399 .top{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:6px}
-.h4399 .logo-box{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;font-size:28px;color:#fff;box-shadow:0 6px 16px rgba(56,153,4,.35)}
-.h4399 .title{font-size:32px;font-weight:900;color:var(--green);letter-spacing:1px;text-shadow:0 2px 0 rgba(56,153,4,.12);font-family:'ZCOOL KuaiLe',sans-serif}
-.h4399 .title em{font-style:normal;color:var(--orange)}
-.h4399 .sub{color:var(--dim);font-size:13px}
+/* ============ 主容器 ============ */
+.wrap{
+  position:relative;z-index:1;
+  max-width:600px;margin:0 auto;
+  padding:64px 16px 48px;
+  display:flex;flex-direction:column;align-items:center;
+  min-height:100vh;
+}
 
-@keyframes blink{50%{opacity:0}}
+/* ============ Hero 头部 ============ */
+.hero{
+  text-align:center;margin-bottom:28px;
+  padding:32px 24px 28px;
+  border-radius:24px;
+  background:linear-gradient(135deg,rgba(56,153,4,.08) 0%,rgba(251,100,0,.06) 100%);
+  border:1.5px solid rgba(56,153,4,.15);
+  box-shadow:var(--shadow-sm);
+  width:100%;
+}
+.hero .logo-row{
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  margin-bottom:10px;
+}
+.hero .logo-box{
+  width:56px;height:56px;border-radius:16px;
+  background:linear-gradient(135deg,var(--green),var(--green2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:30px;
+  box-shadow:0 8px 20px rgba(56,153,4,.35);
+  flex-shrink:0;
+}
+.hero .title{
+  font-size:36px;font-weight:900;color:var(--green);
+  letter-spacing:2px;
+  text-shadow:0 3px 0 rgba(56,153,4,.10);
+  font-family:'ZCOOL KuaiLe',sans-serif;
+  line-height:1.1;
+}
+.hero .title em{font-style:normal;color:var(--orange)}
+.hero .sub{
+  color:var(--dim);font-size:14px;
+  line-height:1.5;
+}
+
+/* ============ 屏幕通用 ============ */
+.screen{
+  width:100%;display:flex;flex-direction:column;align-items:center;
+}
+
+/* ============ 菜单 ============ */
+.menu-view{
+  width:100%;display:flex;flex-direction:column;align-items:center;
+}
+.menu-list{
+  display:flex;flex-direction:column;gap:14px;
+  width:100%;max-width:360px;
+}
+.menu-card{
+  display:flex;align-items:center;gap:14px;
+  width:100%;font-family:inherit;
+  padding:18px 22px;border-radius:var(--radius);
+  cursor:pointer;transition:.2s;
+  text-decoration:none;box-sizing:border-box;
+  background:var(--surface);
+  border:2px solid var(--line);
+  color:var(--text);
+  box-shadow:var(--shadow-sm);
+}
+.menu-card:hover{
+  transform:translateY(-3px);
+  border-color:var(--green);
+  box-shadow:var(--shadow-md);
+}
+.menu-card:active{transform:translateY(-1px)}
+.menu-card .mc-icon{
+  width:44px;height:44px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;flex-shrink:0;
+  background:var(--tag-bg);
+}
+.menu-card .mc-text{
+  flex:1;font-weight:800;font-size:17px;
+  text-align:left;
+}
+.menu-card .mc-arrow{
+  font-size:18px;color:var(--dim);font-weight:700;
+  transition:transform .2s,color .2s;
+}
+.menu-card:hover .mc-arrow{transform:translateX(4px);color:var(--green)}
+/* 主按钮高亮 */
+.menu-card.primary{
+  background:linear-gradient(135deg,var(--orange),var(--orange2));
+  border-color:var(--orange2);color:#fff;
+  box-shadow:0 6px 18px rgba(251,100,0,.30);
+}
+.menu-card.primary .mc-icon{background:rgba(255,255,255,.25)}
+.menu-card.primary .mc-arrow{color:rgba(255,255,255,.8)}
+.menu-card.primary:hover{
+  border-color:var(--orange2);
+  box-shadow:0 10px 28px rgba(251,100,0,.38);
+  filter:brightness(1.06);
+}
+.menu-card.primary:hover .mc-arrow{color:#fff}
+
+/* ============ 面板标题 ============ */
+.panel-title{
+  font-size:16px;font-weight:900;color:var(--green);
+  letter-spacing:3px;margin-bottom:20px;
+  padding:6px 20px;border-radius:999px;
+  background:var(--tag-bg);
+  text-align:center;
+}
+
+/* ============ 难度选择 ============ */
+.diff-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:14px;width:100%;margin-bottom:20px;
+}
+.diff-card{
+  cursor:pointer;text-align:center;
+  padding:20px 14px 16px;border-radius:var(--radius);
+  transition:.2s;position:relative;overflow:hidden;
+  background:var(--surface);
+  border:2px solid var(--line);
+  box-shadow:var(--shadow-sm);
+}
+.diff-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,var(--green),var(--orange));
+  opacity:.7;
+}
+.diff-card:hover{
+  border-color:var(--green);
+  box-shadow:var(--shadow-lg);
+  transform:translateY(-4px);
+}
+.diff-card:active{transform:translateY(-1px)}
+.diff-card .dc-stars{
+  margin-bottom:8px;font-size:13px;letter-spacing:1px;
+  line-height:1;
+}
+.diff-card .dc-stars .star{color:#ccc;font-style:normal}
+.diff-card .dc-stars .star.on{color:var(--orange)}
+.diff-card .dname{
+  font-size:20px;font-weight:900;color:var(--text);
+  margin-bottom:6px;font-family:'ZCOOL KuaiLe',sans-serif;
+}
+.diff-card .ddesc{
+  font-size:12px;color:var(--dim);margin-bottom:10px;
+}
+.diff-card .dc-dots{
+  display:flex;justify-content:center;gap:5px;
+  margin-bottom:10px;
+}
+.diff-card .dc-dots .dot{
+  width:12px;height:12px;border-radius:50%;
+  border:1.5px solid rgba(255,255,255,.6);
+  box-shadow:0 1px 3px rgba(0,0,0,.15);
+}
+.diff-card .dhigh{
+  font-size:13px;font-weight:800;color:var(--orange);
+  padding:4px 12px;border-radius:999px;
+  background:rgba(251,100,0,.08);
+  display:inline-block;
+}
+
+/* ============ 排行榜 ============ */
+.rank-list{
+  display:flex;flex-direction:column;gap:12px;
+  width:100%;max-width:400px;margin-bottom:18px;
+}
+.rank-row{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;padding:14px 18px;border-radius:var(--radius);
+  background:var(--surface);border:2px solid var(--line);
+  box-shadow:var(--shadow-sm);
+  transition:transform .18s;
+}
+.rank-row:hover{transform:translateX(4px)}
+.rank-row .rname{font-weight:900;font-size:16px;color:var(--text)}
+.rank-row .rdesc{font-size:11px;color:var(--dim);margin-top:2px}
+.rank-row .rscore{
+  font-weight:900;font-size:20px;color:var(--orange);
+  font-family:'ZCOOL KuaiLe',sans-serif;
+}
+.rank-empty{
+  text-align:center;color:var(--dim);font-size:14px;
+  padding:32px 0;
+}
+
+/* ============ 规则介绍 ============ */
+.howto{
+  width:100%;margin:4px 0 20px;
+  padding:20px 20px;border-radius:var(--radius);
+  font-size:14px;line-height:2;color:var(--dim);
+  background:var(--tag-bg);
+  border:1.5px solid var(--line);
+}
+.howto b{color:var(--green)}
+.howto .key{
+  display:inline-block;background:var(--surface);
+  border:1.5px solid var(--line);border-radius:6px;
+  padding:1px 8px;font-weight:800;color:var(--text);
+  margin:0 1px;
+}
 
 /* ============ 通用按钮 ============ */
-.new-btn{font-family:inherit;font-weight:800;font-size:17px;padding:13px 30px;border-radius:12px;cursor:pointer;transition:.18s;margin-top:6px}
-body[data-theme="4399"] .new-btn{background:linear-gradient(135deg,var(--orange),var(--orange2));border:2px solid var(--orange2);color:#fff;box-shadow:0 3px 12px rgba(251,100,0,.28)}
-body[data-theme="4399"] .new-btn:hover{filter:brightness(1.08)}
-.new-btn.ghost{background:transparent}
-body[data-theme="4399"] .new-btn.ghost{color:var(--green);border:2px solid var(--line)}
-body[data-theme="4399"] .new-btn.ghost:hover{border-color:var(--green)}
-/* ============ 设置屏 ============ */
-.screen{width:100%;display:flex;flex-direction:column;align-items:center}
-.panel-title{font-size:15px;font-weight:800;color:var(--dim);letter-spacing:2px;margin-bottom:14px}
-.diff-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;width:100%;margin-bottom:16px}
-.diff-card{cursor:pointer;text-align:center;padding:16px 12px;border-radius:14px;transition:.18s;position:relative}
-body[data-theme="4399"] .diff-card{background:var(--surface);border:2px solid var(--line)}
-body[data-theme="4399"] .diff-card:hover{border-color:var(--green);box-shadow:0 8px 20px rgba(56,153,4,.16);transform:translateY(-3px)}
-.diff-card .dname{font-size:18px;font-weight:900;color:var(--text);margin-bottom:6px}
-.diff-card .ddesc{font-size:12px;color:var(--dim);margin-bottom:8px}
-.diff-card .dhigh{font-size:12px;font-weight:700;color:var(--orange)}
+.new-btn{
+  font-family:inherit;font-weight:800;font-size:16px;
+  padding:14px 32px;border-radius:12px;cursor:pointer;
+  transition:.18s;min-width:140px;
+  background:linear-gradient(135deg,var(--orange),var(--orange2));
+  border:2px solid var(--orange2);color:#fff;
+  box-shadow:0 4px 14px rgba(251,100,0,.28);
+}
+.new-btn:hover{filter:brightness(1.08);transform:translateY(-2px);box-shadow:0 8px 22px rgba(251,100,0,.35)}
+.new-btn:active{transform:translateY(0)}
+.new-btn.ghost{
+  background:var(--surface);color:var(--green);
+  border:2px solid var(--line);
+  box-shadow:var(--shadow-sm);
+}
+.new-btn.ghost:hover{border-color:var(--green);filter:none;box-shadow:var(--shadow-md)}
 
-.menu-view{width:100%;display:flex;flex-direction:column;align-items:center}
-.menu-list{display:flex;flex-direction:column;gap:12px;width:100%;max-width:320px}
-.menu-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;font-family:inherit;font-weight:800;font-size:16px;padding:14px 20px;border-radius:12px;cursor:pointer;transition:.18s;text-decoration:none;box-sizing:border-box;background:var(--surface);border:2px solid var(--line);color:var(--text)}
-.menu-btn:hover{transform:translateY(-2px);border-color:var(--green);box-shadow:0 8px 20px rgba(56,153,4,.16)}
-.menu-btn:active{transform:translateY(0)}
-.rank-list{display:flex;flex-direction:column;gap:10px;width:100%;max-width:360px;margin-bottom:14px}
-.rank-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;border-radius:12px;background:var(--surface);border:2px solid var(--line)}
-.rank-row .rname{font-weight:800;font-size:15px;color:var(--text)}
-.rank-row .rdesc{font-size:11px;color:var(--dim)}
-.rank-row .rscore{font-weight:800;font-size:16px;color:var(--orange)}
-.rank-empty{text-align:center;color:var(--dim);font-size:14px;padding:20px 0}
-
-.howto{width:100%;margin:4px 0 18px;padding:14px 16px;border-radius:12px;font-size:13px;line-height:1.8;color:var(--dim)}
-body[data-theme="4399"] .howto{background:var(--tag-bg);border:1px solid var(--line)}
-.howto b{color:var(--green)}
-.howto .key{display:inline-block;background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:0 7px;font-weight:800;color:var(--text)}
-/* ============ HUD ============ */
-.hud{display:flex;align-items:center;justify-content:space-between;width:100%;gap:10px;margin-bottom:12px}
-.hud .chip{flex:1;text-align:center;font-size:12px;color:var(--dim);padding:7px 8px;border-radius:10px}
-body[data-theme="4399"] .hud .chip{background:var(--surface);border:1px solid var(--line)}
-.hud .chip b{display:block;font-size:20px;color:var(--green);margin-top:2px}
+/* ============ 游戏屏 HUD ============ */
+.hud{
+  display:flex;align-items:stretch;justify-content:space-between;
+  width:100%;gap:10px;margin-bottom:14px;
+}
+.hud .chip{
+  flex:1;text-align:center;
+  padding:10px 6px;border-radius:12px;
+  background:var(--surface);border:2px solid var(--line);
+  box-shadow:var(--shadow-sm);
+}
+.hud .chip .clbl{font-size:11px;color:var(--dim);font-weight:700;letter-spacing:1px}
+.hud .chip b{
+  display:block;font-size:26px;color:var(--green);
+  margin-top:3px;font-family:'ZCOOL KuaiLe',sans-serif;
+  line-height:1;
+}
 .hud .chip.timer b{color:var(--orange)}
 .hud .chip.combo b{color:var(--orange2)}
-/* 计时条 */
-.bar-wrap{width:100%;height:10px;border-radius:6px;overflow:hidden;background:var(--line);margin-bottom:22px;position:relative}
-.bar-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--green),var(--orange));transition:width .1s linear;width:100%}
-/* 干扰词 */
-.word-wrap{display:flex;align-items:center;justify-content:center;min-height:180px;width:100%;margin-bottom:8px;user-select:none}
-.word{font-family:'ZCOOL KuaiLe','Bungee',sans-serif;font-size:clamp(84px,26vw,150px);font-weight:900;line-height:1;transition:transform .12s}
-.word.pop{transform:scale(1.08)}
-.qbar{width:200px;height:7px;border-radius:5px;background:var(--line);overflow:hidden;margin:0 auto 26px}
-.qfill{height:100%;background:var(--orange);transition:width .1s linear}
-.qhint{text-align:center;font-size:12px;color:var(--dim);margin-bottom:14px}
-/* 答案色块 */
-.ans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(84px,1fr));gap:12px;width:100%}
-.ans{position:relative;border-radius:14px;min-height:84px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;border:3px solid rgba(0,0,0,.15);transition:transform .12s,box-shadow .12s;user-select:none;font-family:inherit}
-.ans .anum{position:absolute;top:8px;left:10px;font-size:12px;font-weight:800;opacity:.8;color:rgba(255,255,255,.9)}
-.ans .alabel{font-size:20px;font-weight:900;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.5);letter-spacing:2px}
-.ans.darktext .alabel,.ans.darktext .anum{color:#222;text-shadow:0 1px 0 rgba(255,255,255,.4)}
-.ans:hover{transform:translateY(-4px);box-shadow:0 8px 20px rgba(0,0,0,.25)}
+
+/* 总时间进度条 */
+.bar-wrap{
+  width:100%;height:8px;border-radius:5px;
+  overflow:hidden;background:var(--line);
+  margin-bottom:24px;position:relative;
+}
+.bar-fill{
+  height:100%;border-radius:5px;
+  background:linear-gradient(90deg,var(--green),var(--orange));
+  transition:width .1s linear;width:100%;
+}
+
+/* Stroop 大字 */
+.word-wrap{
+  display:flex;align-items:center;justify-content:center;
+  min-height:170px;width:100%;margin-bottom:6px;
+  user-select:none;
+}
+.word{
+  font-family:'ZCOOL KuaiLe','Bungee',sans-serif;
+  font-size:clamp(80px,24vw,140px);
+  font-weight:900;line-height:1;
+  transition:transform .14s;
+  text-shadow:0 4px 12px rgba(0,0,0,.12);
+}
+.word.pop{transform:scale(1.1)}
+
+/* 单题计时条 */
+.qbar{
+  width:180px;height:6px;border-radius:4px;
+  background:var(--line);overflow:hidden;
+  margin:0 auto 10px;
+}
+.qfill{
+  height:100%;background:var(--orange);
+  transition:width .1s linear;
+}
+.qhint{
+  text-align:center;font-size:12px;color:var(--dim);
+  margin-bottom:18px;letter-spacing:1px;
+}
+
+/* 答案色块网格 */
+.ans-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(90px,1fr));
+  gap:12px;width:100%;
+}
+.ans{
+  position:relative;border-radius:14px;
+  min-height:88px;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:5px;
+  cursor:pointer;
+  border:3px solid rgba(255,255,255,.25);
+  transition:transform .12s,box-shadow .12s;
+  user-select:none;font-family:inherit;
+  box-shadow:0 4px 12px rgba(0,0,0,.15);
+}
+.ans .anum{
+  position:absolute;top:8px;left:10px;
+  font-size:12px;font-weight:800;opacity:.85;
+  color:rgba(255,255,255,.95);
+  background:rgba(0,0,0,.2);border-radius:5px;
+  padding:1px 6px;
+}
+.ans .alabel{
+  font-size:22px;font-weight:900;color:#fff;
+  text-shadow:0 2px 6px rgba(0,0,0,.45);
+  letter-spacing:2px;
+}
+.ans.darktext .alabel,.ans.darktext .anum{
+  color:#222;text-shadow:0 1px 0 rgba(255,255,255,.4);
+}
+.ans.darktext .anum{background:rgba(255,255,255,.3);color:#333}
+.ans:hover{transform:translateY(-4px);box-shadow:0 10px 24px rgba(0,0,0,.25)}
 .ans:active{transform:scale(.95)}
 .ans.flash-ok{animation:flashOk .3s}
 .ans.flash-bad{animation:flashBad .3s}
-@keyframes flashOk{50%{transform:scale(1.1);box-shadow:0 0 0 5px rgba(56,153,4,.5)}}
+@keyframes flashOk{50%{transform:scale(1.12);box-shadow:0 0 0 6px rgba(56,153,4,.5)}}
 @keyframes flashBad{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}50%{transform:translateX(8px)}75%{transform:translateX(-6px)}}
-.feedback{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:44px;font-weight:900;pointer-events:none;z-index:60;opacity:0}
+
+/* 答对/答错反馈 */
+.feedback{
+  position:fixed;top:42%;left:50%;
+  transform:translate(-50%,-50%);
+  font-size:48px;font-weight:900;
+  pointer-events:none;z-index:60;opacity:0;
+}
 .feedback.show{animation:fb .5s ease}
-@keyframes fb{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}100%{opacity:0;transform:translate(-50%,-50%) scale(1)}}
+@keyframes fb{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}
+  30%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1)}
+}
 
 /* ============ 结果屏 ============ */
-.result-title{font-size:26px;font-weight:900;margin-bottom:6px;color:var(--green)}
-.result-sub{color:var(--dim);font-size:13px;margin-bottom:18px;text-align:center}
-.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;margin-bottom:16px}
-.stat-box{text-align:center;padding:16px 8px;border-radius:12px}
-body[data-theme="4399"] .stat-box{background:var(--surface);border:1px solid var(--line)}
-.stat-box.wide{grid-column:span 2}
-.stat-box .num{font-size:24px;font-weight:900;color:var(--green);margin-bottom:4px}
-.stat-box .lbl{font-size:12px;color:var(--dim)}
+.result-head{text-align:center;margin-bottom:20px}
+.result-title{
+  font-size:30px;font-weight:900;color:var(--green);
+  font-family:'ZCOOL KuaiLe',sans-serif;
+  letter-spacing:2px;
+  text-shadow:0 3px 0 rgba(56,153,4,.10);
+}
+.result-sub{color:var(--dim);font-size:14px;margin-top:4px}
+.newbest{
+  display:inline-block;
+  color:#fff;font-weight:900;
+  margin:0 auto 18px;font-size:14px;
+  padding:6px 20px;border-radius:999px;
+  background:linear-gradient(135deg,var(--orange),var(--orange2));
+  box-shadow:0 4px 14px rgba(251,100,0,.35);
+  animation:newbestPulse 1.5s ease-in-out infinite;
+  letter-spacing:1px;
+}
+@keyframes newbestPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.newbest-wrap{text-align:center;margin-bottom:18px}
+
+.stats-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:12px;width:100%;margin-bottom:22px;
+}
+.stat-box{
+  text-align:center;padding:18px 8px;border-radius:var(--radius);
+  background:var(--surface);border:2px solid var(--line);
+  box-shadow:var(--shadow-sm);
+  transition:transform .18s;
+}
+.stat-box:hover{transform:translateY(-2px)}
+.stat-box.wide{grid-column:span 3}
+.stat-box .num{
+  font-size:26px;font-weight:900;color:var(--green);
+  margin-bottom:4px;font-family:'ZCOOL KuaiLe',sans-serif;
+  line-height:1;
+}
+.stat-box .lbl{font-size:12px;color:var(--dim);letter-spacing:1px}
 .stat-box.hl .num{color:var(--orange)}
-.newbest{color:var(--orange);font-weight:800;margin:6px 0 14px;font-size:15px}
-.modal-btns{display:flex;gap:12px;margin-top:10px}
+.stat-box.wide .num{font-size:22px}
+
+.modal-btns{
+  display:flex;gap:14px;margin-top:8px;
+  justify-content:center;flex-wrap:wrap;
+}
+
+/* ============ 响应式 ============ */
+@media(max-width:420px){
+  .wrap{padding:60px 12px 36px}
+  .hero{padding:24px 16px 22px;margin-bottom:20px}
+  .hero .title{font-size:30px}
+  .hero .logo-box{width:48px;height:48px;font-size:26px}
+  .menu-card{padding:16px 18px}
+  .menu-card .mc-icon{width:38px;height:38px;font-size:20px}
+  .menu-card .mc-text{font-size:16px}
+  .diff-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .diff-card{padding:16px 10px 14px}
+  .diff-card .dname{font-size:17px}
+  .hud .chip b{font-size:22px}
+  .word{font-size:clamp(72px,28vw,120px)}
+  .ans{min-height:76px}
+  .ans .alabel{font-size:19px}
+  .stats-grid{gap:10px}
+  .stat-box{padding:14px 6px}
+  .stat-box .num{font-size:22px}
+  .new-btn{padding:13px 26px;font-size:15px;min-width:120px}
+}
+@media(min-width:680px){
+  .diff-grid{grid-template-columns:repeat(3,1fr)}
+}
 
 @media (prefers-reduced-motion: reduce){
   *{animation:none!important;transition:none!important}
   .word.pop{transform:none}
 }
 
-/* ===== 加载进度条（4399 亮色）===== */
-.loader{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;background:var(--bg);color:var(--text);transition:opacity .5s;pointer-events:none}
+/* ============ 加载进度条 ============ */
+.loader{
+  position:fixed;inset:0;z-index:200;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:24px;
+  background:var(--bg);color:var(--text);
+  transition:opacity .5s;pointer-events:none;
+}
 .loader.hide{opacity:0}
-.loader .core{position:relative;width:120px;height:120px;display:flex;align-items:center;justify-content:center}
-.loader .core .ring{position:absolute;inset:0;border-radius:50%;border:4px solid transparent;border-top-color:var(--green);animation:spin 1s linear infinite}
-.loader .core .ring.r2{inset:12px;border-top-color:var(--orange,#fb6400);animation:spin 1.3s linear infinite reverse}
-.loader .core .pixel{font-family:'Press Start 2P',monospace;font-size:26px;color:var(--green);text-shadow:0 0 18px currentColor;animation:pulse 1s ease-in-out infinite}
+.loader .core{
+  position:relative;width:120px;height:120px;
+  display:flex;align-items:center;justify-content:center;
+}
+.loader .core .ring{
+  position:absolute;inset:0;border-radius:50%;
+  border:4px solid transparent;border-top-color:var(--green);
+  animation:spin 1s linear infinite;
+}
+.loader .core .ring.r2{
+  inset:12px;border-top-color:var(--orange,#fb6400);
+  animation:spin 1.3s linear infinite reverse;
+}
+.loader .core .pixel{
+  font-family:'Press Start 2P',monospace;
+  font-size:26px;color:var(--green);
+  text-shadow:0 0 18px currentColor;
+  animation:pulse 1s ease-in-out infinite;
+}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.25);opacity:.7}}
-.loader .load-track{width:240px;height:8px;background:var(--line);border-radius:6px;overflow:hidden;position:relative;box-shadow:0 0 12px var(--green)}
-.loader .load-track i{position:absolute;height:100%;width:45%;border-radius:6px;background:linear-gradient(90deg,var(--green),var(--orange,#fb6400),var(--green));background-size:300% 100%;animation:slide 1s linear infinite}
+.loader .load-track{
+  width:240px;height:8px;background:var(--line);
+  border-radius:6px;overflow:hidden;position:relative;
+  box-shadow:0 0 12px var(--green);
+}
+.loader .load-track i{
+  position:absolute;height:100%;width:45%;border-radius:6px;
+  background:linear-gradient(90deg,var(--green),var(--orange,#fb6400),var(--green));
+  background-size:300% 100%;
+  animation:slide 1s linear infinite;
+}
 @keyframes slide{0%{transform:translateX(-50%)}100%{transform:translateX(350%)}}
-.loader .load-text{font-family:'PingFang SC','Microsoft YaHei';font-size:13px;letter-spacing:2px;color:var(--dim)}
+.loader .load-text{
+  font-family:'PingFang SC','Microsoft YaHei';
+  font-size:13px;letter-spacing:2px;color:var(--dim);
+}
 .loader .load-text b{color:var(--green)}
 </style>
 </head>
@@ -154,60 +530,83 @@ body[data-theme="4399"] .stat-box{background:var(--surface);border:1px solid var
   <div class="load-text">LOADING <b>STROOP</b>...</div>
 </div>
 
-
+<a class="back-home" href="../index.html">← 主页</a>
 
 <div class="wrap">
-  <a class="back-home" href="../index.html">← 主页</a>
 
-  <header class="h4399">
-    <div class="top"><div class="logo-box">🎯</div><div class="title">Stroop<em>挑战</em></div></div>
-    <p class="sub">忽略文字 · 说出颜色 —— 经典心理效应小游戏</p>
-  </header>
-
-  <!-- 设置屏 -->
+  <!-- ===== 设置屏 ===== -->
   <section class="screen" id="screenSetup">
+
+    <!-- Hero 头部 -->
+    <header class="hero">
+      <div class="logo-row">
+        <div class="logo-box">🎯</div>
+        <div class="title">Stroop<em>挑战</em></div>
+      </div>
+      <p class="sub">忽略文字词义 · 选出显示颜色 — 经典 Stroop 心理效应小游戏</p>
+    </header>
+
     <!-- 主菜单 -->
     <div id="menuView" class="menu-view">
-      <div class="panel-title">主 菜 单</div>
       <div class="menu-list">
-        <button class="menu-btn" id="menuPlay">🎯 选择难度</button>
-        <button class="menu-btn" id="menuRank">🏆 排行榜</button>
-        <button class="menu-btn" id="menuRule">📖 规则介绍</button>
-        <a class="menu-btn" href="../index.html">🏠 回到主页面</a>
+        <button class="menu-card primary" id="menuPlay">
+          <span class="mc-icon">▶</span>
+          <span class="mc-text">开始挑战</span>
+          <span class="mc-arrow">→</span>
+        </button>
+        <button class="menu-card" id="menuRank">
+          <span class="mc-icon">🏆</span>
+          <span class="mc-text">排行榜</span>
+          <span class="mc-arrow">→</span>
+        </button>
+        <button class="menu-card" id="menuRule">
+          <span class="mc-icon">📖</span>
+          <span class="mc-text">规则介绍</span>
+          <span class="mc-arrow">→</span>
+        </button>
+        <a class="menu-card" href="../index.html">
+          <span class="mc-icon">🏠</span>
+          <span class="mc-text">回到主页面</span>
+          <span class="mc-arrow">→</span>
+        </a>
       </div>
     </div>
+
     <!-- 选择难度 -->
     <div id="diffView" style="display:none">
       <div class="panel-title">选 择 难 度</div>
       <div class="diff-grid" id="diffGrid"></div>
-      <button class="new-btn ghost" id="backMenuBtn">← 返回</button>
+      <button class="new-btn ghost" id="backMenuBtn">← 返回菜单</button>
     </div>
+
     <!-- 排行榜 -->
     <div id="rankView" style="display:none">
       <div class="panel-title">🏆 排 行 榜</div>
       <div id="rankList" class="rank-list"></div>
-      <button class="new-btn ghost" id="backMenuBtn2">← 返回</button>
+      <button class="new-btn ghost" id="backMenuBtn2">← 返回菜单</button>
     </div>
+
     <!-- 规则介绍 -->
     <div id="ruleView" style="display:none">
       <div class="panel-title">📖 规 则 介 绍</div>
       <div class="howto">
         <b>玩法：</b>屏幕上显示的<b>文字</b>会带着一种<b>颜色</b>，请忽略文字词义，点选（或按数字键）它<b>显示的颜色</b>。<br>
-        例：显示"<b style="color:#d32f2f">红</b>"字却是蓝色，就选<b>蓝色</b>。<br>
+        例：显示"<b style="color:#1976d2">红</b>"字却是蓝色，就选<b>蓝色</b>。<br>
         键盘快捷键：<span class="key">1</span><span class="key">2</span><span class="key">3</span><span class="key">4</span>…对应从左到右的色块。<br>
-        答对 +10，连击≥5 → +20，≥10 → +30；反应越快额外加分；答错扣分并断连击；超时自动跳题。<br>
+        答对 +10，连击 ≥5 → +20，≥10 → +30；反应越快额外加分；答错扣分并断连击；超时自动跳题。<br>
         每局 20 秒，尽量答得多、答得快、连击不断！
       </div>
-      <button class="new-btn ghost" id="backMenuBtn3">← 返回</button>
+      <button class="new-btn ghost" id="backMenuBtn3">← 返回菜单</button>
     </div>
+
   </section>
 
-  <!-- 游戏屏 -->
+  <!-- ===== 游戏屏 ===== -->
   <section class="screen" id="screenGame" style="display:none">
     <div class="hud">
-      <div class="chip">得分<b id="scoreVal">0</b></div>
-      <div class="chip timer">剩余<b id="timeVal">20</b></div>
-      <div class="chip combo">连击<b id="comboVal">0</b></div>
+      <div class="chip"><span class="clbl">得分</span><b id="scoreVal">0</b></div>
+      <div class="chip timer"><span class="clbl">剩余</span><b id="timeVal">20</b></div>
+      <div class="chip combo"><span class="clbl">连击</span><b id="comboVal">0</b></div>
     </div>
     <div class="bar-wrap"><div class="bar-fill" id="totalBar"></div></div>
     <div class="word-wrap"><div class="word" id="word">红</div></div>
@@ -216,24 +615,29 @@ body[data-theme="4399"] .stat-box{background:var(--surface);border:1px solid var
     <div class="ans-grid" id="ansGrid"></div>
   </section>
 
-  <!-- 结果屏 -->
+  <!-- ===== 结果屏 ===== -->
   <section class="screen" id="screenResult" style="display:none">
-    <h2 class="result-title" id="resultTitle">挑战结束！</h2>
-    <div class="result-sub" id="resultSub">难度：进阶</div>
-    <div class="newbest" id="newBest" style="display:none">★ 新纪录！</div>
+    <div class="result-head">
+      <h2 class="result-title">挑战结束！</h2>
+      <div class="result-sub" id="resultSub">难度：进阶</div>
+    </div>
+    <div class="newbest-wrap">
+      <span class="newbest" id="newBest" style="display:none">★ 新纪录！</span>
+    </div>
     <div class="stats-grid">
       <div class="stat-box"><div class="num" id="stScore">0</div><div class="lbl">本局得分</div></div>
-      <div class="stat-box hl"><div class="num" id="stHigh">—</div><div class="lbl">历史最佳</div></div>
+      <div class="stat-box hl"><div class="num" id="stHigh">-</div><div class="lbl">历史最佳</div></div>
       <div class="stat-box"><div class="num" id="stCombo">0</div><div class="lbl">连击峰值</div></div>
       <div class="stat-box"><div class="num" id="stAcc">0%</div><div class="lbl">正确率</div></div>
       <div class="stat-box"><div class="num" id="stRt">0ms</div><div class="lbl">平均反应时</div></div>
-      <div class="stat-box wide"><div class="num" id="stStroop">—</div><div class="lbl">Stroop 效应（冲突−一致，ms）</div></div>
+      <div class="stat-box wide"><div class="num" id="stStroop">-</div><div class="lbl">Stroop 效应（冲突 − 一致，ms）</div></div>
     </div>
     <div class="modal-btns">
       <button class="new-btn ghost" id="againBtn">再来一局</button>
-      <button class="new-btn" id="menuBtn">返回难度</button>
+      <button class="new-btn" id="menuBtn">返回菜单</button>
     </div>
   </section>
+
 </div>
 
 <div class="feedback" id="feedback"></div>
@@ -272,7 +676,7 @@ body[data-theme="4399"] .stat-box{background:var(--surface);border:1px solid var
   var feedbackEl=document.getElementById('feedback');
 
   /* ================= 状态 ================= */
-  var state='setup';           // setup | playing | over
+  var state='setup';
   var cur='novice';
   var score=0, combo=0, comboPeak=0;
   var totalTime=20, remaining=20;
@@ -293,17 +697,21 @@ body[data-theme="4399"] .stat-box{background:var(--surface);border:1px solid var
   function loadHigh(k){ try{ var v=localStorage.getItem(highKey(k)); return v==null?null:parseInt(v,10); }catch(e){ return null; } }
   function saveHigh(k,sc){ try{ localStorage.setItem(highKey(k), String(sc)); }catch(e){} }
 
-  /* ================= 主题 ================= */
   /* ================= 设置屏渲染 ================= */
   function renderSetup(){
     var html='';
-    ORDER.forEach(function(k){
+    ORDER.forEach(function(k, idx){
       var d=DIFFS[k];
       var hi=loadHigh(k);
+      var dots = d.colors.map(function(c){ return '<span class="dot" style="background:'+c+'"></span>'; }).join('');
+      var stars = '';
+      for(var s=0; s<5; s++){ stars += '<i class="star'+(s<=idx?' on':'')+'">★</i>'; }
       html+='<div class="diff-card" data-key="'+k+'">'+
+        '<div class="dc-stars">'+stars+'</div>'+
         '<div class="dname">'+d.name+'</div>'+
         '<div class="ddesc">'+d.desc+'</div>'+
-        '<div class="dhigh">最佳 '+(hi==null?'—':hi)+'</div>'+
+        '<div class="dc-dots">'+dots+'</div>'+
+        '<div class="dhigh">最佳 '+(hi==null?'-':hi)+'</div>'+
       '</div>';
     });
     diffGrid.innerHTML=html;
@@ -323,7 +731,7 @@ body[data-theme="4399"] .stat-box{background:var(--surface);border:1px solid var
       var hi=loadHigh(k);
       html+='<div class="rank-row">'+
         '<div><div class="rname">'+d.name+'</div><div class="rdesc">'+d.desc+'</div></div>'+
-        '<div class="rscore">'+(hi==null?'—':hi)+'</div>'+
+        '<div class="rscore">'+(hi==null?'-':hi)+'</div>'+
       '</div>';
     });
     var el=document.getElementById('rankList');
@@ -341,7 +749,6 @@ body[data-theme="4399"] .stat-box{background:var(--surface);border:1px solid var
     while(aIdx===lastAnswerIdx){ aIdx=randInt(n); }
     var wIdx=randInt(n);
     while(wIdx===lastWordIdx){ wIdx=randInt(n); }
-    // 80% 制造冲突（文字词义 ≠ 颜色），20% 一致
     if(Math.random()<0.8 && wIdx===aIdx){
       var tmp=randInt(n);
       while(tmp===aIdx || tmp===lastWordIdx){ tmp=randInt(n); }
@@ -479,7 +886,7 @@ body[data-theme="4399"] .stat-box{background:var(--surface);border:1px solid var
   function showResult(isNew){
     var d=DIFFS[cur];
     document.getElementById('resultSub').textContent='难度：'+d.name;
-    document.getElementById('newBest').style.display = isNew ? 'block' : 'none';
+    document.getElementById('newBest').style.display = isNew ? 'inline-block' : 'none';
     document.getElementById('stScore').textContent=score;
     document.getElementById('stHigh').textContent=loadHigh(cur);
     document.getElementById('stCombo').textContent=comboPeak;
