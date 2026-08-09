@@ -622,7 +622,7 @@ body[data-theme="arcade"] .back-home:hover{border-color:var(--cyan);box-shadow:3
   }
   function applyTheme(t){
     document.body.dataset.theme = t;
-    toggle.innerHTML = iconSVG(t==='arcade');
+    toggle.innerHTML = iconSVG(t!=='arcade');
     try { localStorage.setItem('gh-theme', t); } catch(e){}
   }
   toggle.addEventListener('click', function(){

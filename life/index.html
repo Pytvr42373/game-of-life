@@ -279,7 +279,7 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
   const saved = localStorage.getItem('gh-theme') || '4399';
   const theme = (saved === 'arcade') ? 'arcade' : '4399';
   document.body.dataset.theme = theme;
-  toggle.innerHTML = iconSVG(theme==='arcade');
+  toggle.innerHTML = iconSVG(theme!=='arcade');
   document.querySelector('.h4399').style.display = theme==='4399' ? '' : 'none';
   document.querySelector('.harcade').style.display = theme==='arcade' ? '' : 'none';
 
@@ -287,7 +287,7 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
     const t = document.body.dataset.theme==='arcade' ? '4399' : 'arcade';
     document.body.dataset.theme = t;
     localStorage.setItem('gh-theme', t);
-    toggle.innerHTML = iconSVG(t==='arcade');
+    toggle.innerHTML = iconSVG(t!=='arcade');
     document.querySelector('.h4399').style.display = t==='4399' ? '' : 'none';
     document.querySelector('.harcade').style.display = t==='arcade' ? '' : 'none';
   });

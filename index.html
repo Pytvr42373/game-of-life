@@ -302,7 +302,7 @@ function iconSVG(arcade){
   // 世界树 Yggdrasil（清新）· 浅底深线
   return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3C9.8 3 8 4.8 8 7c0 .6.1 1.2.4 1.7C6.5 9.4 5.2 11 5.2 13c0 2.2 1.8 4 4 4h5.6c2.2 0 4-1.8 4-4 0-2-1.3-3.6-3.2-4.3.3-.5.4-1.1.4-1.7 0-2.2-1.8-4-4-4z"/><path d="M12 17v4"/><path d="M12 21l-3 2M12 21l3 2"/></svg>';
 }
-function paintIcon(){ toggle.innerHTML = iconSVG(document.body.dataset.theme==='arcade'); }
+function paintIcon(){ toggle.innerHTML = iconSVG(document.body.dataset.theme!=='arcade'); }
 paintIcon();
 toggle.addEventListener('click',()=>{
   const next = document.body.dataset.theme==='arcade' ? '4399' : 'arcade';
