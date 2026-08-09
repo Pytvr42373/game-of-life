@@ -203,7 +203,7 @@ body[data-theme="arcade"] .stats .stat-box .num{
 .stats .stat-box.hl .num{color:var(--orange)}
 
 /* ============ Grid ============ */
-.grid-wrapper{position:relative;padding:4px;margin-bottom:8px}
+.grid-wrapper{position:relative;padding:4px;margin-bottom:0}
 body[data-theme="4399"] .grid-wrapper{
   background:linear-gradient(135deg,var(--lightgreen),var(--green));
   border-radius:14px;box-shadow:var(--shadow-md);
@@ -234,7 +234,7 @@ body[data-theme="arcade"] .cell.alive:hover{background:#8dffab}
 .controls{
   display:flex;flex-wrap:wrap;gap:8px;
   justify-content:center;align-items:center;
-  max-width:780px;margin:2px 0 8px;
+  max-width:780px;margin:220px 0 8px;
 }
 button{
   font-size:.78rem;font-weight:800;padding:10px 16px;
@@ -338,7 +338,7 @@ body[data-theme="arcade"] input[type="range"]::-webkit-slider-thumb{background:v
 
 /* ============ Rules（对齐 Stroop 面板风格） ============ */
 .rules{
-  margin:10px auto 2px;max-width:720px;width:100%;
+  margin:120px auto 2px;max-width:720px;width:100%;
   font-size:.78rem;color:var(--dim);line-height:1.7;
 }
 .rules summary{
@@ -447,7 +447,7 @@ body[data-theme="arcade"] .theme-switch{
   .stats .stat-box{padding:6px 10px;min-width:48px}
   .stats .stat-box .num{font-size:16px}
   body[data-theme="arcade"] .stats .stat-box .num{font-size:11px}
-  .controls{max-width:100%;gap:6px}
+  .controls{max-width:100%;gap:6px;margin-top:180px}
   button{padding:9px 13px;font-size:.74rem;min-height:44px}
   .back-home{top:10px;left:10px;padding:7px 13px;font-size:12px}
   .theme-switch{right:10px;bottom:10px}
@@ -951,7 +951,7 @@ function fitGrid() {
   byW = Math.max(3, byW);
   let cell = byW;
   if (!isMobile) {
-    const availH = window.innerHeight - 250;
+    const availH = window.innerHeight - 120;
     const byH = Math.floor(availH / 30);
     cell = Math.max(3, Math.min(cell, byH));
   }
