@@ -232,16 +232,16 @@ body[data-theme="arcade"] .cell.alive:hover{background:#8dffab}
 
 /* ============ Controls（卡片式按钮，对齐 Stroop） ============ */
 .controls{
-  display:flex;flex-wrap:wrap;gap:8px;
+  display:flex;flex-wrap:wrap;gap:6px;
   justify-content:center;align-items:center;
-  max-width:780px;margin:60px 0 8px;
+  max-width:780px;margin:20px 0 6px;
 }
 button{
-  font-size:.78rem;font-weight:800;padding:10px 16px;
+  font-size:.72rem;font-weight:800;padding:7px 12px;
   cursor:pointer;transition:.18s;
   font-family:inherit;
   border-radius:var(--radius);
-  min-height:44px;
+  min-height:36px;
 }
 body[data-theme="4399"] button{
   border:2px solid var(--line);
@@ -299,7 +299,7 @@ body[data-theme="arcade"] button.danger:hover{
 
 select{
   font-size:.8rem;padding:10px 14px;cursor:pointer;outline:none;
-  border-radius:var(--radius);min-height:44px;
+  border-radius:var(--radius);min-height:36px;
 }
 body[data-theme="4399"] select{
   font-family:'PingFang SC',sans-serif;
@@ -323,7 +323,7 @@ body[data-theme="arcade"] select option{background:var(--surface);color:#f4f4ff}
 .speed-control{
   display:flex;align-items:center;gap:6px;
   font-size:.78rem;color:var(--dim);
-  min-height:44px;
+  min-height:36px;
 }
 input[type="range"]{
   -webkit-appearance:none;width:80px;height:5px;
@@ -338,7 +338,7 @@ body[data-theme="arcade"] input[type="range"]::-webkit-slider-thumb{background:v
 
 /* ============ Rules（对齐 Stroop 面板风格） ============ */
 .rules{
-  margin:80px auto 2px;max-width:720px;width:100%;
+  margin:30px auto 2px;max-width:720px;width:100%;
   font-size:.78rem;color:var(--dim);line-height:1.7;
 }
 .rules summary{
@@ -447,8 +447,8 @@ body[data-theme="arcade"] .theme-switch{
   .stats .stat-box{padding:6px 10px;min-width:48px}
   .stats .stat-box .num{font-size:16px}
   body[data-theme="arcade"] .stats .stat-box .num{font-size:11px}
-  .controls{max-width:100%;gap:6px;margin-top:40px}
-  button{padding:9px 13px;font-size:.74rem;min-height:44px}
+  .controls{max-width:100%;gap:6px;margin-top:20px}
+  button{padding:9px 13px;font-size:.74rem;min-height:36px}
   .back-home{top:10px;left:10px;padding:7px 13px;font-size:12px}
   .theme-switch{right:10px;bottom:10px}
 }
@@ -951,7 +951,7 @@ function fitGrid() {
   byW = Math.max(3, byW);
   let cell = byW;
   if (!isMobile) {
-    const availH = window.innerHeight - 300;
+    const availH = window.innerHeight - 200;
     const byH = Math.floor(availH / 30);
     cell = Math.max(3, Math.min(cell, byH));
   }
