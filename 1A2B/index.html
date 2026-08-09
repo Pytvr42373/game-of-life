@@ -758,11 +758,6 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
   kbEnter.addEventListener('click', submitGuess);
   kbBack.addEventListener('click', doBackspace);
 
-  // 页面加载后隐藏 loader
-  requestAnimationFrame(function(){
-    setTimeout(function(){ loader.classList.remove('on'); }, 900);
-  });
-
   document.addEventListener('keydown', function(e){
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (/^[0-9]$/.test(e.key)){ addDigit(e.key); e.preventDefault(); return; }
@@ -775,8 +770,6 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
     var saved = null;
     try { saved = localStorage.getItem('gh-theme')||'4399'; } catch(e){ saved='4399'; }
     applyTheme(saved);
-    loader.classList.add('on');
-    setTimeout(function(){ loader.classList.remove('on'); }, 900);
     newGame();
   })();
 })();
