@@ -3,133 +3,230 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Game of Life · 游戏合集</title>
+<title>GameHub · 迷你游戏合集</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Bungee&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
 
-  :root {
-    --bg: #0a0a1a;
-    --surface: #12122a;
-    --surface2: #1a1a3e;
-    --border: #2a2a5a;
-    --accent: #6c5ce7;
-    --accent2: #a29bfe;
-    --text: #e0e0ff;
-    --text-dim: #7878aa;
-  }
+/* ============ 主题1 · 4399橙绿（亮色·默认） ============ */
+body[data-theme="4399"]{
+  --bg:#f4f8ef; --bg2:#ffffff; --surface:#ffffff; --line:#d8e8cd;
+  --text:#24401d; --dim:#6f8a63; --green:#389904; --green2:#448230; --orange:#fb6400; --orange2:#e64e00;
+  --tag-bg:#eef5e8;
+  background:linear-gradient(180deg,#f0f7ea 0%,#ffffff 55%,#f7fbf3 100%);color:var(--text);
+}
+body[data-theme="4399"]::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(56,153,4,.08), transparent 40%),
+    radial-gradient(circle at 88% 80%, rgba(251,100,0,.07), transparent 40%);
+}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+/* ============ 主题2 · 街机厅（暗色） ============ */
+body[data-theme="arcade"]{
+  --bg:#0b0b18; --bg2:#14142b; --surface:#191934; --line:#3a3a5c; --hard:#000;
+  --text:#f4f4ff; --dim:#7a7aa0; --green:#00ff9d; --pink:#ff2d78; --cyan:#3de1ff; --yellow:#ffe14d;
+  --tag-bg:#2a2a4a;
+  background-color:#0b0b18;color:var(--text);
+  background-image:radial-gradient(circle at 50% 0%, #2a2a55 0%, transparent 60%);
+}
+/* 像素网格 */
+body[data-theme="arcade"]::before{
+  content:'';position:fixed;inset:0;pointer-events:none;opacity:.15;z-index:0;
+  background-image:linear-gradient(#3a3a5c 1px,transparent 1px),linear-gradient(90deg,#3a3a5c 1px,transparent 1px);
+  background-size:26px 26px;
+}
+/* CRT 扫描线 + 呼吸霓虹 */
+body[data-theme="arcade"]::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(0deg, rgba(0,0,0,.12) 0 1px, transparent 1px 3px);
+  mix-blend-mode:multiply;opacity:.5;
+}
 
-  body {
-    font-family: 'Inter', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 40px 20px;
-  }
+body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;min-height:100vh;transition:background .4s,color .4s}
 
-  .header { text-align: center; margin-bottom: 40px; }
+/* ============ 主题切换器 ============ */
+.theme-switch{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:99;display:flex;gap:10px;
+  background:rgba(0,0,0,.6);backdrop-filter:blur(10px);padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.2)}
+.theme-switch button{border:0;background:transparent;color:#cfcfcf;font-size:14px;font-weight:700;padding:6px 16px;border-radius:999px;cursor:pointer;font-family:inherit;transition:.25s;letter-spacing:.5px}
+.theme-switch button:hover{color:#fff}
+.theme-switch button.on{background:#fff;color:#111}
 
-  .header h1 {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 2rem;
-    color: var(--text);
-    margin-bottom: 8px;
-  }
+/* ============ 华丽加载过渡 ============ */
+.loader{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;
+  background:var(--bg);color:var(--text);opacity:0;pointer-events:none;transition:opacity .3s}
+.loader.on{opacity:1;pointer-events:auto}
+/* 中央霓虹核心 */
+.loader .core{position:relative;width:150px;height:150px;display:flex;align-items:center;justify-content:center}
+.loader .core .ring{position:absolute;inset:0;border-radius:50%;border:4px solid transparent;border-top-color:var(--green);animation:spin 1s linear infinite}
+.loader .core .ring.r2{inset:12px;border-top-color:var(--pink,#fb6400);animation:spin 1.3s linear infinite reverse;border-right-color:var(--cyan,#389904)}
+.loader .core .ring.r3{inset:24px;border-top-color:var(--yellow,#389904);animation:spin .8s linear infinite}
+.loader .core .pixel{font-family:'Press Start 2P',monospace;font-size:30px;color:var(--green);text-shadow:0 0 18px currentColor;animation:pulse 1s ease-in-out infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.25);opacity:.7}}
+/* 进度条 */
+.loader .load-track{width:260px;height:8px;background:var(--line);border-radius:6px;overflow:hidden;position:relative;box-shadow:0 0 14px var(--green)}
+.loader .load-track i{position:absolute;height:100%;width:45%;border-radius:6px;
+  background:linear-gradient(90deg,var(--green),var(--yellow,#fb6400),var(--cyan,#389904),var(--green));
+  background-size:300% 100%;animation:slide 1s linear infinite}
+@keyframes slide{0%{transform:translateX(-50%)}100%{transform:translateX(350%)}}
+.loader .load-text{font-family:var(--load-font,'PingFang SC');font-size:13px;letter-spacing:2px;color:var(--dim)}
+body[data-theme="4399"] .loader .load-text{--load-font:'PingFang SC','Microsoft YaHei'}
+body[data-theme="arcade"] .loader .load-text{--load-font:'Press Start 2P',monospace}
+.loader .load-text b{color:var(--green)}
 
-  .header h1 span { color: var(--accent2); }
+/* ============ 布局 ============ */
+.wrap{max-width:1000px;margin:0 auto;padding:96px 24px 60px;position:relative;z-index:1}
+.h4399,.harcade{display:none}
 
-  .header p { color: var(--text-dim); font-size: 0.95rem; }
+/* ===== 4399 头部（更鲜明） ===== */
+body[data-theme="4399"] .h4399{display:block}
+.h4399 .top{display:flex;align-items:center;gap:14px;justify-content:center;margin-bottom:14px}
+.h4399 .logo-box{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;font-size:30px;color:#fff;box-shadow:0 6px 16px rgba(56,153,4,.35)}
+.h4399 .title{font-size:34px;font-weight:900;color:var(--green);letter-spacing:1px;text-shadow:0 2px 0 rgba(56,153,4,.12)}
+.h4399 .title em{font-style:normal;color:var(--orange)}
+.h4399 .sub{text-align:center;color:var(--dim);font-size:15px;margin-bottom:30px}
+.h4399 .nav{display:flex;justify-content:center;gap:10px;margin-bottom:36px;flex-wrap:wrap}
+.h4399 .nav span{font-size:13px;font-weight:600;color:var(--green);background:#eef5e8;border:1px solid var(--line);padding:5px 14px;border-radius:999px}
+.h4399 .nav span.on{background:var(--green);color:#fff;border-color:var(--green)}
 
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    width: 100%;
-    max-width: 900px;
-  }
+/* ===== 街机厅 头部（更鲜明） ===== */
+body[data-theme="arcade"] .harcade{display:block}
+.harcade .logo{font-family:'Press Start 2P',monospace;font-size:13px;letter-spacing:3px;color:var(--yellow);text-shadow:0 0 14px var(--yellow),3px 3px 0 var(--hard);text-align:center;margin-bottom:18px;animation:blink 1.4s steps(1) infinite}
+.harcade .title{font-family:'Press Start 2P',monospace;font-size:clamp(20px,4.5vw,34px);line-height:1.7;text-align:center;color:var(--text);text-shadow:3px 3px 0 var(--hard),0 0 20px rgba(61,225,255,.4);margin-bottom:14px}
+.harcade .title .c{color:var(--pink);text-shadow:3px 3px 0 var(--hard),0 0 20px var(--pink)}
+.harcade .title .y{color:var(--cyan);text-shadow:3px 3px 0 var(--hard),0 0 20px var(--cyan)}
+.harcade .sub{text-align:center;color:var(--dim);font-family:'Press Start 2P',monospace;font-size:10px;letter-spacing:3px;margin-bottom:46px}
 
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 24px;
-    text-decoration: none;
-    color: var(--text);
-    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
+/* ===== 卡片网格：三卡居中 ===== */
+.grid{display:flex;flex-wrap:wrap;justify-content:center;gap:24px}
 
-  .card:hover {
-    transform: translateY(-3px);
-    border-color: var(--accent);
-    box-shadow: 0 8px 24px rgba(108, 92, 231, 0.15);
-  }
+/* ===== 卡片通用 ===== */
+.card{width:210px;text-align:center;cursor:pointer;position:relative;opacity:0;transform:translateY(20px)}
+.card.show{opacity:1;transform:translateY(0)}
 
-  .card .emoji { font-size: 2rem; }
+/* 4399 卡片（橙绿更鲜明） */
+body[data-theme="4399"] .card{background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:28px 18px;overflow:hidden;transition:.2s;box-shadow:0 3px 10px rgba(56,153,4,.06)}
+body[data-theme="4399"] .card:hover{border-color:var(--green);box-shadow:0 10px 26px rgba(56,153,4,.22);transform:translateY(-5px)}
+body[data-theme="4399"] .card .hot{position:absolute;top:12px;right:-28px;background:var(--orange);color:#fff;font-size:11px;font-weight:700;padding:4px 34px;transform:rotate(45deg);box-shadow:0 2px 6px rgba(251,100,0,.4)}
+body[data-theme="4399"] .card .ico{font-size:44px;margin-bottom:14px;display:block;transition:.25s}
+body[data-theme="4399"] .card:hover .ico{transform:scale(1.15) rotate(-6deg)}
+body[data-theme="4399"] .card .name{font-size:18px;font-weight:800;color:var(--text);margin-bottom:8px}
+body[data-theme="4399"] .card .tag{font-size:12px;color:var(--green);background:var(--tag-bg);border:1px solid var(--line);display:inline-block;padding:3px 12px;border-radius:999px;font-weight:600}
+body[data-theme="4399"] .card.locked{opacity:.5}
 
-  .card h2 {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 1.15rem;
-    color: var(--accent2);
-  }
+/* 街机厅 卡片（霓虹更强烈） */
+body[data-theme="arcade"] .card{background:var(--surface);border:3px solid var(--line);padding:30px 16px;box-shadow:6px 6px 0 var(--hard);transition:.12s;position:relative}
+body[data-theme="arcade"] .card:hover{background:#1f1f42;border-color:var(--cyan);box-shadow:6px 6px 0 var(--hard),0 0 18px var(--cyan),0 0 40px rgba(61,225,255,.35);outline:2px solid var(--cyan);outline-offset:2px}
+body[data-theme="arcade"] .card:active{background:#262650;box-shadow:6px 6px 0 var(--hard),0 0 10px var(--pink)}
+body[data-theme="arcade"] .card .corner{position:absolute;width:12px;height:12px;border:3px solid var(--pink)}
+body[data-theme="arcade"] .card .corner.tl{top:-3px;left:-3px;border-right:0;border-bottom:0}
+body[data-theme="arcade"] .card .corner.tr{top:-3px;right:-3px;border-left:0;border-bottom:0}
+body[data-theme="arcade"] .card .corner.bl{bottom:-3px;left:-3px;border-right:0;border-top:0}
+body[data-theme="arcade"] .card .corner.br{bottom:-3px;right:-3px;border-left:0;border-top:0}
+body[data-theme="arcade"] .card .hot{display:none}
+body[data-theme="arcade"] .card .ico{font-size:46px;margin-bottom:16px;display:block;filter:drop-shadow(4px 4px 0 #000)}
+body[data-theme="arcade"] .card .name{font-family:'Press Start 2P',monospace;font-size:12px;color:var(--text);text-shadow:2px 2px 0 var(--hard);line-height:1.8;margin-bottom:14px}
+body[data-theme="arcade"] .card .tag{font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;color:var(--green);text-shadow:0 0 8px var(--green);padding-top:12px;border-top:3px double var(--line)}
+body[data-theme="arcade"] .card.locked .tag{color:var(--dim);text-shadow:none}
 
-  .card p {
-    color: var(--text-dim);
-    font-size: 0.88rem;
-    line-height: 1.5;
-  }
-
-  .card .tag {
-    align-self: flex-start;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    font-size: 0.72rem;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-family: 'JetBrains Mono', monospace;
-  }
-
-  .card.coming { opacity: 0.6; cursor: not-allowed; pointer-events: none; }
-
-  .footer { margin-top: 40px; color: var(--text-dim); font-size: 0.8rem; font-family: 'JetBrains Mono', monospace; }
+/* ===== 页脚 ===== */
+body[data-theme="4399"] .hint{text-align:center;margin-top:48px;color:var(--dim);font-size:13px}
+body[data-theme="4399"] .hint b{color:var(--orange)}
+body[data-theme="arcade"] .hint{text-align:center;margin-top:56px;font-family:'Press Start 2P',monospace;font-size:9px;color:var(--dim);letter-spacing:3px}
+body[data-theme="arcade"] .hint b{color:var(--cyan);text-shadow:0 0 10px var(--cyan);animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
 </style>
 </head>
-<body>
-  <div class="header">
-    <h1>🎮 Game of Life <span>· 游戏合集</span></h1>
-    <p>纯前端小游戏，点击卡片进入</p>
+<body data-theme="4399">
+
+<!-- 华丽加载过渡 -->
+<div class="loader" id="loader">
+  <div class="core">
+    <div class="ring"></div><div class="ring r2"></div><div class="ring r3"></div>
+    <div class="pixel">◆</div>
   </div>
+  <div class="load-track"><i></i></div>
+  <div class="load-text">LOADING <b>GAMEHUB</b>...</div>
+</div>
+
+<div class="theme-switch">
+  <button data-theme="4399" class="on">4399</button>
+  <button data-theme="arcade">街机厅</button>
+</div>
+
+<div class="wrap">
+  <!-- 4399 头部 -->
+  <header class="h4399">
+    <div class="top"><div class="logo-box">🎮</div><div class="title">好玩<em>小游戏</em></div></div>
+    <p class="sub">专注好玩 · 每天都有新发现</p>
+    <div class="nav"><span class="on">全部</span><span>益智</span><span>逻辑</span><span>反应</span><span>经典</span></div>
+  </header>
+
+  <!-- 街机厅 头部 -->
+  <header class="harcade">
+    <div class="logo">▶ INSERT COIN ◀</div>
+    <h1 class="title"><span class="c">小</span>游<span class="y">戏</span>合<span class="c">集</span></h1>
+    <p class="sub">— SELECT YOUR GAME —</p>
+  </header>
 
   <div class="grid">
-    <a class="card" href="life/index.html">
-      <div class="emoji">🧬</div>
-      <h2>康威生命游戏</h2>
-      <p>Conway's Game of Life — 零玩家细胞自动机。绘制初始状态，观察生命的演化、繁殖与消亡，支持预设经典结构、日与夜模式。</p>
-      <span class="tag">▶ 开始</span>
-    </a>
-
-    <a class="card" href="bottle/index.html">
-      <div class="emoji">🧪</div>
-      <h2>倒水游戏</h2>
-      <p>Decanta · 水瓶排序 — 将彩色液体倒入试管，使每管只含单一颜色。三种模式、首领战、每日挑战、商店皮肤。</p>
-      <span class="tag">▶ 开始</span>
-    </a>
-
-    <div class="card coming">
-      <div class="emoji">⚡</div>
-      <h2>Stroop 挑战</h2>
-      <p>斯特鲁普效应测验 — 说出文字的颜色，而非文字本身。训练大脑的抑制控制能力。敬请期待。</p>
-      <span class="tag">🔒 即将上线</span>
+    <!-- 康威生命游戏 -->
+    <div class="card" data-delay="0" onclick="location.href='life/index.html'">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <span class="hot">热</span>
+      <span class="ico">🦠</span>
+      <div class="name">康威生命游戏</div>
+      <div class="tag">细胞</div>
+    </div>
+    <!-- 倒水游戏 -->
+    <div class="card" data-delay=".12s" onclick="location.href='bottle/index.html'">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <span class="ico">🍶</span>
+      <div class="name">倒水谜题</div>
+      <div class="tag">逻辑</div>
+    </div>
+    <!-- Stroop 挑战 -->
+    <div class="card locked" data-delay=".24s">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <span class="ico">🎯</span>
+      <div class="name">Stroop 挑战</div>
+      <div class="tag">即将上线</div>
     </div>
   </div>
 
-  <div class="footer">Pytvr42373 · GitHub Pages</div>
+  <div class="hint">更多好玩游戏，<b>持续上新</b>中……</div>
+</div>
+
+<script>
+const btns=document.querySelectorAll('.theme-switch button');
+const loader=document.getElementById('loader');
+const saved=localStorage.getItem('gh-theme')||'4399';
+document.body.dataset.theme=saved;
+btns.forEach(b=>b.classList.toggle('on',b.dataset.theme===saved));
+
+btns.forEach(b=>b.addEventListener('click',()=>{
+  if(b.dataset.theme===document.body.dataset.theme) return;
+  loader.classList.add('on');
+  setTimeout(()=>{
+    btns.forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    document.body.dataset.theme=b.dataset.theme;
+    localStorage.setItem('gh-theme',b.dataset.theme);
+    document.querySelectorAll('.card').forEach(c=>{c.classList.remove('show');});
+    setTimeout(()=>{
+      document.querySelectorAll('.card').forEach(c=>{
+        setTimeout(()=>c.classList.add('show'),parseFloat(c.dataset.delay||0)*1000);
+      });
+      loader.classList.remove('on');
+    },150);
+  },700);
+}));
+
+const cards=document.querySelectorAll('.card');
+cards.forEach(c=>{setTimeout(()=>c.classList.add('show'),parseFloat(c.dataset.delay||0)*1000);});
+</script>
 </body>
 </html>

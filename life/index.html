@@ -3,299 +3,558 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Conway's Game of Life</title>
+<title>生命游戏 · 双主题</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Bungee&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
 
-  :root {
-    --bg: #0a0a1a;
-    --surface: #12122a;
-    --surface2: #1a1a3e;
-    --border: #2a2a5a;
-    --accent: #6c5ce7;
-    --accent2: #a29bfe;
-    --live: #00e676;
-    --live-glow: rgba(0, 230, 118, 0.4);
-    --dead: #1e1e3f;
-    --text: #e0e0ff;
-    --text-dim: #7878aa;
-    --danger: #ff5252;
-  }
+/* ===== 主题1 · 4399 亮色（默认） ===== */
+body[data-theme="4399"]{
+  --bg:#f4f8ef; --surface:#ffffff; --surface2:#eef5e8; --border:#d8e8cd;
+  --green:#389904; --green2:#448230; --lightgreen:#c0eb7c; --orange:#fb6400;
+  --live:#3fae0a; --live-glow:rgba(56,153,4,.35); --dead:#eef5e8;
+  --text:#24401d; --text-dim:#6f8a63; --accent:#389904; --accent2:#448230; --danger:#e64e00;
+  font-family:'PingFang SC','Microsoft YaHei',sans-serif;
+  background:linear-gradient(180deg,#f0f7ea 0%,#ffffff 55%,#f7fbf3 100%); color:var(--text);
+}
+body[data-theme="4399"]::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(56,153,4,.08), transparent 40%),
+    radial-gradient(circle at 88% 80%, rgba(251,100,0,.07), transparent 40%);
+}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+/* ===== 主题2 · 街机厅 暗色 ===== */
+body[data-theme="arcade"]{
+  --bg:#0b0b18; --surface:#191934; --surface2:#24244a; --border:#3a3a5c; --hard:#000;
+  --pink:#ff2d78; --cyan:#3de1ff; --yellow:#ffe14d; --green:#00ff9d;
+  --live:#00ff9d; --live-glow:rgba(0,255,157,.5); --dead:#15152c;
+  --text:#f4f4ff; --text-dim:#7a7aa0; --accent:#ff2d78; --accent2:#3de1ff; --danger:#ff6b6b;
+  font-family:'Press Start 2P','PingFang SC','Microsoft YaHei',monospace;
+  background-color:var(--bg); color:var(--text);
+  background-image:radial-gradient(circle at 50% 0%,#2a2a55 0%,transparent 60%);
+}
+body[data-theme="arcade"]::before{
+  content:'';position:fixed;inset:0;pointer-events:none;opacity:.15;z-index:0;
+  background-image:linear-gradient(#3a3a5c 1px,transparent 1px),linear-gradient(90deg,#3a3a5c 1px,transparent 1px);
+  background-size:26px 26px;
+}
+body[data-theme="arcade"]::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(0deg, rgba(0,0,0,.12) 0 1px, transparent 1px 3px);
+  mix-blend-mode:multiply;opacity:.5;
+}
 
-  body {
-    font-family: 'Inter', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    overflow-x: hidden;
-  }
+body{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 20px;position:relative;transition:background .4s,color .4s}
 
-  h1 {
-    font-size: 1.6rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, var(--accent2), var(--live));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 6px;
-    letter-spacing: 1px;
-  }
+/* 主题切换器（与主页一致） */
+.theme-switch{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:99;display:flex;gap:10px;
+  background:rgba(0,0,0,.6);backdrop-filter:blur(10px);padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.2)}
+.theme-switch button{border:0;background:transparent;color:#cfcfcf;font-size:14px;font-weight:700;padding:6px 16px;border-radius:999px;cursor:pointer;font-family:inherit;transition:.25s;letter-spacing:.5px}
+.theme-switch button:hover{color:#fff}
+.theme-switch button.on{background:#fff;color:#111}
 
-  .subtitle {
-    font-size: 0.75rem;
-    color: var(--text-dim);
-    margin-bottom: 16px;
-    font-family: 'JetBrains Mono', monospace;
-  }
+.content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%}
 
-  .stats {
-    display: flex;
-    gap: 24px;
-    margin-bottom: 14px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.82rem;
-  }
+/* ===== 4399 header ===== */
+body[data-theme="4399"] .h4399{display:flex;flex-direction:column;align-items:center}
+body[data-theme="4399"] .h4399 .topbar{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+body[data-theme="4399"] .h4399 .logo{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 6px 16px rgba(56,153,4,.35)}
+body[data-theme="4399"] .h4399 h1{font-size:1.7rem;font-weight:900;color:var(--green);letter-spacing:1px;text-shadow:0 2px 0 rgba(56,153,4,.12)}
+body[data-theme="4399"] .h4399 h1 em{font-style:normal;color:var(--orange)}
+body[data-theme="4399"] .h4399 .subtitle{font-size:.78rem;color:var(--text-dim);margin:2px 0 18px}
 
-  .stat { display: flex; align-items: center; gap: 6px; }
-  .stat-label { color: var(--text-dim); }
-  .stat-value { color: var(--accent2); font-weight: 700; font-size: 1rem; }
+/* ===== 街机 header ===== */
+body[data-theme="arcade"] .harcade{display:flex;flex-direction:column;align-items:center}
+body[data-theme="arcade"] .harcade .logo-bar{font-family:'Press Start 2P',monospace;font-size:.85rem;letter-spacing:2px;color:var(--yellow);text-shadow:0 0 14px var(--yellow),3px 3px 0 #000;margin-bottom:10px;animation:blink 1.4s steps(1) infinite}
+body[data-theme="arcade"] .harcade h1{font-size:1.9rem;font-weight:700;letter-spacing:2px;color:var(--text);text-shadow:3px 3px 0 #000,0 0 20px rgba(61,225,255,.4);margin-bottom:4px}
+body[data-theme="arcade"] .harcade h1 .p{color:var(--pink);text-shadow:3px 3px 0 #000,0 0 20px var(--pink)}
+body[data-theme="arcade"] .harcade h1 .c{color:var(--cyan);text-shadow:3px 3px 0 #000,0 0 20px var(--cyan)}
+body[data-theme="arcade"] .harcade .subtitle{font-size:.78rem;color:#9a9ac4;margin-bottom:18px;letter-spacing:1px;animation:blink 1.4s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
 
-  .grid-wrapper {
-    position: relative;
-    padding: 3px;
-    background: linear-gradient(135deg, var(--accent), var(--live));
-    border-radius: 10px;
-    box-shadow: 0 0 40px rgba(108, 92, 231, 0.15), 0 0 80px rgba(0, 230, 118, 0.08);
-    margin-bottom: 18px;
-  }
+/* ===== 通用 stats ===== */
+.stats{display:flex;gap:24px;margin-bottom:16px;font-size:.9rem}
+.stat{display:flex;align-items:center;gap:6px;background:var(--surface);border:2px solid var(--border);padding:8px 16px;border-radius:10px}
+body[data-theme="arcade"] .stat{border-width:3px;box-shadow:5px 5px 0 #000}
+body[data-theme="4399"] .stat{box-shadow:0 2px 6px rgba(56,153,4,.08)}
+.stat-label{color:var(--text-dim)}
+.stat-value{color:var(--green);font-weight:800;font-size:1.1rem}
+body[data-theme="arcade"] .stat-value{text-shadow:2px 2px 0 #000}
 
-  .grid-inner {
-    background: var(--bg);
-    border-radius: 8px;
-    padding: 4px;
-  }
+/* ===== 通用 grid ===== */
+.grid-wrapper{position:relative;padding:4px;margin-bottom:18px}
+body[data-theme="4399"] .grid-wrapper{background:linear-gradient(135deg,var(--lightgreen),var(--green));border-radius:14px;box-shadow:0 8px 24px rgba(56,153,4,.18)}
+body[data-theme="arcade"] .grid-wrapper{background:var(--surface);border:3px solid var(--border);box-shadow:8px 8px 0 #000}
+.grid-inner{background:var(--surface);padding:5px}
+body[data-theme="4399"] .grid-inner{background:#fff;border-radius:11px}
+body[data-theme="arcade"] .grid-inner{background:var(--bg)}
+#grid{display:grid;grid-template-columns:repeat(40,1fr);gap:1px;background:var(--border);overflow:hidden}
+body[data-theme="4399"] #grid{border-radius:7px}
+.cell{width:15px;height:15px;background:var(--dead);cursor:pointer;border:1px solid rgba(255,255,255,.03)}
+body[data-theme="4399"] .cell{border:1px solid rgba(56,153,4,.05);transition:all .15s ease;border-radius:1px}
+body[data-theme="4399"] .cell:hover{background:var(--lightgreen);transform:scale(1.15);z-index:1}
+body[data-theme="arcade"] .cell{transition:background .1s}
+body[data-theme="arcade"] .cell:hover{background:var(--surface2)}
+.cell.alive{background:var(--live)}
+body[data-theme="4399"] .cell.alive{box-shadow:inset 0 0 0 2px #fff,0 0 8px var(--live-glow);border-radius:3px}
+body[data-theme="4399"] .cell.alive:hover{background:#46c20d}
+body[data-theme="arcade"] .cell.alive{box-shadow:0 0 8px var(--live-glow),inset 0 0 4px rgba(0,0,0,.2)}
+body[data-theme="arcade"] .cell.alive:hover{background:#8dffab}
 
-  #grid {
-    display: grid;
-    grid-template-columns: repeat(40, 1fr);
-    gap: 1px;
-    background: var(--border);
-    border-radius: 6px;
-    overflow: hidden;
-  }
+/* ===== controls ===== */
+.controls{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;max-width:620px}
+button{font-size:.8rem;font-weight:700;padding:9px 16px;cursor:pointer;transition:all .15s}
+body[data-theme="4399"] button{font-family:'PingFang SC',sans-serif;border:2px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);letter-spacing:.3px}
+body[data-theme="4399"] button:hover{background:var(--surface2);border-color:var(--green);box-shadow:0 3px 10px rgba(56,153,4,.15)}
+body[data-theme="4399"] button.primary{background:linear-gradient(135deg,var(--green),var(--green2));border-color:var(--green2);color:#fff}
+body[data-theme="4399"] button.primary:hover{filter:brightness(1.08);box-shadow:0 4px 14px rgba(56,153,4,.35)}
+body[data-theme="4399"] button.danger{border-color:rgba(224,86,0,.4);color:var(--danger)}
+body[data-theme="4399"] button.danger:hover{background:rgba(251,100,0,.1);border-color:var(--danger)}
+body[data-theme="arcade"] button{font-family:'Press Start 2P','PingFang SC',monospace;border:3px solid var(--border);background:var(--surface);color:#f4f4ff;box-shadow:4px 4px 0 #000}
+body[data-theme="arcade"] button:hover{background:var(--surface2);border-color:var(--cyan);transform:translate(-1px,-1px);box-shadow:5px 5px 0 #000}
+body[data-theme="arcade"] button:active{transform:translate(3px,3px);box-shadow:1px 1px 0 #000}
+body[data-theme="arcade"] button.primary{background:var(--pink);border-color:var(--pink);color:#fff;text-shadow:2px 2px 0 #000}
+body[data-theme="arcade"] button.primary:hover{background:#ff6aa0;border-color:var(--cyan)}
+body[data-theme="arcade"] button.danger{border-color:rgba(255,107,107,.5);color:#ff9d9d}
+body[data-theme="arcade"] button.danger:hover{background:rgba(255,107,107,.15);border-color:#ff6b6b}
 
-  .cell {
-    width: 16px;
-    height: 16px;
-    background: var(--dead);
-    cursor: pointer;
-    transition: all 0.15s ease;
-    border: 1px solid rgba(255,255,255,0.03);
-  }
+select{font-size:.8rem;padding:9px 12px;cursor:pointer;outline:none}
+body[data-theme="4399"] select{font-family:'PingFang SC',sans-serif;border:2px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text)}
+body[data-theme="4399"] select:hover,body[data-theme="4399"] select:focus{border-color:var(--green)}
+body[data-theme="4399"] select option{background:var(--surface);color:var(--text)}
+body[data-theme="arcade"] select{font-family:'Press Start 2P','PingFang SC',monospace;border:3px solid var(--border);background:var(--surface);color:#f4f4ff;box-shadow:4px 4px 0 #000}
+body[data-theme="arcade"] select:hover,body[data-theme="arcade"] select:focus{border-color:var(--cyan)}
+body[data-theme="arcade"] select option{background:var(--surface);color:#f4f4ff}
 
-  .cell:hover {
-    background: var(--surface2);
-    transform: scale(1.1);
-    z-index: 1;
-  }
+.speed-control{display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--text-dim)}
+input[type="range"]{-webkit-appearance:none;width:80px;height:5px;background:var(--border);outline:none}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;background:var(--green);cursor:pointer}
+body[data-theme="4399"] input[type="range"]{border-radius:3px;background:var(--lightgreen)}
+body[data-theme="4399"] input[type="range"]::-webkit-slider-thumb{border-radius:50%}
+body[data-theme="arcade"] input[type="range"]::-webkit-slider-thumb{background:var(--cyan)}
 
-  .cell.alive {
-    background: var(--live);
-    box-shadow: 0 0 6px var(--live-glow), inset 0 0 4px rgba(255,255,255,0.15);
-    border-radius: 2px;
-  }
-
-  .cell.alive:hover {
-    background: #00ff88;
-  }
-
-  .controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-    align-items: center;
-    max-width: 560px;
-  }
-
-  button {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.78rem;
-    font-weight: 600;
-    padding: 8px 16px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--surface);
-    color: var(--text);
-    cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 0.3px;
-  }
-
-  button:hover {
-    background: var(--surface2);
-    border-color: var(--accent);
-    box-shadow: 0 0 12px rgba(108, 92, 231, 0.2);
-  }
-
-  button.primary {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-  }
-
-  button.primary:hover {
-    background: #7d6ff0;
-    box-shadow: 0 0 20px rgba(108, 92, 231, 0.4);
-  }
-
-  button.danger {
-    border-color: rgba(255, 82, 82, 0.3);
-    color: var(--danger);
-  }
-
-  button.danger:hover {
-    background: rgba(255, 82, 82, 0.1);
-    border-color: var(--danger);
-  }
-
-  select {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.78rem;
-    padding: 8px 12px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--surface);
-    color: var(--text);
-    cursor: pointer;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
-  select:hover, select:focus {
-    border-color: var(--accent);
-  }
-
-  select option {
-    background: var(--surface);
-    color: var(--text);
-  }
-
-  .speed-control {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.75rem;
-    color: var(--text-dim);
-  }
-
-  input[type="range"] {
-    -webkit-appearance: none;
-    width: 80px;
-    height: 4px;
-    background: var(--border);
-    border-radius: 2px;
-    outline: none;
-  }
-
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 14px;
-    height: 14px;
-    background: var(--accent);
-    border-radius: 50%;
-    cursor: pointer;
-  }
-
-  .rules {
-    margin-top: 20px;
-    max-width: 560px;
-    padding: 14px 18px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    font-size: 0.72rem;
-    color: var(--text-dim);
-    line-height: 1.7;
-  }
-
-  .rules strong {
-    color: var(--accent2);
-    font-weight: 600;
-  }
+.rules{margin-top:20px;max-width:620px;padding:14px 18px;background:var(--surface);border:2px solid var(--border);font-size:.82rem;color:var(--text-dim);line-height:1.9}
+body[data-theme="4399"] .rules{border-radius:12px}
+body[data-theme="arcade"] .rules{border-width:3px;box-shadow:6px 6px 0 #000;color:#cdcde6}
+.rules strong{color:var(--green)}
 </style>
 </head>
-<body>
+<body data-theme="4399">
 
-<h1>CONWAY'S GAME OF LIFE</h1>
-<div class="subtitle">zero-player cellular automaton</div>
+<div class="theme-switch">
+  <button data-theme="4399" class="on">4399</button>
+  <button data-theme="arcade">街机厅</button>
+</div>
 
-<div class="stats">
-  <div class="stat">
-    <span class="stat-label">代数:</span>
-    <span class="stat-value" id="generation">0</span>
+<div class="content">
+  <!-- 4399 header -->
+  <header class="h4399">
+    <div class="topbar"><div class="logo">🎮</div><h1>生命游戏 <em>Game of Life</em></h1></div>
+    <div class="subtitle">// zero-player cellular automaton</div>
+  </header>
+  <!-- 街机 header -->
+  <header class="harcade" style="display:none">
+    <div class="logo-bar">▶ INSERT COIN ◀</div>
+    <h1><span class="p">CONWAY'S</span> <span class="c">GAME</span> OF LIFE</h1>
+    <div class="subtitle">// zero-player cellular automaton</div>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><span class="stat-label">代数:</span><span class="stat-value" id="generation">0</span></div>
+    <div class="stat"><span class="stat-label">存活:</span><span class="stat-value" id="alive-count">0</span></div>
   </div>
-  <div class="stat">
-    <span class="stat-label">存活:</span>
-    <span class="stat-value" id="alive-count">0</span>
+
+  <div class="grid-wrapper"><div class="grid-inner"><div id="grid"></div></div></div>
+
+  <div class="controls">
+    <select id="pattern-select">
+      <option value="">选择经典结构</option>
+      <option value="glider">滑翔机 Glider</option>
+      <option value="lwss">轻量级飞船 LWSS</option>
+      <option value="blinker">闪烁器 Blinker</option>
+      <option value="toad">蟾蜍 Toad</option>
+      <option value="beacon">信标 Beacon</option>
+      <option value="pulsar">脉冲星 Pulsar</option>
+      <option value="pentadecathlon">十五周期 Pentadecathlon</option>
+      <option value="gosper-glider-gun">高斯帕滑翔机枪</option>
+      <option value="rpentomino">R五格骨牌</option>
+      <option value="diehard">濒死模式 Diehard</option>
+      <option value="acorn">橡子 Acorn</option>
+    </select>
+    <select id="mode-select">
+      <option value="conway">康威生命 (B3/S23)</option>
+      <option value="daynight">日与夜 (B3678/S34678)</option>
+    </select>
+    <button class="primary" id="btn-play" onclick="togglePlay()">开始</button>
+    <button onclick="doStep()">下一步</button>
+    <button onclick="handleRandomize()">随机</button>
+    <button class="danger" onclick="handleClear()">清除</button>
+    <button onclick="undo()" title="撤销 (Ctrl+Z)">↩ 撤销</button>
+    <button onclick="redo()" title="重做 (Ctrl+Shift+Z)">↪ 重做</button>
+    <button onclick="saveToLocal()" title="保存到本地">💾 保存</button>
+    <button onclick="loadFromLocal()" title="从本地加载">📂 加载</button>
+    <div class="speed-control"><span>速度</span><input type="range" id="speed" min="50" max="1000" value="200" oninput="updateSpeed()"><span id="speed-label">200ms</span></div>
+  </div>
+
+  <div class="rules" id="rules-text">
+    <strong>规则:</strong> 每个细胞有两种状态 — 存活或死亡。每一轮，根据邻居数决定命运：
+    <strong>存活</strong>的细胞需要恰好2或3个邻居才能继续存活；
+    <strong>死亡</strong>的细胞在恰好3个邻居时会复活。邻居指周围8个方向的细胞。
   </div>
 </div>
 
-<div class="grid-wrapper">
-  <div class="grid-inner">
-    <div id="grid"></div>
-  </div>
-</div>
+<script>
+// ===== 主题联动（与主页共享 localStorage gh-theme）=====
+(function(){
+  const saved = localStorage.getItem('gh-theme') || '4399';
+  const theme = (saved === 'arcade') ? 'arcade' : '4399';
+  document.body.dataset.theme = theme;
+  document.querySelectorAll('.theme-switch button').forEach(b=>b.classList.toggle('on',b.dataset.theme===theme));
+  document.querySelector('.h4399').style.display = theme==='4399' ? '' : 'none';
+  document.querySelector('.harcade').style.display = theme==='arcade' ? '' : 'none';
 
-<div class="controls">
-  <select id="pattern-select">
-    <option value="">选择经典结构</option>
-    <option value="glider">滑翔机 Glider</option>
-    <option value="lwss">轻量级飞船 LWSS</option>
-    <option value="blinker">闪烁器 Blinker</option>
-    <option value="toad">蟾蜍 Toad</option>
-    <option value="beacon">信标 Beacon</option>
-    <option value="pulsar">脉冲星 Pulsar</option>
-    <option value="pentadecathlon">十五周期 Pentadecathlon</option>
-    <option value="gosper-glider-gun">高斯帕滑翔机枪</option>
-    <option value="rpentomino">R五格骨牌</option>
-    <option value="diehard">濒死模式 Diehard</option>
-    <option value="acorn">橡子 Acorn</option>
-  </select>
+  document.querySelectorAll('.theme-switch button').forEach(b=>{
+    b.addEventListener('click',()=>{
+      const t = b.dataset.theme;
+      if(t===document.body.dataset.theme) return;
+      document.body.dataset.theme = t;
+      localStorage.setItem('gh-theme', t);
+      document.querySelectorAll('.theme-switch button').forEach(x=>x.classList.toggle('on',x.dataset.theme===t));
+      document.querySelector('.h4399').style.display = t==='4399' ? '' : 'none';
+      document.querySelector('.harcade').style.display = t==='arcade' ? '' : 'none';
+    });
+  });
+})();
+</script>
 
-  <select id="mode-select">
-    <option value="conway">康威生命 (B3/S23)</option>
-    <option value="daynight">日与夜 (B3678/S34678)</option>
-  </select>
+<script>
+const ROWS = 40, COLS = 40;
 
-  <button class="primary" id="btn-play" onclick="togglePlay()">开始</button>
-  <button onclick="doStep()">下一步</button>
-  <button onclick="handleRandomize()">随机</button>
-  <button class="danger" onclick="handleClear()">清除</button>
-  <button onclick="undo()" title="撤销 (Ctrl+Z)">↩ 撤销</button>
-  <button onclick="redo()" title="重做 (Ctrl+Shift+Z)">↪ 重做</button>
-  <button onclick="saveToLocal()" title="保存到本地">💾 保存</button>
-  <button onclick="loadFromLocal()" title="从本地加载">📂 加载</button>
+function createEmptyGrid() {
+  return Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+}
 
-  <div class="speed-control">
-    <span>速度</span>
-    <input type="range" id="speed" min="50" max="1000" value="200" oninput="updateSpeed()">
-    <span id="speed-label">200ms</span>
-  </div>
-</div>
+function countNeighbors(grid, r, c) {
+  let n = 0;
+  for (let dr = -1; dr <= 1; dr++) {
+    for (let dc = -1; dc <= 1; dc++) {
+      if (dr === 0 && dc === 0) continue;
+      const nr = r + dr, nc = c + dc;
+      if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS)
+        n += grid[nr][nc];
+    }
+  }
+  return n;
+}
 
-<div class="rules" id="rules-text">
-  <strong>规则:</strong> 每个细胞有两种状态 — 存活或死亡。每一轮，根据邻居数决定命运：
-  <strong>存活</strong>的细胞需要恰好2或3个邻居才能继续存活；
-  <strong>死亡</strong>的细胞在恰好3个邻居时会复活。邻居指周围8个方向的细胞。
-</div>
+function step(grid) {
+  const next = createEmptyGrid();
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const n = countNeighbors(grid, r, c);
+      if (grid[r][c]) {
+        next[r][c] = (n === 2 || n === 3) ? 1 : 0;
+      } else {
+        next[r][c] = (n === 3) ? 1 : 0;
+      }
+    }
+  }
+  return next;
+}
 
-<script type="module" src="src/main.js"></script>
+// Day & Night (B3678/S34678)
+function stepDayNight(grid) {
+  const next = createEmptyGrid();
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const n = countNeighbors(grid, r, c);
+      if (grid[r][c]) {
+        next[r][c] = (n === 3 || n === 4 || n === 6 || n === 7 || n === 8) ? 1 : 0;
+      } else {
+        next[r][c] = (n === 3 || n === 6 || n === 7 || n === 8) ? 1 : 0;
+      }
+    }
+  }
+  return next;
+}
+
+function randomize(grid, density = 0.25) {
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c < COLS; c++)
+      grid[r][c] = Math.random() < density ? 1 : 0;
+}
+
+function clearGrid(grid) {
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c < COLS; c++)
+      grid[r][c] = 0;
+}
+
+function countAlive(grid) {
+  let count = 0;
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c < COLS; c++)
+      if (grid[r][c]) count++;
+  return count;
+}
+
+function toggleCell(grid, r, c) {
+  grid[r][c] = grid[r][c] ? 0 : 1;
+}
+
+function applyPattern(grid, pattern, offsetRow, offsetCol) {
+  pattern.forEach(([r, c]) => {
+    const gr = offsetRow + r, gc = offsetCol + c;
+    if (gr >= 0 && gr < ROWS && gc >= 0 && gc < COLS) {
+      grid[gr][gc] = 1;
+    }
+  });
+}
+
+// Classic Game of Life patterns
+const PATTERNS = {
+  glider: { name: 'Glider', offset: [19, 19], cells: [[0,1],[1,2],[2,0],[2,1],[2,2]] },
+  lwss: { name: 'Lightweight Spaceship', offset: [10, 5], cells: [[0,1],[0,4],[1,0],[1,4],[2,0],[3,0],[3,1],[3,2],[3,3]] },
+  blinker: { name: 'Blinker', offset: [19, 19], cells: [[0,0],[0,1],[0,2]] },
+  toad: { name: 'Toad', offset: [19, 19], cells: [[0,1],[0,2],[0,3],[1,0],[1,1],[1,2]] },
+  beacon: { name: 'Beacon', offset: [19, 19], cells: [[0,0],[0,1],[1,0],[1,1],[2,2],[2,3],[3,2],[3,3]] },
+  pulsar: { name: 'Pulsar', offset: [13, 13], cells: [
+    [0,2],[0,3],[0,4],[2,0],[3,0],[4,0],[2,5],[3,5],[4,5],[5,2],[5,3],[5,4],
+    [0,8],[0,9],[0,10],[2,7],[3,7],[4,7],[2,12],[3,12],[4,12],[5,8],[5,9],[5,10],
+    [7,2],[7,3],[7,4],[8,0],[9,0],[10,0],[8,5],[9,5],[10,5],[12,2],[12,3],[12,4],
+    [7,8],[7,9],[7,10],[8,7],[9,7],[10,7],[8,12],[9,12],[10,12],[12,8],[12,9],[12,10]
+  ]},
+  pentadecathlon: { name: 'Pentadecathlon', offset: [16, 19], cells: [
+    [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],
+    [0,1],[2,1],[3,1],[4,1],[5,1],[7,1],
+    [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2]
+  ]},
+  'gosper-glider-gun': { name: 'Gosper Glider Gun', offset: [2, 2], cells: [
+    [0,24],[1,22],[1,24],[2,12],[2,13],[2,20],[2,21],[2,34],[2,35],
+    [3,11],[3,15],[3,20],[3,21],[3,34],[3,35],[4,0],[4,1],[4,10],[4,16],[4,20],[4,21],
+    [5,0],[5,1],[5,10],[5,14],[5,16],[5,17],[5,22],[5,24],[6,10],[6,16],[6,24],
+    [7,11],[7,15],[8,12],[8,13]
+  ]},
+  rpentomino: { name: 'R-pentomino', offset: [19, 19], cells: [[0,1],[0,2],[1,0],[1,1],[2,1]] },
+  diehard: { name: 'Diehard', offset: [19, 16], cells: [[0,6],[1,0],[1,1],[2,1],[2,5],[2,6],[2,7]] },
+  acorn: { name: 'Acorn', offset: [19, 17], cells: [[0,1],[1,3],[2,0],[2,1],[2,4],[2,5],[2,6]] }
+};
+
+let drawing = false;
+let drawMode = 1;
+let mouseUpHandler = null;
+
+function createGrid(gridEl, grid, onClick, onDragEnd) {
+  if (mouseUpHandler) document.removeEventListener('mouseup', mouseUpHandler);
+  gridEl.innerHTML = '';
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.dataset.row = r;
+      cell.dataset.col = c;
+      cell.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        drawing = true;
+        drawMode = grid[r][c] ? 0 : 1;
+        toggleCell(grid, r, c);
+        updateCellVisual(gridEl, grid, r, c);
+        if (onClick) onClick(r, c);
+      });
+      cell.addEventListener('mouseenter', () => {
+        if (drawing) { grid[r][c] = drawMode; updateCellVisual(gridEl, grid, r, c); }
+      });
+      gridEl.appendChild(cell);
+    }
+  }
+  mouseUpHandler = () => { if (drawing && onDragEnd) onDragEnd(); drawing = false; };
+  document.addEventListener('mouseup', mouseUpHandler);
+}
+
+function updateCellVisual(gridEl, grid, r, c) {
+  const idx = r * COLS + c;
+  const cell = gridEl.children[idx];
+  if (cell) cell.className = 'cell' + (grid[r][c] ? ' alive' : '');
+}
+
+function refreshAll(gridEl, grid) {
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c < COLS; c++)
+      updateCellVisual(gridEl, grid, r, c);
+}
+
+function updateStats(genEl, aliveEl, grid, generation) {
+  genEl.textContent = generation;
+  aliveEl.textContent = countAlive(grid);
+}
+
+let grid = createEmptyGrid();
+let generation = 0;
+let playing = false;
+let intervalId = null;
+let speed = 200;
+let dayNight = false;
+
+const gridEl = document.getElementById('grid');
+const genEl = document.getElementById('generation');
+const aliveEl = document.getElementById('alive-count');
+const btnPlay = document.getElementById('btn-play');
+const patternSelect = document.getElementById('pattern-select');
+const speedInput = document.getElementById('speed');
+const speedLabel = document.getElementById('speed-label');
+const modeSelect = document.getElementById('mode-select');
+const rulesEl = document.getElementById('rules-text');
+
+const MAX_HISTORY = 50;
+let history = [];
+let historyIndex = -1;
+
+function saveState() {
+  const snapshot = grid.map(row => [...row]);
+  history = history.slice(0, historyIndex + 1);
+  history.push({ grid: snapshot, gen: generation });
+  if (history.length > MAX_HISTORY) history.shift();
+  historyIndex = history.length - 1;
+}
+
+function undo() {
+  if (historyIndex > 0) {
+    historyIndex--;
+    grid = history[historyIndex].grid.map(row => [...row]);
+    generation = history[historyIndex].gen;
+    refreshAll(gridEl, grid);
+    updateStats(genEl, aliveEl, grid, generation);
+  }
+}
+
+function redo() {
+  if (historyIndex < history.length - 1) {
+    historyIndex++;
+    grid = history[historyIndex].grid.map(row => [...row]);
+    generation = history[historyIndex].gen;
+    refreshAll(gridEl, grid);
+    updateStats(genEl, aliveEl, grid, generation);
+  }
+}
+
+function handleCellClick(r, c) { updateStats(genEl, aliveEl, grid, generation); }
+
+function init() {
+  createGrid(gridEl, grid, handleCellClick, saveState);
+  generation = 0;
+  updateStats(genEl, aliveEl, grid, generation);
+  saveState();
+}
+
+function doStep() {
+  grid = dayNight ? stepDayNight(grid) : step(grid);
+  generation++;
+  refreshAll(gridEl, grid);
+  updateStats(genEl, aliveEl, grid, generation);
+  saveState();
+}
+
+function togglePlay() {
+  playing = !playing;
+  btnPlay.textContent = playing ? '暂停' : '开始';
+  btnPlay.className = playing ? 'danger' : 'primary';
+  if (playing) { intervalId = setInterval(doStep, speed); }
+  else { clearInterval(intervalId); }
+}
+
+function stop() {
+  playing = false;
+  clearInterval(intervalId);
+  btnPlay.textContent = '开始';
+  btnPlay.className = 'primary';
+}
+
+function handleRandomize() {
+  stop(); generation = 0; randomize(grid);
+  refreshAll(gridEl, grid); updateStats(genEl, aliveEl, grid, generation); saveState();
+}
+
+function handleClear() {
+  stop(); generation = 0; clearGrid(grid);
+  refreshAll(gridEl, grid); updateStats(genEl, aliveEl, grid, generation); saveState();
+}
+
+function updateSpeed() {
+  speed = 1050 - speedInput.value;
+  speedLabel.textContent = speed + 'ms';
+  if (playing) { clearInterval(intervalId); intervalId = setInterval(doStep, speed); }
+}
+
+function handlePatternSelect() {
+  const key = patternSelect.value;
+  if (!key) return;
+  handleClear();
+  const p = PATTERNS[key];
+  if (p) {
+    applyPattern(grid, p.cells, p.offset[0], p.offset[1]);
+    refreshAll(gridEl, grid); updateStats(genEl, aliveEl, grid, generation); saveState();
+  }
+  patternSelect.value = '';
+}
+
+function saveToLocal() {
+  localStorage.setItem('game-of-life-state', JSON.stringify({ grid, generation }));
+}
+
+function loadFromLocal() {
+  const raw = localStorage.getItem('game-of-life-state');
+  if (!raw) return false;
+  try {
+    const data = JSON.parse(raw);
+    if (data.grid && data.grid.length === ROWS && data.grid[0] && data.grid[0].length === COLS) {
+      grid = data.grid; generation = data.generation || 0;
+      refreshAll(gridEl, grid); updateStats(genEl, aliveEl, grid, generation); saveState();
+      return true;
+    }
+  } catch (e) {}
+  return false;
+}
+
+function handleModeChange() {
+  dayNight = modeSelect.value === 'daynight';
+  stop(); generation = 0; history = []; historyIndex = -1;
+  clearGrid(grid); refreshAll(gridEl, grid); updateStats(genEl, aliveEl, grid, generation); saveState();
+  updateRulesDisplay();
+}
+
+function updateRulesDisplay() {
+  if (dayNight) {
+    rulesEl.innerHTML =
+      '<strong>规则: Day & Night (B3678/S34678)</strong> — 存活细胞需要 3、4、6、7 或 8 个邻居；' +
+      '死亡细胞在恰好 3、6、7 或 8 个邻居时复活。' +
+      '此规则下许多经典结构行为不同，且会产生独特的混沌模式。';
+  } else {
+    rulesEl.innerHTML =
+      '<strong>规则:</strong> 每个细胞有两种状态 — 存活或死亡。每一轮，根据邻居数决定命运：' +
+      '<strong>存活</strong>的细胞需要恰好2或3个邻居才能继续存活；' +
+      '<strong>死亡</strong>的细胞在恰好3个邻居时会复活。邻居指周围8个方向的细胞。';
+  }
+}
+
+window.togglePlay = togglePlay;
+window.doStep = doStep;
+window.handleRandomize = handleRandomize;
+window.handleClear = handleClear;
+window.updateSpeed = updateSpeed;
+window.undo = undo;
+window.redo = redo;
+window.saveToLocal = saveToLocal;
+window.loadFromLocal = loadFromLocal;
+window.handleModeChange = handleModeChange;
+
+patternSelect.addEventListener('change', handlePatternSelect);
+modeSelect.addEventListener('change', handleModeChange);
+
+init();
+</script>
 <script>
 document.addEventListener('keydown', (e) => {
   if (e.ctrlKey && e.shiftKey && e.key === 'z') { e.preventDefault(); window.redo(); }
@@ -304,6 +563,5 @@ document.addEventListener('keydown', (e) => {
   else if (e.ctrlKey && e.key === 'o') { e.preventDefault(); window.loadFromLocal(); }
 });
 </script>
-
 </body>
 </html>
