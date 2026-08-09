@@ -78,6 +78,78 @@ body[data-theme="4399"] .loader .load-text{--load-font:'PingFang SC','Microsoft 
 body[data-theme="arcade"] .loader .load-text{--load-font:'Press Start 2P',monospace}
 .loader .load-text b{color:var(--green)}
 
+/* ============ 开屏动画 (splash) ============ */
+.splash{position:fixed;inset:0;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;
+  overflow:hidden;color:#fff;opacity:1;transition:opacity .5s ease}
+.splash.off{opacity:0;pointer-events:none}
+.splash .bg{position:absolute;inset:-40%;z-index:1;
+  background:linear-gradient(120deg,#ff2d78,#3de1ff,#ffe14d,#00ff9d,#a55eea,#ff2d78);
+  background-size:400% 400%;animation:gradShift 2.2s ease infinite;filter:saturate(1.4)}
+.splash .bg::before{content:'';position:absolute;inset:0;background:rgba(10,10,24,.38)}
+@keyframes gradShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+/* 上浮粒子 */
+.splash .pt{position:absolute;bottom:-20px;z-index:2;border-radius:50%;opacity:0;animation:ptRise linear forwards}
+@keyframes ptRise{0%{transform:translateY(0) scale(1);opacity:0}10%{opacity:1}100%{transform:translateY(-110vh) scale(.4);opacity:0}}
+/* 霓虹大标题字母逐个弹出 */
+.splash .big{display:flex;font-family:'Press Start 2P',monospace;font-size:clamp(30px,9vw,74px);font-weight:900;letter-spacing:4px;z-index:3}
+.splash .big span{display:inline-block;opacity:0;animation:popIn .5s cubic-bezier(.2,1.6,.4,1) forwards;text-shadow:0 0 18px currentColor,4px 4px 0 rgba(0,0,0,.5);margin-right:4px}
+.splash .big span:nth-child(1){color:#ff2d78;animation-delay:.05s}
+.splash .big span:nth-child(2){color:#ffe14d;animation-delay:.14s}
+.splash .big span:nth-child(3){color:#3de1ff;animation-delay:.23s}
+.splash .big span:nth-child(4){color:#00ff9d;animation-delay:.32s}
+.splash .big span:nth-child(5){color:#a55eea;animation-delay:.41s}
+.splash .big span:nth-child(6){color:#ff8c42;animation-delay:.50s}
+.splash .big span:nth-child(7){color:#3de1ff;animation-delay:.59s}
+@keyframes popIn{0%{opacity:0;transform:scale(.2) translateY(40px) rotate(-12deg);filter:blur(6px)}60%{opacity:1}100%{opacity:1;transform:scale(1) translateY(0) rotate(0);filter:blur(0)}}
+.splash .sub{font-family:'Press Start 2P',monospace;font-size:11px;letter-spacing:6px;color:#fff;z-index:3;opacity:0;animation:fadeUp .6s ease .85s forwards;text-shadow:0 0 12px rgba(255,255,255,.85)}
+.splash .sub2{font-family:'PingFang SC','Microsoft YaHei';font-size:15px;color:#fff;z-index:3;opacity:0;animation:fadeUp .6s ease 1.05s forwards;letter-spacing:2px;text-shadow:0 0 10px rgba(0,0,0,.5)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+/* 闪光扫过 */
+.splash .shine{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);background-size:250% 100%;animation:shine 1.5s ease infinite;mix-blend-mode:overlay}
+@keyframes shine{0%{background-position:150% 0}100%{background-position:-150% 0}}
+
+/* ============ 跳转过渡动画 (transition) ============ */
+.transition{position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;
+  visibility:hidden;opacity:0;pointer-events:none;color:#fff;overflow:hidden;font-family:'Press Start 2P',monospace}
+.transition.on{visibility:visible;opacity:1;pointer-events:auto}
+.transition .t-text{position:relative;z-index:3;font-size:clamp(15px,5vw,32px);letter-spacing:3px;text-align:center;padding:0 16px;
+  text-shadow:0 0 18px rgba(0,0,0,.7),0 0 40px currentColor;animation:tTxt .35s ease}
+@keyframes tTxt{0%{opacity:0;transform:scale(.6)}100%{opacity:1;transform:scale(1)}}
+.transition .t-bg{position:absolute;inset:0;z-index:1}
+.transition .t-bg2{position:absolute;inset:0;z-index:2}
+
+/* 1) warp 时空扭曲 */
+.transition.t-warp .t-bg{background:linear-gradient(120deg,#ff2d78,#3de1ff,#ffe14d,#00ff9d,#a55eea);background-size:300% 300%;animation:gradShift .4s linear infinite;filter:blur(8px) saturate(2);transform:scale(2.2);opacity:.95}
+.transition.t-warp .t-bg2{background:radial-gradient(circle,transparent 20%,rgba(0,0,0,.5) 90%)}
+.transition.t-warp.on .t-bg{animation:warp .4s ease forwards}
+@keyframes warp{0%{transform:scale(1) rotate(0);opacity:.25}100%{transform:scale(2.4) rotate(22deg);opacity:1}}
+
+/* 2) pixels 像素方块 */
+.transition.t-pixels .t-bg{background:#0b0b18;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(6,1fr);gap:2px;padding:2px}
+.transition.t-pixels .px{background:linear-gradient(135deg,var(--rand1,#ff2d78),var(--rand2,#3de1ff));opacity:0;animation:pxIn .3s ease forwards}
+@keyframes pxIn{from{opacity:0;transform:scale(0)}to{opacity:1;transform:scale(1)}}
+
+/* 3) scan 扫描 */
+.transition.t-scan .t-bg{background:#0b0b18}
+.transition.t-scan .t-bg2{background:linear-gradient(180deg,transparent,#3de1ff,transparent);animation:scan .4s ease forwards}
+@keyframes scan{0%{transform:translateY(-110%)}100%{transform:translateY(110%)}}
+
+/* 4) burst 迸发 */
+.transition.t-burst .t-bg{background:#0b0b18}
+.transition.t-burst .t-bg2{background:radial-gradient(circle,#ffe14d 0%,#ff2d78 35%,#a55eea 60%,transparent 75%);transform:scale(0);animation:burst .4s ease forwards}
+@keyframes burst{0%{transform:scale(0);opacity:0}60%{opacity:1}100%{transform:scale(2.6);opacity:0}}
+
+/* 5) glitch RGB */
+.transition.t-glitch .t-bg{background:#0b0b18}
+.transition.t-glitch .t-bg2{background:repeating-linear-gradient(0deg,transparent 0 6px,#ff2d78 6px 8px,transparent 8px 14px,#3de1ff 14px 16px,transparent 16px 22px,#00ff9d 22px 24px,transparent 24px 30px);opacity:0;animation:glitchShake .4s steps(6) forwards;mix-blend-mode:screen}
+@keyframes glitchShake{0%{opacity:0;transform:translateX(-6%)}10%{opacity:1;transform:translateX(5%)}20%{transform:translateX(-4%)}40%{transform:translateX(3%)}60%{transform:translateX(-2%)}100%{opacity:1;transform:translateX(0)}}
+
+/* ============ 尊重 reduce-motion：关闭动画 ============ */
+@media (prefers-reduced-motion: reduce){
+  .splash,.splash *,.transition,.transition *{animation:none!important;transition:none!important}
+  .splash .big span,.splash .pt,.splash .sub,.splash .sub2{opacity:1!important;transform:none!important}
+}
+
 /* ============ 布局 ============ */
 .wrap{max-width:1000px;margin:0 auto;padding:96px 24px 60px;position:relative;z-index:1}
 .h4399,.harcade{display:none}
@@ -143,6 +215,15 @@ body[data-theme="arcade"] .hint b{color:var(--cyan);text-shadow:0 0 10px var(--c
 </head>
 <body data-theme="4399">
 
+<!-- 开屏动画 -->
+<div class="splash" id="splash" aria-hidden="true">
+  <div class="bg"></div>
+  <div class="shine"></div>
+  <div class="big" id="splashBig"></div>
+  <div class="sub">- MINI GAME COLLECTION -</div>
+  <div class="sub2">🎮 迷你游戏合集 · 即将开始</div>
+</div>
+
 <!-- 华丽加载过渡 -->
 <div class="loader" id="loader">
   <div class="core">
@@ -172,7 +253,7 @@ body[data-theme="arcade"] .hint b{color:var(--cyan);text-shadow:0 0 10px var(--c
 
   <div class="grid">
     <!-- 康威生命游戏 -->
-    <div class="card" data-delay="0" onclick="location.href='life/index.html'">
+    <div class="card" data-delay="0" onclick="go('life/index.html',event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="hot">热</span>
       <span class="ico">🦠</span>
@@ -180,21 +261,21 @@ body[data-theme="arcade"] .hint b{color:var(--cyan);text-shadow:0 0 10px var(--c
       <div class="tag">细胞</div>
     </div>
     <!-- 倒水游戏 -->
-    <div class="card" data-delay=".12s" onclick="location.href='bottle/index.html'">
+    <div class="card" data-delay=".12s" onclick="go('bottle/index.html',event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">🍶</span>
       <div class="name">倒水谜题</div>
       <div class="tag">逻辑</div>
     </div>
     <!-- 1A2B 猜数字 -->
-    <div class="card" data-delay=".18s" onclick="location.href='1A2B/index.html'">
+    <div class="card" data-delay=".18s" onclick="go('1A2B/index.html',event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">🔢</span>
       <div class="name">1A2B 猜数字</div>
       <div class="tag">猜谜</div>
     </div>
     <!-- Stroop 挑战 -->
-    <div class="card" data-delay=".3s" onclick="location.href='stroop/index.html'">
+    <div class="card" data-delay=".3s" onclick="go('stroop/index.html',event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">🎯</span>
       <div class="name">Stroop 挑战</div>
@@ -205,7 +286,15 @@ body[data-theme="arcade"] .hint b{color:var(--cyan);text-shadow:0 0 10px var(--c
   <div class="hint">更多好玩游戏，<b>持续上新</b>中……</div>
 </div>
 
+<!-- 跳转过渡遮罩 -->
+<div class="transition" id="transition" aria-hidden="true">
+  <div class="t-bg"></div>
+  <div class="t-bg2"></div>
+  <div class="t-text"></div>
+</div>
+
 <script>
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const toggle=document.getElementById('themeToggle');
 const loader=document.getElementById('loader');
 const saved=localStorage.getItem('gh-theme')||'4399';
@@ -236,6 +325,63 @@ toggle.addEventListener('click',()=>{
     },150);
   },700);
 });
+
+/* ===== 开屏动画：字母弹出 + 上浮粒子 ===== */
+function buildSplash(){
+  const s=document.getElementById('splash');
+  const big=document.getElementById('splashBig');
+  // 霓虹字母逐个弹出
+  const title='GAMEHUB';
+  [...title].forEach(ch=>{const sp=document.createElement('span');sp.textContent=ch;big.appendChild(sp);});
+  // 多彩上浮粒子
+  const colors=['#ff2d78','#3de1ff','#ffe14d','#00ff9d','#a55eea','#ff8c42','#ffffff'];
+  const frag=document.createDocumentFragment();
+  for(let i=0;i<44;i++){
+    const p=document.createElement('div');p.className='pt';
+    const sz=4+Math.random()*10;
+    p.style.width=sz+'px';p.style.height=sz+'px';
+    p.style.left=Math.random()*100+'%';
+    p.style.background='radial-gradient(circle,'+colors[i%colors.length]+',transparent)';
+    p.style.animationDuration=(1.6+Math.random()*2.2)+'s';
+    p.style.animationDelay=(Math.random()*0.9)+'s';
+    frag.appendChild(p);
+  }
+  s.insertBefore(frag,big);
+}
+if(reduced){
+  // 减少动效：直接移除开屏
+  const sp=document.getElementById('splash'); if(sp) sp.remove();
+}else{
+  buildSplash();
+  setTimeout(()=>{document.getElementById('splash').classList.add('off');},1900);
+  setTimeout(()=>{const sp=document.getElementById('splash'); if(sp) sp.remove();},2450);
+}
+
+/* ===== 跳转随机过渡动画 + 打趣文本 ===== */
+const goTexts=['进入游戏…','加载中，别眨眼','🎮 街机启动','祝你好运！','对手已就位','前方高能','READY? GO!','一键起飞','LOADING…','满血出击！','走起，别掉线','开局送好运','搓搓手，上分！','这把稳了'];
+const tClasses=['t-warp','t-pixels','t-scan','t-burst','t-glitch'];
+const pxColors=['#ff2d78','#3de1ff','#ffe14d','#00ff9d','#a55eea','#ff8c42'];
+function go(url,ev){
+  if(ev&&ev.preventDefault)ev.preventDefault();
+  if(reduced){ location.href=url; return; }  // reduce-motion：直接跳转
+  const t=document.getElementById('transition');
+  const cls=tClasses[Math.floor(Math.random()*tClasses.length)];
+  t.className='transition on '+cls;
+  const bg=t.querySelector('.t-bg');
+  if(cls==='t-pixels'){
+    bg.innerHTML='';
+    const cols=8,rows=6;
+    for(let i=0;i<cols*rows;i++){
+      const px=document.createElement('div');px.className='px';
+      px.style.setProperty('--rand1',pxColors[Math.floor(Math.random()*pxColors.length)]);
+      px.style.setProperty('--rand2',pxColors[Math.floor(Math.random()*pxColors.length)]);
+      px.style.animationDelay=(Math.random()*0.15)+'s';
+      bg.appendChild(px);
+    }
+  }
+  t.querySelector('.t-text').textContent=goTexts[Math.floor(Math.random()*goTexts.length)];
+  setTimeout(()=>{location.href=url;},400);
+}
 
 const cards=document.querySelectorAll('.card');
 cards.forEach(c=>{setTimeout(()=>c.classList.add('show'),parseFloat(c.dataset.delay||0)*1000);});
