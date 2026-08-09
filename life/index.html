@@ -50,12 +50,12 @@ body[data-theme="arcade"]::after{
 body{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:14px 20px;position:relative;transition:background .4s,color .4s}
 
 /* 主题切换器（与主页一致） */
-.theme-switch{position:fixed;right:14px;bottom:14px;left:auto;top:auto;transform:none;z-index:99;display:flex;gap:8px;
-  background:rgba(0,0,0,.6);backdrop-filter:blur(10px);padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.2)}
-.theme-switch button{font-size:13px;padding:5px 13px}
-.theme-switch button{border:0;background:transparent;color:#cfcfcf;font-size:14px;font-weight:700;padding:6px 16px;border-radius:999px;cursor:pointer;font-family:inherit;transition:.25s;letter-spacing:.5px}
-.theme-switch button:hover{color:#fff}
-.theme-switch button.on{background:#fff;color:#111}
+.theme-switch{position:fixed;right:16px;bottom:16px;z-index:99;width:46px;height:46px;border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;line-height:1;user-select:none;color:#ffd54f;
+  background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.25);
+  box-shadow:0 3px 12px rgba(0,0,0,.3);transition:transform .2s,background .2s}
+.theme-switch:hover{transform:scale(1.08)}
+.theme-switch:active{transform:scale(.94)}
 
 .content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%}
 
@@ -92,8 +92,8 @@ body[data-theme="arcade"] .grid-wrapper{background:var(--surface);border:3px sol
 .grid-inner{background:var(--surface);padding:5px}
 body[data-theme="4399"] .grid-inner{background:#fff;border-radius:11px}
 body[data-theme="arcade"] .grid-inner{background:var(--bg)}
-:root{--cell:11px}
-#grid{display:grid;grid-template-columns:repeat(40,var(--cell));gap:1px;background:var(--border);overflow:hidden}
+:root{--cell:17px}
+#grid{display:grid;grid-template-columns:repeat(30,var(--cell));gap:1px;background:var(--border);overflow:hidden}
 body[data-theme="4399"] #grid{border-radius:7px}
 .cell{width:var(--cell,11px);height:var(--cell,11px);background:var(--dead);cursor:pointer;border:1px solid rgba(255,255,255,.03)}
 body[data-theme="4399"] .cell{border:1px solid rgba(56,153,4,.05);transition:all .15s ease;border-radius:1px}
@@ -170,7 +170,7 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
 
 /* ===== 响应式适配 ===== */
 @media (max-width:700px){
-  :root{--cell:min(6vw,13px)}
+  :root{--cell:min(8vw,19px)}
   body{padding:10px 8px}
   .controls{max-width:100%}
   .content{width:100%}
@@ -191,10 +191,7 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
 
 <a class="back-home" href="../index.html">← 返回主页</a>
 
-<div class="theme-switch">
-  <button data-theme="4399" class="on">日间</button>
-  <button data-theme="arcade">夜间</button>
-</div>
+<div class="theme-switch" id="themeToggle" role="button" aria-label="切换主题" title="切换主题"></div>
 
 <div class="content">
   <!-- 4399 header -->
@@ -257,29 +254,33 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
 <script>
 // ===== 主题联动（与主页共享 localStorage gh-theme）=====
 (function(){
+  const toggle=document.getElementById('themeToggle');
+  function iconSVG(arcade){
+    if(arcade){
+      return '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>';
+    }
+    return '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+  }
   const saved = localStorage.getItem('gh-theme') || '4399';
   const theme = (saved === 'arcade') ? 'arcade' : '4399';
   document.body.dataset.theme = theme;
-  document.querySelectorAll('.theme-switch button').forEach(b=>b.classList.toggle('on',b.dataset.theme===theme));
+  toggle.innerHTML = iconSVG(theme==='arcade');
   document.querySelector('.h4399').style.display = theme==='4399' ? '' : 'none';
   document.querySelector('.harcade').style.display = theme==='arcade' ? '' : 'none';
 
-  document.querySelectorAll('.theme-switch button').forEach(b=>{
-    b.addEventListener('click',()=>{
-      const t = b.dataset.theme;
-      if(t===document.body.dataset.theme) return;
-      document.body.dataset.theme = t;
-      localStorage.setItem('gh-theme', t);
-      document.querySelectorAll('.theme-switch button').forEach(x=>x.classList.toggle('on',x.dataset.theme===t));
-      document.querySelector('.h4399').style.display = t==='4399' ? '' : 'none';
-      document.querySelector('.harcade').style.display = t==='arcade' ? '' : 'none';
-    });
+  toggle.addEventListener('click',()=>{
+    const t = document.body.dataset.theme==='arcade' ? '4399' : 'arcade';
+    document.body.dataset.theme = t;
+    localStorage.setItem('gh-theme', t);
+    toggle.innerHTML = iconSVG(t==='arcade');
+    document.querySelector('.h4399').style.display = t==='4399' ? '' : 'none';
+    document.querySelector('.harcade').style.display = t==='arcade' ? '' : 'none';
   });
 })();
 </script>
 
 <script>
-const ROWS = 40, COLS = 40;
+const ROWS = 30, COLS = 30;
 
 function createEmptyGrid() {
   return Array.from({ length: ROWS }, () => Array(COLS).fill(0));
@@ -364,18 +365,18 @@ function applyPattern(grid, pattern, offsetRow, offsetCol) {
 
 // Classic Game of Life patterns
 const PATTERNS = {
-  glider: { name: 'Glider', offset: [19, 19], cells: [[0,1],[1,2],[2,0],[2,1],[2,2]] },
-  lwss: { name: 'Lightweight Spaceship', offset: [10, 5], cells: [[0,1],[0,4],[1,0],[1,4],[2,0],[3,0],[3,1],[3,2],[3,3]] },
-  blinker: { name: 'Blinker', offset: [19, 19], cells: [[0,0],[0,1],[0,2]] },
-  toad: { name: 'Toad', offset: [19, 19], cells: [[0,1],[0,2],[0,3],[1,0],[1,1],[1,2]] },
-  beacon: { name: 'Beacon', offset: [19, 19], cells: [[0,0],[0,1],[1,0],[1,1],[2,2],[2,3],[3,2],[3,3]] },
+  glider: { name: 'Glider', offset: [13, 13], cells: [[0,1],[1,2],[2,0],[2,1],[2,2]] },
+  lwss: { name: 'Lightweight Spaceship', offset: [8, 4], cells: [[0,1],[0,4],[1,0],[1,4],[2,0],[3,0],[3,1],[3,2],[3,3]] },
+  blinker: { name: 'Blinker', offset: [13, 13], cells: [[0,0],[0,1],[0,2]] },
+  toad: { name: 'Toad', offset: [13, 13], cells: [[0,1],[0,2],[0,3],[1,0],[1,1],[1,2]] },
+  beacon: { name: 'Beacon', offset: [13, 13], cells: [[0,0],[0,1],[1,0],[1,1],[2,2],[2,3],[3,2],[3,3]] },
   pulsar: { name: 'Pulsar', offset: [13, 13], cells: [
     [0,2],[0,3],[0,4],[2,0],[3,0],[4,0],[2,5],[3,5],[4,5],[5,2],[5,3],[5,4],
     [0,8],[0,9],[0,10],[2,7],[3,7],[4,7],[2,12],[3,12],[4,12],[5,8],[5,9],[5,10],
     [7,2],[7,3],[7,4],[8,0],[9,0],[10,0],[8,5],[9,5],[10,5],[12,2],[12,3],[12,4],
     [7,8],[7,9],[7,10],[8,7],[9,7],[10,7],[8,12],[9,12],[10,12],[12,8],[12,9],[12,10]
   ]},
-  pentadecathlon: { name: 'Pentadecathlon', offset: [16, 19], cells: [
+  pentadecathlon: { name: 'Pentadecathlon', offset: [10, 13], cells: [
     [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],
     [0,1],[2,1],[3,1],[4,1],[5,1],[7,1],
     [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2]
@@ -386,9 +387,9 @@ const PATTERNS = {
     [5,0],[5,1],[5,10],[5,14],[5,16],[5,17],[5,22],[5,24],[6,10],[6,16],[6,24],
     [7,11],[7,15],[8,12],[8,13]
   ]},
-  rpentomino: { name: 'R-pentomino', offset: [19, 19], cells: [[0,1],[0,2],[1,0],[1,1],[2,1]] },
-  diehard: { name: 'Diehard', offset: [19, 16], cells: [[0,6],[1,0],[1,1],[2,1],[2,5],[2,6],[2,7]] },
-  acorn: { name: 'Acorn', offset: [19, 17], cells: [[0,1],[1,3],[2,0],[2,1],[2,4],[2,5],[2,6]] }
+  rpentomino: { name: 'R-pentomino', offset: [13, 13], cells: [[0,1],[0,2],[1,0],[1,1],[2,1]] },
+  diehard: { name: 'Diehard', offset: [13, 10], cells: [[0,6],[1,0],[1,1],[2,1],[2,5],[2,6],[2,7]] },
+  acorn: { name: 'Acorn', offset: [13, 11], cells: [[0,1],[1,3],[2,0],[2,1],[2,4],[2,5],[2,6]] }
 };
 
 let drawing = false;

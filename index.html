@@ -48,11 +48,12 @@ body[data-theme="arcade"]::after{
 body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;min-height:100vh;transition:background .4s,color .4s}
 
 /* ============ 主题切换器 ============ */
-.theme-switch{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:99;display:flex;gap:10px;
-  background:rgba(0,0,0,.6);backdrop-filter:blur(10px);padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.2)}
-.theme-switch button{border:0;background:transparent;color:#cfcfcf;font-size:14px;font-weight:700;padding:6px 16px;border-radius:999px;cursor:pointer;font-family:inherit;transition:.25s;letter-spacing:.5px}
-.theme-switch button:hover{color:#fff}
-.theme-switch button.on{background:#fff;color:#111}
+.theme-switch{position:fixed;right:16px;bottom:16px;z-index:99;width:46px;height:46px;border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;user-select:none;
+  background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.25);
+  box-shadow:0 3px 12px rgba(0,0,0,.3);transition:transform .2s,background .2s;color:#ffd54f}
+.theme-switch:hover{transform:scale(1.08)}
+.theme-switch:active{transform:scale(.94)}
 
 /* ============ 华丽加载过渡 ============ */
 .loader{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;
@@ -152,10 +153,7 @@ body[data-theme="arcade"] .hint b{color:var(--cyan);text-shadow:0 0 10px var(--c
   <div class="load-text">LOADING <b>GAMEHUB</b>...</div>
 </div>
 
-<div class="theme-switch">
-  <button data-theme="4399" class="on">4399</button>
-  <button data-theme="arcade">街机厅</button>
-</div>
+<div class="theme-switch" id="themeToggle" role="button" aria-label="切换主题" title="切换主题"></div>
 
 <div class="wrap">
   <!-- 4399 头部 -->
@@ -208,20 +206,27 @@ body[data-theme="arcade"] .hint b{color:var(--cyan);text-shadow:0 0 10px var(--c
 </div>
 
 <script>
-const btns=document.querySelectorAll('.theme-switch button');
+const toggle=document.getElementById('themeToggle');
 const loader=document.getElementById('loader');
 const saved=localStorage.getItem('gh-theme')||'4399';
 document.body.dataset.theme=saved;
-btns.forEach(b=>b.classList.toggle('on',b.dataset.theme===saved));
-
-btns.forEach(b=>b.addEventListener('click',()=>{
-  if(b.dataset.theme===document.body.dataset.theme) return;
+function iconSVG(arcade){
+  if(arcade){
+    // 月亮
+    return '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>';
+  }
+  // 太阳
+  return '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+}
+function paintIcon(){ toggle.innerHTML = iconSVG(document.body.dataset.theme==='arcade'); }
+paintIcon();
+toggle.addEventListener('click',()=>{
+  const next = document.body.dataset.theme==='arcade' ? '4399' : 'arcade';
   loader.classList.add('on');
   setTimeout(()=>{
-    btns.forEach(x=>x.classList.remove('on'));
-    b.classList.add('on');
-    document.body.dataset.theme=b.dataset.theme;
-    localStorage.setItem('gh-theme',b.dataset.theme);
+    document.body.dataset.theme=next;
+    localStorage.setItem('gh-theme',next);
+    paintIcon();
     document.querySelectorAll('.card').forEach(c=>{c.classList.remove('show');});
     setTimeout(()=>{
       document.querySelectorAll('.card').forEach(c=>{
@@ -230,7 +235,7 @@ btns.forEach(b=>b.addEventListener('click',()=>{
       loader.classList.remove('on');
     },150);
   },700);
-}));
+});
 
 const cards=document.querySelectorAll('.card');
 cards.forEach(c=>{setTimeout(()=>c.classList.add('show'),parseFloat(c.dataset.delay||0)*1000);});

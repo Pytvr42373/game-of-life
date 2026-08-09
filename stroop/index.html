@@ -25,42 +25,15 @@ body[data-theme="4399"]::before{
 }
 
 /* ============ 主题2 · 街机厅（暗色） ============ */
-body[data-theme="arcade"]{
-  --bg:#0b0b18; --bg2:#14142b; --surface:#191934; --line:#3a3a5c; --hard:#000;
-  --text:#f4f4ff; --dim:#7a7aa0; --green:#00ff9d; --pink:#ff2d78; --cyan:#3de1ff; --yellow:#ffe14d;
-  --tag-bg:#2a2a4a; --overlay:rgba(0,0,0,.75);
-  background-color:#0b0b18;color:var(--text);
-  background-image:radial-gradient(circle at 50% 0%, #2a2a55 0%, transparent 60%);
-}
 /* 像素网格 */
-body[data-theme="arcade"]::before{
-  content:'';position:fixed;inset:0;pointer-events:none;opacity:.15;z-index:0;
-  background-image:linear-gradient(#3a3a5c 1px,transparent 1px),linear-gradient(90deg,#3a3a5c 1px,transparent 1px);
-  background-size:26px 26px;
-}
 /* CRT 扫描线 */
-body[data-theme="arcade"]::after{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:repeating-linear-gradient(0deg, rgba(0,0,0,.12) 0 1px, transparent 1px 3px);
-  mix-blend-mode:multiply;opacity:.5;
-}
-
 body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;min-height:100vh;transition:background .4s,color .4s}
 
 /* ============ 主题切换器 ============ */
-.theme-switch{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:99;display:flex;gap:8px;
-  background:rgba(0,0,0,.6);backdrop-filter:blur(10px);padding:7px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.2)}
-.theme-switch button{border:0;background:transparent;color:#cfcfcf;font-size:13px;font-weight:700;padding:5px 14px;border-radius:999px;cursor:pointer;font-family:inherit;transition:.25s;letter-spacing:.5px}
-.theme-switch button:hover{color:#fff}
-.theme-switch button.on{background:#fff;color:#111}
-
 /* ============ 布局 ============ */
 .wrap{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:76px 16px 40px;display:flex;flex-direction:column;align-items:center;min-height:100vh}
 .back{position:absolute;top:20px;left:16px;font-size:13px;color:var(--dim);text-decoration:none;font-weight:600}
 .back:hover{color:var(--green)}
-body[data-theme="arcade"] .back{font-family:'Press Start 2P',monospace;font-size:8px;letter-spacing:2px}
-body[data-theme="arcade"] .back:hover{color:var(--cyan)}
-
 /* 头部 */
 body[data-theme="4399"] .h4399{display:block}
 .h4399{display:none;text-align:center;margin-bottom:20px}
@@ -70,81 +43,59 @@ body[data-theme="4399"] .h4399{display:block}
 .h4399 .title em{font-style:normal;color:var(--orange)}
 .h4399 .sub{color:var(--dim);font-size:13px}
 
-body[data-theme="arcade"] .harcade{display:block}
-.harcade{display:none;text-align:center;margin-bottom:20px}
-.harcade .logo{font-family:'Press Start 2P',monospace;font-size:10px;letter-spacing:3px;color:var(--yellow);text-shadow:0 0 14px var(--yellow),3px 3px 0 var(--hard);margin-bottom:12px;animation:blink 1.4s steps(1) infinite}
-.harcade .title{font-family:'Press Start 2P',monospace;font-size:clamp(16px,5vw,28px);line-height:1.6;color:var(--text);text-shadow:3px 3px 0 var(--hard),0 0 20px rgba(61,225,255,.4);margin-bottom:8px}
-.harcade .title .c{color:var(--pink);text-shadow:3px 3px 0 var(--hard),0 0 20px var(--pink)}
-.harcade .title .y{color:var(--cyan);text-shadow:3px 3px 0 var(--hard),0 0 20px var(--cyan)}
-.harcade .sub{color:var(--dim);font-family:'Press Start 2P',monospace;font-size:8px;letter-spacing:3px}
 @keyframes blink{50%{opacity:0}}
 
 /* ============ 通用按钮 ============ */
 .new-btn{font-family:inherit;font-weight:800;font-size:17px;padding:13px 30px;border-radius:12px;cursor:pointer;transition:.18s;margin-top:6px}
 body[data-theme="4399"] .new-btn{background:linear-gradient(135deg,var(--orange),var(--orange2));border:2px solid var(--orange2);color:#fff;box-shadow:0 3px 12px rgba(251,100,0,.28)}
 body[data-theme="4399"] .new-btn:hover{filter:brightness(1.08)}
-body[data-theme="arcade"] .new-btn{background:var(--pink);border:3px solid var(--pink);color:#fff;text-shadow:2px 2px 0 #000;box-shadow:4px 4px 0 var(--hard);font-family:'Press Start 2P',monospace;font-size:11px;letter-spacing:1px}
-body[data-theme="arcade"] .new-btn:hover{background:#ff6aa0;border-color:var(--cyan)}
 .new-btn.ghost{background:transparent}
 body[data-theme="4399"] .new-btn.ghost{color:var(--green);border:2px solid var(--line)}
 body[data-theme="4399"] .new-btn.ghost:hover{border-color:var(--green)}
-body[data-theme="arcade"] .new-btn.ghost{color:var(--cyan);border:3px solid var(--line);text-shadow:none;font-family:inherit}
-body[data-theme="arcade"] .new-btn.ghost:hover{border-color:var(--cyan)}
-
 /* ============ 设置屏 ============ */
 .screen{width:100%;display:flex;flex-direction:column;align-items:center}
 .panel-title{font-size:15px;font-weight:800;color:var(--dim);letter-spacing:2px;margin-bottom:14px}
-body[data-theme="arcade"] .panel-title{font-family:'Press Start 2P',monospace;font-size:10px;color:var(--yellow);text-shadow:0 0 10px var(--yellow)}
 .diff-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;width:100%;margin-bottom:16px}
 .diff-card{cursor:pointer;text-align:center;padding:16px 12px;border-radius:14px;transition:.18s;position:relative}
 body[data-theme="4399"] .diff-card{background:var(--surface);border:2px solid var(--line)}
 body[data-theme="4399"] .diff-card:hover{border-color:var(--green);box-shadow:0 8px 20px rgba(56,153,4,.16);transform:translateY(-3px)}
-body[data-theme="arcade"] .diff-card{background:var(--surface);border:3px solid var(--line);box-shadow:4px 4px 0 var(--hard)}
-body[data-theme="arcade"] .diff-card:hover{border-color:var(--cyan);box-shadow:4px 4px 0 var(--hard),0 0 14px var(--cyan)}
 .diff-card .dname{font-size:18px;font-weight:900;color:var(--text);margin-bottom:6px}
-body[data-theme="arcade"] .diff-card .dname{font-family:'Press Start 2P',monospace;font-size:11px;line-height:1.7;text-shadow:2px 2px 0 var(--hard)}
 .diff-card .ddesc{font-size:12px;color:var(--dim);margin-bottom:8px}
-body[data-theme="arcade"] .diff-card .ddesc{font-family:'Press Start 2P',monospace;font-size:7px;letter-spacing:1px;line-height:1.7}
 .diff-card .dhigh{font-size:12px;font-weight:700;color:var(--orange)}
-body[data-theme="arcade"] .diff-card .dhigh{color:var(--green);text-shadow:0 0 8px var(--green);font-size:9px}
-.diff-card .swatch{display:flex;gap:5px;justify-content:center;margin-top:8px;flex-wrap:wrap}
-.diff-card .swatch i{width:16px;height:16px;border-radius:4px;display:inline-block;border:1px solid rgba(0,0,0,.12)}
+
+.menu-view{width:100%;display:flex;flex-direction:column;align-items:center}
+.menu-list{display:flex;flex-direction:column;gap:12px;width:100%;max-width:320px}
+.menu-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;font-family:inherit;font-weight:800;font-size:16px;padding:14px 20px;border-radius:12px;cursor:pointer;transition:.18s;text-decoration:none;box-sizing:border-box;background:var(--surface);border:2px solid var(--line);color:var(--text)}
+.menu-btn:hover{transform:translateY(-2px);border-color:var(--green);box-shadow:0 8px 20px rgba(56,153,4,.16)}
+.menu-btn:active{transform:translateY(0)}
+.rank-list{display:flex;flex-direction:column;gap:10px;width:100%;max-width:360px;margin-bottom:14px}
+.rank-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;border-radius:12px;background:var(--surface);border:2px solid var(--line)}
+.rank-row .rname{font-weight:800;font-size:15px;color:var(--text)}
+.rank-row .rdesc{font-size:11px;color:var(--dim)}
+.rank-row .rscore{font-weight:800;font-size:16px;color:var(--orange)}
+.rank-empty{text-align:center;color:var(--dim);font-size:14px;padding:20px 0}
 
 .howto{width:100%;margin:4px 0 18px;padding:14px 16px;border-radius:12px;font-size:13px;line-height:1.8;color:var(--dim)}
 body[data-theme="4399"] .howto{background:var(--tag-bg);border:1px solid var(--line)}
-body[data-theme="arcade"] .howto{background:var(--surface);border:2px solid var(--line);font-size:11px}
 .howto b{color:var(--green)}
 .howto .key{display:inline-block;background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:0 7px;font-weight:800;color:var(--text)}
-body[data-theme="arcade"] .howto .key{border:2px solid var(--line);box-shadow:2px 2px 0 var(--hard);font-size:9px}
-
 /* ============ HUD ============ */
 .hud{display:flex;align-items:center;justify-content:space-between;width:100%;gap:10px;margin-bottom:12px}
 .hud .chip{flex:1;text-align:center;font-size:12px;color:var(--dim);padding:7px 8px;border-radius:10px}
 body[data-theme="4399"] .hud .chip{background:var(--surface);border:1px solid var(--line)}
-body[data-theme="arcade"] .hud .chip{background:var(--surface);border:2px solid var(--line);box-shadow:3px 3px 0 var(--hard)}
 .hud .chip b{display:block;font-size:20px;color:var(--green);margin-top:2px}
-body[data-theme="arcade"] .hud .chip b{font-family:'Press Start 2P',monospace;font-size:14px;text-shadow:0 0 10px var(--green)}
 .hud .chip.timer b{color:var(--orange)}
-body[data-theme="arcade"] .hud .chip.timer b{color:var(--pink);text-shadow:0 0 10px var(--pink)}
 .hud .chip.combo b{color:var(--orange2)}
-body[data-theme="arcade"] .hud .chip.combo b{color:var(--yellow);text-shadow:0 0 10px var(--yellow)}
-
 /* 计时条 */
 .bar-wrap{width:100%;height:10px;border-radius:6px;overflow:hidden;background:var(--line);margin-bottom:22px;position:relative}
 .bar-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--green),var(--orange));transition:width .1s linear;width:100%}
-body[data-theme="arcade"] .bar-fill{background:linear-gradient(90deg,var(--cyan),var(--pink));box-shadow:0 0 12px var(--cyan)}
-
 /* 干扰词 */
 .word-wrap{display:flex;align-items:center;justify-content:center;min-height:180px;width:100%;margin-bottom:8px;user-select:none}
 .word{font-family:'ZCOOL KuaiLe','Bungee',sans-serif;font-size:clamp(84px,26vw,150px);font-weight:900;line-height:1;transition:transform .12s}
 .word.pop{transform:scale(1.08)}
-body[data-theme="arcade"] .word{text-shadow:6px 6px 0 var(--hard)}
 .qbar{width:200px;height:7px;border-radius:5px;background:var(--line);overflow:hidden;margin:0 auto 26px}
 .qfill{height:100%;background:var(--orange);transition:width .1s linear}
-body[data-theme="arcade"] .qfill{background:var(--yellow)}
 .qhint{text-align:center;font-size:12px;color:var(--dim);margin-bottom:14px}
-body[data-theme="arcade"] .qhint{font-size:9px;letter-spacing:2px}
-
 /* 答案色块 */
 .ans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(84px,1fr));gap:12px;width:100%}
 .ans{position:relative;border-radius:14px;min-height:84px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;border:3px solid rgba(0,0,0,.15);transition:transform .12s,box-shadow .12s;user-select:none;font-family:inherit}
@@ -153,35 +104,25 @@ body[data-theme="arcade"] .qhint{font-size:9px;letter-spacing:2px}
 .ans.darktext .alabel,.ans.darktext .anum{color:#222;text-shadow:0 1px 0 rgba(255,255,255,.4)}
 .ans:hover{transform:translateY(-4px);box-shadow:0 8px 20px rgba(0,0,0,.25)}
 .ans:active{transform:scale(.95)}
-body[data-theme="arcade"] .ans{border:3px solid var(--hard);box-shadow:4px 4px 0 var(--hard)}
-body[data-theme="arcade"] .ans:hover{box-shadow:4px 4px 0 var(--hard),0 0 16px rgba(255,255,255,.4)}
 .ans.flash-ok{animation:flashOk .3s}
 .ans.flash-bad{animation:flashBad .3s}
 @keyframes flashOk{50%{transform:scale(1.1);box-shadow:0 0 0 5px rgba(56,153,4,.5)}}
 @keyframes flashBad{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}50%{transform:translateX(8px)}75%{transform:translateX(-6px)}}
 .feedback{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:44px;font-weight:900;pointer-events:none;z-index:60;opacity:0}
 .feedback.show{animation:fb .5s ease}
-body[data-theme="arcade"] .feedback{font-family:'Press Start 2P',monospace;font-size:24px}
 @keyframes fb{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}100%{opacity:0;transform:translate(-50%,-50%) scale(1)}}
 
 /* ============ 结果屏 ============ */
 .result-title{font-size:26px;font-weight:900;margin-bottom:6px;color:var(--green)}
-body[data-theme="arcade"] .result-title{font-family:'Press Start 2P',monospace;font-size:18px;color:var(--yellow);text-shadow:0 0 14px var(--yellow),3px 3px 0 var(--hard)}
 .result-sub{color:var(--dim);font-size:13px;margin-bottom:18px;text-align:center}
-body[data-theme="arcade"] .result-sub{font-size:9px;letter-spacing:2px}
 .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;margin-bottom:16px}
 .stat-box{text-align:center;padding:16px 8px;border-radius:12px}
 body[data-theme="4399"] .stat-box{background:var(--surface);border:1px solid var(--line)}
-body[data-theme="arcade"] .stat-box{background:var(--surface);border:2px solid var(--line);box-shadow:3px 3px 0 var(--hard)}
 .stat-box.wide{grid-column:span 2}
 .stat-box .num{font-size:24px;font-weight:900;color:var(--green);margin-bottom:4px}
-body[data-theme="arcade"] .stat-box .num{font-family:'Press Start 2P',monospace;font-size:16px;color:var(--green);text-shadow:0 0 10px var(--green)}
 .stat-box .lbl{font-size:12px;color:var(--dim)}
-body[data-theme="arcade"] .stat-box .lbl{font-size:9px;letter-spacing:1px}
 .stat-box.hl .num{color:var(--orange)}
-body[data-theme="arcade"] .stat-box.hl .num{color:var(--pink);text-shadow:0 0 10px var(--pink)}
 .newbest{color:var(--orange);font-weight:800;margin:6px 0 14px;font-size:15px}
-body[data-theme="arcade"] .newbest{color:var(--pink);text-shadow:0 0 10px var(--pink);font-size:11px}
 .modal-btns{display:flex;gap:12px;margin-top:10px}
 
 @media (prefers-reduced-motion: reduce){
@@ -192,10 +133,6 @@ body[data-theme="arcade"] .newbest{color:var(--pink);text-shadow:0 0 10px var(--
 </head>
 <body data-theme="4399">
 
-<div class="theme-switch">
-  <button data-theme="4399" class="on">4399</button>
-  <button data-theme="arcade">街机厅</button>
-</div>
 
 <div class="wrap">
   <a class="back" href="../index.html">← 返回合集</a>
@@ -205,22 +142,42 @@ body[data-theme="arcade"] .newbest{color:var(--pink);text-shadow:0 0 10px var(--
     <p class="sub">忽略文字 · 说出颜色 —— 经典心理效应小游戏</p>
   </header>
 
-  <header class="harcade">
-    <div class="logo">▶ INSERT COIN ◀</div>
-    <h1 class="title"><span class="c">S</span>TROOP <span class="y">C</span>HALLENGE</h1>
-    <p class="sub">— SAY THE COLOR, NOT THE WORD —</p>
-  </header>
-
   <!-- 设置屏 -->
   <section class="screen" id="screenSetup">
-    <div class="panel-title">选 择 难 度</div>
-    <div class="diff-grid" id="diffGrid"></div>
-    <div class="howto">
-      <b>玩法：</b>屏幕上显示的<b>文字</b>会带着一种<b>颜色</b>，请忽略文字词义，点选（或按数字键）它<b>显示的颜色</b>。<br>
-      例：显示"<b style="color:#d32f2f">红</b>"字却是蓝色，就选<b>蓝色</b>。<br>
-      键盘快捷键：<span class="key">1</span><span class="key">2</span><span class="key">3</span><span class="key">4</span>…对应从左到右的色块。答对连击加分，越快分越高！
+    <!-- 主菜单 -->
+    <div id="menuView" class="menu-view">
+      <div class="panel-title">主 菜 单</div>
+      <div class="menu-list">
+        <button class="menu-btn" id="menuPlay">🎯 选择难度</button>
+        <button class="menu-btn" id="menuRank">🏆 排行榜</button>
+        <button class="menu-btn" id="menuRule">📖 规则介绍</button>
+        <a class="menu-btn" href="../index.html">🏠 回到主页面</a>
+      </div>
     </div>
-    <button class="new-btn" id="startBtn">开始挑战</button>
+    <!-- 选择难度 -->
+    <div id="diffView" style="display:none">
+      <div class="panel-title">选 择 难 度</div>
+      <div class="diff-grid" id="diffGrid"></div>
+      <button class="new-btn ghost" id="backMenuBtn">← 返回</button>
+    </div>
+    <!-- 排行榜 -->
+    <div id="rankView" style="display:none">
+      <div class="panel-title">🏆 排 行 榜</div>
+      <div id="rankList" class="rank-list"></div>
+      <button class="new-btn ghost" id="backMenuBtn2">← 返回</button>
+    </div>
+    <!-- 规则介绍 -->
+    <div id="ruleView" style="display:none">
+      <div class="panel-title">📖 规 则 介 绍</div>
+      <div class="howto">
+        <b>玩法：</b>屏幕上显示的<b>文字</b>会带着一种<b>颜色</b>，请忽略文字词义，点选（或按数字键）它<b>显示的颜色</b>。<br>
+        例：显示"<b style="color:#d32f2f">红</b>"字却是蓝色，就选<b>蓝色</b>。<br>
+        键盘快捷键：<span class="key">1</span><span class="key">2</span><span class="key">3</span><span class="key">4</span>…对应从左到右的色块。<br>
+        答对 +10，连击≥5 → +20，≥10 → +30；反应越快额外加分；答错扣分并断连击；超时自动跳题。<br>
+        每局 20 秒，尽量答得多、答得快、连击不断！
+      </div>
+      <button class="new-btn ghost" id="backMenuBtn3">← 返回</button>
+    </div>
   </section>
 
   <!-- 游戏屏 -->
@@ -315,30 +272,43 @@ body[data-theme="arcade"] .newbest{color:var(--pink);text-shadow:0 0 10px var(--
   function saveHigh(k,sc){ try{ localStorage.setItem(highKey(k), String(sc)); }catch(e){} }
 
   /* ================= 主题 ================= */
-  function applyTheme(t){
-    document.body.dataset.theme=t;
-    document.querySelectorAll('.theme-switch button').forEach(function(b){
-      b.classList.toggle('on', b.getAttribute('data-theme')===t);
-    });
-    try{ localStorage.setItem('gh-theme',t); }catch(e){}
-  }
-
   /* ================= 设置屏渲染 ================= */
   function renderSetup(){
     var html='';
     ORDER.forEach(function(k){
       var d=DIFFS[k];
       var hi=loadHigh(k);
-      var swatch='';
-      d.colors.forEach(function(c){ swatch+='<i style="background:'+c+'"></i>'; });
       html+='<div class="diff-card" data-key="'+k+'">'+
         '<div class="dname">'+d.name+'</div>'+
         '<div class="ddesc">'+d.desc+'</div>'+
         '<div class="dhigh">最佳 '+(hi==null?'—':hi)+'</div>'+
-        '<div class="swatch">'+swatch+'</div>'+
       '</div>';
     });
     diffGrid.innerHTML=html;
+  }
+
+  function showMenuView(v){
+    document.getElementById('menuView').style.display = v==='menu' ? 'flex' : 'none';
+    document.getElementById('diffView').style.display  = v==='diff' ? 'flex' : 'none';
+    document.getElementById('rankView').style.display = v==='rank' ? 'flex' : 'none';
+    document.getElementById('ruleView').style.display = v==='rule' ? 'flex' : 'none';
+  }
+
+  function renderRank(){
+    var html='';
+    ORDER.forEach(function(k){
+      var d=DIFFS[k];
+      var hi=loadHigh(k);
+      html+='<div class="rank-row">'+
+        '<div><div class="rname">'+d.name+'</div><div class="rdesc">'+d.desc+'</div></div>'+
+        '<div class="rscore">'+(hi==null?'—':hi)+'</div>'+
+      '</div>';
+    });
+    var el=document.getElementById('rankList');
+    el.innerHTML = html;
+    if(!ORDER.some(function(k){ return loadHigh(k)!==null; })){
+      el.innerHTML='<div class="rank-empty">还没有记录，快去挑战吧！</div>';
+    }
   }
 
   /* ================= 生成题目 ================= */
@@ -507,14 +477,25 @@ body[data-theme="arcade"] .newbest{color:var(--pink);text-shadow:0 0 10px var(--
     var card=e.target.closest('.diff-card');
     if(card){ startGame(card.getAttribute('data-key')); }
   });
-  document.getElementById('startBtn').addEventListener('click', function(){ startGame(cur); });
   document.getElementById('againBtn').addEventListener('click', function(){ startGame(cur); });
   document.getElementById('menuBtn').addEventListener('click', function(){
     clearInterval(timerId); timerId=null;
     state='setup';
-    renderSetup();
+    showMenuView('menu');
     showScreen('setup');
   });
+  document.getElementById('menuPlay').addEventListener('click', function(){
+    renderSetup(); showMenuView('diff'); showScreen('setup');
+  });
+  document.getElementById('menuRank').addEventListener('click', function(){
+    renderRank(); showMenuView('rank'); showScreen('setup');
+  });
+  document.getElementById('menuRule').addEventListener('click', function(){
+    showMenuView('rule'); showScreen('setup');
+  });
+  document.getElementById('backMenuBtn').addEventListener('click', function(){ showMenuView('menu'); });
+  document.getElementById('backMenuBtn2').addEventListener('click', function(){ showMenuView('menu'); });
+  document.getElementById('backMenuBtn3').addEventListener('click', function(){ showMenuView('menu'); });
 
   ansGrid.addEventListener('click', function(e){
     var btn=e.target.closest('.ans');
@@ -528,15 +509,10 @@ body[data-theme="arcade"] .newbest{color:var(--pink);text-shadow:0 0 10px var(--
     if(n>=1 && n<=DIFFS[cur].labels.length){ answer(n-1); e.preventDefault(); }
   });
 
-  document.querySelectorAll('.theme-switch button').forEach(function(b){
-    b.addEventListener('click', function(){ applyTheme(b.getAttribute('data-theme')); });
-  });
-
   /* ================= 初始化 ================= */
   (function init(){
-    var saved='4399';
-    try{ saved=localStorage.getItem('gh-theme')||'4399'; }catch(e){}
-    applyTheme(saved);
+    document.body.dataset.theme='4399';
+    showMenuView('menu');
     renderSetup();
     showScreen('setup');
   })();
