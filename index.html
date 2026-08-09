@@ -111,34 +111,9 @@ body[data-theme="arcade"] .loader .load-text{--load-font:'Press Start 2P',monosp
 .transition .t-text{position:relative;z-index:3;font-size:clamp(15px,5vw,32px);letter-spacing:3px;text-align:center;padding:0 16px;
   text-shadow:0 0 18px rgba(0,0,0,.7),0 0 40px currentColor;animation:tTxt .35s ease}
 @keyframes tTxt{0%{opacity:0;transform:scale(.6)}100%{opacity:1;transform:scale(1)}}
-.transition .t-bg{position:absolute;inset:0;z-index:1}
+.transition .t-bg{position:absolute;inset:0;z-index:1;background:rgba(244,248,239,.96);animation:tFade .35s ease forwards}
 .transition .t-bg2{position:absolute;inset:0;z-index:2}
-
-/* 1) warp 时空扭曲 */
-.transition.t-warp .t-bg{background:linear-gradient(120deg,#ff2d78,#3de1ff,#ffe14d,#00ff9d,#a55eea);background-size:300% 300%;animation:gradShift .4s linear infinite;filter:blur(8px) saturate(2);transform:scale(2.2);opacity:.95}
-.transition.t-warp .t-bg2{background:radial-gradient(circle,transparent 20%,rgba(0,0,0,.5) 90%)}
-.transition.t-warp.on .t-bg{animation:warp .4s ease forwards}
-@keyframes warp{0%{transform:scale(1) rotate(0);opacity:.25}100%{transform:scale(2.4) rotate(22deg);opacity:1}}
-
-/* 2) pixels 像素方块 */
-.transition.t-pixels .t-bg{background:#0b0b18;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(6,1fr);gap:2px;padding:2px}
-.transition.t-pixels .px{background:linear-gradient(135deg,var(--rand1,#ff2d78),var(--rand2,#3de1ff));opacity:0;animation:pxIn .3s ease forwards}
-@keyframes pxIn{from{opacity:0;transform:scale(0)}to{opacity:1;transform:scale(1)}}
-
-/* 3) scan 扫描 */
-.transition.t-scan .t-bg{background:#0b0b18}
-.transition.t-scan .t-bg2{background:linear-gradient(180deg,transparent,#3de1ff,transparent);animation:scan .4s ease forwards}
-@keyframes scan{0%{transform:translateY(-110%)}100%{transform:translateY(110%)}}
-
-/* 4) burst 迸发 */
-.transition.t-burst .t-bg{background:#0b0b18}
-.transition.t-burst .t-bg2{background:radial-gradient(circle,#ffe14d 0%,#ff2d78 35%,#a55eea 60%,transparent 75%);transform:scale(0);animation:burst .4s ease forwards}
-@keyframes burst{0%{transform:scale(0);opacity:0}60%{opacity:1}100%{transform:scale(2.6);opacity:0}}
-
-/* 5) glitch RGB */
-.transition.t-glitch .t-bg{background:#0b0b18}
-.transition.t-glitch .t-bg2{background:repeating-linear-gradient(0deg,transparent 0 6px,#ff2d78 6px 8px,transparent 8px 14px,#3de1ff 14px 16px,transparent 16px 22px,#00ff9d 22px 24px,transparent 24px 30px);opacity:0;animation:glitchShake .4s steps(6) forwards;mix-blend-mode:screen}
-@keyframes glitchShake{0%{opacity:0;transform:translateX(-6%)}10%{opacity:1;transform:translateX(5%)}20%{transform:translateX(-4%)}40%{transform:translateX(3%)}60%{transform:translateX(-2%)}100%{opacity:1;transform:translateX(0)}}
+@keyframes tFade{0%{opacity:0}100%{opacity:1}}
 
 /* ============ 尊重 reduce-motion：关闭动画 ============ */
 @media (prefers-reduced-motion: reduce){
@@ -347,24 +322,11 @@ const pxColors=['#ff2d78','#3de1ff','#ffe14d','#00ff9d','#a55eea','#ff8c42'];
 function go(url,ev){
   if(ev&&ev.preventDefault)ev.preventDefault();
   try{ sessionStorage.setItem('skipSplash','1'); }catch(e){}
-  if(reduced){ location.href=url; return; }  // reduce-motion：直接跳转
+  if(reduced){ location.href=url; return; }
   const t=document.getElementById('transition');
-  const cls=tClasses[Math.floor(Math.random()*tClasses.length)];
-  t.className='transition on '+cls;
-  const bg=t.querySelector('.t-bg');
-  if(cls==='t-pixels'){
-    bg.innerHTML='';
-    const cols=8,rows=6;
-    for(let i=0;i<cols*rows;i++){
-      const px=document.createElement('div');px.className='px';
-      px.style.setProperty('--rand1',pxColors[Math.floor(Math.random()*pxColors.length)]);
-      px.style.setProperty('--rand2',pxColors[Math.floor(Math.random()*pxColors.length)]);
-      px.style.animationDelay=(Math.random()*0.15)+'s';
-      bg.appendChild(px);
-    }
-  }
+  t.className='transition on';
   t.querySelector('.t-text').textContent=goTexts[Math.floor(Math.random()*goTexts.length)];
-  setTimeout(()=>{location.href=url;},400);
+  setTimeout(()=>{location.href=url;},350);
 }
 
 const cards=document.querySelectorAll('.card');
