@@ -112,40 +112,13 @@ body[data-theme="arcade"] .theme-switch{background:rgba(255,255,255,.9);border:1
 }
 
 /* ============ Hero 头部（4399，与 Stroop 一致） ============ */
-body[data-theme="4399"] .hero{display:block}
-.hero{
-  display:none;text-align:center;margin-bottom:20px;
-  padding:28px 24px 24px;
-  border-radius:24px;
-  background:linear-gradient(135deg,rgba(56,153,4,.08) 0%,rgba(251,100,0,.06) 100%);
-  border:1.5px solid rgba(56,153,4,.15);
-  box-shadow:var(--shadow-sm);
-  width:100%;
-}
-.hero .logo-row{
-  display:flex;align-items:center;justify-content:center;gap:14px;
-  margin-bottom:10px;
-}
-.hero .logo-box{
-  width:56px;height:56px;border-radius:16px;
-  background:linear-gradient(135deg,var(--green),var(--green2));
-  display:flex;align-items:center;justify-content:center;
-  font-size:30px;
-  box-shadow:0 8px 20px rgba(56,153,4,.35);
-  flex-shrink:0;
-}
-.hero .title{
-  font-size:36px;font-weight:900;color:var(--green);
-  letter-spacing:2px;
-  text-shadow:0 3px 0 rgba(56,153,4,.10);
-  font-family:'ZCOOL KuaiLe',sans-serif;
-  line-height:1.1;
-}
-.hero .title em{font-style:normal;color:var(--orange)}
-.hero .sub{
-  color:var(--dim);font-size:14px;
-  line-height:1.5;
-}
+body[data-theme="4399"] .h4399{display:block}
+.h4399{display:none;text-align:center;margin-bottom:10px}
+.h4399 .topbar{display:flex;align-items:center;gap:7px;justify-content:center;margin-bottom:2px}
+.h4399 .logo{width:28px;height:28px;border-radius:0;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 3px 8px rgba(56,153,4,.25)}
+.h4399 .title{font-size:1.3rem;font-weight:900;color:var(--green);letter-spacing:.5px;text-shadow:0 1px 0 rgba(56,153,4,.12);display:inline}
+.h4399 .title em{font-style:normal;color:var(--orange)}
+.h4399 .sub{font-size:.72rem;color:var(--dim);margin:0}
 
 /* ============ 街机厅 头部 ============ */
 body[data-theme="arcade"] .harcade{display:block}
@@ -153,7 +126,7 @@ body[data-theme="arcade"] .harcade{display:block}
 .harcade .logo{font-family:'Press Start 2P',monospace;font-size:10px;letter-spacing:3px;color:var(--yellow);text-shadow:0 0 14px var(--yellow),3px 3px 0 var(--hard);margin-bottom:10px;animation:blink 1.4s steps(1) infinite}
 .harcade .title{font-family:'Press Start 2P',monospace;font-size:clamp(16px,4.5vw,26px);line-height:1.6;color:var(--text);text-shadow:3px 3px 0 var(--hard),0 0 20px rgba(61,225,255,.4);margin-bottom:6px}
 .harcade .title .c{color:var(--pink);text-shadow:3px 3px 0 var(--hard),0 0 20px var(--pink)}
-.harcade .title .y{color:var(--cyan);text-shadow:3px 3px 0 var(--hard),0 0 20px var(--cyan)}
+.harcade .title .y{color:var(--cyan);text-shadow:3px 3px 0 var(--hard),0 0 20px var(--cyan);font-family:'PingFang SC','Microsoft YaHei',sans-serif;font-weight:900}
 .harcade .sub{color:var(--dim);font-family:'Press Start 2P',monospace;font-size:8px;letter-spacing:3px}
 @keyframes blink{50%{opacity:0}}
 
@@ -238,18 +211,15 @@ body[data-theme="arcade"] .cell.yellow{color:#000!important;box-shadow:3px 3px 0
 
 /* ============ 键盘（保持缩小） ============ */
 .kb{position:fixed;left:0;right:0;bottom:0;z-index:40;width:100%;padding:4px 10px max(8px, env(safe-area-inset-bottom));
-  display:flex;flex-direction:column;gap:4px;user-select:none;box-shadow:0 -8px 24px rgba(0,0,0,.18)}
-body[data-theme="4399"] .kb{background:rgba(244,248,239,.97);backdrop-filter:blur(12px);border-top:1px solid var(--line)}
-body[data-theme="arcade"] .kb{background:rgba(11,11,24,.97);backdrop-filter:blur(12px);border-top:2px solid var(--line)}
-.kb-row{display:flex;gap:3px;justify-content:center;max-width:380px;margin:0 auto;width:100%}
-.key{flex:1;height:38px;border-radius:8px;font-size:14px;font-weight:800;cursor:pointer;transition:.12s;touch-action:manipulation}
+  display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(2,1fr);gap:3px;max-width:420px;margin:0 auto;
+.key{height:38px;border-radius:8px;font-size:14px;font-weight:800;cursor:pointer;transition:.12s;touch-action:manipulation}
 body[data-theme="4399"] .key{background:var(--key-bg);border:2px solid var(--key-border);color:var(--key-text)}
 body[data-theme="4399"] .key:hover{background:var(--surface2,#eef5e8);border-color:var(--green);transform:translateY(-1px)}
 body[data-theme="4399"] .key:active{transform:translateY(1px)}
 body[data-theme="arcade"] .key{background:var(--key-bg);border:3px solid var(--line);color:var(--key-text);box-shadow:3px 3px 0 var(--hard)}
 body[data-theme="arcade"] .key:hover{background:#2e2e58;border-color:var(--cyan);transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--hard)}
 body[data-theme="arcade"] .key:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--hard)}
-.key.wide{flex:1.6;font-size:12px;border-radius:8px}
+.key.tall{grid-row:span 2;font-size:12px;display:flex;align-items:center;justify-content:center}
 .key.green{background:var(--green)!important;border-color:var(--green)!important;color:#fff!important}
 body[data-theme="arcade"] .key.green{color:#000!important;box-shadow:3px 3px 0 var(--hard),0 0 10px rgba(0,255,157,.4)!important}
 .key.yellow{background:#e2c233!important;border-color:#e2c233!important;color:#fff!important}
@@ -392,12 +362,9 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
 <div class="wrap">
 
   <!-- Hero 头部（4399，与 Stroop 一致） -->
-  <header class="hero">
-    <div class="logo-row">
-      <div class="logo-box">&#128290;</div>
-      <div class="title">1A2B<em>猜数字</em></div>
-    </div>
-    <p class="sub">猜出隐藏的 N 位数字，数字可重复、首位可为 0</p>
+  <header class="h4399">
+    <div class="topbar"><div class="logo">🔢</div><div class="title">1A2B <em>猜数字</em></div></div>
+    <div class="sub">猜出隐藏的 N 位数字，数字可重复、首位可为 0</div>
   </header>
 
   <!-- 街机厅 头部 -->
@@ -433,18 +400,18 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
   </div>
 
   <div class="kb">
-    <div class="kb-row">
-      <button class="key wide act" id="kbEnter">确认</button>
-      <button class="key" data-digit="1">1</button><button class="key" data-digit="2">2</button>
-      <button class="key" data-digit="3">3</button><button class="key" data-digit="4">4</button>
-      <button class="key" data-digit="5">5</button>
-      <button class="key wide act" id="kbBack">&#9003;</button>
-    </div>
-    <div class="kb-row">
-      <button class="key" data-digit="6">6</button><button class="key" data-digit="7">7</button>
-      <button class="key" data-digit="8">8</button><button class="key" data-digit="9">9</button>
-      <button class="key" data-digit="0">0</button>
-    </div>
+    <button class="key act tall" id="kbEnter">确认</button>
+    <button class="key" data-digit="1">1</button>
+    <button class="key" data-digit="2">2</button>
+    <button class="key" data-digit="3">3</button>
+    <button class="key" data-digit="4">4</button>
+    <button class="key" data-digit="5">5</button>
+    <button class="key act tall" id="kbBack">&#9003;</button>
+    <button class="key" data-digit="6">6</button>
+    <button class="key" data-digit="7">7</button>
+    <button class="key" data-digit="8">8</button>
+    <button class="key" data-digit="9">9</button>
+    <button class="key" data-digit="0">0</button>
   </div>
 </div>
 
