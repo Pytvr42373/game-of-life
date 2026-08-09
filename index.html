@@ -108,7 +108,7 @@ body[data-theme="arcade"] .loader .load-text{--load-font:'Press Start 2P',monosp
 .transition{position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;
   visibility:hidden;opacity:0;pointer-events:none;color:#fff;overflow:hidden;font-family:'Press Start 2P',monospace}
 .transition.on{visibility:visible;opacity:1;pointer-events:auto}
-.transition .t-text{position:relative;z-index:3;font-size:clamp(15px,5vw,32px);letter-spacing:3px;text-align:center;padding:0 16px;
+.transition .t-text{display:none;position:relative;z-index:3;font-size:clamp(15px,5vw,32px);letter-spacing:3px;text-align:center;padding:0 16px;
   text-shadow:0 0 18px rgba(0,0,0,.7),0 0 40px currentColor;animation:tTxt .35s ease}
 @keyframes tTxt{0%{opacity:0;transform:scale(.6)}100%{opacity:1;transform:scale(1)}}
 .transition .t-bg{position:absolute;inset:0;z-index:1;background:rgba(244,248,239,.96);animation:tFade .35s ease forwards}
@@ -325,8 +325,7 @@ function go(url,ev){
   if(reduced){ location.href=url; return; }
   const t=document.getElementById('transition');
   t.className='transition on';
-  t.querySelector('.t-text').textContent=goTexts[Math.floor(Math.random()*goTexts.length)];
-  setTimeout(()=>{location.href=url;},350);
+  setTimeout(()=>{location.href=url;},300);
 }
 
 const cards=document.querySelectorAll('.card');
