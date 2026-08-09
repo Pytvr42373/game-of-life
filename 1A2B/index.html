@@ -106,7 +106,7 @@ body[data-theme="arcade"] .theme-switch{background:rgba(255,255,255,.9);border:1
 .wrap{
   position:relative;z-index:1;
   max-width:520px;margin:0 auto;
-  padding:28px 16px 170px;
+  padding:28px 16px 150px;
   display:flex;flex-direction:column;align-items:center;
   min-height:100vh;
 }
@@ -158,11 +158,11 @@ body[data-theme="arcade"] .harcade{display:block}
 @keyframes blink{50%{opacity:0}}
 
 /* ============ 设置栏（卡片式按钮） ============ */
-.setup{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.setup{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
 .length-pick{display:flex;gap:10px}
 .length-pick button{
-  font-family:inherit;font-weight:800;font-size:15px;
-  padding:12px 20px;border-radius:var(--radius);
+  font-family:inherit;font-weight:800;font-size:13px;
+  padding:8px 14px;border-radius:10px;
   cursor:pointer;transition:.2s;letter-spacing:.5px;
   background:var(--surface);border:2px solid var(--line);
   color:var(--text);box-shadow:var(--shadow-sm);
@@ -191,8 +191,8 @@ body[data-theme="arcade"] .length-pick button.on{
 
 /* 通用按钮（与 Stroop 一致） */
 .new-btn{
-  font-family:inherit;font-weight:800;font-size:15px;
-  padding:12px 24px;border-radius:12px;cursor:pointer;
+  font-family:inherit;font-weight:800;font-size:13px;
+  padding:8px 18px;border-radius:10px;cursor:pointer;
   transition:.18s;
   background:linear-gradient(135deg,var(--orange),var(--orange2));
   border:2px solid var(--orange2);color:#fff;
@@ -241,7 +241,7 @@ body[data-theme="arcade"] .hud .chip b{
 }
 
 /* ============ 棋盘 ============ */
-.board{display:flex;flex-direction:column;gap:5px;margin-bottom:16px}
+.board{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
 .row{display:flex;gap:5px;justify-content:center}
 :root{--cell-size:min(calc((100vw - 57px)/6),58px);--cell-font:calc(var(--cell-size)*0.46)}
 .cell{width:var(--cell-size);height:var(--cell-size);display:flex;align-items:center;justify-content:center;font-size:var(--cell-font);font-weight:800;
@@ -269,19 +269,19 @@ body[data-theme="arcade"] .cell.yellow{color:#000!important;box-shadow:3px 3px 0
 .row .cell:nth-child(6){animation-delay:.5s}
 
 /* ============ 键盘（保持缩小） ============ */
-.kb{position:fixed;left:0;right:0;bottom:0;z-index:40;width:100%;padding:6px 12px max(10px, env(safe-area-inset-bottom));
+.kb{position:fixed;left:0;right:0;bottom:0;z-index:40;width:100%;padding:4px 10px max(8px, env(safe-area-inset-bottom));
   display:flex;flex-direction:column;gap:4px;user-select:none;box-shadow:0 -8px 24px rgba(0,0,0,.18)}
 body[data-theme="4399"] .kb{background:rgba(244,248,239,.97);backdrop-filter:blur(12px);border-top:1px solid var(--line)}
 body[data-theme="arcade"] .kb{background:rgba(11,11,24,.97);backdrop-filter:blur(12px);border-top:2px solid var(--line)}
-.kb-row{display:flex;gap:4px;justify-content:center;max-width:400px;margin:0 auto;width:100%}
-.key{flex:1;height:42px;border-radius:7px;font-size:16px;font-weight:800;cursor:pointer;transition:.12s;touch-action:manipulation}
+.kb-row{display:flex;gap:3px;justify-content:center;max-width:380px;margin:0 auto;width:100%}
+.key{flex:1;height:38px;border-radius:6px;font-size:14px;font-weight:800;cursor:pointer;transition:.12s;touch-action:manipulation}
 body[data-theme="4399"] .key{background:var(--key-bg);border:2px solid var(--key-border);color:var(--key-text)}
 body[data-theme="4399"] .key:hover{background:var(--surface2,#eef5e8);border-color:var(--green);transform:translateY(-1px)}
 body[data-theme="4399"] .key:active{transform:translateY(1px)}
 body[data-theme="arcade"] .key{background:var(--key-bg);border:3px solid var(--line);color:var(--key-text);box-shadow:3px 3px 0 var(--hard)}
 body[data-theme="arcade"] .key:hover{background:#2e2e58;border-color:var(--cyan);transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--hard)}
 body[data-theme="arcade"] .key:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--hard)}
-.key.wide{flex:1.6;font-size:13px}
+.key.wide{flex:1.6;font-size:12px}
 .key.green{background:var(--green)!important;border-color:var(--green)!important;color:#fff!important}
 body[data-theme="arcade"] .key.green{color:#000!important;box-shadow:3px 3px 0 var(--hard),0 0 10px rgba(0,255,157,.4)!important}
 .key.yellow{background:#e2c233!important;border-color:#e2c233!important;color:#fff!important}
@@ -342,8 +342,8 @@ body[data-theme="arcade"] .dbar{background:var(--green);box-shadow:0 0 8px rgba(
 /* 弹窗按钮（与 Stroop 一致） */
 .modal-btns{display:flex;gap:12px;justify-content:center;margin-top:14px;flex-wrap:wrap}
 .modal-btns button{
-  font-family:inherit;font-weight:800;font-size:15px;
-  padding:12px 24px;border-radius:12px;cursor:pointer;transition:.18s;
+  font-family:inherit;font-weight:800;font-size:13px;
+  padding:8px 18px;border-radius:10px;cursor:pointer;transition:.18s;
   background:linear-gradient(135deg,var(--orange),var(--orange2));
   border:2px solid var(--orange2);color:#fff;
   box-shadow:0 4px 14px rgba(251,100,0,.28);
