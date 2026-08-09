@@ -82,12 +82,12 @@ body{
   background:rgba(255,255,255,.65);
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
   border:1.5px solid var(--line);color:var(--green);
-  box-shadow:var(--shadow-sm);
+  
   transition:transform .18s,background .18s,border-color .18s,box-shadow .18s;
 }
 .back-home:hover{
   background:rgba(255,255,255,.9);border-color:var(--green);
-  transform:translateY(-2px);box-shadow:var(--shadow-md);
+  transform:translateY(-2px);box-shadow:0 3px 10px rgba(56,153,4,.15);
 }
 .back-home:active{transform:translateY(0)}
 body[data-theme="arcade"] .back-home{
@@ -98,7 +98,7 @@ body[data-theme="arcade"] .back-home{
 body[data-theme="arcade"] .back-home:hover{
   background:rgba(10,10,24,.85);
   border-color:var(--cyan);
-  box-shadow:var(--shadow-md);
+  box-shadow:0 3px 10px rgba(56,153,4,.15);
 }
 
 /* ============ 主容器（对齐 Stroop .wrap） ============ */
@@ -135,7 +135,7 @@ body[data-theme="arcade"] .harcade{display:block}
   text-align:center;
   padding:8px 14px;border-radius:var(--radius);
   background:var(--surface);border:2px solid var(--line);
-  box-shadow:var(--shadow-sm);
+  
   transition:transform .18s;
   min-width:56px;
 }
@@ -164,7 +164,7 @@ body[data-theme="arcade"] .stats .stat-box .num{
 .grid-wrapper{position:relative;padding:4px;margin-bottom:0}
 body[data-theme="4399"] .grid-wrapper{
   background:linear-gradient(135deg,var(--lightgreen),var(--green));
-  border-radius:14px;box-shadow:var(--shadow-md);
+  border-radius:14px;box-shadow:0 3px 10px rgba(56,153,4,.15);
 }
 body[data-theme="arcade"] .grid-wrapper{
   background:var(--surface);border:3px solid var(--border);
@@ -194,29 +194,16 @@ body[data-theme="arcade"] .cell.alive:hover{background:#8dffab}
   justify-content:center;align-items:center;
   max-width:780px;margin:20px 0 6px;
 }
-button{
-  font-size:.72rem;font-weight:800;padding:7px 12px;
-  cursor:pointer;transition:.18s;
-  font-family:inherit;
-  border-radius:var(--radius);
-  min-height:36px;
-}
-body[data-theme="4399"] button{
-  border:2px solid var(--line);
-  background:var(--surface);color:var(--text);
-  box-shadow:var(--shadow-sm);
-}
-body[data-theme="4399"] button:hover{
-  background:var(--surface2);border-color:var(--green);
-  transform:translateY(-2px);
-  box-shadow:var(--shadow-md);
-}
-body[data-theme="4399"] button:active{transform:translateY(0)}
-body[data-theme="4399"] button.primary{
-  background:linear-gradient(135deg,var(--orange),var(--orange2));
-  border-color:var(--orange2);color:#fff;
-  box-shadow:0 4px 14px rgba(251,100,0,.28);
-}
+button{font-size:.8rem;font-weight:700;padding:9px 16px;cursor:pointer;transition:all .15s}
+body[data-theme="4399"] button{font-family:'PingFang SC',sans-serif;border:2px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);letter-spacing:.3px}
+body[data-theme="4399"] button:hover{background:var(--surface2);border-color:var(--green);box-shadow:0 3px 10px rgba(56,153,4,.15)}
+body[data-theme="4399"] button.primary{background:linear-gradient(135deg,var(--green),var(--green2));border-color:var(--green2);color:#fff}
+body[data-theme="4399"] button.primary:hover{filter:brightness(1.08);box-shadow:0 4px 14px rgba(56,153,4,.35)}
+body[data-theme="4399"] button.danger{border-color:rgba(224,86,0,.4);color:var(--danger)}
+body[data-theme="arcade"] button{font-family:'Press Start 2P',monospace;font-size:.62rem;border:3px solid var(--border);border-radius:0;background:var(--surface);color:var(--text);box-shadow:3px 3px 0 var(--hard)}
+body[data-theme="arcade"] button:hover{border-color:var(--accent);box-shadow:3px 3px 0 var(--hard),0 0 12px var(--accent)}
+body[data-theme="arcade"] button.primary{background:var(--green);border-color:var(--green);color:#000}
+body[data-theme="arcade"] button.danger{border-color:var(--danger);color:var(--danger)}
 body[data-theme="4399"] button.primary:hover{
   filter:brightness(1.08);
   box-shadow:0 8px 22px rgba(251,100,0,.35);
@@ -262,7 +249,7 @@ select{
 body[data-theme="4399"] select{
   font-family:'PingFang SC',sans-serif;
   border:2px solid var(--line);background:var(--surface);color:var(--text);
-  box-shadow:var(--shadow-sm);
+  
 }
 body[data-theme="4399"] select:hover,body[data-theme="4399"] select:focus{
   border-color:var(--green);
@@ -314,7 +301,7 @@ body[data-theme="arcade"] .rules summary{
   background:var(--surface);border:2px solid var(--border);
   font-size:.78rem;color:var(--dim);line-height:1.7;text-align:left;
   border-radius:var(--radius);
-  box-shadow:var(--shadow-sm);
+  
 }
 body[data-theme="arcade"] .rules .rules-body{
   border-width:3px;box-shadow:6px 6px 0 #000;color:#cdcde6;

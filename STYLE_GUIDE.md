@@ -34,3 +34,24 @@
 ## 4. 布局通用原则
 - **康威**：棋盘占主体，控制按钮居下部，title/统计（代数/存活）紧凑不占大空间；title 放页面左上角。
 - 移动端可滚动，PC 尽量同屏（棋盘+控件一屏内）。
+
+## 5. 按钮样式规范（原始版，禁止改为 Stroop 圆角卡片风格）
+
+以下按钮样式为各页面的原始设计，已被用户确认。同步风格时只改配色/字体/布局，**不改按钮圆角、padding、font-weight 等基础样式**。
+
+### 康威生命游戏
+- `button`：`font-size:.8rem; font-weight:700; padding:9px 16px; border-radius:10px`（4399）
+- 4399：`border:2px solid var(--border); border-radius:10px; background:var(--surface)`
+- arcade：`font-family:'Press Start 2P'; font-size:.62rem; border:3px solid; border-radius:0; box-shadow:3px 3px 0 var(--hard)`（**无圆角**）
+- primary：绿色渐变；danger：橙色边框
+
+### 1A2B 猜数字
+- `.length-pick button`：`font-weight:700; font-size:14px; padding:8px 14px; border-radius:10px`
+- `.new-btn`：`font-weight:700; font-size:14px; padding:8px 16px; border-radius:10px`
+- `.key`：`border-radius:8px`（键盘按键）
+- `.hud .chip`：`border-radius:999px`（胶囊式，不是卡片式）
+
+### 通用规则
+- **不要用 Stroop 的 `--shadow-sm/md/lg`、`--radius` 变量覆盖各页面原始按钮样式。**
+- Stroop 的卡片式按钮（menu-card）是 Stroop 专属，不推广到其他页面。
+- 各页面保持自己的按钮圆角、padding、font-weight 不变。
