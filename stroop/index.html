@@ -169,13 +169,13 @@ body{
 
 /* ============ 难度选择 ============ */
 .diff-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
-  gap:14px;width:100%;margin-bottom:20px;
+  display:flex;flex-direction:column;
+  gap:14px;width:100%;max-width:400px;margin-bottom:20px;
 }
 .diff-card{
-  cursor:pointer;text-align:center;
-  padding:20px 14px 16px;border-radius:var(--radius);
+  cursor:pointer;width:100%;
+  display:flex;align-items:center;gap:14px;
+  padding:16px 18px;border-radius:var(--radius);
   transition:.2s;position:relative;overflow:hidden;
   background:var(--surface);
   border:2px solid var(--line);
@@ -192,22 +192,27 @@ body{
   transform:translateY(-4px);
 }
 .diff-card:active{transform:translateY(-1px)}
+.diff-card .dc-info{
+  flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:4px;
+}
 .diff-card .dc-stars{
-  margin-bottom:8px;font-size:13px;letter-spacing:1px;
-  line-height:1;
+  font-size:13px;letter-spacing:1px;line-height:1;
 }
 .diff-card .dc-stars .star{color:#ccc;font-style:normal}
 .diff-card .dc-stars .star.on{color:var(--orange)}
 .diff-card .dname{
-  font-size:20px;font-weight:900;color:var(--text);
-  margin-bottom:6px;font-family:'ZCOOL KuaiLe',sans-serif;
+  font-size:18px;font-weight:900;color:var(--text);
+  font-family:'ZCOOL KuaiLe',sans-serif;
 }
 .diff-card .ddesc{
-  font-size:12px;color:var(--dim);margin-bottom:10px;
+  font-size:12px;color:var(--dim);
+}
+.diff-card .dc-right{
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  flex-shrink:0;
 }
 .diff-card .dc-dots{
   display:flex;justify-content:center;gap:5px;
-  margin-bottom:10px;
 }
 .diff-card .dc-dots .dot{
   width:12px;height:12px;border-radius:50%;
@@ -218,7 +223,7 @@ body{
   font-size:13px;font-weight:800;color:var(--orange);
   padding:4px 12px;border-radius:999px;
   background:rgba(251,100,0,.08);
-  display:inline-block;
+  white-space:nowrap;
 }
 
 /* ============ 排行榜 ============ */
@@ -247,7 +252,7 @@ body{
 
 /* ============ 规则介绍 ============ */
 .howto{
-  width:100%;margin:4px 0 20px;
+  width:100%;max-width:400px;margin:4px 0 20px;
   padding:20px 20px;border-radius:var(--radius);
   font-size:14px;line-height:2;color:var(--dim);
   background:var(--tag-bg);
@@ -452,7 +457,7 @@ body{
   .menu-card{padding:16px 18px}
   .menu-card .mc-icon{width:38px;height:38px;font-size:20px}
   .menu-card .mc-text{font-size:16px}
-  .diff-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .diff-grid{gap:10px}
   .diff-card{padding:16px 10px 14px}
   .diff-card .dname{font-size:17px}
   .hud .chip b{font-size:22px}
@@ -465,7 +470,7 @@ body{
   .new-btn{padding:13px 26px;font-size:15px;min-width:120px}
 }
 @media(min-width:680px){
-  .diff-grid{grid-template-columns:repeat(3,1fr)}
+  .diff-grid{max-width:400px}
 }
 
 @media (prefers-reduced-motion: reduce){
@@ -573,21 +578,21 @@ body{
     </div>
 
     <!-- 选择难度 -->
-    <div id="diffView" style="display:none">
+    <div id="diffView" class="menu-view" style="display:none">
       <div class="panel-title">选 择 难 度</div>
       <div class="diff-grid" id="diffGrid"></div>
       <button class="new-btn ghost" id="backMenuBtn">← 返回菜单</button>
     </div>
 
     <!-- 排行榜 -->
-    <div id="rankView" style="display:none">
+    <div id="rankView" class="menu-view" style="display:none">
       <div class="panel-title">🏆 排 行 榜</div>
       <div id="rankList" class="rank-list"></div>
       <button class="new-btn ghost" id="backMenuBtn2">← 返回菜单</button>
     </div>
 
     <!-- 规则介绍 -->
-    <div id="ruleView" style="display:none">
+    <div id="ruleView" class="menu-view" style="display:none">
       <div class="panel-title">📖 规 则 介 绍</div>
       <div class="howto">
         <b>玩法：</b>屏幕上显示的<b>文字</b>会带着一种<b>颜色</b>，请忽略文字词义，点选（或按数字键）它<b>显示的颜色</b>。<br>
@@ -707,11 +712,15 @@ body{
       var stars = '';
       for(var s=0; s<5; s++){ stars += '<i class="star'+(s<=idx?' on':'')+'">★</i>'; }
       html+='<div class="diff-card" data-key="'+k+'">'+
-        '<div class="dc-stars">'+stars+'</div>'+
-        '<div class="dname">'+d.name+'</div>'+
-        '<div class="ddesc">'+d.desc+'</div>'+
-        '<div class="dc-dots">'+dots+'</div>'+
-        '<div class="dhigh">最佳 '+(hi==null?'-':hi)+'</div>'+
+        '<div class="dc-info">'+
+          '<div class="dc-stars">'+stars+'</div>'+
+          '<div class="dname">'+d.name+'</div>'+
+          '<div class="ddesc">'+d.desc+'</div>'+
+        '</div>'+
+        '<div class="dc-right">'+
+          '<div class="dc-dots">'+dots+'</div>'+
+          '<div class="dhigh">最佳 '+(hi==null?'-':hi)+'</div>'+
+        '</div>'+
       '</div>';
     });
     diffGrid.innerHTML=html;
