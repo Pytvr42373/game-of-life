@@ -106,7 +106,7 @@ body[data-theme="arcade"] .theme-switch{background:rgba(255,255,255,.9);border:1
 .wrap{
   position:relative;z-index:1;
   max-width:520px;margin:0 auto;
-  padding:48px 16px 170px;
+  padding:28px 16px 170px;
   display:flex;flex-direction:column;align-items:center;
   min-height:100vh;
 }
@@ -216,26 +216,25 @@ body[data-theme="arcade"] .new-btn.ghost{
   text-shadow:none;
 }
 
-/* HUD（卡片式统计，与 Stroop 一致） */
+/* HUD（侧边悬浮，与 Stroop 风格一致） */
 .hud{
-  display:flex;align-items:stretch;justify-content:space-between;
-  width:100%;gap:10px;margin-bottom:14px;
+  position:fixed;right:14px;top:50%;transform:translateY(-50%);
+  z-index:98;display:flex;flex-direction:column;gap:8px;
 }
 .hud .chip{
-  flex:1;text-align:center;
-  padding:10px 6px;border-radius:12px;
-  background:var(--surface);border:2px solid var(--line);
-  box-shadow:var(--shadow-sm);
-  font-size:13px;color:var(--dim);
+  padding:8px 12px;border-radius:12px;
+  background:rgba(255,255,255,.85);border:1.5px solid var(--line);
+  box-shadow:var(--shadow-sm);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  font-size:12px;color:var(--dim);text-align:center;white-space:nowrap;
 }
 .hud .chip b{
-  color:var(--green);font-size:18px;
-  font-family:'ZCOOL KuaiLe',sans-serif;
+  color:var(--green);font-size:16px;
+  font-family:'ZCOOL KuaiLe',sans-serif;display:block;
 }
 body[data-theme="arcade"] .hud .chip{
-  background:var(--surface);border:2px solid var(--line);
+  background:rgba(11,11,24,.72);border:1.5px solid var(--line);
   box-shadow:3px 3px 0 var(--hard);
-  font-family:'Press Start 2P',monospace;font-size:9px;
+  font-family:'Press Start 2P',monospace;font-size:8px;
 }
 body[data-theme="arcade"] .hud .chip b{
   color:var(--green);text-shadow:0 0 8px var(--green);
@@ -374,7 +373,7 @@ body[data-theme="arcade"] .modal-btns button.ghost{
 
 /* 响应式 */
 @media(max-width:480px){
-  .wrap{padding-top:44px}
+  .wrap{padding-top:24px}
   .hero{padding:22px 16px 20px;margin-bottom:16px}
   .hero .title{font-size:30px}
   .hero .logo-box{width:48px;height:48px;font-size:26px}
@@ -447,12 +446,12 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
       <button data-len="6">6位</button>
     </div>
     <button class="new-btn" id="newGame">&#128260; 新游戏</button>
+    <button class="new-btn ghost" id="statsBtn" style="cursor:pointer">&#128202; 统计</button>
   </div>
 
   <div class="hud">
     <div class="chip">机会 <b id="chancesLeft">10</b>/<span id="chancesTotal">10</span></div>
     <div class="chip">最佳 <b id="bestLabel">-</b></div>
-    <div class="chip" id="statsBtn" style="cursor:pointer">&#128202; 统计</div>
   </div>
 
   <div class="msg" id="msg"></div>
