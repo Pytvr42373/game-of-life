@@ -61,7 +61,7 @@ body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;min-height:100vh;tra
 .theme-switch button.on{background:#fff;color:#111}
 
 /* ============ 主容器 ============ */
-.wrap{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:84px 16px 40px;display:flex;flex-direction:column;align-items:center;min-height:100vh}
+.wrap{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:84px 16px 210px;display:flex;flex-direction:column;align-items:center;min-height:100vh}
 
 /* 4399 头部 */
 body[data-theme="4399"] .h4399{display:block}
@@ -106,20 +106,20 @@ body[data-theme="arcade"] .hud .chip b{color:var(--green);text-shadow:0 0 8px va
 /* ============ 棋盘 ============ */
 .board{display:flex;flex-direction:column;gap:5px;margin-bottom:16px}
 .row{display:flex;gap:5px;justify-content:center}
-.cell{width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;
+:root{--cell-size:min(calc((100vw - 57px)/6),58px);--cell-font:calc(var(--cell-size)*0.46)}
+.cell{width:var(--cell-size);height:var(--cell-size);display:flex;align-items:center;justify-content:center;font-size:var(--cell-font);font-weight:800;
   border-radius:8px;transition:transform .1s}
 body[data-theme="4399"] .cell{background:var(--cell-empty);border:2px solid var(--cell-border);color:var(--text)}
 body[data-theme="arcade"] .cell{background:var(--cell-empty);border:3px solid var(--cell-border);color:var(--text);box-shadow:3px 3px 0 var(--hard)}
 .cell.filled{animation:pop .15s ease}
 @keyframes pop{50%{transform:scale(1.12)}}
 .cell.current{border-color:var(--green)}
-.cell.green{background:var(--green);border-color:var(--green);color:#fff}
-body[data-theme="4399"] .cell.green{color:#fff}
-body[data-theme="arcade"] .cell.green{color:#000;box-shadow:3px 3px 0 var(--hard),0 0 14px rgba(0,255,157,.5)}
-.cell.yellow{background:#e2c233;border-color:#e2c233;color:#fff}
-body[data-theme="4399"] .cell.yellow{color:#fff}
-body[data-theme="arcade"] .cell.yellow{color:#000;box-shadow:3px 3px 0 var(--hard),0 0 14px rgba(255,225,77,.5)}
-.cell.gray{background:var(--gray-bg);border-color:var(--gray-bg);color:var(--gray-text)}
+/* 已提交行反馈配色：!important 覆盖主题基础格子背景，杜绝白底白字 */
+.cell.green{background:var(--green)!important;border-color:var(--green)!important;color:#fff!important}
+body[data-theme="arcade"] .cell.green{color:#000!important;box-shadow:3px 3px 0 var(--hard)!important,0 0 14px rgba(0,255,157,.5)!important}
+.cell.yellow{background:#e2c233!important;border-color:#e2c233!important;color:#fff!important}
+body[data-theme="arcade"] .cell.yellow{color:#000!important;box-shadow:3px 3px 0 var(--hard)!important,0 0 14px rgba(255,225,77,.5)!important}
+.cell.gray{background:var(--gray-bg)!important;border-color:var(--gray-bg)!important;color:var(--gray-text)!important}
 .cell .fb{font-size:11px;margin-left:1px;font-weight:700;opacity:.95}
 
 /* 反馈动画 */
@@ -133,8 +133,11 @@ body[data-theme="arcade"] .cell.yellow{color:#000;box-shadow:3px 3px 0 var(--har
 .row .cell:nth-child(6){animation-delay:.5s}
 
 /* ============ 键盘 ============ */
-.kb{width:100%;max-width:420px;display:flex;flex-direction:column;gap:6px;margin-top:4px;user-select:none}
-.kb-row{display:flex;gap:6px;justify-content:center}
+.kb{position:fixed;left:0;right:0;bottom:0;z-index:40;width:100%;padding:10px 12px max(14px, env(safe-area-inset-bottom));
+  display:flex;flex-direction:column;gap:6px;user-select:none;box-shadow:0 -8px 24px rgba(0,0,0,.18)}
+body[data-theme="4399"] .kb{background:rgba(244,248,239,.97);backdrop-filter:blur(12px);border-top:1px solid var(--line)}
+body[data-theme="arcade"] .kb{background:rgba(11,11,24,.97);backdrop-filter:blur(12px);border-top:2px solid var(--line)}
+.kb-row{display:flex;gap:6px;justify-content:center;max-width:420px;margin:0 auto;width:100%}
 .key{flex:1;height:50px;border-radius:8px;font-size:20px;font-weight:800;cursor:pointer;transition:.12s;touch-action:manipulation}
 body[data-theme="4399"] .key{background:var(--key-bg);border:2px solid var(--key-border);color:var(--key-text)}
 body[data-theme="4399"] .key:hover{background:var(--surface2,#eef5e8);border-color:var(--green);transform:translateY(-1px)}
@@ -199,17 +202,24 @@ body[data-theme="arcade"] .modal-btns button.ghost{background:var(--key-bg);bord
 
 /* 移动端微调 */
 @media (max-width:480px){
-  .cell{width:48px;height:48px;font-size:21px}
   .wrap{padding-top:76px}
+  .key{height:48px}
 }
 @media (max-width:360px){
-  .cell{width:42px;height:42px;font-size:18px}
-  .key{height:46px}
+  .key{height:44px}
 }
+
+/* 返回主页按钮 */
+.home-btn{position:fixed;top:14px;right:14px;z-index:98;text-decoration:none;font-family:inherit;font-weight:700;
+  font-size:13px;padding:7px 14px;border-radius:999px;cursor:pointer;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);
+  color:#fff;border:1px solid rgba(255,255,255,.25);transition:.25s;letter-spacing:.5px}
+.home-btn:hover{background:rgba(0,0,0,.75);transform:translateY(-1px)}
+
 </style>
 </head>
 <body data-theme="4399">
 
+<a class="home-btn" href="../index.html">← 主页</a>
 <div class="theme-switch">
   <button data-theme="4399" class="on">4399</button>
   <button data-theme="arcade">街机厅</button>

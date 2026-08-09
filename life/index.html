@@ -47,11 +47,12 @@ body[data-theme="arcade"]::after{
   mix-blend-mode:multiply;opacity:.5;
 }
 
-body{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 20px;position:relative;transition:background .4s,color .4s}
+body{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:14px 20px;position:relative;transition:background .4s,color .4s}
 
 /* 主题切换器（与主页一致） */
-.theme-switch{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:99;display:flex;gap:10px;
-  background:rgba(0,0,0,.6);backdrop-filter:blur(10px);padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.2)}
+.theme-switch{position:fixed;right:14px;bottom:14px;left:auto;top:auto;transform:none;z-index:99;display:flex;gap:8px;
+  background:rgba(0,0,0,.6);backdrop-filter:blur(10px);padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.2)}
+.theme-switch button{font-size:13px;padding:5px 13px}
 .theme-switch button{border:0;background:transparent;color:#cfcfcf;font-size:14px;font-weight:700;padding:6px 16px;border-radius:999px;cursor:pointer;font-family:inherit;transition:.25s;letter-spacing:.5px}
 .theme-switch button:hover{color:#fff}
 .theme-switch button.on{background:#fff;color:#111}
@@ -61,22 +62,22 @@ body{min-height:100vh;display:flex;flex-direction:column;align-items:center;padd
 /* ===== 4399 header ===== */
 body[data-theme="4399"] .h4399{display:flex;flex-direction:column;align-items:center}
 body[data-theme="4399"] .h4399 .topbar{display:flex;align-items:center;gap:10px;margin-bottom:4px}
-body[data-theme="4399"] .h4399 .logo{width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 6px 16px rgba(56,153,4,.35)}
-body[data-theme="4399"] .h4399 h1{font-size:1.7rem;font-weight:900;color:var(--green);letter-spacing:1px;text-shadow:0 2px 0 rgba(56,153,4,.12)}
+body[data-theme="4399"] .h4399 .logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 4px 12px rgba(56,153,4,.3)}
+body[data-theme="4399"] .h4399 h1{font-size:1.3rem;font-weight:900;color:var(--green);letter-spacing:1px;text-shadow:0 2px 0 rgba(56,153,4,.12)}
 body[data-theme="4399"] .h4399 h1 em{font-style:normal;color:var(--orange)}
-body[data-theme="4399"] .h4399 .subtitle{font-size:.78rem;color:var(--text-dim);margin:2px 0 18px}
+body[data-theme="4399"] .h4399 .subtitle{font-size:.75rem;color:var(--text-dim);margin:2px 0 8px}
 
 /* ===== 街机 header ===== */
 body[data-theme="arcade"] .harcade{display:flex;flex-direction:column;align-items:center}
-body[data-theme="arcade"] .harcade .logo-bar{font-family:'Press Start 2P',monospace;font-size:.85rem;letter-spacing:2px;color:var(--yellow);text-shadow:0 0 14px var(--yellow),3px 3px 0 #000;margin-bottom:10px;animation:blink 1.4s steps(1) infinite}
-body[data-theme="arcade"] .harcade h1{font-size:1.9rem;font-weight:700;letter-spacing:2px;color:var(--text);text-shadow:3px 3px 0 #000,0 0 20px rgba(61,225,255,.4);margin-bottom:4px}
+body[data-theme="arcade"] .harcade .logo-bar{font-family:'Press Start 2P',monospace;font-size:.75rem;letter-spacing:2px;color:var(--yellow);text-shadow:0 0 14px var(--yellow),3px 3px 0 #000;margin-bottom:6px;animation:blink 1.4s steps(1) infinite}
+body[data-theme="arcade"] .harcade h1{font-size:1.4rem;font-weight:700;letter-spacing:2px;color:var(--text);text-shadow:3px 3px 0 #000,0 0 20px rgba(61,225,255,.4);margin-bottom:4px}
 body[data-theme="arcade"] .harcade h1 .p{color:var(--pink);text-shadow:3px 3px 0 #000,0 0 20px var(--pink)}
 body[data-theme="arcade"] .harcade h1 .c{color:var(--cyan);text-shadow:3px 3px 0 #000,0 0 20px var(--cyan)}
-body[data-theme="arcade"] .harcade .subtitle{font-size:.78rem;color:#9a9ac4;margin-bottom:18px;letter-spacing:1px;animation:blink 1.4s steps(1) infinite}
+body[data-theme="arcade"] .harcade .subtitle{font-size:.75rem;color:#9a9ac4;margin-bottom:8px;letter-spacing:1px;animation:blink 1.4s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
 
 /* ===== 通用 stats ===== */
-.stats{display:flex;gap:24px;margin-bottom:16px;font-size:.9rem}
+.stats{display:flex;gap:14px;margin-bottom:10px;font-size:.9rem;flex-wrap:wrap;justify-content:center}
 .stat{display:flex;align-items:center;gap:6px;background:var(--surface);border:2px solid var(--border);padding:8px 16px;border-radius:10px}
 body[data-theme="arcade"] .stat{border-width:3px;box-shadow:5px 5px 0 #000}
 body[data-theme="4399"] .stat{box-shadow:0 2px 6px rgba(56,153,4,.08)}
@@ -85,15 +86,16 @@ body[data-theme="4399"] .stat{box-shadow:0 2px 6px rgba(56,153,4,.08)}
 body[data-theme="arcade"] .stat-value{text-shadow:2px 2px 0 #000}
 
 /* ===== 通用 grid ===== */
-.grid-wrapper{position:relative;padding:4px;margin-bottom:18px}
+.grid-wrapper{position:relative;padding:4px;margin-bottom:10px}
 body[data-theme="4399"] .grid-wrapper{background:linear-gradient(135deg,var(--lightgreen),var(--green));border-radius:14px;box-shadow:0 8px 24px rgba(56,153,4,.18)}
 body[data-theme="arcade"] .grid-wrapper{background:var(--surface);border:3px solid var(--border);box-shadow:8px 8px 0 #000}
 .grid-inner{background:var(--surface);padding:5px}
 body[data-theme="4399"] .grid-inner{background:#fff;border-radius:11px}
 body[data-theme="arcade"] .grid-inner{background:var(--bg)}
-#grid{display:grid;grid-template-columns:repeat(40,1fr);gap:1px;background:var(--border);overflow:hidden}
+:root{--cell:11px}
+#grid{display:grid;grid-template-columns:repeat(40,var(--cell));gap:1px;background:var(--border);overflow:hidden}
 body[data-theme="4399"] #grid{border-radius:7px}
-.cell{width:15px;height:15px;background:var(--dead);cursor:pointer;border:1px solid rgba(255,255,255,.03)}
+.cell{width:var(--cell,11px);height:var(--cell,11px);background:var(--dead);cursor:pointer;border:1px solid rgba(255,255,255,.03)}
 body[data-theme="4399"] .cell{border:1px solid rgba(56,153,4,.05);transition:all .15s ease;border-radius:1px}
 body[data-theme="4399"] .cell:hover{background:var(--lightgreen);transform:scale(1.15);z-index:1}
 body[data-theme="arcade"] .cell{transition:background .1s}
@@ -103,10 +105,11 @@ body[data-theme="4399"] .cell.alive{box-shadow:inset 0 0 0 2px #fff,0 0 8px var(
 body[data-theme="4399"] .cell.alive:hover{background:#46c20d}
 body[data-theme="arcade"] .cell.alive{box-shadow:0 0 8px var(--live-glow),inset 0 0 4px rgba(0,0,0,.2)}
 body[data-theme="arcade"] .cell.alive:hover{background:#8dffab}
+#grid.no-anim .cell{transition:none!important}
 
 /* ===== controls ===== */
-.controls{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;max-width:620px}
-button{font-size:.8rem;font-weight:700;padding:9px 16px;cursor:pointer;transition:all .15s}
+.controls{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;align-items:center;max-width:780px;margin-bottom:8px}
+button{font-size:.76rem;font-weight:700;padding:6px 11px;cursor:pointer;transition:all .15s}
 body[data-theme="4399"] button{font-family:'PingFang SC',sans-serif;border:2px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);letter-spacing:.3px}
 body[data-theme="4399"] button:hover{background:var(--surface2);border-color:var(--green);box-shadow:0 3px 10px rgba(56,153,4,.15)}
 body[data-theme="4399"] button.primary{background:linear-gradient(135deg,var(--green),var(--green2));border-color:var(--green2);color:#fff}
@@ -136,17 +139,61 @@ body[data-theme="4399"] input[type="range"]{border-radius:3px;background:var(--l
 body[data-theme="4399"] input[type="range"]::-webkit-slider-thumb{border-radius:50%}
 body[data-theme="arcade"] input[type="range"]::-webkit-slider-thumb{background:var(--cyan)}
 
-.rules{margin-top:20px;max-width:620px;padding:14px 18px;background:var(--surface);border:2px solid var(--border);font-size:.82rem;color:var(--text-dim);line-height:1.9}
+.rules{margin-top:10px;max-width:720px;padding:9px 15px;background:var(--surface);border:2px solid var(--border);font-size:.8rem;color:var(--text-dim);line-height:1.6}
 body[data-theme="4399"] .rules{border-radius:12px}
 body[data-theme="arcade"] .rules{border-width:3px;box-shadow:6px 6px 0 #000;color:#cdcde6}
 .rules strong{color:var(--green)}
+
+/* ===== 返回主页按钮 ===== */
+.back-home{position:fixed;top:12px;left:12px;z-index:99;text-decoration:none;font-weight:700;padding:7px 13px;border-radius:10px;cursor:pointer;font-size:.78rem;font-family:inherit}
+body[data-theme="4399"] .back-home{background:var(--surface);border:2px solid var(--border);color:var(--green)}
+body[data-theme="4399"] .back-home:hover{border-color:var(--green);background:var(--surface2)}
+body[data-theme="arcade"] .back-home{background:var(--surface);border:3px solid var(--border);color:#f4f4ff;font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;box-shadow:4px 4px 0 #000}
+body[data-theme="arcade"] .back-home:hover{border-color:var(--cyan);box-shadow:4px 4px 0 #000,0 0 12px var(--cyan)}
+
+/* ===== 加载进度条 ===== */
+.loader{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;
+  background:var(--bg);color:var(--text);transition:opacity .5s;pointer-events:none}
+.loader.hide{opacity:0}
+.loader .core{position:relative;width:120px;height:120px;display:flex;align-items:center;justify-content:center}
+.loader .core .ring{position:absolute;inset:0;border-radius:50%;border:4px solid transparent;border-top-color:var(--green);animation:spin 1s linear infinite}
+.loader .core .ring.r2{inset:12px;border-top-color:var(--orange,#fb6400);animation:spin 1.3s linear infinite reverse}
+.loader .core .pixel{font-family:'Press Start 2P',monospace;font-size:26px;color:var(--green);text-shadow:0 0 18px currentColor;animation:pulse 1s ease-in-out infinite}
+.loader .load-track{width:240px;height:8px;background:var(--border);border-radius:6px;overflow:hidden;position:relative;box-shadow:0 0 12px var(--green)}
+.loader .load-track i{position:absolute;height:100%;width:45%;border-radius:6px;
+  background:linear-gradient(90deg,var(--green),var(--orange,#fb6400),var(--cyan,#3de1ff),var(--green));
+  background-size:300% 100%;animation:slide 1s linear infinite}
+.loader .load-text{font-family:'PingFang SC','Microsoft YaHei';font-size:13px;letter-spacing:2px;color:var(--text-dim)}
+body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monospace;font-size:10px}
+.loader .load-text b{color:var(--green)}
+@keyframes slide{0%{transform:translateX(-50%)}100%{transform:translateX(350%)}}
+
+/* ===== 响应式适配 ===== */
+@media (max-width:700px){
+  :root{--cell:min(6vw,13px)}
+  body{padding:10px 8px}
+  .controls{max-width:100%}
+  .content{width:100%}
+  .back-home{top:8px;left:8px;padding:6px 10px}
+  .theme-switch{right:8px;bottom:8px;padding:5px 8px}
+  .theme-switch button{font-size:12px;padding:4px 10px}
+}
 </style>
 </head>
 <body data-theme="4399">
 
+<!-- 加载过渡 -->
+<div class="loader" id="loader">
+  <div class="core"><div class="ring"></div><div class="ring r2"></div><div class="pixel">◆</div></div>
+  <div class="load-track"><i></i></div>
+  <div class="load-text">LOADING <b>GAME OF LIFE</b>...</div>
+</div>
+
+<a class="back-home" href="../index.html">← 返回主页</a>
+
 <div class="theme-switch">
-  <button data-theme="4399" class="on">4399</button>
-  <button data-theme="arcade">街机厅</button>
+  <button data-theme="4399" class="on">日间</button>
+  <button data-theme="arcade">夜间</button>
 </div>
 
 <div class="content">
@@ -165,6 +212,7 @@ body[data-theme="arcade"] .rules{border-width:3px;box-shadow:6px 6px 0 #000;colo
   <div class="stats">
     <div class="stat"><span class="stat-label">代数:</span><span class="stat-value" id="generation">0</span></div>
     <div class="stat"><span class="stat-label">存活:</span><span class="stat-value" id="alive-count">0</span></div>
+    <div class="stat" id="cycle-stat" style="display:none"><span class="stat-label">周期:</span><span class="stat-value" id="cycle-text"></span></div>
   </div>
 
   <div class="grid-wrapper"><div class="grid-inner"><div id="grid"></div></div></div>
@@ -196,7 +244,7 @@ body[data-theme="arcade"] .rules{border-width:3px;box-shadow:6px 6px 0 #000;colo
     <button onclick="redo()" title="重做 (Ctrl+Shift+Z)">↪ 重做</button>
     <button onclick="saveToLocal()" title="保存到本地">💾 保存</button>
     <button onclick="loadFromLocal()" title="从本地加载">📂 加载</button>
-    <div class="speed-control"><span>速度</span><input type="range" id="speed" min="50" max="1000" value="200" oninput="updateSpeed()"><span id="speed-label">200ms</span></div>
+    <div class="speed-control"><span>速度</span><input type="range" id="speed" min="200" max="1000" value="1000" oninput="updateSpeed()"><span id="speed-label">200ms</span></div>
   </div>
 
   <div class="rules" id="rules-text">
@@ -381,9 +429,11 @@ function updateCellVisual(gridEl, grid, r, c) {
 }
 
 function refreshAll(gridEl, grid) {
+  gridEl.classList.add('no-anim');
   for (let r = 0; r < ROWS; r++)
     for (let c = 0; c < COLS; c++)
       updateCellVisual(gridEl, grid, r, c);
+  requestAnimationFrame(() => gridEl.classList.remove('no-anim'));
 }
 
 function updateStats(genEl, aliveEl, grid, generation) {
@@ -407,6 +457,8 @@ const speedInput = document.getElementById('speed');
 const speedLabel = document.getElementById('speed-label');
 const modeSelect = document.getElementById('mode-select');
 const rulesEl = document.getElementById('rules-text');
+const cycleStat = document.getElementById('cycle-stat');
+const cycleText = document.getElementById('cycle-text');
 
 const MAX_HISTORY = 50;
 let history = [];
@@ -442,11 +494,42 @@ function redo() {
 
 function handleCellClick(r, c) { updateStats(genEl, aliveEl, grid, generation); }
 
+let stateIndex = new Map();
+let cycleStart = null;
+let cycleLen = null;
+
+function resetCycle() {
+  stateIndex.clear();
+  cycleStart = null;
+  cycleLen = null;
+  if (cycleStat) cycleStat.style.display = 'none';
+}
+
+function updateCycleDisplay() {
+  if (cycleLen == null || cycleStart == null) { if (cycleStat) cycleStat.style.display = 'none'; return; }
+  cycleText.textContent = cycleLen + ' (从代数 ' + cycleStart + ' 开始)';
+  cycleStat.style.display = '';
+}
+
+function checkCycle() {
+  const key = grid.map(row => row.join('')).join('');
+  if (stateIndex.has(key)) {
+    if (cycleLen == null) {
+      cycleStart = stateIndex.get(key);
+      cycleLen = generation - cycleStart;
+      updateCycleDisplay();
+    }
+  } else {
+    stateIndex.set(key, generation);
+  }
+}
+
 function init() {
   createGrid(gridEl, grid, handleCellClick, saveState);
   generation = 0;
   updateStats(genEl, aliveEl, grid, generation);
   saveState();
+  resetCycle();
 }
 
 function doStep() {
@@ -455,6 +538,7 @@ function doStep() {
   refreshAll(gridEl, grid);
   updateStats(genEl, aliveEl, grid, generation);
   saveState();
+  checkCycle();
 }
 
 function togglePlay() {
@@ -473,17 +557,17 @@ function stop() {
 }
 
 function handleRandomize() {
-  stop(); generation = 0; randomize(grid);
+  stop(); generation = 0; randomize(grid); resetCycle();
   refreshAll(gridEl, grid); updateStats(genEl, aliveEl, grid, generation); saveState();
 }
 
 function handleClear() {
-  stop(); generation = 0; clearGrid(grid);
+  stop(); generation = 0; clearGrid(grid); resetCycle();
   refreshAll(gridEl, grid); updateStats(genEl, aliveEl, grid, generation); saveState();
 }
 
 function updateSpeed() {
-  speed = 1050 - speedInput.value;
+  speed = 1200 - (+speedInput.value);
   speedLabel.textContent = speed + 'ms';
   if (playing) { clearInterval(intervalId); intervalId = setInterval(doStep, speed); }
 }
@@ -491,7 +575,7 @@ function updateSpeed() {
 function handlePatternSelect() {
   const key = patternSelect.value;
   if (!key) return;
-  handleClear();
+  handleClear(); resetCycle();
   const p = PATTERNS[key];
   if (p) {
     applyPattern(grid, p.cells, p.offset[0], p.offset[1]);
@@ -510,7 +594,7 @@ function loadFromLocal() {
   try {
     const data = JSON.parse(raw);
     if (data.grid && data.grid.length === ROWS && data.grid[0] && data.grid[0].length === COLS) {
-      grid = data.grid; generation = data.generation || 0;
+      grid = data.grid; generation = data.generation || 0; resetCycle();
       refreshAll(gridEl, grid); updateStats(genEl, aliveEl, grid, generation); saveState();
       return true;
     }
@@ -520,7 +604,7 @@ function loadFromLocal() {
 
 function handleModeChange() {
   dayNight = modeSelect.value === 'daynight';
-  stop(); generation = 0; history = []; historyIndex = -1;
+  stop(); generation = 0; history = []; historyIndex = -1; resetCycle();
   clearGrid(grid); refreshAll(gridEl, grid); updateStats(genEl, aliveEl, grid, generation); saveState();
   updateRulesDisplay();
 }
@@ -552,6 +636,34 @@ window.handleModeChange = handleModeChange;
 
 patternSelect.addEventListener('change', handlePatternSelect);
 modeSelect.addEventListener('change', handleModeChange);
+
+// 网格自适应：PC 尽量同屏（缩放到视口高度），移动端适配宽度
+function fitGrid() {
+  const isMobile = window.matchMedia('(max-width:700px)').matches;
+  const gap = 1;
+  const maxW = document.documentElement.clientWidth - 40;
+  let byW = Math.floor((maxW - 39 * gap) / 40);
+  byW = Math.max(3, byW);
+  let cell = byW;
+  if (!isMobile) {
+    const availH = window.innerHeight - 330;
+    const byH = Math.floor(availH / 40);
+    cell = Math.max(3, Math.min(cell, byH));
+  }
+  cell = Math.min(cell, 15);
+  document.documentElement.style.setProperty('--cell', cell + 'px');
+}
+window.addEventListener('resize', fitGrid);
+fitGrid();
+
+// 加载进度条：短暂展示后淡出
+(function(){
+  const loader = document.getElementById('loader');
+  requestAnimationFrame(() => {
+    setTimeout(() => loader.classList.add('hide'), 900);
+    setTimeout(() => { if (loader.parentNode) loader.parentNode.removeChild(loader); }, 1500);
+  });
+})();
 
 init();
 </script>
