@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Conway's Game of Life</title>
+<title>Game of Life · 游戏合集</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;700&display=swap');
 
@@ -14,12 +14,8 @@
     --border: #2a2a5a;
     --accent: #6c5ce7;
     --accent2: #a29bfe;
-    --live: #00e676;
-    --live-glow: rgba(0, 230, 118, 0.4);
-    --dead: #1e1e3f;
     --text: #e0e0ff;
     --text-dim: #7878aa;
-    --danger: #ff5252;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -32,278 +28,108 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px;
-    overflow-x: hidden;
+    padding: 40px 20px;
   }
 
-  h1 {
-    font-size: 1.6rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, var(--accent2), var(--live));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 6px;
-    letter-spacing: 1px;
-  }
+  .header { text-align: center; margin-bottom: 40px; }
 
-  .subtitle {
-    font-size: 0.75rem;
-    color: var(--text-dim);
-    margin-bottom: 16px;
+  .header h1 {
     font-family: 'JetBrains Mono', monospace;
+    font-size: 2rem;
+    color: var(--text);
+    margin-bottom: 8px;
   }
 
-  .stats {
-    display: flex;
-    gap: 24px;
-    margin-bottom: 14px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.82rem;
-  }
+  .header h1 span { color: var(--accent2); }
 
-  .stat { display: flex; align-items: center; gap: 6px; }
-  .stat-label { color: var(--text-dim); }
-  .stat-value { color: var(--accent2); font-weight: 700; font-size: 1rem; }
+  .header p { color: var(--text-dim); font-size: 0.95rem; }
 
-  .grid-wrapper {
-    position: relative;
-    padding: 3px;
-    background: linear-gradient(135deg, var(--accent), var(--live));
-    border-radius: 10px;
-    box-shadow: 0 0 40px rgba(108, 92, 231, 0.15), 0 0 80px rgba(0, 230, 118, 0.08);
-    margin-bottom: 18px;
-  }
-
-  .grid-inner {
-    background: var(--bg);
-    border-radius: 8px;
-    padding: 4px;
-  }
-
-  #grid {
+  .grid {
     display: grid;
-    grid-template-columns: repeat(40, 1fr);
-    gap: 1px;
-    background: var(--border);
-    border-radius: 6px;
-    overflow: hidden;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    width: 100%;
+    max-width: 900px;
   }
 
-  .cell {
-    width: 16px;
-    height: 16px;
-    background: var(--dead);
-    cursor: pointer;
-    transition: all 0.15s ease;
-    border: 1px solid rgba(255,255,255,0.03);
-  }
-
-  .cell:hover {
-    background: var(--surface2);
-    transform: scale(1.1);
-    z-index: 1;
-  }
-
-  .cell.alive {
-    background: var(--live);
-    box-shadow: 0 0 6px var(--live-glow), inset 0 0 4px rgba(255,255,255,0.15);
-    border-radius: 2px;
-  }
-
-  .cell.alive:hover {
-    background: #00ff88;
-  }
-
-  .controls {
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    text-decoration: none;
+    color: var(--text);
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-    align-items: center;
-    max-width: 560px;
+    flex-direction: column;
+    gap: 10px;
   }
 
-  button {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.78rem;
-    font-weight: 600;
-    padding: 8px 16px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--surface);
-    color: var(--text);
-    cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 0.3px;
-  }
-
-  button:hover {
-    background: var(--surface2);
+  .card:hover {
+    transform: translateY(-3px);
     border-color: var(--accent);
-    box-shadow: 0 0 12px rgba(108, 92, 231, 0.2);
+    box-shadow: 0 8px 24px rgba(108, 92, 231, 0.15);
   }
 
-  button.primary {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-  }
+  .card .emoji { font-size: 2rem; }
 
-  button.primary:hover {
-    background: #7d6ff0;
-    box-shadow: 0 0 20px rgba(108, 92, 231, 0.4);
-  }
-
-  button.danger {
-    border-color: rgba(255, 82, 82, 0.3);
-    color: var(--danger);
-  }
-
-  button.danger:hover {
-    background: rgba(255, 82, 82, 0.1);
-    border-color: var(--danger);
-  }
-
-  select {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.78rem;
-    padding: 8px 12px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--surface);
-    color: var(--text);
-    cursor: pointer;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
-  select:hover, select:focus {
-    border-color: var(--accent);
-  }
-
-  select option {
-    background: var(--surface);
-    color: var(--text);
-  }
-
-  .speed-control {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.75rem;
-    color: var(--text-dim);
-  }
-
-  input[type="range"] {
-    -webkit-appearance: none;
-    width: 80px;
-    height: 4px;
-    background: var(--border);
-    border-radius: 2px;
-    outline: none;
-  }
-
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 14px;
-    height: 14px;
-    background: var(--accent);
-    border-radius: 50%;
-    cursor: pointer;
-  }
-
-  .rules {
-    margin-top: 20px;
-    max-width: 560px;
-    padding: 14px 18px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    font-size: 0.72rem;
-    color: var(--text-dim);
-    line-height: 1.7;
-  }
-
-  .rules strong {
+  .card h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.15rem;
     color: var(--accent2);
-    font-weight: 600;
   }
+
+  .card p {
+    color: var(--text-dim);
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+
+  .card .tag {
+    align-self: flex-start;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 0.72rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .card.coming { opacity: 0.6; cursor: not-allowed; pointer-events: none; }
+
+  .footer { margin-top: 40px; color: var(--text-dim); font-size: 0.8rem; font-family: 'JetBrains Mono', monospace; }
 </style>
 </head>
 <body>
-
-<h1>CONWAY'S GAME OF LIFE</h1>
-<div class="subtitle">zero-player cellular automaton</div>
-
-<div class="stats">
-  <div class="stat">
-    <span class="stat-label">代数:</span>
-    <span class="stat-value" id="generation">0</span>
+  <div class="header">
+    <h1>🎮 Game of Life <span>· 游戏合集</span></h1>
+    <p>纯前端小游戏，点击卡片进入</p>
   </div>
-  <div class="stat">
-    <span class="stat-label">存活:</span>
-    <span class="stat-value" id="alive-count">0</span>
+
+  <div class="grid">
+    <a class="card" href="life/index.html">
+      <div class="emoji">🧬</div>
+      <h2>康威生命游戏</h2>
+      <p>Conway's Game of Life — 零玩家细胞自动机。绘制初始状态，观察生命的演化、繁殖与消亡，支持预设经典结构、日与夜模式。</p>
+      <span class="tag">▶ 开始</span>
+    </a>
+
+    <a class="card" href="bottle/index.html">
+      <div class="emoji">🧪</div>
+      <h2>倒水游戏</h2>
+      <p>Decanta · 水瓶排序 — 将彩色液体倒入试管，使每管只含单一颜色。三种模式、首领战、每日挑战、商店皮肤。</p>
+      <span class="tag">▶ 开始</span>
+    </a>
+
+    <div class="card coming">
+      <div class="emoji">⚡</div>
+      <h2>Stroop 挑战</h2>
+      <p>斯特鲁普效应测验 — 说出文字的颜色，而非文字本身。训练大脑的抑制控制能力。敬请期待。</p>
+      <span class="tag">🔒 即将上线</span>
+    </div>
   </div>
-</div>
 
-<div class="grid-wrapper">
-  <div class="grid-inner">
-    <div id="grid"></div>
-  </div>
-</div>
-
-<div class="controls">
-  <select id="pattern-select">
-    <option value="">选择经典结构</option>
-    <option value="glider">滑翔机 Glider</option>
-    <option value="lwss">轻量级飞船 LWSS</option>
-    <option value="blinker">闪烁器 Blinker</option>
-    <option value="toad">蟾蜍 Toad</option>
-    <option value="beacon">信标 Beacon</option>
-    <option value="pulsar">脉冲星 Pulsar</option>
-    <option value="pentadecathlon">十五周期 Pentadecathlon</option>
-    <option value="gosper-glider-gun">高斯帕滑翔机枪</option>
-    <option value="rpentomino">R五格骨牌</option>
-    <option value="diehard">濒死模式 Diehard</option>
-    <option value="acorn">橡子 Acorn</option>
-  </select>
-
-  <select id="mode-select">
-    <option value="conway">康威生命 (B3/S23)</option>
-    <option value="daynight">日与夜 (B3678/S34678)</option>
-  </select>
-
-  <button class="primary" id="btn-play" onclick="togglePlay()">开始</button>
-  <button onclick="doStep()">下一步</button>
-  <button onclick="handleRandomize()">随机</button>
-  <button class="danger" onclick="handleClear()">清除</button>
-  <button onclick="undo()" title="撤销 (Ctrl+Z)">↩ 撤销</button>
-  <button onclick="redo()" title="重做 (Ctrl+Shift+Z)">↪ 重做</button>
-  <button onclick="saveToLocal()" title="保存到本地">💾 保存</button>
-  <button onclick="loadFromLocal()" title="从本地加载">📂 加载</button>
-
-  <div class="speed-control">
-    <span>速度</span>
-    <input type="range" id="speed" min="50" max="1000" value="200" oninput="updateSpeed()">
-    <span id="speed-label">200ms</span>
-  </div>
-</div>
-
-<div class="rules" id="rules-text">
-  <strong>规则:</strong> 每个细胞有两种状态 — 存活或死亡。每一轮，根据邻居数决定命运：
-  <strong>存活</strong>的细胞需要恰好2或3个邻居才能继续存活；
-  <strong>死亡</strong>的细胞在恰好3个邻居时会复活。邻居指周围8个方向的细胞。
-</div>
-
-<script type="module" src="src/main.js"></script>
-<script>
-document.addEventListener('keydown', (e) => {
-  if (e.ctrlKey && e.shiftKey && e.key === 'z') { e.preventDefault(); window.redo(); }
-  else if (e.ctrlKey && e.key === 'z') { e.preventDefault(); window.undo(); }
-  else if (e.ctrlKey && e.key === 's') { e.preventDefault(); window.saveToLocal(); }
-  else if (e.ctrlKey && e.key === 'o') { e.preventDefault(); window.loadFromLocal(); }
-});
-</script>
-
+  <div class="footer">Pytvr42373 · GitHub Pages</div>
 </body>
 </html>
