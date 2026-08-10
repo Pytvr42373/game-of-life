@@ -18,3 +18,16 @@ npm-debug.log*
 
 # 依赖（本项目无构建，仅防御性保留）
 node_modules/
+
+# 敏感文件（防止误传凭据/密钥/本地配置）
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+credentials*
+*_secret*
+*.secret
+.git-credentials
+.gh_token
