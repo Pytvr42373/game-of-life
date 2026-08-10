@@ -263,6 +263,22 @@ body[data-theme="arcade"] .vmodal-btn{font-family:'Press Start 2P',monospace;fon
 
 <div class="theme-switch" id="themeToggle" role="button" aria-label="切换主题" title="切换主题" inert></div>
 
+<!-- 版本更新弹窗 -->
+<div class="vmodal" id="vmodal" role="dialog" aria-modal="true" aria-label="版本更新">
+  <div class="vmodal-box">
+    <button type="button" class="vmodal-close" id="vmodalClose" aria-label="关闭">&#10005;</button>
+    <div class="vmodal-title">🎉 新版本上线</div>
+    <div class="vmodal-ver">v2.0.0</div>
+    <ul class="vmodal-log">
+      <li><b>新增</b> 吃豆人 Pac-Man（街机主题 · 点击 INSERT COIN 进入）</li>
+      <li><b>新增</b> 24点 游戏（简单 / 挑战双模式）</li>
+      <li><b>优化</b> 整体体验与稳定性</li>
+    </ul>
+    <div class="vmodal-cta">欢迎来玩！点击下方任意游戏开始 😄</div>
+    <button type="button" class="vmodal-btn" id="vmodalOk">知道了，去玩！</button>
+  </div>
+</div>
+
 <div class="wrap" inert>
   <!-- 4399 头部 -->
   <header class="h4399">
@@ -509,22 +525,11 @@ function bindVersionModal(){
   m.addEventListener('click',function(e){ if(e.target===m) hide(); });
 }
 bindVersionModal();
+// 保险：若 DOM 尚未就绪，等 DOMContentLoaded 再绑一次
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',bindVersionModal);
+}
 </script>
 
-<!-- 版本更新弹窗 -->
-<div class="vmodal" id="vmodal" role="dialog" aria-modal="true" aria-label="版本更新">
-  <div class="vmodal-box">
-    <button type="button" class="vmodal-close" id="vmodalClose" aria-label="关闭">&#10005;</button>
-    <div class="vmodal-title">🎉 新版本上线</div>
-    <div class="vmodal-ver">v2.0.0</div>
-    <ul class="vmodal-log">
-      <li><b>新增</b> 吃豆人 Pac-Man（街机主题 · 点击 INSERT COIN 进入）</li>
-      <li><b>新增</b> 24点 游戏（简单 / 挑战双模式）</li>
-      <li><b>优化</b> 整体体验与稳定性</li>
-    </ul>
-    <div class="vmodal-cta">欢迎来玩！点击下方任意游戏开始 😄</div>
-    <button type="button" class="vmodal-btn" id="vmodalOk">知道了，去玩！</button>
-  </div>
-</div>
 </body>
 </html>
