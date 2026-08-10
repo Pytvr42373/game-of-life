@@ -123,8 +123,8 @@ body[data-theme="arcade"] .harcade{display:block}
   max-width:340px;margin-left:auto;margin-right:auto;
 }
 .mode-btn{
-  display:flex;flex-direction:column;align-items:flex-start;gap:2px;
-  padding:12px 18px;
+  display:flex;align-items:center;justify-content:center;
+  padding:14px 18px;
   border:2px solid var(--line);
   border-radius:10px;
   background:var(--surface);
@@ -133,10 +133,9 @@ body[data-theme="arcade"] .harcade{display:block}
   cursor:pointer;
   transition:all .2s;
   font-family:inherit;
-  text-align:left;
+  text-align:center;
 }
 .mode-btn:hover{border-color:var(--green);color:var(--text)}
-.mode-btn .mode-sub{font-size:12px;font-weight:400;color:var(--dim);opacity:.85}
 .mode-btn.active{
   background:var(--green);border-color:var(--green);color:#fff;
 }
@@ -414,11 +413,9 @@ body[data-theme="arcade"] .win-banner{
   <div class="mode-list">
     <button class="mode-btn active" data-mode="simple">
       <span>简单模式</span>
-      <span class="mode-sub">数字 1-9，四则运算凑 24</span>
     </button>
     <button class="mode-btn" data-mode="challenge">
       <span>挑战模式</span>
-      <span class="mode-sub">刁钻题库，先算分数再凑 24</span>
     </button>
   </div>
 
