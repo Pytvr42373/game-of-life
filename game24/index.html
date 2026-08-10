@@ -139,12 +139,10 @@ body[data-theme="arcade"] .harcade{display:block}
 .mode-btn.active{
   background:var(--green);border-color:var(--green);color:#fff;
 }
-.mode-btn.active .mode-sub{color:rgba(255,255,255,.85)}
 body[data-theme="arcade"] .mode-btn.active{
   background:var(--cyan);border-color:var(--cyan);color:var(--bg);
   box-shadow:0 0 10px rgba(61,225,255,.4);
 }
-body[data-theme="arcade"] .mode-btn.active .mode-sub{color:var(--bg)}
 
 /* ===== Stats Bar ===== */
 .stats-bar{
@@ -207,7 +205,7 @@ body[data-theme="arcade"] .num-card.used{
 
 /* ===== Operator Buttons ===== */
 .operators{
-  display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;
+  display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:20px;max-width:380px;margin-left:auto;margin-right:auto;
 }
 .op-btn{
   width:52px;height:52px;
