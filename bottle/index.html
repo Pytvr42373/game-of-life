@@ -13,11 +13,231 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="倒水" />
     <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+    <script>
+      (function () {
+        'use strict';
+
+        var NativeURL = window.URL;
+        var bottleBase = new NativeURL('./', document.baseURI);
+        var audioFiles = ('sfx_copo-agua.mp3 sfx_copo-vidro.mp3 sfx_copo-curto.mp3 ' +
+          'sfx_copo-agua-rapido.mp3 sfx_copo-agua-lento.mp3 sfx_jarra-vidro.mp3 ' +
+          'sfx_torneira-copo.mp3 sfx_copo-cheio.mp3 sfx_garrafa-enchendo.mp3 ' +
+          'bgm_clair-de-lune-wright-brass.mp3 bgm_calm4.mp3 bgm_shenandoah-singing-sergeants-2017.ogg ' +
+          'bgm_peer-gynt-morning-musopen-2012.mp3 bgm_aases-death-musopen-2012.mp3 ' +
+          'bgm_peer-gynt-mountain-king-musopen-2012.mp3 bgm_volatile-reaction-macleod.mp3 ' +
+          'bgm_take-a-chance-macleod.mp3 bgm_firebrand-macleod.mp3 bgm_menu.mp3 bgm_boss.mp3').split(' ');
+        var ownedFiles = ['assets/solver.worker-D2s5ztHi.js'];
+        var ownedRootPaths = Object.create(null);
+
+        audioFiles.forEach(function (file) { ownedFiles.push('audio/' + file); });
+        ownedFiles.forEach(function (path) {
+          ownedRootPaths['/' + path] = path;
+        });
+
+        function remapRootResource(value, base) {
+          try {
+            var source = arguments.length > 1
+              ? new NativeURL(value, base)
+              : new NativeURL(value, document.baseURI);
+            var relativePath = ownedRootPaths[source.pathname];
+            if (source.origin !== bottleBase.origin || !relativePath) return null;
+            var target = new NativeURL(relativePath, bottleBase);
+            target.search = source.search;
+            target.hash = source.hash;
+            return target.href;
+          } catch (_) {
+            return null;
+          }
+        }
+
+        function replaceMethod(target, name, replacement) {
+          try {
+            Object.defineProperty(target, name, {
+              configurable: true,
+              writable: true,
+              value: replacement
+            });
+          } catch (_) {
+            var prototype = Object.getPrototypeOf(target);
+            var original = prototype && prototype[name];
+            if (typeof original !== 'function') return;
+            prototype[name] = function () {
+              return this === target ? replacement.apply(this, arguments) : original.apply(this, arguments);
+            };
+          }
+        }
+
+        try {
+          var local = window.localStorage;
+          var storagePrototype = Object.getPrototypeOf(local);
+          var nativeClear = storagePrototype.clear;
+          var nativeGetItem = storagePrototype.getItem;
+          var nativeSetItem = storagePrototype.setItem;
+          var nativeRemoveItem = storagePrototype.removeItem;
+          var localKeys = ('decanta:wallet decanta:session frascos:prefs decanta:progress ' +
+            'decanta:daily decanta:sw-disabled decanta:lastSeenVersion').split(' ');
+          var ownsLocalKey = function (key) { return localKeys.indexOf(String(key)) !== -1; };
+
+          storagePrototype.getItem = function (key) {
+            if (this !== local || !ownsLocalKey(key)) return nativeGetItem.apply(this, arguments);
+            try { return nativeGetItem.apply(this, arguments); } catch (_) { return null; }
+          };
+          storagePrototype.setItem = function (key) {
+            if (this !== local || !ownsLocalKey(key)) return nativeSetItem.apply(this, arguments);
+            try { return nativeSetItem.apply(this, arguments); } catch (_) {}
+          };
+          storagePrototype.removeItem = function (key) {
+            if (this !== local || !ownsLocalKey(key)) return nativeRemoveItem.apply(this, arguments);
+            try { return nativeRemoveItem.apply(this, arguments); } catch (_) {}
+          };
+
+          storagePrototype.clear = function () {
+            if (this !== local) return nativeClear.apply(this, arguments);
+            localKeys.forEach(function (key) {
+              try { nativeRemoveItem.call(local, key); } catch (_) {}
+            });
+          };
+        } catch (_) {}
+
+        if ('caches' in window) {
+          var cacheStorage = window.caches;
+          var nativeCacheKeys = cacheStorage.keys;
+          var nativeCacheDelete = cacheStorage.delete;
+          var workboxScope = bottleBase.href;
+          var ownsCache = function (name) {
+            return name === 'decanta-music' ||
+              name === 'decanta-audio' ||
+              (name.indexOf('workbox-') === 0 &&
+                name.indexOf('-precache-') !== -1 &&
+                name.slice(-workboxScope.length) === workboxScope);
+          };
+
+          replaceMethod(cacheStorage, 'keys', function () {
+            try {
+              return Promise.resolve(nativeCacheKeys.apply(cacheStorage, arguments)).catch(function () { return []; });
+            } catch (_) {
+              return Promise.resolve([]);
+            }
+          });
+          replaceMethod(cacheStorage, 'delete', function (name) {
+            if (!ownsCache(String(name))) return Promise.resolve(false);
+            try {
+              return Promise.resolve(nativeCacheDelete.apply(cacheStorage, arguments)).catch(function () { return false; });
+            } catch (_) {
+              return Promise.resolve(false);
+            }
+          });
+        }
+
+        if (window.ServiceWorkerRegistration && window.ServiceWorkerRegistration.prototype) {
+          var registrationPrototype = window.ServiceWorkerRegistration.prototype;
+          var nativeUnregister = registrationPrototype.unregister;
+          registrationPrototype.unregister = function () {
+            try {
+              if (new NativeURL(this.scope).href !== bottleBase.href) return Promise.resolve(false);
+            } catch (_) {
+              return Promise.resolve(false);
+            }
+            try {
+              return Promise.resolve(nativeUnregister.apply(this, arguments)).catch(function () { return false; });
+            } catch (_) {
+              return Promise.resolve(false);
+            }
+          };
+        }
+
+        if ('serviceWorker' in navigator) {
+          var serviceWorkers = navigator.serviceWorker;
+          var nativeRegister = serviceWorkers.register;
+          var nativeGetRegistrations = serviceWorkers.getRegistrations;
+          if (typeof nativeGetRegistrations === 'function') {
+            replaceMethod(serviceWorkers, 'getRegistrations', function () {
+              try {
+                return Promise.resolve(nativeGetRegistrations.apply(serviceWorkers, arguments)).catch(function () { return []; });
+              } catch (_) {
+                return Promise.resolve([]);
+              }
+            });
+          }
+          if (typeof nativeRegister === 'function') {
+            replaceMethod(serviceWorkers, 'register', function (scriptURL, options) {
+              var script;
+              var scope;
+              try {
+                script = new NativeURL(scriptURL, document.baseURI);
+                scope = options && options.scope !== undefined
+                  ? new NativeURL(options.scope, document.baseURI)
+                  : null;
+              } catch (_) {
+                return nativeRegister.apply(serviceWorkers, arguments);
+              }
+
+              if ((script.origin === bottleBase.origin && script.pathname === '/sw.js') ||
+                  (scope && scope.origin === bottleBase.origin && scope.pathname === '/')) {
+                var message = 'Bottle PWA is disabled for this deployment.';
+                var error = typeof DOMException === 'function'
+                  ? new DOMException(message, 'SecurityError')
+                  : new Error(message);
+                if (error.name !== 'SecurityError') error.name = 'SecurityError';
+                return Promise.reject(error);
+              }
+              return nativeRegister.apply(serviceWorkers, arguments);
+            });
+          }
+        }
+
+        if (typeof Proxy === 'function' && typeof Reflect.construct === 'function') {
+          function remapArgument(value, base) {
+            if (typeof value !== 'string' && !(value instanceof NativeURL)) return null;
+            return arguments.length > 1
+              ? remapRootResource(value, base)
+              : remapRootResource(value);
+          }
+
+          if (typeof window.fetch === 'function') {
+            var nativeFetch = window.fetch;
+            window.fetch = new Proxy(nativeFetch, {
+              apply: function (target, thisArg, argumentsList) {
+                var mapped = remapArgument(argumentsList[0]);
+                if (mapped) {
+                  argumentsList = argumentsList.slice();
+                  argumentsList[0] = mapped;
+                }
+                return target.apply(thisArg, argumentsList);
+              }
+            });
+          }
+
+          if (typeof window.Audio === 'function') {
+            var NativeAudio = window.Audio;
+            window.Audio = new Proxy(NativeAudio, {
+              construct: function (target, argumentsList, newTarget) {
+                var mapped = remapArgument(argumentsList[0]);
+                if (mapped) {
+                  argumentsList = argumentsList.slice();
+                  argumentsList[0] = mapped;
+                }
+                return Reflect.construct(target, argumentsList, newTarget);
+              }
+            });
+          }
+
+          window.URL = new Proxy(NativeURL, {
+            construct: function (target, argumentsList, newTarget) {
+              var mapped = argumentsList.length > 1
+                ? remapArgument(argumentsList[0], argumentsList[1])
+                : remapArgument(argumentsList[0]);
+              return Reflect.construct(target, mapped ? [mapped] : argumentsList, newTarget);
+            }
+          });
+        }
+      })();
+    </script>
     <script type="module" crossorigin src="./assets/index-DhMYQyOW.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/Geometry-DtZ4-p-4.js">
     <link rel="modulepreload" crossorigin href="./assets/RenderTargetSystem-CFWUoMLd.js">
     <link rel="stylesheet" crossorigin href="./assets/index-CpaC40FQ.css">
-  <link rel="manifest" href="./manifest.webmanifest"></head>
+  </head>
   <body>
     <div id="root">
       <!-- Boot loader: pure inline HTML/CSS so it shows even while the JS bundle is still

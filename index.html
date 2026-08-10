@@ -31,7 +31,7 @@ body[data-theme="4399"]::before{
 /* ============ 主题2 · 街机厅（暗色） ============ */
 body[data-theme="arcade"]{
   --bg:#0b0b18; --bg2:#14142b; --surface:#191934; --line:#3a3a5c; --hard:#000;
-  --text:#f4f4ff; --dim:#7a7aa0; --green:#00ff9d; --pink:#ff2d78; --cyan:#3de1ff; --yellow:#ffe14d;
+  --text:#f4f4ff; --dim:#7a7aa0; --green:#00ff9d; --green2:#00c97d; --pink:#ff2d78; --cyan:#3de1ff; --yellow:#ffe14d;
   --tag-bg:#2a2a4a;
   --go-bg:rgba(11,11,24,.97); --go-text:#3de1ff;
   background-color:#0b0b18;color:var(--text);
@@ -134,9 +134,10 @@ body[data-theme="arcade"] .transition .t-text{--go-font:'Press Start 2P',monospa
 
 /* ============ 尊重 reduce-motion：关闭动画 ============ */
 @media (prefers-reduced-motion: reduce){
-  .splash,.splash *,.transition,.transition *{animation:none!important;transition:none!important}
+  body,.splash,.splash *,.transition,.transition *,.loader,.loader *,.vmodal,.vmodal *,.harcade .coin-btn,body[data-theme="arcade"] .hint b,.theme-switch{animation:none!important;transition:none!important}
   .splash .big span,.splash .pt,.splash .sub,.splash .sub2,.splash .enter{opacity:1!important;transform:none!important}
   .card,.card .ico{transition:none!important}
+  .card:hover,.card:hover .ico,.harcade .coin-btn:hover,.harcade .coin-btn:active,.theme-switch:hover,.theme-switch:active,.vmodal-box{transform:none!important}
 }
 
 /* ============ 布局 ============ */
@@ -158,7 +159,7 @@ body[data-theme="4399"] .h4399{display:block}
 
 /* ===== 街机厅 头部（更鲜明） ===== */
 body[data-theme="arcade"] .harcade{display:block}
-.harcade .logo,.harcade .coin-btn{font-family:'Press Start 2P',monospace;font-size:13px;letter-spacing:3px;color:var(--yellow);text-shadow:0 0 14px var(--yellow),3px 3px 0 var(--hard);text-align:center;margin:0 auto 18px;animation:blink 1.4s steps(1) infinite;background:none;border:0;cursor:pointer;display:block;padding:10px 22px;transition:transform .15s}
+.harcade .logo,.harcade .coin-btn{font-family:'Press Start 2P',monospace;font-size:13px;letter-spacing:3px;color:var(--yellow);text-shadow:0 0 14px var(--yellow),3px 3px 0 var(--hard);text-align:center;text-decoration:none;width:fit-content;max-width:100%;margin:0 auto 18px;animation:blink 1.4s steps(1) infinite;background:none;border:0;cursor:pointer;display:block;padding:10px 22px;transition:transform .15s}
 .harcade .coin-btn:hover{transform:scale(1.08);color:#fff;text-shadow:0 0 20px var(--yellow),0 0 34px var(--yellow),3px 3px 0 var(--hard)}
 .harcade .coin-btn:active{transform:scale(.96)}
 .harcade .coin-btn:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
@@ -176,7 +177,7 @@ body[data-theme="arcade"] .harcade{display:block}
 .grid{display:flex;flex-wrap:wrap;justify-content:center;gap:24px}
 
 /* ===== 卡片通用 ===== */
-.card{width:210px;text-align:center;cursor:pointer;position:relative;opacity:0;transform:translateY(20px)}
+.card{display:block;width:210px;text-align:center;text-decoration:none;color:inherit;cursor:pointer;position:relative;opacity:0;transform:translateY(20px)}
 .card.show{opacity:1;transform:translateY(0)}
 .card[hidden]{display:none}
 
@@ -213,17 +214,17 @@ body[data-theme="arcade"] .hint b{color:var(--cyan);text-shadow:0 0 10px var(--c
 @keyframes blink{50%{opacity:0}}
 
 /* ===== 版本更新弹窗 ===== */
-.vmodal{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;
+.vmodal{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto;overscroll-behavior:contain;
   background:rgba(0,0,0,.55);backdrop-filter:blur(4px);opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s}
 .vmodal.show{opacity:1;visibility:visible}
-.vmodal-box{position:relative;width:min(420px,92vw);background:var(--surface);border:2px solid var(--line);
+.vmodal-box{position:relative;width:min(420px,100%);max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow-y:auto;overscroll-behavior:contain;background:var(--surface);border:2px solid var(--line);
   border-radius:16px;padding:28px 26px 24px;box-shadow:0 18px 50px rgba(0,0,0,.4);text-align:center;
   transform:translateY(16px) scale(.96);transition:transform .3s cubic-bezier(.2,1.4,.4,1)}
 .vmodal.show .vmodal-box{transform:translateY(0) scale(1)}
 body[data-theme="arcade"] .vmodal-box{border:3px solid var(--line);box-shadow:6px 6px 0 var(--hard),0 0 30px rgba(61,225,255,.2);border-radius:0}
-.vmodal-close{position:absolute;top:12px;right:14px;background:none;border:0;font-size:18px;color:var(--dim);cursor:pointer;padding:4px;line-height:1}
+.vmodal-close{position:absolute;top:6px;right:6px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:none;border:0;border-radius:8px;font-size:18px;color:var(--dim);cursor:pointer;padding:0;line-height:1}
 .vmodal-close:hover{color:var(--green)}
-.vmodal-title{font-size:24px;font-weight:900;color:var(--green);margin-bottom:6px}
+.vmodal-title{font-size:24px;font-weight:900;color:var(--green);margin-bottom:6px;padding:0 34px}
 body[data-theme="arcade"] .vmodal-title{font-family:'Press Start 2P',monospace;font-size:16px;color:var(--yellow);text-shadow:0 0 14px var(--yellow);line-height:1.6}
 .vmodal-ver{display:inline-block;background:var(--green);color:#fff;font-weight:800;font-size:13px;padding:3px 14px;border-radius:999px;margin-bottom:18px}
 body[data-theme="arcade"] .vmodal-ver{background:var(--green);font-family:'Press Start 2P',monospace;font-size:9px;box-shadow:3px 3px 0 var(--hard);border-radius:0}
@@ -235,7 +236,7 @@ body[data-theme="arcade"] .vmodal-log li{color:var(--text);border-bottom:1px das
 body[data-theme="arcade"] .vmodal-log b{color:var(--pink)}
 .vmodal-cta{font-size:13px;color:var(--dim);margin-bottom:16px}
 .vmodal-btn{font-weight:700;font-size:15px;padding:10px 28px;border-radius:10px;cursor:pointer;transition:.18s;
-  background:linear-gradient(135deg,var(--green),var(--green2));border:2px solid var(--green2);color:#fff}
+  background:linear-gradient(135deg,var(--green),var(--green2,var(--green)));border:2px solid var(--green2,var(--green));color:#fff}
 body[data-theme="arcade"] .vmodal-btn{font-family:'Press Start 2P',monospace;font-size:10px;border:3px solid var(--green);border-radius:0;box-shadow:3px 3px 0 var(--hard)}
 .vmodal-btn:hover{filter:brightness(1.08);box-shadow:0 4px 14px rgba(56,153,4,.3)}
 </style>
@@ -264,10 +265,10 @@ body[data-theme="arcade"] .vmodal-btn{font-family:'Press Start 2P',monospace;fon
 <div class="theme-switch" id="themeToggle" role="button" aria-label="切换主题" title="切换主题" inert></div>
 
 <!-- 版本更新弹窗 -->
-<div class="vmodal" id="vmodal" role="dialog" aria-modal="true" aria-label="版本更新">
+<div class="vmodal" id="vmodal" role="dialog" aria-modal="true" aria-labelledby="vmodalTitle" aria-hidden="true" inert>
   <div class="vmodal-box">
     <button type="button" class="vmodal-close" id="vmodalClose" aria-label="关闭">&#10005;</button>
-    <div class="vmodal-title">🎉 新版本上线</div>
+    <div class="vmodal-title" id="vmodalTitle">🎉 新版本上线</div>
     <div class="vmodal-ver">v2.2.0</div>
     <ul class="vmodal-log">
       <li><b>修复</b> 倒水游戏加载卡死问题，进入速度大幅提升</li>
@@ -296,7 +297,7 @@ body[data-theme="arcade"] .vmodal-btn{font-family:'Press Start 2P',monospace;fon
 
   <!-- 街机厅 头部 -->
   <header class="harcade">
-    <button type="button" class="coin-btn" onclick="go('pacman/index.html',event)" title="INSERT COIN · 进入吃豆人">▶ INSERT COIN ◀</button>
+    <a class="coin-btn" href="pacman/index.html" onclick="go(this.href,event)" title="INSERT COIN · 进入吃豆人">▶ INSERT COIN ◀</a>
     <h1 class="title"><span class="c">小</span>游<span class="y">戏</span>合<span class="c">集</span></h1>
     <p class="sub">— SELECT YOUR GAME —</p>
     <nav class="nav" aria-label="GAME CATEGORIES">
@@ -310,62 +311,62 @@ body[data-theme="arcade"] .vmodal-btn{font-family:'Press Start 2P',monospace;fon
 
   <div class="grid" id="gameGrid">
     <!-- 康威生命游戏 -->
-    <div class="card" data-delay="0" data-categories="经典" onclick="go('life/index.html',event)">
+    <a class="card" href="life/index.html" data-delay="0" data-categories="经典" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="hot">热</span>
       <span class="ico">🦠</span>
       <div class="name">康威生命游戏</div>
       <div class="tag">经典</div>
-    </div>
+    </a>
     <!-- 倒水游戏 -->
-    <div class="card" data-delay=".12s" data-categories="益智 逻辑" onclick="go('bottle/index.html',event)">
+    <a class="card" href="bottle/index.html" data-delay=".12s" data-categories="益智 逻辑" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">🍶</span>
       <div class="name">倒水谜题</div>
       <div class="tag">益智 · 逻辑</div>
-    </div>
+    </a>
     <!-- 1A2B 猜数字 -->
-    <div class="card" data-delay=".18s" data-categories="益智 逻辑 经典" onclick="go('1A2B/index.html',event)">
+    <a class="card" href="1A2B/index.html" data-delay=".18s" data-categories="益智 逻辑 经典" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">🔢</span>
       <div class="name">1A2B 猜数字</div>
       <div class="tag">益智 · 逻辑 · 经典</div>
-    </div>
+    </a>
     <!-- Stroop 挑战 -->
-    <div class="card" data-delay=".3s" data-categories="反应" onclick="go('stroop/index.html',event)">
+    <a class="card" href="stroop/index.html" data-delay=".3s" data-categories="反应" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">🎯</span>
       <div class="name">Stroop 挑战</div>
       <div class="tag">反应</div>
-    </div>
+    </a>
     <!-- 点灯 -->
-    <div class="card" data-delay=".36s" data-categories="益智 逻辑" onclick="go('light-up/index.html',event)">
+    <a class="card" href="light-up/index.html" data-delay=".36s" data-categories="益智 逻辑" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">💡</span>
       <div class="name">点灯 · 光廊</div>
       <div class="tag">益智 · 逻辑</div>
-    </div>
+    </a>
     <!-- 光线侦探 -->
-    <div class="card" data-delay=".42s" data-categories="益智 逻辑" onclick="go('ray-lab/index.html',event)">
+    <a class="card" href="ray-lab/index.html" data-delay=".42s" data-categories="益智 逻辑" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">🔬</span>
       <div class="name">光线侦探</div>
       <div class="tag">益智 · 逻辑</div>
-    </div>
+    </a>
     <!-- 数织 Nonogram -->
-    <div class="card" data-delay=".45s" data-categories="益智 逻辑" onclick="go('nonogram/index.html',event)">
+    <a class="card" href="nonogram/index.html" data-delay=".45s" data-categories="益智 逻辑" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">🧩</span>
       <div class="name">数织 Nonogram</div>
       <div class="tag">益智 · 逻辑</div>
-    </div>
+    </a>
     <!-- 24点 -->
-    <div class="card" data-delay=".48s" data-categories="益智 逻辑" onclick="go('game24/index.html',event)">
+    <a class="card" href="game24/index.html" data-delay=".48s" data-categories="益智 逻辑" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">🃏</span>
       <div class="name">24点</div>
       <div class="tag">益智 · 逻辑</div>
-    </div>
+    </a>
   </div>
 
   <div class="hint">更多好玩游戏，<b>持续上新</b>中……</div>
@@ -379,7 +380,9 @@ body[data-theme="arcade"] .vmodal-btn{font-family:'Press Start 2P',monospace;fon
 </div>
 
 <script>
-const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const motionQuery=matchMedia('(prefers-reduced-motion: reduce)');
+let reduced=motionQuery.matches;
+motionQuery.addEventListener('change',event=>{reduced=event.matches;});
 const toggle=document.getElementById('themeToggle');
 const loader=document.getElementById('loader');
 const homeWrap=document.querySelector('.wrap');
@@ -395,14 +398,21 @@ function iconSVG(arcade){
   return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3C9.8 3 8 4.8 8 7c0 .6.1 1.2.4 1.7C6.5 9.4 5.2 11 5.2 13c0 2.2 1.8 4 4 4h5.6c2.2 0 4-1.8 4-4 0-2-1.3-3.6-3.2-4.3.3-.5.4-1.1.4-1.7 0-2.2-1.8-4-4-4z"/><path d="M12 17v4"/><path d="M12 21l-3 2M12 21l3 2"/></svg>';
 }
 function paintIcon(){ toggle.innerHTML = iconSVG(document.body.dataset.theme!=='arcade'); }
+function applyTheme(theme){
+  document.body.dataset.theme=theme;
+  try{localStorage.setItem('gh-theme',theme);}catch(e){}
+  paintIcon();
+}
 paintIcon();
 toggle.addEventListener('click',()=>{
   const next = document.body.dataset.theme==='arcade' ? '4399' : 'arcade';
+  if(reduced){
+    applyTheme(next);
+    return;
+  }
   loader.classList.add('on');
   setTimeout(()=>{
-    document.body.dataset.theme=next;
-    try{localStorage.setItem('gh-theme',next);}catch(e){}
-    paintIcon();
+    applyTheme(next);
     document.querySelectorAll('.card').forEach(c=>{c.classList.remove('show');});
     setTimeout(()=>{
       revealCards();
@@ -429,6 +439,77 @@ function unlockHome(){
   toggle.inert=false;
   homeWrap.inert=false;
 }
+
+/* ===== 版本更新弹窗（开屏动画结束后显示） ===== */
+const versionModal=document.getElementById('vmodal');
+const versionClose=document.getElementById('vmodalClose');
+const versionOk=document.getElementById('vmodalOk');
+let versionReturnFocus=null;
+let versionBackground=[];
+let versionBodyOverflow='';
+function currentFilter(){
+  const header=document.body.dataset.theme==='arcade'?'.harcade':'.h4399';
+  return document.querySelector(header+' .nav button.on');
+}
+function showVersionModal(returnFocus){
+  if(!versionModal||versionModal.classList.contains('show'))return;
+  const active=document.activeElement;
+  versionReturnFocus=returnFocus||(active&&active!==document.body&&active.isConnected?active:currentFilter());
+  versionBackground=Array.from(document.body.children)
+    .filter(element=>element!==versionModal&&element.tagName!=='SCRIPT')
+    .map(element=>[element,element.inert]);
+  versionBackground.forEach(([element])=>{element.inert=true;});
+  versionBodyOverflow=document.body.style.overflow;
+  document.body.style.overflow='hidden';
+  versionModal.inert=false;
+  versionModal.setAttribute('aria-hidden','false');
+  versionModal.classList.add('show');
+  if(versionClose)versionClose.focus({preventScroll:true});
+}
+function hideVersionModal(){
+  if(!versionModal||!versionModal.classList.contains('show'))return;
+  const returnFocus=versionReturnFocus;
+  versionModal.classList.remove('show');
+  versionModal.inert=true;
+  versionModal.setAttribute('aria-hidden','true');
+  versionBackground.forEach(([element,wasInert])=>{element.inert=wasInert;});
+  versionBackground=[];
+  document.body.style.overflow=versionBodyOverflow;
+  versionReturnFocus=null;
+  const target=returnFocus&&returnFocus.isConnected&&!returnFocus.closest('[inert]')?returnFocus:currentFilter();
+  if(target)target.focus({preventScroll:true});
+}
+function handleVersionKeydown(event){
+  if(!versionModal.classList.contains('show'))return;
+  if(event.key==='Escape'){
+    event.preventDefault();
+    hideVersionModal();
+    return;
+  }
+  if(event.key!=='Tab')return;
+  const focusable=Array.from(versionModal.querySelectorAll('button:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])'));
+  if(!focusable.length){
+    event.preventDefault();
+    return;
+  }
+  const first=focusable[0];
+  const last=focusable[focusable.length-1];
+  const active=document.activeElement;
+  if(event.shiftKey&&(active===first||!versionModal.contains(active))){
+    event.preventDefault();
+    last.focus({preventScroll:true});
+  }else if(!event.shiftKey&&(active===last||!versionModal.contains(active))){
+    event.preventDefault();
+    first.focus({preventScroll:true});
+  }
+}
+if(versionClose)versionClose.addEventListener('click',hideVersionModal);
+if(versionOk)versionOk.addEventListener('click',hideVersionModal);
+if(versionModal){
+  versionModal.addEventListener('keydown',handleVersionKeydown);
+  versionModal.addEventListener('click',event=>{if(event.target===versionModal)hideVersionModal();});
+}
+
 // 判断是否从子游戏返回：sessionStorage 标记
 let returning=false;
 try{ returning = sessionStorage.getItem('skipSplash')==='1'; sessionStorage.removeItem('skipSplash'); }catch(e){}
@@ -437,25 +518,20 @@ if(reduced || returning){
   const sp=document.getElementById('splash'); if(sp) sp.remove();
   unlockHome();
   revealCards();
+  if(!returning)showVersionModal(currentFilter());
 }else{
   buildSplash();
   const sp=document.getElementById('splash');
   let closing=false;
-  const closeSplash=ev=>{
+  const closeSplash=()=>{
     if(closing)return;
     closing=true;
-    const usedKeyboard=ev&&ev.detail===0;
     sp.classList.add('off');
     revealCards();
     setTimeout(()=>{
       sp.remove();
       unlockHome();
-      showVersionModal();
-      if(usedKeyboard){
-        const header=document.body.dataset.theme==='arcade'?'.harcade':'.h4399';
-        const firstFilter=document.querySelector(header+' .nav button.on');
-        if(firstFilter)firstFilter.focus();
-      }
+      showVersionModal(currentFilter());
     },500);
   };
   sp.addEventListener('click',closeSplash);
@@ -465,6 +541,8 @@ if(reduced || returning){
 const goTexts=['进入游戏…','加载中，别眨眼','🎮 街机启动','祝你好运！','对手已就位','前方高能','READY? GO!','一键起飞','LOADING…','满血出击！','走起，别掉线','开局送好运','搓搓手，上分！','这把稳了'];
 const tClasses=['t-scan','t-pulse','t-flash'];
 function go(url,ev){
+  const anchor=ev&&ev.currentTarget&&ev.currentTarget.tagName==='A';
+  if(anchor&&(ev.button!==0||ev.metaKey||ev.ctrlKey||ev.shiftKey||ev.altKey))return;
   if(ev&&ev.preventDefault)ev.preventDefault();
   try{ sessionStorage.setItem('skipSplash','1'); }catch(e){}
   if(reduced){ location.href=url; return; }
@@ -502,7 +580,7 @@ function prefetch(href){
 const bottleAssets=[
   'bottle/index.html'
 ];
-const bottleCard=document.querySelector('.card[onclick*="bottle"]');
+const bottleCard=document.querySelector('.card[href="bottle/index.html"]');
 if(bottleCard){
   const warmBottle=()=>bottleAssets.forEach(prefetch);
   bottleCard.addEventListener('pointerenter',warmBottle,{once:true});
@@ -512,28 +590,6 @@ if(window.requestIdleCallback){
   requestIdleCallback(()=>prefetch('bottle/index.html'));
 }else{
   setTimeout(()=>prefetch('bottle/index.html'),3000);
-}
-
-/* ===== 版本更新弹窗（开屏动画结束后显示） ===== */
-function showVersionModal(){
-  const m=document.getElementById('vmodal');
-  if(!m)return;
-  m.classList.add('show');
-}
-function bindVersionModal(){
-  const m=document.getElementById('vmodal');
-  if(!m)return;
-  const close=document.getElementById('vmodalClose');
-  const ok=document.getElementById('vmodalOk');
-  function hide(){ m.classList.remove('show'); }
-  if(close)close.addEventListener('click',hide);
-  if(ok)ok.addEventListener('click',hide);
-  m.addEventListener('click',function(e){ if(e.target===m) hide(); });
-}
-bindVersionModal();
-// 保险：若 DOM 尚未就绪，等 DOMContentLoaded 再绑一次
-if(document.readyState==='loading'){
-  document.addEventListener('DOMContentLoaded',bindVersionModal);
 }
 </script>
 
