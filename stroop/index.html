@@ -689,7 +689,8 @@ body{
   var rts=[], conflictRTs=[], congruentRTs=[];
   var lastAnswerIdx=-1, lastWordIdx=-1;
   var currentQuestion=null;
-  var timerId=null;
+  var timerId=null, nextQuestionTimer=null;
+  var questionLocked=false;
 
   /* ================= 工具 ================= */
   function randInt(n){ return Math.floor(Math.random()*n); }
@@ -697,7 +698,7 @@ body{
     var r=parseInt(hex.slice(1,3),16)/255, g=parseInt(hex.slice(3,5),16)/255, b=parseInt(hex.slice(5,7),16)/255;
     return 0.299*r + 0.587*g + 0.114*b;
   }
-  function highKey(k){ return 'stroop-high-'+k; }
+  function highKey(k){ return 'stroop-high-v2-'+k; }
   function loadHigh(k){ try{ var v=localStorage.getItem(highKey(k)); return v==null?null:parseInt(v,10); }catch(e){ return null; } }
   function saveHigh(k,sc){ try{ localStorage.setItem(highKey(k), String(sc)); }catch(e){} }
 
@@ -815,6 +816,9 @@ body{
 
   /* ================= 游戏流程 ================= */
   function startGame(k){
+    clearInterval(timerId);
+    clearTimeout(nextQuestionTimer);
+    timerId=null; nextQuestionTimer=null; questionLocked=false;
     cur=k;
     var d=DIFFS[k];
     score=0; combo=0; comboPeak=0;
@@ -830,22 +834,33 @@ body{
     timerId=setInterval(tick, 40);
   }
 
-  function nextQuestion(){
+  function nextQuestion(focusIndex){
+    questionLocked=false;
     qStart=Date.now();
     currentQuestion=genQuestion();
     renderButtons(currentQuestion.order);
     renderWord(currentQuestion);
+    if(focusIndex>=0 && ansGrid.children[focusIndex]) ansGrid.children[focusIndex].focus();
+  }
+
+  function queueNextQuestion(focusIndex){
+    clearTimeout(nextQuestionTimer);
+    nextQuestionTimer=setTimeout(function(){
+      nextQuestionTimer=null;
+      if(state==='playing') nextQuestion(focusIndex);
+    },220);
   }
 
   function tick(){
     remaining -= 0.04;
     updateHud();
+    if(remaining<=0){ remaining=0; updateHud(); endGame(); return; }
+    if(questionLocked) return;
     var d=DIFFS[cur];
     var elapsed=Date.now()-qStart;
     var qleft=Math.max(0,1-(elapsed/d.limit));
     qBar.style.width=(qleft*100)+'%';
     if(elapsed>=d.limit){ handleTimeout(); }
-    if(remaining<=0){ remaining=0; updateHud(); endGame(); }
   }
 
   function flash(type){
@@ -857,7 +872,8 @@ body{
   }
 
   function answer(i){
-    if(state!=='playing') return;
+    if(state!=='playing' || questionLocked) return;
+    questionLocked=true;
     var d=DIFFS[cur];
     var rt=Date.now()-qStart;
     var q=currentQuestion;
@@ -865,6 +881,7 @@ body{
     rts.push(rt);
     if(q.word===q.answer){ congruentRTs.push(rt); } else { conflictRTs.push(rt); }
     var btn=ansGrid.querySelector('.ans[data-idx="'+i+'"]');
+    var focusIndex=btn ? Array.prototype.indexOf.call(ansGrid.children,btn) : -1;
     if(i===q.answer){
       correctCount++;
       combo++;
@@ -881,22 +898,27 @@ body{
       flash('bad');
     }
     updateHud();
-    if(remaining<=0){ endGame(); } else { nextQuestion(); }
+    if(remaining<=0){ endGame(); } else { queueNextQuestion(focusIndex); }
   }
 
   function handleTimeout(){
-    if(state!=='playing') return;
+    if(state!=='playing' || questionLocked) return;
+    questionLocked=true;
+    var active=document.activeElement;
+    var focusIndex=active && active.classList.contains('ans')
+      ? Array.prototype.indexOf.call(ansGrid.children,active) : -1;
     var d=DIFFS[cur];
     score+=d.timeout;
     combo=0;
     answered++;
     flash('bad');
     updateHud();
-    if(remaining<=0){ endGame(); } else { nextQuestion(); }
+    if(remaining<=0){ endGame(); } else { queueNextQuestion(focusIndex); }
   }
 
   function endGame(){
     clearInterval(timerId); timerId=null;
+    clearTimeout(nextQuestionTimer); nextQuestionTimer=null;
     state='over';
     var prev=loadHigh(cur);
     var isNew = prev==null || score>prev;
@@ -931,6 +953,7 @@ body{
   document.getElementById('againBtn').addEventListener('click', function(){ startGame(cur); });
   document.getElementById('menuBtn').addEventListener('click', function(){
     clearInterval(timerId); timerId=null;
+    clearTimeout(nextQuestionTimer); nextQuestionTimer=null;
     state='setup';
     showMenuView('menu');
     showScreen('setup');

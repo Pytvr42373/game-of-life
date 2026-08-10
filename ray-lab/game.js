@@ -38,6 +38,13 @@
     })
   });
 
+  const RULE_DEMOS = Object.freeze({
+    straight: Object.freeze({ size: 3, particles: Object.freeze([]), entry: "T02" }),
+    hit: Object.freeze({ size: 3, particles: Object.freeze([1]), entry: "T02" }),
+    turn: Object.freeze({ size: 3, particles: Object.freeze([5]), entry: "T02" }),
+    reflection: Object.freeze({ size: 3, particles: Object.freeze([3, 5]), entry: "T02" })
+  });
+
   function pad2(value) {
     return String(value).padStart(2, "0");
   }
@@ -211,6 +218,170 @@
     }
   }
 
+  function renderRuleDiagrams() {
+    const svgNamespace = "http://www.w3.org/2000/svg";
+    const boardX = 56;
+    const boardY = 41;
+    const cellSize = 36;
+
+    function addSvg(parent, tagName, attributes, text) {
+      const element = document.createElementNS(svgNamespace, tagName);
+      Object.keys(attributes || {}).forEach(function (name) {
+        element.setAttribute(name, String(attributes[name]));
+      });
+      if (text !== undefined) element.textContent = text;
+      if (parent) parent.appendChild(element);
+      return element;
+    }
+
+    function mapPoint(point) {
+      return {
+        x: boardX + (point.col + 0.5) * cellSize,
+        y: boardY + (point.row + 0.5) * cellSize
+      };
+    }
+
+    function compactRoute(points) {
+      if (points.length < 2) return points.slice();
+      const route = [points[0]];
+      let previousDirection = null;
+      for (let index = 1; index < points.length; index += 1) {
+        const direction = Math.sign(points[index].x - points[index - 1].x)
+          + "," + Math.sign(points[index].y - points[index - 1].y);
+        if (previousDirection && direction !== previousDirection) route.push(points[index - 1]);
+        previousDirection = direction;
+      }
+      route.push(points[points.length - 1]);
+      return route;
+    }
+
+    document.querySelectorAll("[data-rule-demo]").forEach(function (container) {
+      const demoName = container.dataset.ruleDemo;
+      const demo = RULE_DEMOS[demoName];
+      if (!demo) return;
+
+      const result = traceRay(demo.size, demo.particles, demo.entry);
+      const boardSize = demo.size * cellSize;
+      const svg = addSvg(null, "svg", {
+        viewBox: "0 0 220 190",
+        preserveAspectRatio: "xMidYMid meet",
+        "aria-hidden": "true",
+        focusable: "false"
+      });
+      addSvg(svg, "rect", {
+        class: "rule-demo-board",
+        x: boardX,
+        y: boardY,
+        width: boardSize,
+        height: boardSize
+      });
+      for (let line = 1; line < demo.size; line += 1) {
+        addSvg(svg, "line", {
+          class: "rule-demo-grid-line",
+          x1: boardX + line * cellSize,
+          y1: boardY,
+          x2: boardX + line * cellSize,
+          y2: boardY + boardSize
+        });
+        addSvg(svg, "line", {
+          class: "rule-demo-grid-line",
+          x1: boardX,
+          y1: boardY + line * cellSize,
+          x2: boardX + boardSize,
+          y2: boardY + line * cellSize
+        });
+      }
+
+      const mappedPath = result.path.map(mapPoint);
+      addSvg(svg, "polyline", {
+        class: "rule-demo-beam is-" + result.outcome,
+        points: mappedPath.map(function (point) { return point.x + "," + point.y; }).join(" ")
+      });
+      const route = compactRoute(mappedPath);
+      for (let index = 1; index < route.length; index += 1) {
+        const from = route[index - 1];
+        const to = route[index];
+        const ratio = result.outcome === "reflection" ? 0.67 : 0.56;
+        const x = from.x + (to.x - from.x) * ratio;
+        const y = from.y + (to.y - from.y) * ratio;
+        const angle = Math.atan2(to.y - from.y, to.x - from.x) * 180 / Math.PI;
+        addSvg(svg, "path", {
+          class: "rule-demo-arrow",
+          d: "M -5 -3 L 4 0 L -5 3 Z",
+          transform: "translate(" + x + " " + y + ") rotate(" + angle + ")"
+        });
+      }
+
+      demo.particles.forEach(function (particle) {
+        const point = mapPoint({
+          row: Math.floor(particle / demo.size),
+          col: particle % demo.size
+        });
+        addSvg(svg, "circle", { class: "rule-demo-particle", cx: point.x, cy: point.y, r: 9 });
+        addSvg(svg, "text", {
+          class: "rule-demo-particle-label",
+          x: point.x,
+          y: point.y + 2.5
+        }, "P");
+      });
+
+      result.events.forEach(function (event) {
+        const point = mapPoint(event);
+        addSvg(svg, "circle", {
+          class: "rule-demo-event is-" + event.type,
+          cx: point.x,
+          cy: point.y,
+          r: event.type === "hit" ? 13 : 7
+        });
+      });
+
+      const ports = createPorts(demo.size);
+      function drawPort(portId, isReturn) {
+        const port = ports.find(function (item) { return item.id === portId; });
+        if (!port) return;
+        const point = mapPoint(port);
+        addSvg(svg, "circle", {
+          class: "rule-demo-port" + (isReturn ? " is-return" : ""),
+          cx: point.x,
+          cy: point.y,
+          r: 4
+        });
+        const label = { x: point.x, y: point.y + 3, anchor: "middle" };
+        if (port.side === "T") label.y = 11;
+        else if (port.side === "B") label.y = 185;
+        else if (port.side === "L") {
+          label.x = point.x - 9;
+          label.anchor = "end";
+        } else {
+          label.x = point.x + 9;
+          label.anchor = "start";
+        }
+        addSvg(svg, "text", {
+          class: "rule-demo-port-label",
+          x: label.x,
+          y: label.y,
+          "text-anchor": label.anchor
+        }, portId);
+      }
+
+      drawPort(result.entry, result.outcome === "reflection");
+      if (result.exit && result.exit !== result.entry) drawPort(result.exit, false);
+
+      const outcomeLabels = {
+        straight: "STRAIGHT",
+        hit: "HIT",
+        turn: "TURN AWAY",
+        reflection: "RETURN"
+      };
+      const routeLabel = result.outcome === "hit"
+        ? result.entry + " · STOP"
+        : result.entry + " → " + result.exit;
+      addSvg(svg, "text", { class: "rule-demo-outcome", x: 170, y: 22 }, outcomeLabels[demoName]);
+      addSvg(svg, "text", { class: "rule-demo-route", x: 170, y: 35 }, routeLabel);
+      container.replaceChildren(svg);
+    });
+  }
+
   function outcomeSignature(result) {
     if (result.outcome === "exit") return ">" + result.exit;
     if (result.outcome === "hit") return "H";
@@ -300,7 +471,10 @@
     timerHandle: null,
     gameOver: false,
     bestResults: {},
-    toastHandle: null
+    toastHandle: null,
+    rulesTimerWasRunning: false,
+    rulesLastFocused: null,
+    rulesDialogFallback: false
   };
 
   function getElements() {
@@ -312,7 +486,7 @@
       "readingTitle", "readingDetail", "showRayPath", "recordCount",
       "observationList", "submitLayout", "resultDialog", "resultSummary",
       "finalScore", "finalTime", "finalRays", "closeResult",
-      "resultNewGame", "toast"
+      "resultNewGame", "rulesDialog", "rulesClose", "rulesStart", "toast"
     ];
     ids.forEach(function (id) {
       app.elements[id] = document.getElementById(id);
@@ -419,6 +593,20 @@
     updateTimer();
     globalScope.clearInterval(app.timerHandle);
     app.timerHandle = null;
+  }
+
+  function pauseTimer() {
+    if (app.timerHandle === null) return;
+    updateTimer();
+    globalScope.clearInterval(app.timerHandle);
+    app.timerHandle = null;
+  }
+
+  function resumeTimer() {
+    if (app.gameOver || app.timerHandle !== null) return;
+    app.startedAt = Date.now() - app.elapsedSeconds * 1000;
+    updateTimer();
+    app.timerHandle = globalScope.setInterval(updateTimer, 250);
   }
 
   function serializeMarks() {
@@ -664,7 +852,7 @@
     if (app.observations.size === 0) {
       const empty = document.createElement("div");
       empty.className = "empty-record";
-      empty.innerHTML = '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="22"/><path d="M32 10v44M10 32h44M17 17l30 30M47 17 17 47"/></svg><p>尚无光谱记录</p><span>端口会自动配对编号</span>';
+      empty.innerHTML = '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="22"/><path d="M32 10v44M10 32h44M17 17l30 30M47 17 17 47"/></svg><p>尚无光谱记录</p><span>每个入口按发射顺序编号</span>';
       app.elements.observationList.appendChild(empty);
       return;
     }
@@ -821,6 +1009,67 @@
     }
   }
 
+  function finishRulesDialogClose() {
+    const shouldResume = app.rulesTimerWasRunning;
+    const focusTarget = app.rulesLastFocused;
+    app.rulesTimerWasRunning = false;
+    app.rulesLastFocused = null;
+    if (shouldResume) resumeTimer();
+    if (focusTarget && focusTarget.isConnected && typeof focusTarget.focus === "function") {
+      focusTarget.focus();
+    }
+  }
+
+  function isRulesDialogOpen() {
+    return Boolean(app.elements.rulesDialog.open || app.elements.rulesDialog.hasAttribute("open"));
+  }
+
+  function setRulesBackgroundInert(active) {
+    Array.from(document.body.children).forEach(function (child) {
+      if (child === app.elements.rulesDialog || child.tagName === "SCRIPT") return;
+      child.inert = active;
+      if (active) {
+        child.dataset.rulesPreviousAriaHidden = child.hasAttribute("aria-hidden")
+          ? child.getAttribute("aria-hidden") : "__none__";
+        child.setAttribute("aria-hidden", "true");
+      } else if (child.dataset.rulesPreviousAriaHidden !== undefined) {
+        const previous = child.dataset.rulesPreviousAriaHidden;
+        if (previous === "__none__") child.removeAttribute("aria-hidden");
+        else child.setAttribute("aria-hidden", previous);
+        delete child.dataset.rulesPreviousAriaHidden;
+      }
+    });
+  }
+
+  function closeRulesDialog() {
+    if (!isRulesDialogOpen()) return;
+    if (!app.rulesDialogFallback && typeof app.elements.rulesDialog.close === "function") {
+      app.elements.rulesDialog.close();
+    } else {
+      app.elements.rulesDialog.removeAttribute("open");
+      app.elements.rulesDialog.classList.remove("is-fallback");
+      setRulesBackgroundInert(false);
+      app.rulesDialogFallback = false;
+      finishRulesDialogClose();
+    }
+  }
+
+  function openRulesDialog() {
+    if (isRulesDialogOpen()) return;
+    app.rulesLastFocused = document.activeElement;
+    app.rulesTimerWasRunning = !app.gameOver && app.timerHandle !== null;
+    if (app.rulesTimerWasRunning) pauseTimer();
+    if (typeof app.elements.rulesDialog.showModal === "function") {
+      app.elements.rulesDialog.showModal();
+    } else {
+      app.rulesDialogFallback = true;
+      app.elements.rulesDialog.classList.add("is-fallback");
+      app.elements.rulesDialog.setAttribute("open", "");
+      setRulesBackgroundInert(true);
+    }
+    app.elements.rulesClose.focus();
+  }
+
   function resetReading() {
     app.elements.latestReading.dataset.outcome = "idle";
     app.elements.readingTitle.textContent = "等待发射";
@@ -872,6 +1121,16 @@
     app.elements.submitLayout.addEventListener("click", submitLayout);
     app.elements.closeResult.addEventListener("click", closeResultDialog);
     app.elements.resultNewGame.addEventListener("click", newGame);
+    app.elements.rulesClose.addEventListener("click", closeRulesDialog);
+    app.elements.rulesStart.addEventListener("click", closeRulesDialog);
+    app.elements.rulesDialog.addEventListener("click", function (event) {
+      if (event.target === app.elements.rulesDialog) closeRulesDialog();
+    });
+    app.elements.rulesDialog.addEventListener("cancel", function (event) {
+      event.preventDefault();
+      closeRulesDialog();
+    });
+    app.elements.rulesDialog.addEventListener("close", finishRulesDialogClose);
     app.elements.showRayPath.addEventListener("change", function () {
       renderRayPath(app.currentTrace);
     });
@@ -879,6 +1138,28 @@
       button.addEventListener("click", function () { setMarkMode(button.dataset.mode); });
     });
     document.addEventListener("keydown", function (event) {
+      if (event.key === "Tab" && app.rulesDialogFallback && isRulesDialogOpen()) {
+        const focusable = Array.from(app.elements.rulesDialog.querySelectorAll(
+          "button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex='-1'])"
+        ));
+        if (focusable.length > 0) {
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+          if (event.shiftKey && (document.activeElement === first || !app.elements.rulesDialog.contains(document.activeElement))) {
+            event.preventDefault();
+            last.focus();
+          } else if (!event.shiftKey && (document.activeElement === last || !app.elements.rulesDialog.contains(document.activeElement))) {
+            event.preventDefault();
+            first.focus();
+          }
+        }
+        return;
+      }
+      if (event.key === "Escape" && isRulesDialogOpen()) {
+        event.preventDefault();
+        closeRulesDialog();
+        return;
+      }
       if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
       const key = event.key.toLowerCase();
       if (key === "z") {
@@ -893,11 +1174,13 @@
 
   function init() {
     getElements();
+    renderRuleDiagrams();
     app.bestResults = loadBestResults();
     applyTheme(safeStorageGet("gh-theme") || "4399", false);
     bindEvents();
     setMarkMode("particle");
     newGame();
+    openRulesDialog();
   }
 
   function assert(condition, message) {
@@ -905,18 +1188,29 @@
   }
 
   function runSelfTests(options) {
-    const emptyExit = traceRay(3, [], "T02");
+    const pathSignature = function (result) {
+      return result.path.map(function (point) { return point.row + "," + point.col; }).join("|");
+    };
+    const traceDemo = function (name) {
+      const demo = RULE_DEMOS[name];
+      return traceRay(demo.size, demo.particles, demo.entry);
+    };
+    const emptyExit = traceDemo("straight");
     assert(emptyExit.outcome === "exit" && emptyExit.exit === "B02", "empty board exits opposite port");
+    assert(pathSignature(emptyExit) === "-1,1|0,1|1,1|2,1|3,1", "straight rule diagram path");
 
-    const directHit = traceRay(3, [1], "T02");
+    const directHit = traceDemo("hit");
     assert(directHit.outcome === "hit", "entry-facing particle is a direct hit");
+    assert(pathSignature(directHit) === "-1,1|0,1", "hit rule diagram path");
 
-    const deflection = traceRay(3, [5], "T02");
+    const deflection = traceDemo("turn");
     assert(deflection.outcome === "exit" && deflection.exit === "L01", "single diagonal turns away");
     assert(deflection.deflections === 1, "single deflection is counted");
+    assert(pathSignature(deflection) === "-1,1|0,1|0,0|0,-1", "turn rule diagram path");
 
-    const reflection = traceRay(3, [3, 5], "T02");
+    const reflection = traceDemo("reflection");
     assert(reflection.outcome === "reflection" && reflection.exit === "T02", "double diagonal reflects");
+    assert(pathSignature(reflection) === "-1,1|0,1|-1,1", "reflection rule diagram retraces its path");
 
     const loop = traceRay(4, [0, 2, 3, 8], "T02");
     assert(loop.outcome === "loop" && loop.statesVisited === 4, "repeated ray state stops a loop");
@@ -961,6 +1255,7 @@
 
   const api = {
     DIFFICULTIES,
+    RULE_DEMOS,
     createPorts,
     traceRay,
     layoutSignature,

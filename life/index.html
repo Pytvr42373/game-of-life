@@ -496,7 +496,11 @@ body[data-theme="arcade"] .theme-switch{
     // 世界树 Yggdrasil（清新）
     return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3C9.8 3 8 4.8 8 7c0 .6.1 1.2.4 1.7C6.5 9.4 5.2 11 5.2 13c0 2.2 1.8 4 4 4h5.6c2.2 0 4-1.8 4-4 0-2-1.3-3.6-3.2-4.3.3-.5.4-1.1.4-1.7 0-2.2-1.8-4-4-4z"/><path d="M12 17v4"/><path d="M12 21l-3 2M12 21l3 2"/></svg>';
   }
-  const saved = localStorage.getItem('gh-theme') || '4399';
+  let saved = '4399';
+  try {
+    const stored = localStorage.getItem('gh-theme');
+    if (stored === '4399' || stored === 'arcade') saved = stored;
+  } catch(e){}
   const theme = (saved === 'arcade') ? 'arcade' : '4399';
   document.body.dataset.theme = theme;
   toggle.innerHTML = iconSVG(theme!=='arcade');
@@ -509,7 +513,7 @@ body[data-theme="arcade"] .theme-switch{
     if(ldr){ ldr.classList.remove('hide'); ldr.style.opacity='1'; }
     setTimeout(()=>{
       document.body.dataset.theme = t;
-      localStorage.setItem('gh-theme', t);
+      try { localStorage.setItem('gh-theme', t); } catch(e){}
       toggle.innerHTML = iconSVG(t!=='arcade');
       document.querySelector('.h4399').style.display = t==='4399' ? '' : 'none';
       document.querySelector('.harcade').style.display = t==='arcade' ? '' : 'none';
@@ -833,13 +837,18 @@ function handlePatternSelect() {
 }
 
 function saveToLocal() {
-  localStorage.setItem('game-of-life-state', JSON.stringify({ grid, generation }));
+  try {
+    localStorage.setItem('game-of-life-state', JSON.stringify({ grid, generation }));
+    return true;
+  } catch (e) {
+    return false;
+  }
 }
 
 function loadFromLocal() {
-  const raw = localStorage.getItem('game-of-life-state');
-  if (!raw) return false;
   try {
+    const raw = localStorage.getItem('game-of-life-state');
+    if (!raw) return false;
     const data = JSON.parse(raw);
     if (data.grid && data.grid.length === ROWS && data.grid[0] && data.grid[0].length === COLS) {
       grid = data.grid; generation = data.generation || 0; resetCycle();

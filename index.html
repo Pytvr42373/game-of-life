@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>try{if(localStorage.getItem('gh-theme')==='arcade')document.documentElement.classList.add('pre-arcade')}catch(e){}</script>
+<style>html{background:#f4f8ef}html.pre-arcade{background:#0b0b18}</style>
 <title>GameHub · 迷你游戏合集</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -84,8 +86,8 @@ body[data-theme="arcade"] .loader .load-text{--load-font:'Press Start 2P',monosp
 .loader .load-text b{color:var(--green)}
 
 /* ============ 开屏动画 (splash) ============ */
-.splash{position:fixed;inset:0;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;
-  overflow:hidden;color:#fff;opacity:1;transition:opacity .5s ease;cursor:pointer}
+.splash{position:fixed;inset:0;z-index:300;display:flex;width:100%;height:100%;flex-direction:column;align-items:center;justify-content:center;gap:26px;
+  overflow:hidden;padding:0;border:0;color:#fff;background:transparent;opacity:1;transition:opacity .5s ease;cursor:pointer}
 .splash.off{opacity:0;pointer-events:none}
 /* 纯暗色底，只做字，不要花背景 */
 .splash .bg{position:absolute;inset:0;z-index:1;background:radial-gradient(circle at 50% 40%,#1a1a2e,#0a0a14)}
@@ -134,6 +136,7 @@ body[data-theme="arcade"] .transition .t-text{--go-font:'Press Start 2P',monospa
 @media (prefers-reduced-motion: reduce){
   .splash,.splash *,.transition,.transition *{animation:none!important;transition:none!important}
   .splash .big span,.splash .pt,.splash .sub,.splash .sub2,.splash .enter{opacity:1!important;transform:none!important}
+  .card,.card .ico{transition:none!important}
 }
 
 /* ============ 布局 ============ */
@@ -210,13 +213,13 @@ body[data-theme="arcade"] .hint b{color:var(--cyan);text-shadow:0 0 10px var(--c
 <body data-theme="4399">
 
 <!-- 开屏动画 -->
-<div class="splash" id="splash" role="button" tabindex="0" aria-label="点击进入主页">
-  <div class="bg"></div>
-  <div class="big" id="splashBig"></div>
-  <div class="sub">- MINI GAME COLLECTION -</div>
-  <div class="sub2">🎮 迷你游戏合集 · 即将开始</div>
-  <div class="enter">▶ 点击进入 · PRESS START ◀</div>
-</div>
+<button class="splash" id="splash" type="button" aria-label="点击进入主页" autofocus>
+  <span class="bg"></span>
+  <span class="big" id="splashBig"></span>
+  <span class="sub">- MINI GAME COLLECTION -</span>
+  <span class="sub2">🎮 迷你游戏合集 · 即将开始</span>
+  <span class="enter">▶ 点击进入 · PRESS START ◀</span>
+</button>
 
 <!-- 华丽加载过渡 -->
 <div class="loader" id="loader">
@@ -228,9 +231,9 @@ body[data-theme="arcade"] .hint b{color:var(--cyan);text-shadow:0 0 10px var(--c
   <div class="load-text">LOADING <b>GAMEHUB</b>...</div>
 </div>
 
-<div class="theme-switch" id="themeToggle" role="button" aria-label="切换主题" title="切换主题"></div>
+<div class="theme-switch" id="themeToggle" role="button" aria-label="切换主题" title="切换主题" inert></div>
 
-<div class="wrap">
+<div class="wrap" inert>
   <!-- 4399 头部 -->
   <header class="h4399">
     <div class="top"><div class="logo-box">🎮</div><div class="title">好玩<em>小游戏</em></div></div>
@@ -318,7 +321,9 @@ body[data-theme="arcade"] .hint b{color:var(--cyan);text-shadow:0 0 10px var(--c
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const toggle=document.getElementById('themeToggle');
 const loader=document.getElementById('loader');
-const saved=localStorage.getItem('gh-theme')||'4399';
+const homeWrap=document.querySelector('.wrap');
+let saved='4399';
+try{const stored=localStorage.getItem('gh-theme');if(stored==='4399'||stored==='arcade')saved=stored;}catch(e){}
 document.body.dataset.theme=saved;
 function iconSVG(arcade){
   if(arcade){
@@ -335,13 +340,11 @@ toggle.addEventListener('click',()=>{
   loader.classList.add('on');
   setTimeout(()=>{
     document.body.dataset.theme=next;
-    localStorage.setItem('gh-theme',next);
+    try{localStorage.setItem('gh-theme',next);}catch(e){}
     paintIcon();
     document.querySelectorAll('.card').forEach(c=>{c.classList.remove('show');});
     setTimeout(()=>{
-      document.querySelectorAll('.card').forEach(c=>{
-        setTimeout(()=>c.classList.add('show'),parseFloat(c.dataset.delay||0)*1000);
-      });
+      revealCards();
       loader.classList.remove('on');
     },150);
   },700);
@@ -356,7 +359,14 @@ function buildSplash(){
 }
 // 卡片入场（开屏关闭后触发；reduced/返回时立即触发）
 function revealCards(){
-  document.querySelectorAll('.card').forEach(c=>{setTimeout(()=>c.classList.add('show'),parseFloat(c.dataset.delay||0)*1000);});
+  document.querySelectorAll('.card').forEach(c=>{
+    if(reduced)c.classList.add('show');
+    else setTimeout(()=>c.classList.add('show'),parseFloat(c.dataset.delay||0)*1000);
+  });
+}
+function unlockHome(){
+  toggle.inert=false;
+  homeWrap.inert=false;
 }
 // 判断是否从子游戏返回：sessionStorage 标记
 let returning=false;
@@ -364,27 +374,29 @@ try{ returning = sessionStorage.getItem('skipSplash')==='1'; sessionStorage.remo
 if(reduced || returning){
   // 减少动效 或 从子游戏返回：直接移除开屏，卡片直出
   const sp=document.getElementById('splash'); if(sp) sp.remove();
+  unlockHome();
   revealCards();
 }else{
   buildSplash();
   const sp=document.getElementById('splash');
-  const born=Date.now();
   let closing=false;
-  const closeSplash=()=>{
-    if(closing||Date.now()-born<1200)return;
+  const closeSplash=ev=>{
+    if(closing)return;
     closing=true;
-    document.removeEventListener('keydown',onEnter);
+    const usedKeyboard=ev&&ev.detail===0;
     sp.classList.add('off');
     revealCards();
-    setTimeout(()=>sp.remove(),500);
-  };
-  const onEnter=ev=>{
-    if(ev.key!=='Enter'&&ev.key!==' ')return;
-    ev.preventDefault();
-    closeSplash();
+    setTimeout(()=>{
+      sp.remove();
+      unlockHome();
+      if(usedKeyboard){
+        const header=document.body.dataset.theme==='arcade'?'.harcade':'.h4399';
+        const firstFilter=document.querySelector(header+' .nav button.on');
+        if(firstFilter)firstFilter.focus();
+      }
+    },500);
   };
   sp.addEventListener('click',closeSplash);
-  document.addEventListener('keydown',onEnter);
 }
 
 /* ===== 跳转随机过渡动画 + 打趣文本 ===== */
@@ -426,11 +438,7 @@ function prefetch(href){
   document.head.appendChild(link);
 }
 const bottleAssets=[
-  'bottle/index.html',
-  'bottle/assets/index-DhMYQyOW.js',
-  'bottle/assets/index-CpaC40FQ.css',
-  'bottle/assets/Geometry-DtZ4-p-4.js',
-  'bottle/assets/RenderTargetSystem-CFWUoMLd.js'
+  'bottle/index.html'
 ];
 const bottleCard=document.querySelector('.card[onclick*="bottle"]');
 if(bottleCard){

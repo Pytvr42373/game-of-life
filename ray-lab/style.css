@@ -595,23 +595,77 @@ body[data-theme="4399"] .rule-card { border-radius: 8px; }
 .rule-card h3 { margin: 12px 0 7px; font: 800 11px var(--mono); letter-spacing: -0.02em; }
 .rule-card p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.65; }
 
-.rule-diagram { position: relative; height: 72px; overflow: hidden; border: 1px solid var(--grid-line); background: linear-gradient(90deg, transparent 32%, var(--grid-line) 33% 34%, transparent 35% 65%, var(--grid-line) 66% 67%, transparent 68%), linear-gradient(transparent 32%, var(--grid-line) 33% 34%, transparent 35% 65%, var(--grid-line) 66% 67%, transparent 68%), var(--page-deep); }
-.rule-diagram span { position: absolute; right: 7px; bottom: 5px; color: var(--faint); font: 800 8px var(--mono); letter-spacing: 0.08em; }
-.atom { position: absolute; z-index: 2; width: 12px; height: 12px; border: 2px solid var(--surface-solid); border-radius: 50%; background: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
-.a-center { top: 30px; left: 66%; transform: translate(-50%, -50%); }
-.a-upper { top: 17px; left: 64%; }
-.a-lower { top: 45px; left: 64%; }
-.beam { position: absolute; z-index: 1; display: block; background: var(--beam); box-shadow: 0 0 6px var(--beam); }
-.beam.horizontal { top: 29px; left: 0; width: 60%; height: 2px; }
-.beam.bent { top: 49px; left: 0; width: 47%; height: 2px; }
-.beam.bent::after { content: ""; position: absolute; left: calc(100% - 1px); bottom: 0; width: 2px; height: 30px; background: var(--beam); }
-.beam.reflected { top: 29px; left: 0; width: 50%; height: 2px; }
-.beam.reflected::after { content: ""; position: absolute; top: -8px; left: 0; width: 39%; height: 2px; background: var(--beam); transform: rotate(-8deg); transform-origin: left; }
-.beam.through { top: 29px; left: 0; width: 100%; height: 2px; }
+.rule-ray-diagram { height: 165px; overflow: hidden; border: 1px solid var(--grid-line); background: var(--page-deep); }
+.rule-ray-diagram svg { display: block; width: 100%; height: 100%; }
+.rule-demo-board { fill: var(--surface-solid); stroke: var(--line-strong); stroke-width: 1.5; }
+.rule-demo-grid-line { stroke: var(--grid-line); stroke-width: 1; }
+.rule-demo-beam { fill: none; stroke: var(--beam); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.rule-demo-arrow { fill: var(--beam); }
+.rule-demo-particle { fill: var(--ink); stroke: var(--surface-raised); stroke-width: 3; }
+.rule-demo-particle-label { fill: var(--surface-raised); font: 800 7px var(--mono); text-anchor: middle; }
+.rule-demo-event { fill: var(--surface-raised); stroke: var(--beam); stroke-width: 2; }
+.rule-demo-event.is-hit { fill: none; stroke: var(--hit); stroke-width: 2.5; }
+.rule-demo-event.is-reflection { fill: var(--surface-raised); stroke: var(--reflect); stroke-width: 3; }
+.rule-demo-port { fill: var(--surface-raised); stroke: var(--beam); stroke-width: 2; }
+.rule-demo-port.is-return { stroke: var(--reflect); stroke-width: 3; }
+.rule-demo-port-label { fill: var(--muted); font: 800 8px var(--mono); }
+.rule-demo-outcome { fill: var(--accent-strong); font: 800 8px var(--mono); letter-spacing: 0.08em; }
+.rule-demo-route { fill: var(--faint); font: 700 7px var(--mono); }
 
 .fairness-note { display: grid; grid-template-columns: 125px 1fr; gap: 18px; margin-top: 16px; padding: 14px 16px; border: 1px dashed var(--line-strong); background: var(--accent-soft); }
 .fairness-note strong { color: var(--accent-strong); font: 800 10px var(--mono); }
 .fairness-note p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.65; }
+
+.rules-dialog {
+  width: min(940px, calc(100% - 28px));
+  max-width: none;
+  max-height: 92vh;
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--accent);
+  color: var(--ink);
+  background: var(--surface-raised);
+  box-shadow: 0 28px 100px rgba(0, 0, 0, 0.38);
+}
+
+.rules-dialog:not([open]) { display: none; }
+.rules-dialog::backdrop { background: rgba(2, 12, 18, 0.72); backdrop-filter: blur(4px); }
+body[data-theme="4399"] .rules-dialog { border-radius: 14px; }
+body[data-theme="arcade"] .rules-dialog { border-radius: 2px; box-shadow: 0 0 45px rgba(41, 225, 208, 0.2); }
+body .rules-dialog.is-fallback { position: fixed; z-index: 200; inset: 0; display: grid; width: 100%; height: 100%; max-height: none; margin: 0; padding: 14px; place-items: center; border: 0; border-radius: 0; background: rgba(2, 12, 18, 0.72); box-shadow: none; }
+.rules-dialog.is-fallback .rules-dialog-shell { width: min(940px, 100%); border: 1px solid var(--accent); background: var(--surface-raised); box-shadow: 0 28px 100px rgba(0, 0, 0, 0.38); }
+body[data-theme="4399"] .rules-dialog.is-fallback .rules-dialog-shell { border-radius: 14px; }
+body[data-theme="arcade"] .rules-dialog.is-fallback .rules-dialog-shell { border-radius: 2px; }
+
+.rules-dialog-shell { position: relative; max-height: 92vh; overflow-y: auto; padding: 30px; }
+.rules-dialog-close { position: absolute; z-index: 2; top: 14px; right: 14px; display: grid; width: 36px; height: 36px; padding: 0; place-items: center; border: 1px solid var(--line-strong); border-radius: 50%; color: var(--muted); background: var(--surface-solid); font: 400 23px/1 var(--sans); cursor: pointer; }
+.rules-dialog-close:hover { border-color: var(--hit); color: var(--hit); }
+body[data-theme="arcade"] .rules-dialog-close { border-radius: 2px; }
+
+.rules-dialog-heading { padding-right: 48px; }
+.rules-dialog-heading h2 { margin: 0; font-size: 27px; letter-spacing: -0.035em; }
+.rules-dialog-heading > p:not(.panel-code) { max-width: 760px; margin: 8px 0 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+.rules-dialog-legend { display: flex; align-items: center; gap: 8px; margin-top: 12px; color: var(--faint); font-size: 10px; }
+.rules-dialog-legend i { width: 12px; height: 12px; border: 2px solid var(--surface-raised); border-radius: 50%; background: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+
+.rules-brief-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 20px; }
+.rules-brief-card { min-width: 0; margin: 0; padding: 13px; border: 1px solid var(--line); background: var(--surface-solid); }
+body[data-theme="4399"] .rules-brief-card { border-radius: 9px; }
+.rules-brief-card figcaption { padding: 12px 2px 1px; }
+.rules-brief-card figcaption > span { color: var(--accent); font: 800 9px var(--mono); letter-spacing: 0.08em; }
+.rules-brief-card h3 { margin: 6px 0 5px; font-size: 14px; }
+.rules-brief-card p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.65; }
+
+.rules-loop-note { margin: 12px 0 0; padding: 10px 12px; border-left: 3px solid var(--loop); color: var(--muted); background: var(--accent-soft); font-size: 10px; line-height: 1.6; }
+.rules-loop-note b { color: var(--loop); }
+.rules-dialog-foot { display: grid; grid-template-columns: minmax(230px, 1fr) minmax(260px, 1.25fr) auto; align-items: center; gap: 20px; margin-top: 14px; padding-top: 17px; border-top: 1px dashed var(--line-strong); }
+.rules-dialog-foot strong { color: var(--accent-strong); font-size: 11px; }
+.rules-dialog-foot p { margin: 4px 0 0; color: var(--muted); font-size: 10px; line-height: 1.55; }
+.rules-dialog-controls { display: grid; gap: 5px; color: var(--muted); font-size: 9px; }
+.rules-dialog-controls span { display: flex; align-items: center; gap: 7px; }
+.rules-dialog-controls kbd { min-width: 86px; padding: 3px 6px; border: 1px solid var(--line); color: var(--ink); background: var(--page-deep); font: 750 8px var(--mono); text-align: center; }
+.rules-dialog-foot .control { min-width: 122px; }
 
 .result-dialog {
   width: min(470px, calc(100% - 28px));
@@ -682,6 +736,11 @@ body[data-theme="arcade"] .result-dialog { border-radius: 2px; box-shadow: 0 0 3
   .observation-list { max-height: 310px; }
 }
 
+@media (max-width: 760px) {
+  .rules-dialog-foot { grid-template-columns: 1fr; gap: 12px; }
+  .rules-dialog-foot .control { width: 100%; }
+}
+
 @media (max-width: 620px) {
   :root { --cell: min(10.7vw, 46px); --port: 34px; }
   .back-home { top: 10px; left: 10px; padding: 7px 12px; }
@@ -718,6 +777,14 @@ body[data-theme="arcade"] .result-dialog { border-radius: 2px; box-shadow: 0 0 3
   .tutorial-heading { grid-template-columns: 1fr; gap: 10px; }
   .rule-grid { grid-template-columns: 1fr; }
   .fairness-note { grid-template-columns: 1fr; gap: 6px; }
+  .rules-dialog { width: calc(100% - 20px); max-height: 94vh; }
+  .rules-dialog-shell { max-height: 94vh; padding: 24px 13px 18px; }
+  .rules-dialog-heading { padding-right: 38px; }
+  .rules-dialog-heading h2 { font-size: 22px; }
+  .rules-dialog-close { top: 10px; right: 10px; width: 32px; height: 32px; }
+  .rules-brief-grid { grid-template-columns: 1fr; }
+  .rules-brief-card { padding: 10px; }
+  .rules-dialog-controls span { align-items: flex-start; }
   .dialog-actions { flex-direction: column; }
   .dialog-actions .control { width: 100%; }
 }

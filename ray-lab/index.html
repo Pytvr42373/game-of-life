@@ -150,22 +150,22 @@
       </div>
       <div class="rule-grid">
         <article class="rule-card rule-hit">
-          <div class="rule-diagram" aria-hidden="true"><i class="beam horizontal"></i><b class="atom a-center"></b><span>HIT</span></div>
+          <div class="rule-ray-diagram" data-rule-demo="hit" role="img" aria-label="三乘三网格中，射线从顶部 T02 进入，立即命中第一行第二列的粒子"></div>
           <h3>01 / 正面命中</h3>
           <p>正前方格有粒子，射线终止并报告“命中”。入口格也按这条规则处理。</p>
         </article>
         <article class="rule-card rule-turn">
-          <div class="rule-diagram" aria-hidden="true"><i class="beam bent"></i><b class="atom a-upper"></b><span>TURN</span></div>
+          <div class="rule-ray-diagram" data-rule-demo="turn" role="img" aria-label="三乘三网格中，第二行第三列的粒子使来自 T02 的射线在第一行第二列向左转，并从 L01 离开"></div>
           <h3>02 / 单侧偏转</h3>
           <p>正前方为空且只有一个前方对角粒子，射线转 90°，方向永远远离该粒子。</p>
         </article>
         <article class="rule-card rule-reflect">
-          <div class="rule-diagram" aria-hidden="true"><i class="beam reflected"></i><b class="atom a-upper"></b><b class="atom a-lower"></b><span>RETURN</span></div>
+          <div class="rule-ray-diagram" data-rule-demo="reflection" role="img" aria-label="三乘三网格中，第二行第一列与第三列的粒子使来自 T02 的射线在第一行第二列沿原路返回 T02"></div>
           <h3>03 / 双侧反射</h3>
           <p>两个前方对角格都有粒子，形成反射门；射线沿原路径返回入口并报告“反射”。</p>
         </article>
         <article class="rule-card rule-exit">
-          <div class="rule-diagram" aria-hidden="true"><i class="beam through"></i><span>EXIT</span></div>
+          <div class="rule-ray-diagram" data-rule-demo="straight" role="img" aria-label="三乘三空网格中，射线从顶部 T02 沿第二列直行，并从底部 B02 离开"></div>
           <h3>04 / 离舱或回路</h3>
           <p>无相互作用就直行，越过边界时报告出口。若“格心 + 方向”再次出现，则报告“回路”并安全停止。</p>
         </article>
@@ -176,6 +176,70 @@
       </div>
     </section>
   </main>
+
+  <dialog class="rules-dialog" id="rulesDialog" role="dialog" aria-modal="true" aria-labelledby="rulesDialogTitle" aria-describedby="rulesDialogDesc">
+    <div class="rules-dialog-shell">
+      <button class="rules-dialog-close" id="rulesClose" type="button" aria-label="关闭规则说明">×</button>
+      <div class="rules-dialog-heading">
+        <p class="panel-code">FIELD BRIEFING / 00</p>
+        <h2 id="rulesDialogTitle">先读懂四种光路</h2>
+        <p id="rulesDialogDesc">从边缘端口向密封舱发射射线。射线先检查正对的边缘格；进入空格后，每到格心依次判断正前方与两个前方对角格。</p>
+        <div class="rules-dialog-legend"><i></i><span>实心 P 为教学中显示的隐藏粒子</span></div>
+      </div>
+
+      <div class="rules-brief-grid">
+        <figure class="rules-brief-card">
+          <div class="rule-ray-diagram" data-rule-demo="straight" role="img" aria-label="三乘三空网格中，射线从顶部 T02 沿第二列直行，并从底部 B02 离开"></div>
+          <figcaption>
+            <span>01 / STRAIGHT</span>
+            <h3>没有相互作用就直行</h3>
+            <p>空舱中没有粒子影响光路。T02 沿第二列直行，并从正对面的 B02 离舱。</p>
+          </figcaption>
+        </figure>
+
+        <figure class="rules-brief-card">
+          <div class="rule-ray-diagram" data-rule-demo="hit" role="img" aria-label="三乘三网格中，射线从顶部 T02 进入，立即命中第一行第二列的粒子"></div>
+          <figcaption>
+            <span>02 / HIT</span>
+            <h3>正前方粒子直接吸收</h3>
+            <p>r1c2 位于入口正前方，射线进入该粒子格即停止；正面命中优先于对角判断。</p>
+          </figcaption>
+        </figure>
+
+        <figure class="rules-brief-card">
+          <div class="rule-ray-diagram" data-rule-demo="turn" role="img" aria-label="三乘三网格中，第二行第三列的粒子使来自 T02 的射线在第一行第二列向左转，并从 L01 离开"></div>
+          <figcaption>
+            <span>03 / TURN AWAY</span>
+            <h3>一个对角粒子使光线远离</h3>
+            <p>射线位于 r1c2 时，唯一的前方对角粒子在 r2c3；光线向远离粒子的一侧转 90°，从 L01 离舱。</p>
+          </figcaption>
+        </figure>
+
+        <figure class="rules-brief-card">
+          <div class="rule-ray-diagram" data-rule-demo="reflection" role="img" aria-label="三乘三网格中，第二行第一列与第三列的粒子使来自 T02 的射线在第一行第二列沿原路返回 T02"></div>
+          <figcaption>
+            <span>04 / RETURN</span>
+            <h3>两个对角粒子让光线原路返回</h3>
+            <p>r2c1 与 r2c3 同时占据两个前方对角格；射线在 r1c2 沿同一条线返回 T02，不会斜向反弹。</p>
+          </figcaption>
+        </figure>
+      </div>
+
+      <p class="rules-loop-note"><b>回路读数：</b>若相同的“格心 + 前进方向”再次出现，系统会报告回路并停止射线。</p>
+      <div class="rules-dialog-foot">
+        <div>
+          <strong>结案条件</strong>
+          <p>根据全部读数推断粒子位置，用实心标记放置本级要求的 4 或 5 个粒子；候选问号不参与提交核验。</p>
+        </div>
+        <div class="rules-dialog-controls" aria-label="操作方式">
+          <span><kbd>点边缘端口</kbd> 发射或复查射线</span>
+          <span><kbd>点格子</kbd> 放置当前标记</span>
+          <span><kbd>右键格子</kbd> 快速切换候选</span>
+        </div>
+        <button class="control primary" id="rulesStart" type="button">开始推演</button>
+      </div>
+    </div>
+  </dialog>
 
   <dialog class="result-dialog" id="resultDialog">
     <div class="result-seal" aria-hidden="true"><span></span></div>
