@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>try{if(localStorage.getItem('gh-theme')==='arcade')document.documentElement.classList.add('pre-arcade')}catch(e){}</script>
+<style>html{background:#f4f8ef}html.pre-arcade{background:#0b0b18}</style>
+<title>数织谜题 · Nonogram</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+/* ================================================================
+   Nonogram 双主题 · 完整样式
+   主题1: 4399 绿橙亮色  主题2: 街机厅深色霓虹
+================================================================ */
+*{margin:0;padding:0;box-sizing:border-box}
+
+/* ========== 4399 绿橙主题（亮色·默认） ========== */
+body[data-theme="4399"]{
+  --bg:#f4f8ef; --bg2:#ffffff; --surface:#ffffff; --surface2:#eef5e8;
+  --line:#d8e8cd; --line2:#c0eb7c;
+  --text:#24401d; --dim:#6f8a63; --green:#389904; --green2:#448230;
+  --orange:#fb6400; --orange2:#e64e00; --tag-bg:#eef5e8;
+  --cell-bg:#ffffff; --cell-filled:#389904; --cell-mark:#fb6400;
+  --grid-line:#d8e8cd; --grid-line-strong:rgba(56,153,4,.25);
+  --clue-color:#389904; --clue-hover:#eef5e8;
+  --error-color:#e64e00; --error-bg:rgba(230,78,0,.06);
+  --sep-color:rgba(56,153,4,.2);
+  background:linear-gradient(180deg,#f0f7ea 0%,#ffffff 55%,#f7fbf3 100%);
+  color:var(--text);
+}
+body[data-theme="4399"]::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+  background:
+    radial-gradient(circle at 12% 18%,rgba(56,153,4,.08),transparent 40%),
+    radial-gradient(circle at 88% 80%,rgba(251,100,0,.07),transparent 40%);
+}
+
+/* ========== 街机厅主题（暗色） ========== */
+body[data-theme="arcade"]{
+  --bg:#0b0b18; --bg2:#14142b; --surface:#191934; --surface2:#24244a;
+  --line:#3a3a5c; --line2:#5a5a8c; --hard:#000;
+  --text:#f4f4ff; --dim:#7a7aa0; --green:#00ff9d; --green2:#0bc97f;
+  --pink:#ff2d78; --cyan:#3de1ff; --yellow:#ffe14d;
+  --tag-bg:#2a2a4a;
+  --cell-bg:#15152c; --cell-filled:#00ff9d; --cell-mark:#ff2d78;
+  --grid-line:#3a3a5c; --grid-line-strong:#5a5a8c;
+  --clue-color:#3de1ff; --clue-hover:#2a2a4a;
+  --error-color:#ff2d78; --error-bg:rgba(255,45,120,.08);
+  --sep-color:#5a5a8c;
+  background-color:#0b0b18; color:var(--text);
+  background-image:radial-gradient(circle at 50% 0%,#2a2a55 0%,transparent 60%);
+}
+body[data-theme="arcade"]::before{
+  content:'';position:fixed;inset:0;pointer-events:none;opacity:.15;z-index:0;
+  background-image:linear-gradient(#3a3a5c 1px,transparent 1px),linear-gradient(90deg,#3a3a5c 1px,transparent 1px);
+  background-size:26px 26px;
+}
+body[data-theme="arcade"]::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.12) 0 1px,transparent 1px 3px);
+  mix-blend-mode:multiply;opacity:.5;
+}
+
+body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;min-height:100vh;transition:background .4s,color .4s}
+
+/* ========== 主题切换器 ========== */
+.theme-switch{position:fixed;right:16px;bottom:16px;z-index:99;width:46px;height:46px;border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;user-select:none;
+  background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.25);
+  box-shadow:0 3px 12px rgba(0,0,0,.3);transition:transform .2s,background .2s;color:#22c55e}
+body[data-theme="4399"] .theme-switch{background:rgba(10,10,24,.75);border:1px solid rgba(61,225,255,.4);color:#7ff3ff;box-shadow:0 0 14px rgba(61,225,255,.25)}
+body[data-theme="arcade"] .theme-switch{background:rgba(255,255,255,.9);border:1px solid rgba(34,197,94,.35);color:#16a34a;box-shadow:0 3px 12px rgba(34,197,94,.15)}
+.theme-switch:hover{transform:scale(1.08)}
+.theme-switch:active{transform:scale(.94)}
+
+/* ========== 返回按钮 ========== */
+.back-home{position:fixed;top:14px;left:14px;z-index:99;text-decoration:none;font-weight:700;padding:8px 16px;border-radius:999px;cursor:pointer;font-size:13px;font-family:inherit;background:rgba(255,255,255,.65);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1.5px solid var(--line);color:var(--green);box-shadow:0 2px 6px rgba(56,153,4,.06);transition:transform .18s,background .18s,border-color .18s,box-shadow .18s}
+.back-home:hover{background:rgba(255,255,255,.9);border-color:var(--green);transform:translateY(-2px)}
+.back-home:active{transform:translateY(0)}
+body[data-theme="arcade"] .back-home{background:rgba(11,11,24,.72);border:2px solid var(--line);color:var(--cyan);font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;box-shadow:3px 3px 0 var(--hard)}
+body[data-theme="arcade"] .back-home:hover{border-color:var(--cyan);box-shadow:3px 3px 0 var(--hard),0 0 12px var(--cyan)}
+
+/* ========== 加载过渡 ========== */
+.loader{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;
+  background:var(--bg);color:var(--text);opacity:0;pointer-events:none;transition:opacity .3s}
+.loader.on{opacity:1;pointer-events:auto}
+.loader .core{position:relative;width:140px;height:140px;display:flex;align-items:center;justify-content:center}
+.loader .core .ring{position:absolute;inset:0;border-radius:50%;border:4px solid transparent;border-top-color:var(--green);animation:spin 1s linear infinite}
+.loader .core .ring.r2{inset:12px;border-top-color:var(--orange,#ff2d78);animation:spin 1.3s linear infinite reverse}
+.loader .core .ring.r3{inset:24px;border-top-color:var(--yellow,#389904);animation:spin .8s linear infinite}
+.loader .core .pixel{font-family:'Press Start 2P',monospace;font-size:28px;color:var(--green);text-shadow:0 0 18px currentColor;animation:pulse 1s ease-in-out infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.25);opacity:.7}}
+.loader .load-track{width:240px;height:8px;background:var(--line);border-radius:6px;overflow:hidden;position:relative;box-shadow:0 0 14px var(--green)}
+.loader .load-track i{position:absolute;height:100%;width:45%;border-radius:6px;
+  background:linear-gradient(90deg,var(--green),var(--orange,#ffe14d),var(--cyan,#389904),var(--green));
+  background-size:300% 100%;animation:slide 1s linear infinite}
+@keyframes slide{0%{transform:translateX(-50%)}100%{transform:translateX(350%)}}
+.loader .load-text{font-size:13px;letter-spacing:2px;color:var(--dim)}
+body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monospace;font-size:11px}
+.loader .load-text b{color:var(--green)}
+
+/* ========== 布局 ========== */
+.wrap{max-width:860px;margin:0 auto;padding:80px 20px 60px;position:relative;z-index:1}
+
+/* ========== 头部（4399） ========== */
+.h4399,.harcade{display:none}
+body[data-theme="4399"] .h4399{display:block}
+.h4399 .top{display:flex;align-items:center;gap:14px;justify-content:center;margin-bottom:6px}
+.h4399 .logo-box{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 6px 16px rgba(56,153,4,.35)}
+.h4399 .title{font-size:32px;font-weight:900;color:var(--green);letter-spacing:1px}
+.h4399 .title em{font-style:normal;color:var(--orange)}
+.h4399 .sub{text-align:center;color:var(--dim);font-size:14px;margin-bottom:24px}
+
+/* ========== 头部（街机厅） ========== */
+body[data-theme="arcade"] .harcade{display:block}
+.harcade .logo-bar{font-family:'Press Start 2P',monospace;font-size:11px;letter-spacing:3px;color:var(--yellow);text-shadow:0 0 14px var(--yellow),3px 3px 0 var(--hard);text-align:center;margin-bottom:14px;animation:blink 1.4s steps(1) infinite}
+.harcade .title{font-family:'Press Start 2P',monospace;font-size:clamp(18px,4vw,30px);text-align:center;color:var(--text);text-shadow:3px 3px 0 var(--hard),0 0 20px rgba(61,225,255,.4);margin-bottom:10px}
+.harcade .title .p{color:var(--pink);text-shadow:3px 3px 0 var(--hard),0 0 20px var(--pink)}
+.harcade .title .c{color:var(--cyan);text-shadow:3px 3px 0 var(--hard),0 0 20px var(--cyan)}
+.harcade .sub{text-align:center;color:var(--dim);font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:3px;margin-bottom:30px}
+@keyframes blink{50%{opacity:0}}
+
+/* ========== 当前关卡信息 ========== */
+.puzzle-info{text-align:center;margin-bottom:18px;font-size:15px;font-weight:700}
+body[data-theme="4399"] .puzzle-info{color:var(--text)}
+body[data-theme="4399"] .puzzle-info .sz{color:var(--orange)}
+body[data-theme="arcade"] .puzzle-info{font-family:'Press Start 2P',monospace;font-size:11px;color:var(--green);text-shadow:0 0 8px var(--green)}
+body[data-theme="arcade"] .puzzle-info .sz{color:var(--yellow);text-shadow:0 0 8px var(--yellow)}
+
+/* ========== 状态栏 ========== */
+.stats{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:20px}
+.stat{display:flex;align-items:center;gap:6px;padding:7px 16px}
+body[data-theme="4399"] .stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 2px 6px rgba(56,153,4,.06)}
+body[data-theme="4399"] .stat-label{color:var(--dim);font-size:13px}
+body[data-theme="4399"] .stat-value{color:var(--green2);font-weight:800;font-size:16px;font-family:'Courier New',monospace}
+body[data-theme="arcade"] .stat{background:var(--surface);border:2px solid var(--line);box-shadow:3px 3px 0 var(--hard)}
+body[data-theme="arcade"] .stat-label{color:var(--dim);font-family:'Press Start 2P',monospace;font-size:8px}
+body[data-theme="arcade"] .stat-value{color:var(--green);font-weight:700;font-family:'Courier New',monospace;font-size:15px;text-shadow:0 0 6px var(--green)}
+
+/* ========== 关卡选择 ========== */
+.levels{margin-bottom:24px;display:flex;flex-direction:column;gap:14px;align-items:center}
+.level-group{display:flex;flex-direction:column;align-items:center;gap:8px}
+.level-label{font-size:12px;font-weight:600}
+body[data-theme="4399"] .level-label{color:var(--dim)}
+body[data-theme="arcade"] .level-label{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--dim);letter-spacing:2px}
+.level-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.lvl-btn{cursor:pointer;transition:all .18s;font-family:inherit}
+body[data-theme="4399"] .lvl-btn{font-size:13px;font-weight:600;padding:6px 16px;border:2px solid var(--line);border-radius:999px;background:var(--surface);color:var(--green)}
+body[data-theme="4399"] .lvl-btn:hover{border-color:var(--green);box-shadow:0 2px 8px rgba(56,153,4,.15)}
+body[data-theme="4399"] .lvl-btn.on{background:var(--green);color:#fff;border-color:var(--green)}
+body[data-theme="arcade"] .lvl-btn{font-family:'Press Start 2P',monospace;font-size:8px;padding:7px 12px;border:2px solid var(--line);background:var(--surface);color:var(--cyan);box-shadow:3px 3px 0 var(--hard)}
+body[data-theme="arcade"] .lvl-btn:hover{border-color:var(--cyan);transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--hard)}
+body[data-theme="arcade"] .lvl-btn.on{background:var(--green);color:var(--hard);border-color:var(--green);box-shadow:3px 3px 0 var(--hard),0 0 12px var(--green)}
+
+/* ========== 棋盘外框 ========== */
+.board-scroll{overflow:auto;max-width:100%;display:flex;justify-content:center;padding:4px;-webkit-overflow-scrolling:touch}
+.board-frame{position:relative;display:inline-block}
+body[data-theme="4399"] .board-frame{background:linear-gradient(135deg,var(--line2),var(--green));padding:5px;border-radius:14px;box-shadow:0 8px 24px rgba(56,153,4,.18)}
+body[data-theme="arcade"] .board-frame{background:var(--surface);border:3px solid var(--line);box-shadow:8px 8px 0 var(--hard);padding:8px}
+/* 四角装饰（街机） */
+.corner{position:absolute;width:12px;height:12px;display:none}
+body[data-theme="arcade"] .corner{display:block;border:3px solid var(--pink)}
+body[data-theme="arcade"] .corner.tl{top:-3px;left:-3px;border-right:0;border-bottom:0}
+body[data-theme="arcade"] .corner.tr{top:-3px;right:-3px;border-left:0;border-bottom:0}
+body[data-theme="arcade"] .corner.bl{bottom:-3px;left:-3px;border-right:0;border-top:0}
+body[data-theme="arcade"] .corner.br{bottom:-3px;right:-3px;border-left:0;border-top:0}
+
+/* ========== 棋盘内部 ========== */
+.board{display:inline-grid;grid-template-columns:auto auto;grid-template-rows:auto auto}
+body[data-theme="4399"] .board{background:#fff;border-radius:10px;padding:8px}
+.board-corner{grid-column:1;grid-row:1}
+.board-col-clues{grid-column:2;grid-row:1;display:grid;grid-template-columns:repeat(var(--n),var(--cs))}
+.board-row-clues{grid-column:1;grid-row:2;display:grid;grid-template-rows:repeat(var(--n),var(--cs))}
+.board-grid{grid-column:2;grid-row:2;display:grid;grid-template-columns:repeat(var(--n),var(--cs));grid-template-rows:repeat(var(--n),var(--cs))}
+
+/* 列 clue 容器 */
+.col-clue{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding-bottom:4px;gap:1px;min-height:calc(var(--max-col-clues) * (var(--clue-fs) + 5px) + 4px)}
+.col-clue.sep{border-right:2px solid var(--sep-color)}
+/* 行 clue 容器 */
+.row-clue{display:flex;flex-direction:row;justify-content:flex-end;align-items:center;padding-right:6px;gap:4px;min-width:calc(var(--max-row-clues) * (var(--clue-fs) + 10px) + 6px)}
+.row-clue.sep{border-bottom:2px solid var(--sep-color)}
+/* error 高亮 */
+.row-clue.has-error,.col-clue.has-error{border-radius:4px}
+body[data-theme="4399"] .row-clue.has-error,body[data-theme="4399"] .col-clue.has-error{background:rgba(230,78,0,.05)}
+body[data-theme="arcade"] .row-clue.has-error,body[data-theme="arcade"] .col-clue.has-error{background:rgba(255,45,120,.06)}
+
+/* ========== clue 数字 ========== */
+.clue-num{font-family:'Courier New',Consolas,monospace;font-weight:bold;cursor:pointer;user-select:none;padding:1px 4px;border-radius:3px;transition:all .12s;line-height:1.3}
+body[data-theme="4399"] .clue-num{font-size:calc(var(--clue-fs) * 1px);color:var(--clue-color)}
+body[data-theme="4399"] .clue-num:hover{background:var(--clue-hover)}
+body[data-theme="arcade"] .clue-num{font-size:calc(var(--clue-fs) * 1px);color:var(--clue-color);text-shadow:0 0 4px var(--clue-color)}
+body[data-theme="arcade"] .clue-num:hover{color:var(--yellow);text-shadow:0 0 6px var(--yellow)}
+.clue-num.manual-done,.clue-num.auto-done{text-decoration:line-through;opacity:.3}
+
+/* ========== 格子 ========== */
+.cell{width:var(--cs);height:var(--cs);border:1px solid var(--grid-line);cursor:pointer;display:flex;align-items:center;justify-content:center;user-select:none;position:relative;transition:background-color .1s}
+body[data-theme="4399"] .cell{background:var(--cell-bg)}
+body[data-theme="arcade"] .cell{background:var(--cell-bg)}
+/* 悬停 */
+body[data-theme="4399"] .cell:not(.filled):not(.marked):hover{background:var(--surface2)}
+body[data-theme="arcade"] .cell:not(.filled):not(.marked):hover{background:var(--surface2)}
+/* 5格分隔线 */
+.cell.sep-right{border-right:2px solid var(--sep-color)}
+.cell.sep-bottom{border-bottom:2px solid var(--sep-color)}
+/* 填充态 */
+body[data-theme="4399"] .cell.filled{background:var(--cell-filled);border-color:var(--cell-filled);border-radius:4px;animation:cellFill .2s ease}
+body[data-theme="arcade"] .cell.filled{background:var(--cell-filled);border-color:var(--cell-filled);box-shadow:0 0 8px rgba(0,255,157,.5),inset 0 0 4px rgba(0,0,0,.2);animation:cellFill .2s ease}
+@keyframes cellFill{0%{transform:scale(.7)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+/* 标记态 × */
+.cell.marked::after{content:'×';font-weight:900;font-size:calc(var(--cs) * .55);line-height:1}
+body[data-theme="4399"] .cell.marked::after{color:var(--cell-mark)}
+body[data-theme="arcade"] .cell.marked::after{color:var(--cell-mark);text-shadow:0 0 6px var(--cell-mark)}
+/* 错误行/列高亮（仅非填充格） */
+body[data-theme="4399"] .cell:not(.filled).error-row,body[data-theme="4399"] .cell:not(.filled).error-col{background:rgba(230,78,0,.05)}
+body[data-theme="arcade"] .cell:not(.filled).error-row,body[data-theme="arcade"] .cell:not(.filled).error-col{background:rgba(255,45,120,.06)}
+/* 错误闪烁 */
+.cell.err-flash{animation:errFlash .5s ease}
+@keyframes errFlash{0%,100%{filter:brightness(1)}30%{filter:brightness(1.8) sepia(1) hue-rotate(-50deg) saturate(4)}}
+/* 胜利扫描 */
+.cell.win-flash{animation:winFlash .5s ease}
+@keyframes winFlash{0%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.2);filter:brightness(1.6)}100%{transform:scale(1);filter:brightness(1)}}
+
+/* ========== 控制按钮 ========== */
+.controls{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;margin-top:20px;max-width:680px;margin-left:auto;margin-right:auto}
+button.ctrl-btn{cursor:pointer;font-family:inherit;transition:all .18s;letter-spacing:.3px}
+body[data-theme="4399"] button.ctrl-btn{font-size:13px;font-weight:700;padding:8px 16px;border:2px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text)}
+body[data-theme="4399"] button.ctrl-btn:hover{background:var(--surface2);border-color:var(--green);box-shadow:0 3px 10px rgba(56,153,4,.12)}
+body[data-theme="4399"] button.ctrl-btn:active{transform:translateY(1px)}
+body[data-theme="4399"] button.ctrl-btn.primary{background:linear-gradient(135deg,var(--green),var(--green2));border-color:var(--green2);color:#fff}
+body[data-theme="4399"] button.ctrl-btn.primary:hover{filter:brightness(1.08);box-shadow:0 4px 14px rgba(56,153,4,.3)}
+body[data-theme="4399"] button.ctrl-btn.danger{border-color:rgba(230,78,0,.4);color:var(--orange2)}
+body[data-theme="4399"] button.ctrl-btn.danger:hover{background:rgba(251,100,0,.08);border-color:var(--orange2)}
+body[data-theme="arcade"] button.ctrl-btn{font-family:'Press Start 2P','PingFang SC',monospace;font-size:9px;font-weight:700;padding:9px 14px;border:3px solid var(--line);background:var(--surface);color:var(--text);box-shadow:4px 4px 0 var(--hard)}
+body[data-theme="arcade"] button.ctrl-btn:hover{background:var(--surface2);border-color:var(--cyan);transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--hard)}
+body[data-theme="arcade"] button.ctrl-btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--hard)}
+body[data-theme="arcade"] button.ctrl-btn.primary{background:var(--pink);border-color:var(--pink);color:#fff;text-shadow:1px 1px 0 var(--hard)}
+body[data-theme="arcade"] button.ctrl-btn.primary:hover{background:#ff6aa0;border-color:var(--cyan)}
+body[data-theme="arcade"] button.ctrl-btn.danger{border-color:rgba(255,45,120,.5);color:#ff8ab0}
+body[data-theme="arcade"] button.ctrl-btn.danger:hover{background:rgba(255,45,120,.12);border-color:var(--pink)}
+button.ctrl-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* 模式指示器 */
+.mode-badge{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;font-weight:700;font-size:13px;transition:all .2s}
+body[data-theme="4399"] .mode-badge{border-radius:10px;border:2px solid var(--green);background:var(--green);color:#fff}
+body[data-theme="4399"] .mode-badge.mark{background:var(--orange);border-color:var(--orange)}
+body[data-theme="arcade"] .mode-badge{font-family:'Press Start 2P',monospace;font-size:9px;border:2px solid var(--green);background:var(--green);color:var(--hard);box-shadow:3px 3px 0 var(--hard)}
+body[data-theme="arcade"] .mode-badge.mark{background:var(--pink);border-color:var(--pink);color:#fff}
+
+/* 严格模式开关 */
+.strict-wrap{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:600;user-select:none}
+body[data-theme="4399"] .strict-wrap{color:var(--dim)}
+body[data-theme="arcade"] .strict-wrap{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--dim)}
+.strict-wrap input{width:16px;height:16px;cursor:pointer;accent-color:var(--green)}
+
+/* ========== 规则说明 ========== */
+.rules{margin-top:24px;max-width:680px;margin-left:auto;margin-right:auto;padding:14px 18px;line-height:1.8}
+body[data-theme="4399"] .rules{background:var(--surface);border:2px solid var(--line);border-radius:12px;font-size:13px;color:var(--dim)}
+body[data-theme="4399"] .rules strong{color:var(--green2)}
+body[data-theme="arcade"] .rules{background:var(--surface);border:3px solid var(--line);box-shadow:5px 5px 0 var(--hard);font-family:'Courier New',monospace;font-size:12px;color:#cdcde6}
+body[data-theme="arcade"] .rules strong{color:var(--green)}
+
+/* ========== 胜利浮层 ========== */
+.win-overlay{position:fixed;inset:0;z-index:150;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .3s}
+.win-overlay.show{opacity:1;pointer-events:auto}
+.win-card{text-align:center;padding:40px 50px;transform:scale(.8);transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+.win-overlay.show .win-card{transform:scale(1)}
+body[data-theme="4399"] .win-card{background:var(--surface);border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+body[data-theme="arcade"] .win-card{background:var(--surface);border:3px solid var(--green);box-shadow:8px 8px 0 var(--hard),0 0 40px rgba(0,255,157,.3)}
+.win-emoji{font-size:48px;margin-bottom:12px}
+body[data-theme="arcade"] .win-emoji{font-family:'Press Start 2P',monospace;font-size:28px;color:var(--yellow);text-shadow:0 0 20px var(--yellow)}
+.win-title{font-size:28px;font-weight:900;margin-bottom:8px}
+body[data-theme="4399"] .win-title{color:var(--green)}
+body[data-theme="arcade"] .win-title{font-family:'Press Start 2P',monospace;font-size:20px;color:var(--green);text-shadow:3px 3px 0 var(--hard),0 0 20px var(--green)}
+.win-sub{font-size:14px;margin-bottom:20px}
+body[data-theme="4399"] .win-sub{color:var(--dim)}
+body[data-theme="arcade"] .win-sub{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--cyan)}
+.win-stats{display:flex;gap:24px;justify-content:center;margin-bottom:24px}
+.win-stat{display:flex;flex-direction:column;align-items:center;gap:4px}
+body[data-theme="4399"] .win-stat-label{font-size:12px;color:var(--dim)}
+body[data-theme="4399"] .win-stat-val{font-size:22px;font-weight:800;color:var(--orange);font-family:'Courier New',monospace}
+body[data-theme="arcade"] .win-stat-label{font-family:'Press Start 2P',monospace;font-size:7px;color:var(--dim)}
+body[data-theme="arcade"] .win-stat-val{font-size:20px;font-weight:700;color:var(--yellow);font-family:'Courier New',monospace;text-shadow:0 0 8px var(--yellow)}
+.win-btns{display:flex;gap:12px;justify-content:center}
+
+/* ========== 响应式 ========== */
+@media(max-width:600px){
+  .wrap{padding:70px 12px 40px}
+  .stats{gap:8px}
+  .stat{padding:5px 10px}
+  .controls{gap:6px}
+  .level-btns{gap:6px}
+}
+</style>
+</head>
+<body data-theme="4399">
+
+<!-- 加载过渡 -->
+<div class="loader" id="loader">
+  <div class="core">
+    <div class="ring"></div><div class="ring r2"></div><div class="ring r3"></div>
+    <div class="pixel">◆</div>
+  </div>
+  <div class="load-track"><i></i></div>
+  <div class="load-text">LOADING <b>NONOGRAM</b>...</div>
+</div>
+
+<!-- 主题切换器 -->
+<div class="theme-switch" id="themeToggle" role="button" aria-label="切换主题" title="切换主题"></div>
+
+<!-- 返回按钮 -->
+<a href="../index.html" class="back-home">← 主页</a>
+
+<div class="wrap">
+  <!-- 4399 头部 -->
+  <header class="h4399">
+    <div class="top"><div class="logo-box">🖼️</div><div class="title">数织<em>谜题</em></div></div>
+    <p class="sub">逻辑推理 · 数字提示 · 还原图案</p>
+  </header>
+
+  <!-- 街机厅 头部 -->
+  <header class="harcade">
+    <div class="logo-bar">▶ INSERT COIN ◀</div>
+    <h1 class="title"><span class="p">NONO</span><span class="c">GRAM</span></h1>
+    <div class="sub">// logic picture puzzle</div>
+  </header>
+
+  <!-- 当前关卡 -->
+  <div class="puzzle-info" id="puzzleInfo">心形 · 5×5</div>
+
+  <!-- 状态栏 -->
+  <div class="stats">
+    <div class="stat"><span class="stat-label" id="lblTime">用时</span><span class="stat-value" id="timer">00:00</span></div>
+    <div class="stat"><span class="stat-label" id="lblHints">提示</span><span class="stat-value" id="hintsDisplay">3</span></div>
+    <div class="stat"><span class="stat-label" id="lblErrors">错误</span><span class="stat-value" id="errorsDisplay">0</span></div>
+  </div>
+
+  <!-- 关卡选择 -->
+  <div class="levels" id="levels"></div>
+
+  <!-- 棋盘 -->
+  <div class="board-scroll">
+    <div class="board-frame">
+      <span class="corner tl"></span><span class="corner tr"></span>
+      <span class="corner bl"></span><span class="corner br"></span>
+      <div class="board" id="board">
+        <div class="board-corner"></div>
+        <div class="board-col-clues" id="colClues"></div>
+        <div class="board-row-clues" id="rowClues"></div>
+        <div class="board-grid" id="grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 控制按钮 -->
+  <div class="controls">
+    <button class="ctrl-btn" id="btnUndo" onclick="undo()" title="撤销 Ctrl+Z">↩ 撤销</button>
+    <button class="ctrl-btn" id="btnRedo" onclick="redo()" title="重做 Ctrl+Shift+Z">↪ 重做</button>
+    <button class="ctrl-btn primary" id="btnHint" onclick="useHint()" title="提示 H">💡 提示 (<span id="hintsLeft">3</span>)</button>
+    <button class="ctrl-btn danger" id="btnReset" onclick="resetPuzzle()" title="重置 R">🔄 重置</button>
+    <div class="mode-badge" id="modeBadge" onclick="toggleMode()">填充模式</div>
+    <label class="strict-wrap">
+      <input type="checkbox" id="strictMode" onchange="toggleStrict()">
+      <span id="lblStrict">严格模式</span>
+    </label>
+  </div>
+
+  <!-- 规则 -->
+  <div class="rules" id="rules"></div>
+</div>
+
+<!-- 胜利浮层 -->
+<div class="win-overlay" id="winOverlay">
+  <div class="win-card">
+    <div class="win-emoji" id="winEmoji">🎉</div>
+    <div class="win-title" id="winTitle">恭喜通关！</div>
+    <div class="win-sub" id="winSub"></div>
+    <div class="win-stats">
+      <div class="win-stat"><span class="win-stat-label" id="wlTime">用时</span><span class="win-stat-val" id="wTime">00:00</span></div>
+      <div class="win-stat"><span class="win-stat-label" id="wlHints">提示</span><span class="win-stat-val" id="wHints">0</span></div>
+      <div class="win-stat"><span class="win-stat-label" id="wlErrors">错误</span><span class="win-stat-val" id="wErrors">0</span></div>
+    </div>
+    <div class="win-btns">
+      <button class="ctrl-btn primary" id="btnNext" onclick="nextPuzzle()">下一关</button>
+      <button class="ctrl-btn" id="btnReplay" onclick="closeWin()">再玩一次</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================================================================
+   Nonogram 游戏逻辑
+================================================================ */
+
+/* ===== 预设关卡图案（0/1 矩阵） ===== */
+const PUZZLES = {
+  // ---- 5×5 入门 ----
+  heart:{name:'心形',nameEn:'HEART',size:5,solution:[
+    [0,1,0,1,0],
+    [1,1,1,1,1],
+    [1,1,1,1,1],
+    [0,1,1,1,0],
+    [0,0,1,0,0]
+  ]},
+  arrow:{name:'箭头',nameEn:'ARROW',size:5,solution:[
+    [0,0,1,0,0],
+    [0,1,1,1,0],
+    [1,1,1,1,1],
+    [0,0,1,0,0],
+    [0,0,1,0,0]
+  ]},
+  house:{name:'房子',nameEn:'HOUSE',size:5,solution:[
+    [0,0,1,0,0],
+    [0,1,1,1,0],
+    [1,1,1,1,1],
+    [1,0,1,0,1],
+    [1,1,1,1,1]
+  ]},
+  cup:{name:'杯子',nameEn:'CUP',size:5,solution:[
+    [1,0,0,0,1],
+    [1,1,1,1,1],
+    [0,1,1,1,0],
+    [0,1,1,1,0],
+    [0,1,1,1,0]
+  ]},
+  // ---- 10×10 标准 ----
+  cat:{name:'猫',nameEn:'CAT',size:10,solution:[
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,1,0,0,0,0,0,0,1,1],
+    [1,1,1,0,0,0,0,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1],
+    [1,1,0,1,1,1,1,0,1,1],
+    [1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,0,1,1,0,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1],
+    [0,1,1,1,1,1,1,1,1,0],
+    [0,0,1,1,0,0,1,1,0,0]
+  ]},
+  mushroom:{name:'蘑菇',nameEn:'MUSHROOM',size:10,solution:[
+    [0,0,0,1,1,1,1,0,0,0],
+    [0,0,1,1,1,1,1,1,0,0],
+    [0,1,1,0,1,1,0,1,1,0],
+    [1,1,0,0,1,1,0,0,1,1],
+    [1,1,1,1,1,1,1,1,1,1],
+    [0,0,1,1,1,1,1,1,0,0],
+    [0,0,0,1,1,1,1,0,0,0],
+    [0,0,0,1,1,1,1,0,0,0],
+    [0,0,0,1,0,0,1,0,0,0],
+    [0,0,0,1,1,1,1,0,0,0]
+  ]},
+  sailboat:{name:'帆船',nameEn:'SAILBOAT',size:10,solution:[
+    [0,0,0,0,1,0,0,0,0,0],
+    [0,0,0,0,1,1,0,0,0,0],
+    [0,0,0,0,1,1,1,0,0,0],
+    [0,0,0,0,1,1,1,1,0,0],
+    [0,0,0,0,1,1,1,1,1,0],
+    [0,0,0,0,1,1,1,1,1,1],
+    [0,0,0,0,1,0,0,0,0,0],
+    [0,0,0,0,1,0,0,0,0,0],
+    [1,1,1,1,1,1,1,1,1,1],
+    [0,1,1,1,1,1,1,1,1,0]
+  ]},
+  star:{name:'星星',nameEn:'STAR',size:10,solution:[
+    [0,0,0,0,1,1,0,0,0,0],
+    [0,0,0,0,1,1,0,0,0,0],
+    [0,0,0,1,1,1,1,0,0,0],
+    [1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1],
+    [0,1,1,1,1,1,1,1,1,0],
+    [0,0,1,1,1,1,1,1,0,0],
+    [0,0,1,1,0,0,1,1,0,0],
+    [0,1,1,0,0,0,0,1,1,0],
+    [1,1,0,0,0,0,0,0,1,1]
+  ]},
+  // ---- 15×15 挑战 ----
+  dragon:{name:'龙',nameEn:'DRAGON',size:15,solution:[
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,1,1],
+    [0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
+    [0,0,0,0,0,0,0,0,0,0,0,1,1,0,1],
+    [0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+    [0,1,0,0,0,0,0,0,0,1,1,0,0,0,0],
+    [1,1,1,0,0,0,0,0,1,1,1,0,0,0,0],
+    [1,1,1,1,0,0,0,1,1,1,1,1,0,0,0],
+    [0,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+    [0,0,1,1,1,1,1,1,1,1,1,1,1,1,0],
+    [0,0,0,1,1,1,1,1,1,1,1,1,1,0,0],
+    [0,0,0,0,1,1,1,1,1,1,1,1,0,0,0],
+    [0,0,0,0,0,1,1,1,1,1,1,0,0,0,0],
+    [0,0,0,0,0,0,1,1,1,1,0,0,0,0,0],
+    [0,0,0,0,0,0,0,1,1,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]
+  ]},
+  castle:{name:'城堡',nameEn:'CASTLE',size:15,solution:[
+    [1,0,1,0,0,0,1,0,1,0,0,0,1,0,1],
+    [1,0,1,0,0,0,1,0,1,0,0,0,1,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,0,0,0,1,0,1,0,0,0,1,1,1],
+    [1,1,1,0,0,0,0,0,0,0,0,0,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [0,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+    [0,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+    [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+    [0,0,1,1,1,1,1,1,1,1,1,1,1,0,0],
+    [0,0,0,1,1,1,1,1,1,1,1,1,0,0,0],
+    [0,0,0,0,1,1,1,1,1,1,1,0,0,0,0],
+    [0,0,0,0,0,1,1,1,1,1,0,0,0,0,0],
+    [0,0,0,0,0,0,1,1,1,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]
+  ]}
+};
+
+/* 关卡顺序（用于"下一关"） */
+const PUZZLE_ORDER = ['heart','arrow','house','cup','cat','mushroom','sailboat','star','dragon','castle'];
+
+/* 关卡分组 */
+const LEVEL_GROUPS = [
+  {label:'5×5 入门',labelEn:'5x5 EASY',keys:['heart','arrow','house','cup']},
+  {label:'10×10 标准',labelEn:'10x10 NORMAL',keys:['cat','mushroom','sailboat','star']},
+  {label:'15×15 挑战',labelEn:'15x15 HARD',keys:['dragon','castle']}
+];
+
+/* ===== 游戏状态 ===== */
+const state = {
+  puzzleKey:'heart',
+  puzzle:null,
+  size:5,
+  rowClues:[],
+  colClues:[],
+  grid:[],           // 0=空 1=填充 2=标记×
+  rowClueDone:[],    // 手动标记完成
+  colClueDone:[],
+  mode:'fill',       // 'fill' | 'mark'
+  timer:0,
+  timerInterval:null,
+  errors:0,
+  strictMode:false,
+  hintsLeft:3,
+  hintsUsed:0,
+  won:false,
+  history:[],
+  historyIndex:-1
+};
+
+/* ===== 工具函数 ===== */
+
+/** 从 0/1 数组计算 clue */
+function calculateClue(line){
+  const clues=[];let count=0;
+  for(const cell of line){
+    if(cell===1) count++;
+    else{ if(count>0) clues.push(count); count=0; }
+  }
+  if(count>0) clues.push(count);
+  return clues.length===0?[0]:clues;
+}
+
+/** 计算行列 clue */
+function computeClues(solution){
+  const n=solution.length;
+  const rowClues=[],colClues=[];
+  for(let r=0;r<n;r++) rowClues.push(calculateClue(solution[r]));
+  for(let c=0;c<n;c++){
+    const col=[];for(let r=0;r<n;r++) col.push(solution[r][c]);
+    colClues.push(calculateClue(col));
+  }
+  return{rowClues,colClues};
+}
+
+/** 格子尺寸 */
+function getCellSize(n){
+  const w=window.innerWidth;
+  if(n<=5) return w<600?36:42;
+  if(n<=10) return w<600?24:30;
+  return w<600?18:22;
+}
+
+/** clue 字号 */
+function getClueFontSize(n){
+  if(n<=5) return 15;
+  if(n<=10) return 13;
+  return 11;
+}
+
+/** 格式化时间 */
+function formatTime(s){
+  const m=Math.floor(s/60),sec=s%60;
+  return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
+}
+
+/** 获取格子元素 */
+function getCellEl(r,c){
+  return document.querySelector('.cell[data-row="'+r+'"][data-col="'+c+'"]');
+}
+
+/* ===== 关卡加载 ===== */
+function loadPuzzle(key){
+  const p=PUZZLES[key];
+  if(!p) return;
+  state.puzzleKey=key;
+  state.puzzle=p;
+  state.size=p.size;
+  const{rowClues,colClues}=computeClues(p.solution);
+  state.rowClues=rowClues;
+  state.colClues=colClues;
+  state.grid=Array.from({length:p.size},()=>Array(p.size).fill(0));
+  state.rowClueDone=rowClues.map(c=>c.map(()=>false));
+  state.colClueDone=colClues.map(c=>c.map(()=>false));
+  state.timer=0;
+  state.errors=0;
+  state.hintsLeft=Math.max(3,Math.ceil(p.size/3));
+  state.hintsUsed=0;
+  state.won=false;
+  state.history=[];
+  state.historyIndex=-1;
+  stopTimer();
+  renderBoard();
+  renderLevelButtons();
+  updateStats();
+  updatePuzzleInfo();
+  updateRules();
+  startTimer();
+  saveHistory();
+}
+
+/** 重置当前关 */
+function resetPuzzle(){
+  if(!state.puzzle) return;
+  state.grid=Array.from({length:state.size},()=>Array(state.size).fill(0));
+  state.rowClueDone=state.rowClues.map(c=>c.map(()=>false));
+  state.colClueDone=state.colClues.map(c=>c.map(()=>false));
+  state.timer=0;
+  state.errors=0;
+  state.hintsLeft=Math.max(3,Math.ceil(state.size/3));
+  state.hintsUsed=0;
+  state.won=false;
+  state.history=[];
+  state.historyIndex=-1;
+  stopTimer();
+  renderAllCells();
+  updateValidation();
+  updateClueCompletion();
+  updateStats();
+  startTimer();
+  saveHistory();
+}
+
+/* ===== 棋盘渲染 ===== */
+function renderBoard(){
+  const n=state.size;
+  const cs=getCellSize(n);
+  const cfs=getClueFontSize(n);
+  const maxRowClues=Math.max(...state.rowClues.map(c=>c.length));
+  const maxColClues=Math.max(...state.colClues.map(c=>c.length));
+
+  const board=document.getElementById('board');
+  board.style.setProperty('--n',n);
+  board.style.setProperty('--cs',cs+'px');
+  board.style.setProperty('--clue-fs',cfs);
+  board.style.setProperty('--max-row-clues',maxRowClues);
+  board.style.setProperty('--max-col-clues',maxColClues);
+
+  // 列 clue
+  const colCluesEl=document.getElementById('colClues');
+  colCluesEl.innerHTML='';
+  colCluesEl.style.gridTemplateColumns='repeat('+n+',var(--cs))';
+  for(let c=0;c<n;c++){
+    const el=document.createElement('div');
+    el.className='col-clue';
+    if((c+1)%5===0&&c<n-1) el.classList.add('sep');
+    el.dataset.col=c;
+    for(let i=0;i<state.colClues[c].length;i++){
+      const num=document.createElement('span');
+      num.className='clue-num';
+      num.textContent=state.colClues[c][i];
+      num.dataset.col=c;num.dataset.idx=i;
+      num.addEventListener('click',()=>toggleClueDone(c,i,false));
+      el.appendChild(num);
+    }
+    colCluesEl.appendChild(el);
+  }
+
+  // 行 clue
+  const rowCluesEl=document.getElementById('rowClues');
+  rowCluesEl.innerHTML='';
+  rowCluesEl.style.gridTemplateRows='repeat('+n+',var(--cs))';
+  for(let r=0;r<n;r++){
+    const el=document.createElement('div');
+    el.className='row-clue';
+    if((r+1)%5===0&&r<n-1) el.classList.add('sep');
+    el.dataset.row=r;
+    for(let i=0;i<state.rowClues[r].length;i++){
+      const num=document.createElement('span');
+      num.className='clue-num';
+      num.textContent=state.rowClues[r][i];
+      num.dataset.row=r;num.dataset.idx=i;
+      num.addEventListener('click',()=>toggleClueDone(r,i,true));
+      el.appendChild(num);
+    }
+    rowCluesEl.appendChild(el);
+  }
+
+  // 格子
+  const gridEl=document.getElementById('grid');
+  gridEl.innerHTML='';
+  gridEl.style.gridTemplateColumns='repeat('+n+',var(--cs))';
+  gridEl.style.gridTemplateRows='repeat('+n+',var(--cs))';
+  for(let r=0;r<n;r++){
+    for(let c=0;c<n;c++){
+      const cell=document.createElement('div');
+      cell.className='cell';
+      cell.dataset.row=r;cell.dataset.col=c;
+      if((c+1)%5===0&&c<n-1) cell.classList.add('sep-right');
+      if((r+1)%5===0&&r<n-1) cell.classList.add('sep-bottom');
+      cell.addEventListener('mousedown',e=>onCellMouseDown(e,r,c));
+      cell.addEventListener('mouseenter',()=>onCellMouseEnter(r,c));
+      cell.addEventListener('contextmenu',e=>e.preventDefault());
+      cell.addEventListener('touchstart',e=>onCellTouchStart(e,r,c),{passive:false});
+      gridEl.appendChild(cell);
+    }
+  }
+
+  renderAllCells();
+  updateValidation();
+  updateClueCompletion();
+}
+
+/** 渲染单个格子 */
+function renderCell(r,c){
+  const cell=getCellEl(r,c);
+  if(!cell) return;
+  cell.classList.remove('filled','marked');
+  const v=state.grid[r][c];
+  if(v===1) cell.classList.add('filled');
+  else if(v===2) cell.classList.add('marked');
+}
+
+/** 渲染全部格子 */
+function renderAllCells(){
+  for(let r=0;r<state.size;r++)
+    for(let c=0;c<state.size;c++)
+      renderCell(r,c);
+}
+
+/* ===== 关卡按钮渲染 ===== */
+function renderLevelButtons(){
+  const container=document.getElementById('levels');
+  const isArcade=document.body.dataset.theme==='arcade';
+  container.innerHTML='';
+  LEVEL_GROUPS.forEach(group=>{
+    const g=document.createElement('div');
+    g.className='level-group';
+    const lbl=document.createElement('div');
+    lbl.className='level-label';
+    lbl.textContent=isArcade?group.labelEn:group.label;
+    g.appendChild(lbl);
+    const btns=document.createElement('div');
+    btns.className='level-btns';
+    group.keys.forEach(key=>{
+      const p=PUZZLES[key];
+      const btn=document.createElement('button');
+      btn.className='lvl-btn'+(key===state.puzzleKey?' on':'');
+      btn.textContent=isArcade?p.nameEn:p.name;
+      btn.onclick=()=>loadPuzzle(key);
+      btns.appendChild(btn);
+    });
+    g.appendChild(btns);
+    container.appendChild(g);
+  });
+}
+
+/* ===== 格子交互 ===== */
+let dragState=null;
+
+function startDrag(r,c,isRight){
+  const current=state.grid[r][c];
+  let action;
+  // 右键 或 标记模式 -> 标记操作
+  if(isRight||state.mode==='mark'){
+    action = current===2 ? 'unmark' : 'mark';
+  } else {
+    action = current===1 ? 'unfill' : 'fill';
+  }
+  dragState={action,visited:new Set()};
+  applyDragAction(r,c);
+}
+
+function applyDragAction(r,c){
+  if(!dragState) return;
+  const key=r+','+c;
+  if(dragState.visited.has(key)) return;
+  const current=state.grid[r][c];
+  const{action}=dragState;
+  let changed=false;
+
+  if(action==='fill'&&current!==1){
+    state.grid[r][c]=1;changed=true;
+    // 严格模式错误检测
+    if(state.strictMode&&state.puzzle.solution[r][c]===0){
+      state.errors++;
+      flashError(r,c);
+    }
+  } else if(action==='unfill'&&current===1){
+    state.grid[r][c]=0;changed=true;
+  } else if(action==='mark'&&current!==2){
+    state.grid[r][c]=2;changed=true;
+  } else if(action==='unmark'&&current===2){
+    state.grid[r][c]=0;changed=true;
+  }
+
+  if(changed){
+    dragState.visited.add(key);
+    renderCell(r,c);
+  }
+}
+
+function endDrag(){
+  if(dragState&&dragState.visited.size>0){
+    saveHistory();
+    afterChange();
+  }
+  dragState=null;
+}
+
+function onCellMouseDown(e,r,c){
+  e.preventDefault();
+  if(state.won) return;
+  startDrag(r,c,e.button===2);
+}
+
+function onCellMouseEnter(r,c){
+  if(dragState) applyDragAction(r,c);
+}
+
+document.addEventListener('mouseup',endDrag);
+
+/* ===== 触摸支持 ===== */
+function onCellTouchStart(e,r,c){
+  e.preventDefault();
+  if(state.won) return;
+  startDrag(r,c,state.mode==='mark');
+}
+
+document.addEventListener('touchmove',e=>{
+  if(!dragState) return;
+  e.preventDefault();
+  const t=e.touches[0];
+  const el=document.elementFromPoint(t.clientX,t.clientY);
+  if(el&&el.classList.contains('cell')){
+    applyDragAction(parseInt(el.dataset.row),parseInt(el.dataset.col));
+  }
+},{passive:false});
+
+document.addEventListener('touchend',endDrag);
+
+/* ===== 错误闪烁 ===== */
+function flashError(r,c){
+  const cell=getCellEl(r,c);
+  if(cell){
+    cell.classList.add('err-flash');
+    setTimeout(()=>cell.classList.remove('err-flash'),500);
+  }
+}
+
+/* ===== 校验 ===== */
+
+/** 行是否完全正确 */
+function isRowComplete(r){
+  for(let c=0;c<state.size;c++){
+    const should=state.puzzle.solution[r][c]===1;
+    const is=state.grid[r][c]===1;
+    if(should!==is) return false;
+  }
+  return true;
+}
+
+/** 列是否完全正确 */
+function isColComplete(c){
+  for(let r=0;r<state.size;r++){
+    const should=state.puzzle.solution[r][c]===1;
+    const is=state.grid[r][c]===1;
+    if(should!==is) return false;
+  }
+  return true;
+}
+
+/** 胜利检测：所有应填充格子都已填充 */
+function checkWin(){
+  for(let r=0;r<state.size;r++)
+    for(let c=0;c<state.size;c++)
+      if(state.puzzle.solution[r][c]===1&&state.grid[r][c]!==1) return false;
+  return true;
+}
+
+/** 更新错误行/列高亮 */
+function updateValidation(){
+  const errRows=new Set(),errCols=new Set();
+  for(let r=0;r<state.size;r++)
+    for(let c=0;c<state.size;c++)
+      if(state.grid[r][c]===1&&state.puzzle.solution[r][c]===0){
+        errRows.add(r);errCols.add(c);
+      }
+  // 行 clue 容器
+  for(let r=0;r<state.size;r++){
+    const el=document.querySelector('.row-clue[data-row="'+r+'"]');
+    if(el) el.classList.toggle('has-error',errRows.has(r));
+  }
+  // 列 clue 容器
+  for(let c=0;c<state.size;c++){
+    const el=document.querySelector('.col-clue[data-col="'+c+'"]');
+    if(el) el.classList.toggle('has-error',errCols.has(c));
+  }
+  // 格子
+  for(let r=0;r<state.size;r++)
+    for(let c=0;c<state.size;c++){
+      const cell=getCellEl(r,c);
+      if(cell){
+        cell.classList.toggle('error-row',errRows.has(r));
+        cell.classList.toggle('error-col',errCols.has(c));
+      }
+    }
+}
+
+/** 更新 clue 自动完成标记 */
+function updateClueCompletion(){
+  for(let r=0;r<state.size;r++){
+    const complete=isRowComplete(r);
+    const nums=document.querySelectorAll('.row-clue[data-row="'+r+'"] .clue-num');
+    nums.forEach(el=>el.classList.toggle('auto-done',complete));
+  }
+  for(let c=0;c<state.size;c++){
+    const complete=isColComplete(c);
+    const nums=document.querySelectorAll('.col-clue[data-col="'+c+'"] .clue-num');
+    nums.forEach(el=>el.classList.toggle('auto-done',complete));
+  }
+}
+
+/** 变更后统一更新 */
+function afterChange(){
+  updateValidation();
+  updateClueCompletion();
+  updateStats();
+  if(checkWin()) triggerWin();
+}
+
+/* ===== 提示功能 ===== */
+function useHint(){
+  if(state.won||state.hintsLeft<=0) return;
+  const candidates=[];
+  for(let r=0;r<state.size;r++)
+    for(let c=0;c<state.size;c++)
+      if(state.puzzle.solution[r][c]===1&&state.grid[r][c]!==1)
+        candidates.push([r,c]);
+  if(candidates.length===0) return;
+  const[r,c]=candidates[Math.floor(Math.random()*candidates.length)];
+  state.grid[r][c]=1;
+  state.hintsLeft--;
+  state.hintsUsed++;
+  renderCell(r,c);
+  saveHistory();
+  afterChange();
+}
+
+/* ===== 撤销/重做 ===== */
+function saveHistory(){
+  const snap=state.grid.map(row=>[...row]);
+  state.history=state.history.slice(0,state.historyIndex+1);
+  state.history.push(snap);
+  if(state.history.length>60) state.history.shift();
+  state.historyIndex=state.history.length-1;
+}
+
+function undo(){
+  if(state.historyIndex<=0||state.won) return;
+  state.historyIndex--;
+  state.grid=state.history[state.historyIndex].map(row=>[...row]);
+  renderAllCells();
+  updateValidation();
+  updateClueCompletion();
+  updateStats();
+}
+
+function redo(){
+  if(state.historyIndex>=state.history.length-1||state.won) return;
+  state.historyIndex++;
+  state.grid=state.history[state.historyIndex].map(row=>[...row]);
+  renderAllCells();
+  updateValidation();
+  updateClueCompletion();
+  updateStats();
+}
+
+/* ===== Clue 交互（手动标记完成） ===== */
+function toggleClueDone(idx,clueIdx,isRow){
+  if(isRow){
+    state.rowClueDone[idx][clueIdx]=!state.rowClueDone[idx][clueIdx];
+    const el=document.querySelector('.row-clue[data-row="'+idx+'"] .clue-num[data-idx="'+clueIdx+'"]');
+    if(el) el.classList.toggle('manual-done',state.rowClueDone[idx][clueIdx]);
+  } else {
+    state.colClueDone[idx][clueIdx]=!state.colClueDone[idx][clueIdx];
+    const el=document.querySelector('.col-clue[data-col="'+idx+'"] .clue-num[data-idx="'+clueIdx+'"]');
+    if(el) el.classList.toggle('manual-done',state.colClueDone[idx][clueIdx]);
+  }
+}
+
+/* ===== 模式切换 ===== */
+function toggleMode(){
+  state.mode = state.mode==='fill' ? 'mark' : 'fill';
+  updateModeBadge();
+}
+
+function updateModeBadge(){
+  const badge=document.getElementById('modeBadge');
+  const isArcade=document.body.dataset.theme==='arcade';
+  if(state.mode==='fill'){
+    badge.classList.remove('mark');
+    badge.textContent=isArcade?'FILL':'填充模式';
+  } else {
+    badge.classList.add('mark');
+    badge.textContent=isArcade?'MARK':'标记模式';
+  }
+}
+
+/* ===== 严格模式 ===== */
+function toggleStrict(){
+  state.strictMode=document.getElementById('strictMode').checked;
+}
+
+/* ===== 计时器 ===== */
+function startTimer(){
+  if(state.timerInterval) clearInterval(state.timerInterval);
+  state.timerInterval=setInterval(()=>{
+    if(!state.won){
+      state.timer++;
+      document.getElementById('timer').textContent=formatTime(state.timer);
+    }
+  },1000);
+}
+
+function stopTimer(){
+  if(state.timerInterval){clearInterval(state.timerInterval);state.timerInterval=null;}
+}
+
+/* ===== 状态更新 ===== */
+function updateStats(){
+  document.getElementById('timer').textContent=formatTime(state.timer);
+  document.getElementById('hintsDisplay').textContent=state.hintsLeft;
+  document.getElementById('hintsLeft').textContent=state.hintsLeft;
+  document.getElementById('errorsDisplay').textContent=state.errors;
+  document.getElementById('btnUndo').disabled=state.historyIndex<=0;
+  document.getElementById('btnRedo').disabled=state.historyIndex>=state.history.length-1;
+  document.getElementById('btnHint').disabled=state.hintsLeft<=0||state.won;
+}
+
+function updatePuzzleInfo(){
+  const p=state.puzzle;
+  const isArcade=document.body.dataset.theme==='arcade';
+  const info=document.getElementById('puzzleInfo');
+  if(isArcade){
+    info.innerHTML=p.nameEn+' <span class="sz">'+p.size+'×'+p.size+'</span>';
+  } else {
+    info.innerHTML=p.name+' <span class="sz">'+p.size+'×'+p.size+'</span>';
+  }
+}
+
+/* ===== 规则文本 ===== */
+function updateRules(){
+  const isArcade=document.body.dataset.theme==='arcade';
+  const el=document.getElementById('rules');
+  if(isArcade){
+    el.innerHTML='<strong>RULES:</strong><br>'+
+      '· LEFT CLICK: FILL / RIGHT CLICK: MARK X<br>'+
+      '· NUMBERS = CONSECUTIVE FILLED CELLS IN LINE<br>'+
+      '· "3 1" = 3 FILLED, GAP, 1 FILLED<br>'+
+      '· FILL ALL CORRECT CELLS TO CLEAR<br>'+
+      '· KEYS: SPACE=MODE R=RESET H=HINT CTRL+Z=UNDO';
+  } else {
+    el.innerHTML='<strong>游戏规则：</strong><br>'+
+      '· 左键填充格子 ■，右键标记空格 ×<br>'+
+      '· 数字提示表示该行/列连续填充的格子段长度<br>'+
+      '· 例如 "3 1" = 连续3格填充，间隔至少1格，再连续1格填充<br>'+
+      '· 填充所有正确格子即可通关<br>'+
+      '· 快捷键：空格=切换模式 R=重置 H=提示 Ctrl+Z=撤销 Ctrl+Shift+Z=重做';
+  }
+}
+
+/* ===== 胜利动画 ===== */
+function triggerWin(){
+  state.won=true;
+  stopTimer();
+  // 清除所有标记，只保留填充
+  for(let r=0;r<state.size;r++)
+    for(let c=0;c<state.size;c++)
+      if(state.grid[r][c]===2){
+        state.grid[r][c]=0;
+        renderCell(r,c);
+      }
+  // 清除错误高亮
+  updateValidation();
+  // 逐行扫描动画
+  const delay=Math.max(60,400/state.size);
+  for(let r=0;r<state.size;r++){
+    setTimeout(()=>{
+      for(let c=0;c<state.size;c++){
+        const cell=getCellEl(r,c);
+        if(cell&&state.puzzle.solution[r][c]===1)
+          cell.classList.add('win-flash');
+      }
+    },r*delay);
+  }
+  // 显示胜利浮层
+  setTimeout(showWinOverlay,state.size*delay+500);
+}
+
+function showWinOverlay(){
+  const isArcade=document.body.dataset.theme==='arcade';
+  document.getElementById('winEmoji').textContent=isArcade?'★':'🎉';
+  document.getElementById('winTitle').textContent=isArcade?'CLEAR!':'恭喜通关！';
+  const p=state.puzzle;
+  document.getElementById('winSub').textContent=isArcade?(p.nameEn+' '+p.size+'x'+p.size):(p.name+' · '+p.size+'×'+p.size);
+  document.getElementById('wTime').textContent=formatTime(state.timer);
+  document.getElementById('wHints').textContent=state.hintsUsed;
+  document.getElementById('wErrors').textContent=state.errors;
+  // 按钮文本
+  document.getElementById('btnNext').textContent=isArcade?'NEXT':'下一关';
+  document.getElementById('btnReplay').textContent=isArcade?'REPLAY':'再玩一次';
+  // 标签
+  document.getElementById('wlTime').textContent=isArcade?'TIME':'用时';
+  document.getElementById('wlHints').textContent=isArcade?'HINTS':'提示';
+  document.getElementById('wlErrors').textContent=isArcade?'ERRORS':'错误';
+  document.getElementById('winOverlay').classList.add('show');
+}
+
+function closeWin(){
+  document.getElementById('winOverlay').classList.remove('show');
+  resetPuzzle();
+}
+
+function nextPuzzle(){
+  document.getElementById('winOverlay').classList.remove('show');
+  const idx=PUZZLE_ORDER.indexOf(state.puzzleKey);
+  const next=PUZZLE_ORDER[(idx+1)%PUZZLE_ORDER.length];
+  loadPuzzle(next);
+}
+
+/* ===== 主题切换 ===== */
+const themeToggle=document.getElementById('themeToggle');
+function iconSVG(arcade){
+  if(arcade){
+    // 吃豆人 Pac-Man（街机）
+    return '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M12 12 L21 6 A10 10 0 1 0 21 18 Z"/><circle cx="13.5" cy="7.5" r="1.1" fill="#0a0a18"/></svg>';
+  }
+  // 世界树 Yggdrasil（清新）
+  return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3C9.8 3 8 4.8 8 7c0 .6.1 1.2.4 1.7C6.5 9.4 5.2 11 5.2 13c0 2.2 1.8 4 4 4h5.6c2.2 0 4-1.8 4-4 0-2-1.3-3.6-3.2-4.3.3-.5.4-1.1.4-1.7 0-2.2-1.8-4-4-4z"/><path d="M12 17v4"/><path d="M12 21l-3 2M12 21l3 2"/></svg>';
+}
+function themeLabels(theme){
+  const isArcade=theme==='arcade';
+  document.getElementById('lblTime').textContent=isArcade?'TIME':'用时';
+  document.getElementById('lblHints').textContent=isArcade?'HINT':'提示';
+  document.getElementById('lblErrors').textContent=isArcade?'ERR':'错误';
+  document.getElementById('lblStrict').textContent=isArcade?'STRICT':'严格模式';
+  document.getElementById('btnUndo').textContent=isArcade?'UNDO':'↩ 撤销';
+  document.getElementById('btnRedo').textContent=isArcade?'REDO':'↪ 重做';
+  document.getElementById('btnReset').textContent=isArcade?'RESET':'🔄 重置';
+  const btnHint=document.getElementById('btnHint');
+  btnHint.innerHTML=isArcade?('💡 HINT <span id="hintsLeft">'+state.hintsLeft+'</span>'):('💡 提示 (<span id="hintsLeft">'+state.hintsLeft+'</span>)');
+}
+function applyTheme(t){
+  document.body.dataset.theme=t;
+  localStorage.setItem('gh-theme',t);
+  themeToggle.innerHTML=iconSVG(t!=='arcade');
+  themeLabels(t);
+  updateModeBadge();
+  renderLevelButtons();
+  updatePuzzleInfo();
+  updateRules();
+  renderBoard();
+}
+themeToggle.addEventListener('click',()=>{
+  const next=document.body.dataset.theme==='arcade'?'4399':'arcade';
+  const loader=document.getElementById('loader');
+  loader.classList.add('on');
+  setTimeout(()=>{
+    applyTheme(next);
+    loader.classList.remove('on');
+  },650);
+});
+
+/* ===== 键盘快捷键 ===== */
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT') return;
+  if(e.ctrlKey&&e.shiftKey&&(e.key==='z'||e.key==='Z')){
+    e.preventDefault();redo();
+  } else if(e.ctrlKey&&(e.key==='z'||e.key==='Z')){
+    e.preventDefault();undo();
+  } else if(e.key===' '||e.code==='Space'){
+    e.preventDefault();toggleMode();
+  } else if((e.key==='r'||e.key==='R')&&!e.ctrlKey){
+    e.preventDefault();resetPuzzle();
+  } else if(e.key==='h'||e.key==='H'){
+    e.preventDefault();useHint();
+  }
+});
+
+/* ===== 窗口缩放 ===== */
+let resizeTimer;
+window.addEventListener('resize',()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer=setTimeout(()=>{
+    if(!state.puzzle) return;
+    const newCs=getCellSize(state.size);
+    const board=document.getElementById('board');
+    if(newCs+'px'!==board.style.getPropertyValue('--cs')){
+      board.style.setProperty('--cs',newCs+'px');
+    }
+  },200);
+});
+
+/* ===== 初始化 ===== */
+(function init(){
+  // 恢复主题
+  let saved='4399';
+  try{const s=localStorage.getItem('gh-theme');if(s==='4399'||s==='arcade')saved=s;}catch(e){}
+  document.body.dataset.theme=saved;
+  themeToggle.innerHTML=iconSVG(saved!=='arcade');
+  themeLabels(saved);
+
+  // 加载默认关卡
+  loadPuzzle('heart');
+  updateModeBadge();
+})();
+</script>
+</body>
+</html>
