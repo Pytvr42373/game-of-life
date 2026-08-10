@@ -967,6 +967,390 @@ kbd {
   opacity: 0;
 }
 
+/* ============ 规则弹窗（进入游戏时显示） ============ */
+.modal-layer#rulesLayer {
+  z-index: 210;
+  background: rgba(8, 8, 13, 0.72);
+}
+
+.rules-modal {
+  position: relative;
+  width: min(720px, 100%);
+  max-height: 90vh;
+  padding: 34px 32px 27px;
+  overflow-y: auto;
+  border: 2px solid var(--line-strong);
+  color: var(--text);
+  background: var(--surface-solid);
+  box-shadow: 10px 10px 0 var(--hard-shadow), 0 0 60px rgba(255, 227, 92, 0.16);
+}
+
+.rules-modal h2 {
+  margin: 4px 0 6px;
+  font-family: Georgia, "STSong", serif;
+  font-size: 27px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.rules-modal-desc {
+  max-width: 590px;
+  margin: 0 0 22px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.rules-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 2px solid var(--line);
+  color: var(--muted);
+  background: var(--surface-soft);
+  font-family: Georgia, serif;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 140ms ease;
+}
+
+.rules-close:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  transform: rotate(90deg);
+}
+
+.rule-card {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 22px;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 15px;
+  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  background: var(--surface);
+}
+
+.rule-text {
+  min-width: 0;
+}
+
+.rule-index {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--accent);
+  font-family: "Courier New", monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+}
+
+.rule-text h3 {
+  margin: 0 0 6px;
+  font-family: Georgia, "STSong", serif;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.rule-text p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.rule-text b {
+  color: var(--accent);
+}
+
+.rules-modal-foot {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px dashed var(--line);
+  text-align: center;
+}
+
+.rules-modal-foot p {
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.rules-modal-foot .action {
+  min-width: 180px;
+}
+
+.rules-controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px 20px;
+  margin: 0 0 17px;
+  color: var(--muted);
+  flex-wrap: wrap;
+  font-size: 10px;
+}
+
+.rules-controls span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* ---- 规则配图：每个亮格都严格对应实际光线路径 ---- */
+.rule-figure {
+  display: grid;
+  min-height: 166px;
+  margin: 0;
+  padding: 13px;
+  border: 1px solid var(--line);
+  background: var(--surface-soft);
+  place-items: center;
+  align-content: center;
+  gap: 9px;
+}
+
+.rule-figure figcaption {
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.rule-figure figcaption b {
+  color: var(--accent);
+}
+
+.demo-board {
+  display: grid;
+  grid-template-columns: repeat(var(--demo-columns), var(--demo-cell));
+  grid-template-rows: repeat(var(--demo-rows), var(--demo-cell));
+  gap: 2px;
+  width: max-content;
+  padding: 4px;
+  border: 2px solid var(--wall-edge);
+  background: var(--wall-edge);
+  box-shadow: 4px 4px 0 color-mix(in srgb, var(--hard-shadow) 76%, transparent);
+}
+
+.light-path-board {
+  --demo-columns: 5;
+  --demo-rows: 3;
+  --demo-cell: 34px;
+}
+
+.clue-board {
+  --demo-columns: 3;
+  --demo-rows: 3;
+  --demo-cell: 40px;
+}
+
+.sight-board {
+  --demo-columns: 5;
+  --demo-rows: 1;
+  --demo-cell: 31px;
+}
+
+.demo-cell {
+  position: relative;
+  display: grid;
+  width: var(--demo-cell);
+  height: var(--demo-cell);
+  overflow: hidden;
+  color: var(--mark);
+  background: var(--cell);
+  place-items: center;
+  font-family: Arial, sans-serif;
+  font-style: normal;
+}
+
+.demo-cell::before {
+  position: absolute;
+  inset: 2px;
+  border: 1px solid color-mix(in srgb, var(--line) 22%, transparent);
+  content: "";
+  pointer-events: none;
+}
+
+.demo-cell.is-lit {
+  background: radial-gradient(circle, var(--lit-center) 0 22%, var(--lit) 62%, color-mix(in srgb, var(--lit) 55%, var(--cell)) 100%);
+  box-shadow: inset 0 0 9px color-mix(in srgb, var(--accent-2) 34%, transparent);
+}
+
+.demo-cell.is-dark {
+  background: var(--cell);
+}
+
+.demo-cell.is-wall {
+  color: var(--wall-text);
+  background: var(--wall);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--wall-edge) 85%, transparent);
+  font-family: Georgia, serif;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.demo-cell.is-marked {
+  color: var(--mark);
+  font-size: calc(var(--demo-cell) * 0.64);
+  font-weight: 300;
+  line-height: 1;
+}
+
+.demo-cell.is-blocked {
+  color: var(--muted);
+  font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.demo-cell.is-satisfied {
+  color: var(--ok);
+  box-shadow: inset 0 0 0 3px var(--ok);
+}
+
+.demo-cell.is-satisfied::after {
+  position: absolute;
+  right: 2px;
+  bottom: 0;
+  color: var(--ok);
+  content: "✓";
+  font-family: Arial, sans-serif;
+  font-size: 10px;
+}
+
+.demo-bulb {
+  position: relative;
+  z-index: 3;
+  display: block;
+  width: 44%;
+  height: 50%;
+  border: 2px solid #9d6415;
+  border-radius: 55% 55% 43% 43%;
+  background: #fff9ad;
+  box-shadow: 0 0 0 3px rgba(255, 226, 74, 0.2), 0 0 10px 3px rgba(255, 226, 74, 0.68);
+}
+
+.demo-bulb::before {
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: -28%;
+  height: 24%;
+  border: 2px solid #9d6415;
+  border-top: 0;
+  background: #d99732;
+  content: "";
+}
+
+body[data-theme="arcade"] .demo-bulb {
+  border-color: #fff5a3;
+  background: #fffbd5;
+  box-shadow: 0 0 3px #fff, 0 0 10px #ffe35c, 0 0 17px #ff9f3d;
+}
+
+.clue-formula {
+  display: grid;
+  gap: 2px;
+}
+
+.clue-formula span {
+  color: var(--ok);
+  font-weight: 800;
+}
+
+.sight-figure {
+  gap: 10px;
+}
+
+.sight-example {
+  display: grid;
+  grid-template-columns: 38px auto;
+  align-items: center;
+  gap: 7px;
+}
+
+.example-state {
+  font-size: 10px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.example-state.is-bad {
+  color: var(--danger);
+}
+
+.example-state.is-good {
+  color: var(--ok);
+}
+
+.demo-cell.is-sightline::after {
+  position: absolute;
+  left: -3px;
+  right: -3px;
+  top: 50%;
+  z-index: 2;
+  height: 3px;
+  background: var(--danger);
+  box-shadow: 0 0 7px color-mix(in srgb, var(--danger) 75%, transparent);
+  content: "";
+  transform: translateY(-50%);
+}
+
+.demo-cell.is-conflict {
+  box-shadow: inset 0 0 0 3px var(--danger);
+}
+
+.demo-cell.is-conflict .demo-bulb {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 32%, transparent), 0 0 10px var(--danger);
+}
+
+@media (max-width: 620px) {
+  .rules-modal {
+    padding: 30px 22px 23px;
+  }
+
+  .rule-card {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .rule-text {
+    text-align: left;
+  }
+
+  .rule-figure {
+    width: 100%;
+  }
+}
+
+@media (max-width: 390px) {
+  .modal-layer#rulesLayer {
+    padding: 12px;
+  }
+
+  .rules-modal {
+    padding-inline: 15px;
+  }
+
+  .light-path-board {
+    --demo-cell: 31px;
+  }
+
+  .clue-board {
+    --demo-cell: 37px;
+  }
+
+  .sight-board {
+    --demo-cell: 27px;
+  }
+}
+
 .theme-flash.is-active {
   animation: theme-flash 430ms ease;
 }

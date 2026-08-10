@@ -347,7 +347,8 @@
   function applyTheme(theme, persist) {
     const safeTheme = theme === "arcade" ? "arcade" : "4399";
     document.body.dataset.theme = safeTheme;
-    app.elements.themeToggle.innerHTML = themeIcon(safeTheme);
+    const targetTheme = safeTheme === "arcade" ? "4399" : "arcade";
+    app.elements.themeToggle.innerHTML = themeIcon(targetTheme);
     app.elements.themeToggle.setAttribute(
       "aria-label",
       safeTheme === "arcade" ? "切换到清新实验室主题" : "切换到街机仪器主题"

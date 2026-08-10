@@ -422,7 +422,10 @@
     resultHints: document.getElementById("resultHints"),
     recordLine: document.getElementById("recordLine"),
     nextPuzzleButton: document.getElementById("nextPuzzleButton"),
-    closeModalButton: document.getElementById("closeModalButton")
+    closeModalButton: document.getElementById("closeModalButton"),
+    rulesLayer: document.getElementById("rulesLayer"),
+    rulesCloseButton: document.getElementById("rulesCloseButton"),
+    rulesStartButton: document.getElementById("rulesStartButton")
   };
 
   let state = null;
@@ -865,8 +868,33 @@
 
   function setModalBackgroundInert(active) {
     Array.from(document.body.children).forEach(function (child) {
-      if (child !== elements.successLayer && child.tagName !== "SCRIPT") child.inert = active;
+      if (child !== elements.successLayer && child !== elements.rulesLayer && child.tagName !== "SCRIPT") child.inert = active;
     });
+  }
+
+  function openRules() {
+    if (state && !state.completed && state.startedAt) {
+      state.elapsed = currentElapsed();
+      state.startedAt = null;
+      if (timerHandle) window.clearInterval(timerHandle);
+      timerHandle = null;
+      updateTimer();
+    }
+    elements.rulesLayer.hidden = false;
+    setModalBackgroundInert(true);
+    lastFocusedCell = document.activeElement;
+    elements.rulesCloseButton.focus();
+  }
+
+  function closeRules() {
+    const wasOpen = !elements.rulesLayer.hidden;
+    elements.rulesLayer.hidden = true;
+    setModalBackgroundInert(false);
+    if (wasOpen && state && !state.completed && !state.startedAt) {
+      state.startedAt = Date.now();
+      startTimer();
+    }
+    if (lastFocusedCell && typeof lastFocusedCell.focus === "function") lastFocusedCell.focus();
   }
 
   function iconSvg(showArcadeDestination) {
@@ -917,12 +945,20 @@
     elements.redoButton.addEventListener("click", redo);
     elements.nextPuzzleButton.addEventListener("click", nextPuzzle);
     elements.closeModalButton.addEventListener("click", closeSuccess);
+    elements.rulesCloseButton.addEventListener("click", closeRules);
+    elements.rulesStartButton.addEventListener("click", closeRules);
+    elements.rulesLayer.addEventListener("click", function (event) {
+      if (event.target === elements.rulesLayer) closeRules();
+    });
     elements.themeToggle.addEventListener("click", toggleTheme);
     elements.successLayer.addEventListener("click", function (event) {
       if (event.target === elements.successLayer) closeSuccess();
     });
     document.addEventListener("keydown", function (event) {
-      if (event.key === "Escape" && !elements.successLayer.hidden) closeSuccess();
+      if (event.key === "Escape") {
+        if (!elements.rulesLayer.hidden) closeRules();
+        else if (!elements.successLayer.hidden) closeSuccess();
+      }
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
         event.preventDefault();
         if (event.shiftKey) redo(); else undo();
@@ -948,6 +984,7 @@
     } else {
       startState("easy", PUZZLES.easy[0], null);
     }
+    openRules();
   }
 
   initialize();

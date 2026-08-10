@@ -3,6 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+    (function () {
+      "use strict";
+      try {
+        if (localStorage.getItem("gh-theme") === "arcade") document.documentElement.classList.add("pre-arcade");
+      } catch (e) {}
+    })();
+  </script>
+  <style>
+    html { background: #eaf3f1; }
+    html.pre-arcade { background: #060a14; }
+  </style>
   <meta name="description" content="光线侦探：用边缘探测射线推断实验网格中的隐藏粒子。">
   <title>光线侦探 | RAY LAB</title>
   <link rel="stylesheet" href="style.css">

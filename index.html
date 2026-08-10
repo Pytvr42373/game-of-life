@@ -6,7 +6,8 @@
 <title>GameHub · 迷你游戏合集</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Bungee&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Bungee&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Bungee&family=ZCOOL+KuaiLe&display=swap"></noscript>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 
@@ -15,6 +16,7 @@ body[data-theme="4399"]{
   --bg:#f4f8ef; --bg2:#ffffff; --surface:#ffffff; --line:#d8e8cd;
   --text:#24401d; --dim:#6f8a63; --green:#389904; --green2:#448230; --orange:#fb6400; --orange2:#e64e00;
   --tag-bg:#eef5e8;
+  --go-bg:rgba(244,248,239,.97); --go-text:#389904;
   background:linear-gradient(180deg,#f0f7ea 0%,#ffffff 55%,#f7fbf3 100%);color:var(--text);
 }
 body[data-theme="4399"]::before{
@@ -29,6 +31,7 @@ body[data-theme="arcade"]{
   --bg:#0b0b18; --bg2:#14142b; --surface:#191934; --line:#3a3a5c; --hard:#000;
   --text:#f4f4ff; --dim:#7a7aa0; --green:#00ff9d; --pink:#ff2d78; --cyan:#3de1ff; --yellow:#ffe14d;
   --tag-bg:#2a2a4a;
+  --go-bg:rgba(11,11,24,.97); --go-text:#3de1ff;
   background-color:#0b0b18;color:var(--text);
   background-image:radial-gradient(circle at 50% 0%, #2a2a55 0%, transparent 60%);
 }
@@ -82,7 +85,7 @@ body[data-theme="arcade"] .loader .load-text{--load-font:'Press Start 2P',monosp
 
 /* ============ 开屏动画 (splash) ============ */
 .splash{position:fixed;inset:0;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;
-  overflow:hidden;color:#fff;opacity:1;transition:opacity .5s ease}
+  overflow:hidden;color:#fff;opacity:1;transition:opacity .5s ease;cursor:pointer}
 .splash.off{opacity:0;pointer-events:none}
 /* 纯暗色底，只做字，不要花背景 */
 .splash .bg{position:absolute;inset:0;z-index:1;background:radial-gradient(circle at 50% 40%,#1a1a2e,#0a0a14)}
@@ -100,7 +103,11 @@ body[data-theme="arcade"] .loader .load-text{--load-font:'Press Start 2P',monosp
 @keyframes popIn{0%{opacity:0;transform:scale(.2) translateY(40px) rotate(-12deg);filter:blur(6px)}60%{opacity:1}100%{opacity:1;transform:scale(1) translateY(0) rotate(0);filter:blur(0)}}
 .splash .sub{font-family:'Press Start 2P',monospace;font-size:11px;letter-spacing:6px;color:#fff;z-index:3;opacity:0;animation:fadeUp .6s ease .85s forwards;text-shadow:0 0 12px rgba(255,255,255,.85)}
 .splash .sub2{font-family:'PingFang SC','Microsoft YaHei';font-size:15px;color:#fff;z-index:3;opacity:0;animation:fadeUp .6s ease 1.05s forwards;letter-spacing:2px;text-shadow:0 0 10px rgba(0,0,0,.5)}
+.splash .enter{font-family:'Press Start 2P',monospace;font-size:12px;letter-spacing:3px;color:#ffe14d;z-index:3;
+  opacity:0;animation:fadeUp .6s ease 1.6s forwards,breathe 1.6s ease-in-out 2.2s infinite;
+  text-shadow:0 0 14px rgba(255,225,77,.75),2px 2px 0 rgba(0,0,0,.5)}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes breathe{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.97)}}
 /* 闪光扫过 */
 @keyframes shine{0%{background-position:150% 0}100%{background-position:-150% 0}}
 
@@ -108,17 +115,25 @@ body[data-theme="arcade"] .loader .load-text{--load-font:'Press Start 2P',monosp
 .transition{position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;
   visibility:hidden;opacity:0;pointer-events:none;color:#fff;overflow:hidden;font-family:'Press Start 2P',monospace}
 .transition.on{visibility:visible;opacity:1;pointer-events:auto}
-.transition .t-text{display:none;position:relative;z-index:3;font-size:clamp(15px,5vw,32px);letter-spacing:3px;text-align:center;padding:0 16px;
-  text-shadow:0 0 18px rgba(0,0,0,.7),0 0 40px currentColor;animation:tTxt .35s ease}
+.transition .t-text{position:relative;z-index:3;font-size:clamp(15px,5vw,32px);letter-spacing:3px;text-align:center;padding:0 16px;
+  color:var(--go-text);font-family:var(--go-font,'PingFang SC');
+  text-shadow:0 0 24px currentColor;animation:tTxt .35s ease}
 @keyframes tTxt{0%{opacity:0;transform:scale(.6)}100%{opacity:1;transform:scale(1)}}
-.transition .t-bg{position:absolute;inset:0;z-index:1;background:rgba(244,248,239,.96);animation:tFade .35s ease forwards}
+.transition .t-bg{position:absolute;inset:0;z-index:1;background:var(--go-bg);animation:tFade .35s ease forwards}
 .transition .t-bg2{position:absolute;inset:0;z-index:2}
 @keyframes tFade{0%{opacity:0}100%{opacity:1}}
+body[data-theme="4399"] .transition .t-text{--go-font:'PingFang SC','Microsoft YaHei'}
+body[data-theme="arcade"] .transition .t-text{--go-font:'Press Start 2P',monospace;text-shadow:3px 3px 0 var(--hard),0 0 24px currentColor}
+.transition.t-scan .t-bg2{background:repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 2px, transparent 2px 5px);animation:tFade .4s ease forwards}
+.transition.t-pulse .t-text{animation:tTxt .35s ease,tPulse 1.1s ease-in-out .35s infinite}
+@keyframes tPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.09);opacity:.75}}
+.transition.t-flash .t-bg2{background:var(--go-text);animation:tFlash .55s ease forwards}
+@keyframes tFlash{0%{opacity:.3}100%{opacity:0}}
 
 /* ============ 尊重 reduce-motion：关闭动画 ============ */
 @media (prefers-reduced-motion: reduce){
   .splash,.splash *,.transition,.transition *{animation:none!important;transition:none!important}
-  .splash .big span,.splash .pt,.splash .sub,.splash .sub2{opacity:1!important;transform:none!important}
+  .splash .big span,.splash .pt,.splash .sub,.splash .sub2,.splash .enter{opacity:1!important;transform:none!important}
 }
 
 /* ============ 布局 ============ */
@@ -133,8 +148,10 @@ body[data-theme="4399"] .h4399{display:block}
 .h4399 .title em{font-style:normal;color:var(--orange)}
 .h4399 .sub{text-align:center;color:var(--dim);font-size:15px;margin-bottom:30px}
 .h4399 .nav{display:flex;justify-content:center;gap:10px;margin-bottom:36px;flex-wrap:wrap}
-.h4399 .nav span{font-size:13px;font-weight:600;color:var(--green);background:#eef5e8;border:1px solid var(--line);padding:5px 14px;border-radius:999px}
-.h4399 .nav span.on{background:var(--green);color:#fff;border-color:var(--green)}
+.h4399 .nav button{font:inherit;font-size:13px;font-weight:600;color:var(--green);background:#eef5e8;border:1px solid var(--line);padding:5px 14px;border-radius:999px;cursor:pointer}
+.h4399 .nav button:hover{border-color:var(--orange)}
+.h4399 .nav button:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+.h4399 .nav button.on{background:var(--green);color:#fff;border-color:var(--green)}
 
 /* ===== 街机厅 头部（更鲜明） ===== */
 body[data-theme="arcade"] .harcade{display:block}
@@ -142,7 +159,12 @@ body[data-theme="arcade"] .harcade{display:block}
 .harcade .title{font-family:'Press Start 2P',monospace;font-size:clamp(20px,4.5vw,34px);line-height:1.7;text-align:center;color:var(--text);text-shadow:3px 3px 0 var(--hard),0 0 20px rgba(61,225,255,.4);margin-bottom:14px}
 .harcade .title .c{color:var(--pink);text-shadow:3px 3px 0 var(--hard),0 0 20px var(--pink)}
 .harcade .title .y{color:var(--cyan);text-shadow:3px 3px 0 var(--hard),0 0 20px var(--cyan)}
-.harcade .sub{text-align:center;color:var(--dim);font-family:'Press Start 2P',monospace;font-size:10px;letter-spacing:3px;margin-bottom:46px}
+.harcade .sub{text-align:center;color:var(--dim);font-family:'Press Start 2P',monospace;font-size:10px;letter-spacing:3px;margin-bottom:26px}
+.harcade .nav{display:flex;justify-content:center;gap:10px;margin-bottom:38px;flex-wrap:wrap}
+.harcade .nav button{padding:8px 11px;border:2px solid var(--line);color:var(--dim);background:var(--surface);font-family:'Press Start 2P',monospace;font-size:8px;line-height:1;cursor:pointer;box-shadow:3px 3px 0 var(--hard)}
+.harcade .nav button:hover{color:var(--cyan);border-color:var(--cyan)}
+.harcade .nav button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.harcade .nav button.on{color:var(--hard);border-color:var(--green);background:var(--green);box-shadow:3px 3px 0 var(--hard),0 0 10px rgba(0,255,157,.45)}
 
 /* ===== 卡片网格：三卡居中 ===== */
 .grid{display:flex;flex-wrap:wrap;justify-content:center;gap:24px}
@@ -150,6 +172,7 @@ body[data-theme="arcade"] .harcade{display:block}
 /* ===== 卡片通用 ===== */
 .card{width:210px;text-align:center;cursor:pointer;position:relative;opacity:0;transform:translateY(20px)}
 .card.show{opacity:1;transform:translateY(0)}
+.card[hidden]{display:none}
 
 /* 4399 卡片（橙绿更鲜明） */
 body[data-theme="4399"] .card{background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:28px 18px;overflow:hidden;transition:.2s;box-shadow:0 3px 10px rgba(56,153,4,.06)}
@@ -187,11 +210,12 @@ body[data-theme="arcade"] .hint b{color:var(--cyan);text-shadow:0 0 10px var(--c
 <body data-theme="4399">
 
 <!-- 开屏动画 -->
-<div class="splash" id="splash" aria-hidden="true">
+<div class="splash" id="splash" role="button" tabindex="0" aria-label="点击进入主页">
   <div class="bg"></div>
   <div class="big" id="splashBig"></div>
   <div class="sub">- MINI GAME COLLECTION -</div>
   <div class="sub2">🎮 迷你游戏合集 · 即将开始</div>
+  <div class="enter">▶ 点击进入 · PRESS START ◀</div>
 </div>
 
 <!-- 华丽加载过渡 -->
@@ -211,7 +235,13 @@ body[data-theme="arcade"] .hint b{color:var(--cyan);text-shadow:0 0 10px var(--c
   <header class="h4399">
     <div class="top"><div class="logo-box">🎮</div><div class="title">好玩<em>小游戏</em></div></div>
     <p class="sub">专注好玩 · 每天都有新发现</p>
-    <div class="nav"><span class="on">全部</span><span>益智</span><span>逻辑</span><span>反应</span><span>经典</span></div>
+    <nav class="nav" aria-label="游戏分类">
+      <button type="button" class="on" data-filter="全部" aria-pressed="true" aria-controls="gameGrid">全部</button>
+      <button type="button" data-filter="益智" aria-pressed="false" aria-controls="gameGrid">益智</button>
+      <button type="button" data-filter="逻辑" aria-pressed="false" aria-controls="gameGrid">逻辑</button>
+      <button type="button" data-filter="反应" aria-pressed="false" aria-controls="gameGrid">反应</button>
+      <button type="button" data-filter="经典" aria-pressed="false" aria-controls="gameGrid">经典</button>
+    </nav>
   </header>
 
   <!-- 街机厅 头部 -->
@@ -219,51 +249,58 @@ body[data-theme="arcade"] .hint b{color:var(--cyan);text-shadow:0 0 10px var(--c
     <div class="logo">▶ INSERT COIN ◀</div>
     <h1 class="title"><span class="c">小</span>游<span class="y">戏</span>合<span class="c">集</span></h1>
     <p class="sub">— SELECT YOUR GAME —</p>
+    <nav class="nav" aria-label="GAME CATEGORIES">
+      <button type="button" class="on" data-filter="全部" aria-pressed="true" aria-controls="gameGrid">ALL</button>
+      <button type="button" data-filter="益智" aria-pressed="false" aria-controls="gameGrid">PUZZLE</button>
+      <button type="button" data-filter="逻辑" aria-pressed="false" aria-controls="gameGrid">LOGIC</button>
+      <button type="button" data-filter="反应" aria-pressed="false" aria-controls="gameGrid">REFLEX</button>
+      <button type="button" data-filter="经典" aria-pressed="false" aria-controls="gameGrid">CLASSIC</button>
+    </nav>
   </header>
 
-  <div class="grid">
+  <div class="grid" id="gameGrid">
     <!-- 康威生命游戏 -->
-    <div class="card" data-delay="0" onclick="go('life/index.html',event)">
+    <div class="card" data-delay="0" data-categories="经典" onclick="go('life/index.html',event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="hot">热</span>
       <span class="ico">🦠</span>
       <div class="name">康威生命游戏</div>
-      <div class="tag">细胞</div>
+      <div class="tag">经典</div>
     </div>
     <!-- 倒水游戏 -->
-    <div class="card" data-delay=".12s" onclick="go('bottle/index.html',event)">
+    <div class="card" data-delay=".12s" data-categories="益智 逻辑" onclick="go('bottle/index.html',event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">🍶</span>
       <div class="name">倒水谜题</div>
-      <div class="tag">逻辑</div>
+      <div class="tag">益智 · 逻辑</div>
     </div>
     <!-- 1A2B 猜数字 -->
-    <div class="card" data-delay=".18s" onclick="go('1A2B/index.html',event)">
+    <div class="card" data-delay=".18s" data-categories="益智 逻辑 经典" onclick="go('1A2B/index.html',event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">🔢</span>
       <div class="name">1A2B 猜数字</div>
-      <div class="tag">猜谜</div>
+      <div class="tag">益智 · 逻辑 · 经典</div>
     </div>
     <!-- Stroop 挑战 -->
-    <div class="card" data-delay=".3s" onclick="go('stroop/index.html',event)">
+    <div class="card" data-delay=".3s" data-categories="反应" onclick="go('stroop/index.html',event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">🎯</span>
       <div class="name">Stroop 挑战</div>
       <div class="tag">反应</div>
     </div>
     <!-- 点灯 -->
-    <div class="card" data-delay=".36s" onclick="go('light-up/index.html',event)">
+    <div class="card" data-delay=".36s" data-categories="益智 逻辑" onclick="go('light-up/index.html',event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">💡</span>
       <div class="name">点灯 · 光廊</div>
-      <div class="tag">空间推理</div>
+      <div class="tag">益智 · 逻辑</div>
     </div>
     <!-- 光线侦探 -->
-    <div class="card" data-delay=".42s" onclick="go('ray-lab/index.html',event)">
+    <div class="card" data-delay=".42s" data-categories="益智 逻辑" onclick="go('ray-lab/index.html',event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">🔬</span>
       <div class="name">光线侦探</div>
-      <div class="tag">逻辑推演</div>
+      <div class="tag">益智 · 逻辑</div>
     </div>
   </div>
 
@@ -317,33 +354,95 @@ function buildSplash(){
   const title='GAMEHUB';
   [...title].forEach(ch=>{const sp=document.createElement('span');sp.textContent=ch;big.appendChild(sp);});
 }
+// 卡片入场（开屏关闭后触发；reduced/返回时立即触发）
+function revealCards(){
+  document.querySelectorAll('.card').forEach(c=>{setTimeout(()=>c.classList.add('show'),parseFloat(c.dataset.delay||0)*1000);});
+}
 // 判断是否从子游戏返回：sessionStorage 标记
 let returning=false;
 try{ returning = sessionStorage.getItem('skipSplash')==='1'; sessionStorage.removeItem('skipSplash'); }catch(e){}
 if(reduced || returning){
-  // 减少动效 或 从子游戏返回：直接移除开屏
+  // 减少动效 或 从子游戏返回：直接移除开屏，卡片直出
   const sp=document.getElementById('splash'); if(sp) sp.remove();
+  revealCards();
 }else{
   buildSplash();
-  setTimeout(()=>{document.getElementById('splash').classList.add('off');},1400);
-  setTimeout(()=>{const sp=document.getElementById('splash'); if(sp) sp.remove();},1900);
+  const sp=document.getElementById('splash');
+  const born=Date.now();
+  let closing=false;
+  const closeSplash=()=>{
+    if(closing||Date.now()-born<1200)return;
+    closing=true;
+    document.removeEventListener('keydown',onEnter);
+    sp.classList.add('off');
+    revealCards();
+    setTimeout(()=>sp.remove(),500);
+  };
+  const onEnter=ev=>{
+    if(ev.key!=='Enter'&&ev.key!==' ')return;
+    ev.preventDefault();
+    closeSplash();
+  };
+  sp.addEventListener('click',closeSplash);
+  document.addEventListener('keydown',onEnter);
 }
 
 /* ===== 跳转随机过渡动画 + 打趣文本 ===== */
 const goTexts=['进入游戏…','加载中，别眨眼','🎮 街机启动','祝你好运！','对手已就位','前方高能','READY? GO!','一键起飞','LOADING…','满血出击！','走起，别掉线','开局送好运','搓搓手，上分！','这把稳了'];
-const tClasses=['t-warp','t-pixels','t-scan','t-burst','t-glitch'];
-const pxColors=['#ff2d78','#3de1ff','#ffe14d','#00ff9d','#a55eea','#ff8c42'];
+const tClasses=['t-scan','t-pulse','t-flash'];
 function go(url,ev){
   if(ev&&ev.preventDefault)ev.preventDefault();
   try{ sessionStorage.setItem('skipSplash','1'); }catch(e){}
   if(reduced){ location.href=url; return; }
   const t=document.getElementById('transition');
-  t.className='transition on';
-  setTimeout(()=>{location.href=url;},300);
+  t.querySelector('.t-text').textContent=goTexts[Math.floor(Math.random()*goTexts.length)];
+  t.className='transition on '+tClasses[Math.floor(Math.random()*tClasses.length)];
+  setTimeout(()=>{location.href=url;},500);
 }
 
 const cards=document.querySelectorAll('.card');
-cards.forEach(c=>{setTimeout(()=>c.classList.add('show'),parseFloat(c.dataset.delay||0)*1000);});
+const filterButtons=document.querySelectorAll('[data-filter]');
+function filterGames(category){
+  filterButtons.forEach(button=>{
+    const active=button.dataset.filter===category;
+    button.classList.toggle('on',active);
+    button.setAttribute('aria-pressed',String(active));
+  });
+  cards.forEach(card=>{
+    const categories=(card.dataset.categories||'').split(' ');
+    card.hidden=category!=='全部'&&!categories.includes(category);
+  });
+}
+filterButtons.forEach(button=>button.addEventListener('click',()=>filterGames(button.dataset.filter)));
+
+/* ===== bottle 预取：悬停/触摸预热 + 空闲预取主页 ===== */
+const prefetched=new Set();
+function prefetch(href){
+  if(prefetched.has(href))return;
+  prefetched.add(href);
+  const link=document.createElement('link');
+  link.rel='prefetch';
+  link.href=href;
+  document.head.appendChild(link);
+}
+const bottleAssets=[
+  'bottle/index.html',
+  'bottle/assets/index-DhMYQyOW.js',
+  'bottle/assets/index-CpaC40FQ.css',
+  'bottle/assets/Geometry-DtZ4-p-4.js',
+  'bottle/assets/RenderTargetSystem-CFWUoMLd.js'
+];
+const bottleCard=document.querySelector('.card[onclick*="bottle"]');
+if(bottleCard){
+  const warmBottle=()=>bottleAssets.forEach(prefetch);
+  bottleCard.addEventListener('pointerenter',warmBottle,{once:true});
+  bottleCard.addEventListener('touchstart',warmBottle,{once:true});
+}
+if(window.requestIdleCallback){
+  requestIdleCallback(()=>prefetch('bottle/index.html'));
+}else{
+  setTimeout(()=>prefetch('bottle/index.html'),3000);
+}
 </script>
 </body>
 </html>

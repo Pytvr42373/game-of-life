@@ -3,10 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<script>try{if(localStorage.getItem('gh-theme')==='arcade')document.documentElement.classList.add('pre-arcade')}catch(e){}</script>
+<style>html{background:#f4f8ef}html.pre-arcade{background:#0b0b18}</style>
 <title>1A2B 猜数字</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Bungee&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Bungee&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Bungee&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet"></noscript>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 
@@ -385,7 +388,7 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
   </div>
 
   <div class="hud">
-    <div class="chip">机会 <b id="chancesLeft">10</b>/<span id="chancesTotal">10</span></div>
+    <div class="chip">机会 <b id="chancesLeft">7</b>/<span id="chancesTotal">7</span></div>
     <div class="chip">最佳 <b id="bestLabel">-</b></div>
   </div>
 
@@ -440,7 +443,7 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
   'use strict';
 
   var CURRENT_LEN = 4;
-  var MAX_GUESSES = {4:10, 5:12, 6:15};
+  var MAX_GUESSES = {4:7, 5:8, 6:9};
 
   var answer = [];
   var guesses = [];      // 已提交的猜测 (each: array of digits)
@@ -666,14 +669,20 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
   }
 
   /* ================= 结果弹窗 ================= */
+  function getResultSub(win){
+    var max = MAX_GUESSES[CURRENT_LEN];
+    if (!win) return '什么，你' + max + '次还没猜出来，我家猫都能猜出来。';
+    if (guessedCount <= 2) return '第' + guessedCount + '次就猜中？这不是运气，是数字在向你投降！';
+    if (guessedCount <= 4) return '第' + guessedCount + '次猜中，中规中矩吧……不过能赢就是本事。';
+    if (guessedCount <= 6) return '第' + guessedCount + '次才猜中，多练练吧，下次让数字少蹦跶几下。';
+    return '第' + guessedCount + '次才猜中，差一点就要请我家猫来代打了。';
+  }
+
   function showModal(win){
     var s = loadStats(CURRENT_LEN);
     document.getElementById('resultTitle').textContent = win ? '🎉 恭喜通关！' : '😵 挑战失败';
     document.getElementById('resultAnswer').textContent = answer.join('');
-    var sub = win
-      ? ('第 ' + guessedCount + ' 次猜中，真厉害！')
-      : ('已经用完 ' + MAX_GUESSES[CURRENT_LEN] + ' 次机会，别灰心，再来一局！');
-    document.getElementById('resultSub').textContent = sub;
+    document.getElementById('resultSub').textContent = getResultSub(win);
 
     document.getElementById('stPlayed').textContent = s.played;
     document.getElementById('stWinPct').textContent = (s.played ? Math.round(s.won/s.played*100) : 0) + '%';

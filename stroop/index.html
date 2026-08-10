@@ -3,10 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>html{background:#f4f8ef}</style>
 <title>Stroop 挑战 · Stroop Challenge</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Bungee&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Bungee&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Bungee&family=ZCOOL+KuaiLe&display=swap"></noscript>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 
@@ -597,7 +599,8 @@ body{
       <div class="howto">
         <b>玩法：</b>屏幕上显示的<b>文字</b>会带着一种<b>颜色</b>，请忽略文字词义，点选（或按数字键）它<b>显示的颜色</b>。<br>
         例：显示"<b style="color:#1976d2">红</b>"字却是蓝色，就选<b>蓝色</b>。<br>
-        键盘快捷键：<span class="key">1</span><span class="key">2</span><span class="key">3</span><span class="key">4</span>…对应从左到右的色块。<br>
+        色块按钮的<b>排列顺序每题随机打乱</b>；SS班每题还会从 6 色中<b>随机抽取 4 色</b>登场，集训队则是全部 6 色。<br>
+        键盘快捷键：<span class="key">1</span><span class="key">2</span><span class="key">3</span><span class="key">4</span>…对应<b>从左到右的色块位置</b>（随位置而非固定颜色）。<br>
         答对 +10，连击 ≥5 → +20，≥10 → +30；反应越快额外加分；答错扣分并断连击；超时自动跳题。<br>
         每局 20 秒，尽量答得多、答得快、连击不断！
       </div>
@@ -653,18 +656,14 @@ body{
 
   /* ================= 难度配置 ================= */
   var DIFFS = {
-    novice:  {name:'新手',  labels:['红','绿','蓝'],                colors:['#d32f2f','#388e3c','#1976d2'],
-              limit:3000, wrong:-2, timeout:-1, rt1:900, rt1b:3, rt2:600, rt2b:5, time:20, desc:'3色 · 3秒'},
-    easy:    {name:'简单',  labels:['红','绿','蓝','黄'],            colors:['#d32f2f','#388e3c','#1976d2','#f9a825'],
-              limit:2500, wrong:-3, timeout:-2, rt1:750, rt1b:3, rt2:500, rt2b:5, time:20, desc:'4色 · 2.5秒'},
-    medium:  {name:'进阶',  labels:['红','绿','蓝','黄','紫'],       colors:['#d32f2f','#388e3c','#1976d2','#f9a825','#7b1fa2'],
-              limit:2000, wrong:-5, timeout:-3, rt1:600, rt1b:3, rt2:400, rt2b:5, time:20, desc:'5色 · 2秒'},
-    hard:    {name:'困难',  labels:['红','绿','蓝','黄','紫','青'],  colors:['#d32f2f','#388e3c','#1976d2','#f9a825','#7b1fa2','#00897b'],
-              limit:1500, wrong:-10, timeout:-3, rt1:600, rt1b:3, rt2:400, rt2b:5, time:20, desc:'6色 · 1.5秒'},
-    extreme: {name:'SS极难',labels:['红','绿','蓝','黄','紫','青','橙'],colors:['#d32f2f','#388e3c','#1976d2','#f9a825','#7b1fa2','#00897b','#ef6c00'],
-              limit:1200, wrong:-10, timeout:-5, rt1:500, rt1b:3, rt2:350, rt2b:5, time:20, desc:'7色 · 1.2秒'}
+    easy: {name:'简单',  labels:['红','绿','蓝','黄'],           colors:['#d32f2f','#388e3c','#1976d2','#f9a825'],
+           pick:4, limit:2500, wrong:-3,  timeout:-2,  rt1:750, rt1b:3, rt2:500, rt2b:5, time:20, desc:'4色 · 2.5秒'},
+    ss:   {name:'SS班',  labels:['红','绿','蓝','黄','紫','青'],  colors:['#d32f2f','#388e3c','#1976d2','#f9a825','#7b1fa2','#00897b'],
+           pick:4, limit:2000, wrong:-5,  timeout:-3,  rt1:600, rt1b:3, rt2:400, rt2b:5, time:20, desc:'6选4 · 2秒'},
+    team: {name:'集训队',labels:['红','绿','蓝','黄','紫','青'],  colors:['#d32f2f','#388e3c','#1976d2','#f9a825','#7b1fa2','#00897b'],
+           pick:6, limit:1500, wrong:-10, timeout:-3,  rt1:600, rt1b:3, rt2:400, rt2b:5, time:20, desc:'6色 · 1.5秒'}
   };
-  var ORDER = ['novice','easy','medium','hard','extreme'];
+  var ORDER = ['easy','ss','team'];
 
   /* ================= 元素 ================= */
   var screenSetup=document.getElementById('screenSetup');
@@ -682,7 +681,7 @@ body{
 
   /* ================= 状态 ================= */
   var state='setup';
-  var cur='novice';
+  var cur='easy';
   var score=0, combo=0, comboPeak=0;
   var totalTime=20, remaining=20;
   var qStart=0;
@@ -710,7 +709,7 @@ body{
       var hi=loadHigh(k);
       var dots = d.colors.map(function(c){ return '<span class="dot" style="background:'+c+'"></span>'; }).join('');
       var stars = '';
-      for(var s=0; s<5; s++){ stars += '<i class="star'+(s<=idx?' on':'')+'">★</i>'; }
+      for(var s=0; s<ORDER.length; s++){ stars += '<i class="star'+(s<=idx?' on':'')+'">★</i>'; }
       html+='<div class="diff-card" data-key="'+k+'">'+
         '<div class="dc-info">'+
           '<div class="dc-stars">'+stars+'</div>'+
@@ -751,20 +750,32 @@ body{
   }
 
   /* ================= 生成题目 ================= */
+  function pickColors(d){
+    var n=d.labels.length;
+    var idxs=[];
+    for(var i=0;i<n;i++){ idxs.push(i); }
+    for(var j=n-1;j>0;j--){
+      var k=randInt(j+1);
+      var t=idxs[j]; idxs[j]=idxs[k]; idxs[k]=t;
+    }
+    return idxs.slice(0,d.pick);
+  }
+
   function genQuestion(){
     var d=DIFFS[cur];
-    var n=d.labels.length;
-    var aIdx=randInt(n);
-    while(aIdx===lastAnswerIdx){ aIdx=randInt(n); }
-    var wIdx=randInt(n);
-    while(wIdx===lastWordIdx){ wIdx=randInt(n); }
-    if(Math.random()<0.8 && wIdx===aIdx){
-      var tmp=randInt(n);
-      while(tmp===aIdx || tmp===lastWordIdx){ tmp=randInt(n); }
-      wIdx=tmp;
+    var order=pickColors(d);
+    var m=order.length;
+    var ai=randInt(m);
+    while(order[ai]===lastAnswerIdx){ ai=randInt(m); }
+    var wi=randInt(m);
+    while(order[wi]===lastWordIdx){ wi=randInt(m); }
+    if(Math.random()<0.8 && wi===ai){
+      var ti=randInt(m);
+      while(ti===ai || order[ti]===lastWordIdx){ ti=randInt(m); }
+      wi=ti;
     }
-    lastAnswerIdx=aIdx; lastWordIdx=wIdx;
-    return {answer:aIdx, word:wIdx};
+    lastAnswerIdx=order[ai]; lastWordIdx=order[wi];
+    return {answer:order[ai], word:order[wi], order:order};
   }
 
   /* ================= 渲染 ================= */
@@ -777,13 +788,14 @@ body{
     wordEl.classList.add('pop');
   }
 
-  function renderButtons(){
+  function renderButtons(order){
     var d=DIFFS[cur];
     var html='';
-    for(var i=0;i<d.labels.length;i++){
-      var cls = luminance(d.colors[i])>0.55 ? 'darktext' : '';
-      html+='<button class="ans '+cls+'" data-idx="'+i+'" style="background:'+d.colors[i]+'">'+
-        '<span class="anum">'+(i+1)+'</span><span class="alabel">'+d.labels[i]+'</span></button>';
+    for(var i=0;i<order.length;i++){
+      var idx=order[i];
+      var cls = luminance(d.colors[idx])>0.55 ? 'darktext' : '';
+      html+='<button class="ans '+cls+'" data-idx="'+idx+'" style="background:'+d.colors[idx]+'">'+
+        '<span class="anum">'+(i+1)+'</span><span class="alabel">'+d.labels[idx]+'</span></button>';
     }
     ansGrid.innerHTML=html;
   }
@@ -810,7 +822,7 @@ body{
     answered=0; correctCount=0;
     rts=[]; conflictRTs=[]; congruentRTs=[];
     lastAnswerIdx=-1; lastWordIdx=-1;
-    renderButtons();
+    ansGrid.innerHTML='';
     updateHud();
     showScreen('game');
     state='playing';
@@ -821,6 +833,7 @@ body{
   function nextQuestion(){
     qStart=Date.now();
     currentQuestion=genQuestion();
+    renderButtons(currentQuestion.order);
     renderWord(currentQuestion);
   }
 
@@ -943,8 +956,12 @@ body{
   document.addEventListener('keydown', function(e){
     if(state!=='playing') return;
     if(e.metaKey||e.ctrlKey||e.altKey) return;
+    if(!currentQuestion) return;
     var n=parseInt(e.key,10);
-    if(n>=1 && n<=DIFFS[cur].labels.length){ answer(n-1); e.preventDefault(); }
+    if(n>=1 && n<=currentQuestion.order.length){
+      answer(currentQuestion.order[n-1]);
+      e.preventDefault();
+    }
   });
 
   /* ================= 初始化 ================= */
