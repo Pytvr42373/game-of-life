@@ -261,17 +261,24 @@ body[data-theme="arcade"] .gate-input{border:3px solid var(--line);border-radius
 body[data-theme="arcade"] .gate-input:focus{border-color:var(--cyan)}
 .gate-input.shake{animation:gate-shake .3s}
 @keyframes gate-shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-.gate-err{min-height:20px;font-size:13px;color:var(--pink);margin-bottom:8px}
+.gate-err{min-height:24px;font-size:16px;font-weight:800;color:var(--pink);margin-bottom:10px;letter-spacing:1px;transition:color .2s}
 .gate-err.ok{color:var(--green)}
-body[data-theme="arcade"] .gate-err{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--pink)}
-.gate-keypad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+body[data-theme="arcade"] .gate-err{font-family:'Press Start 2P',monospace;font-size:13px;color:var(--pink)}
+body[data-theme="arcade"] .gate-err.ok{color:var(--green);text-shadow:0 0 10px rgba(0,255,157,.5)}
+.gate-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:0}
 .gate-key{height:52px;font-size:20px;font-weight:700;border-radius:10px;border:2px solid var(--line);background:var(--bg2);color:var(--text);cursor:pointer;transition:transform .1s,background .15s;font-family:inherit}
 .gate-key:hover{transform:translateY(-2px);border-color:var(--green)}
 .gate-key:active{transform:scale(.93);background:var(--green);color:#fff}
 body[data-theme="arcade"] .gate-key{border:2px solid var(--line);border-radius:0;font-family:'Press Start 2P',monospace;font-size:15px;box-shadow:0 3px 0 var(--hard)}
 body[data-theme="arcade"] .gate-key:hover{border-color:var(--cyan);box-shadow:0 3px 0 var(--hard),0 0 10px rgba(61,225,255,.3)}
 body[data-theme="arcade"] .gate-key:active{background:var(--pink);color:var(--bg);box-shadow:none}
-.gate-key.del{grid-column:span 1}
+.gate-key.ok,.gate-key.del{background:linear-gradient(135deg,var(--surface),var(--bg2));border-color:var(--line)}
+.gate-key.ok{color:var(--green);font-size:24px}
+.gate-key.del{color:var(--pink);font-size:20px}
+body[data-theme="arcade"] .gate-key.ok{color:var(--green);border-color:var(--green)}
+body[data-theme="arcade"] .gate-key.ok:active{background:var(--green);color:var(--bg)}
+body[data-theme="arcade"] .gate-key.del{color:var(--pink);border-color:var(--pink)}
+body[data-theme="arcade"] .gate-key.del:active{background:var(--pink);color:var(--bg)}
 .gate-btn-row{display:flex;gap:10px;justify-content:center}
 .gate-btn{font-weight:700;font-size:15px;padding:12px 26px;border-radius:10px;cursor:pointer;transition:.18s;border:2px solid var(--green);background:linear-gradient(135deg,var(--green),var(--green2,var(--green)));color:#fff}
 .gate-btn:hover{filter:brightness(1.08);transform:translateY(-2px)}
@@ -346,10 +353,7 @@ body[data-theme="arcade"] .portal-ask-btn{font-family:'Press Start 2P',monospace
     </div>
     <div class="gate-err" id="gateErr"></div>
     <div class="gate-keypad" id="gateKeypad" role="group" aria-label="数字键盘"></div>
-    <div class="gate-btn-row">
-      <button type="button" class="gate-btn cancel" id="gateCancel">取消</button>
-      <button type="button" class="gate-btn" id="gateOk">确认进入</button>
-    </div>
+
   </div>
 </div>
 
@@ -771,9 +775,7 @@ const gateModal=document.getElementById('gateModal');
 const gateInput=document.getElementById('gateInput');
 const gateErr=document.getElementById('gateErr');
 const gateKeypad=document.getElementById('gateKeypad');
-const gateOk=document.getElementById('gateOk');
 const gateClose=document.getElementById('gateClose');
-const gateCancel=document.getElementById('gateCancel');
 let gateAnswer='666';
 let gateQuestion='请输入开发者代码：';
 let gateMaxLen=3;
@@ -785,13 +787,13 @@ let gateBodyOverflow='';
 
 (function buildGateKeypad(){
   if(!gateKeypad) return;
-  const keys=['1','2','3','4','5','6','7','8','9','del','0'];
+  const keys=['1','2','3','4','5','6','7','8','9','ok','0','del'];
   keys.forEach(function(k){
     const b=document.createElement('button');
     b.type='button';
-    b.className='gate-key'+(k==='del'?' del':'');
-    if(k==='del'){ b.textContent='⌫'; b.setAttribute('aria-label','删除'); }
-    else if(k==='ok'){ b.textContent='确定'; b.setAttribute('aria-label','确定'); }
+    b.className='gate-key'+(k==='ok'?' ok':(k==='del'?' del':''));
+    if(k==='del'){ b.innerHTML='<span class="gk-ico">⌫</span>'; b.setAttribute('aria-label','删除'); }
+    else if(k==='ok'){ b.innerHTML='<span class="gk-ico">✓</span>'; b.setAttribute('aria-label','确认'); }
     else { b.textContent=k; }
     b.addEventListener('click',function(){ gatePress(k); });
     gateKeypad.appendChild(b);
@@ -814,16 +816,16 @@ function gatePress(key){
 
 function gateSubmit(){
   if(gateInput.value===gateAnswer){
-    gateErr.textContent='✓ 认证通过';
+    gateErr.textContent='正确';
     gateErr.className='gate-err ok';
     const cb=gateOnSuccess;
     gateOnSuccess=null;
     setTimeout(function(){
       if(cb){ hideGateModal(false); cb(); }
       else { hideGateModal(true); }
-    },350);
+    },400);
   } else {
-    gateErr.textContent=gateInput.value==='' ? '请输入代码' : '✕ 代码错误，再试试';
+    gateErr.textContent='错误';
     gateErr.className='gate-err';
     gateInput.classList.remove('shake');
     void gateInput.offsetWidth;
@@ -898,8 +900,7 @@ function handleGateKeydown(event){
   if(event.key==='Enter'){ gatePress('ok'); event.preventDefault(); return; }
 }
 if(gateClose)gateClose.addEventListener('click',function(){ hideGateModal(false); });
-if(gateCancel)gateCancel.addEventListener('click',function(){ hideGateModal(false); });
-if(gateOk)gateOk.addEventListener('click',gateSubmit);
+
 if(gateModal)gateModal.addEventListener('keydown',handleGateKeydown);
 document.addEventListener('focusin',function(e){
   if(gateModal&&gateModal.classList.contains('show')&&!gateModal.contains(e.target))gateModal.focus();
