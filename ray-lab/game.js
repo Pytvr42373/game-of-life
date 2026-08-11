@@ -513,9 +513,9 @@
 
   function themeIcon(theme) {
     if (theme === "arcade") {
-      return '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 9.3 13.7L12 12l8.4-5.4A10 10 0 0 0 12 2Z"/><circle cx="13" cy="6.7" r="1.2" fill="#111"/></svg>';
+      return '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M12 12 L21 6 A10 10 0 1 0 21 18 Z"/><circle cx="13.5" cy="7.5" r="1.1" fill="#0a0a18"/></svg>';
     }
-    return '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V10m0 3-4-4m4 1 4-4m-4 11-4 4m4-4 4 4"/><path d="M7.2 13.2a4 4 0 0 1-1.5-7.7A5.7 5.7 0 0 1 16.5 5a4 4 0 0 1 .4 7.9"/><path d="M4 21h16"/></svg>';
+    return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3C9.8 3 8 4.8 8 7c0 .6.1 1.2.4 1.7C6.5 9.4 5.2 11 5.2 13c0 2.2 1.8 4 4 4h5.6c2.2 0 4-1.8 4-4 0-2-1.3-3.6-3.2-4.3.3-.5.4-1.1.4-1.7 0-2.2-1.8-4-4-4z"/><path d="M12 17v4"/><path d="M12 21l-3 2M12 21l3 2"/></svg>';
   }
 
   function applyTheme(theme, persist) {

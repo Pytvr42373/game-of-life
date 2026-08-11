@@ -250,25 +250,25 @@ body[data-theme="arcade"] .gate-box{border:3px solid var(--line);border-radius:0
 .gate-close:hover{color:var(--green)}
 body[data-theme="arcade"] .gate-close:hover{color:var(--cyan)}
 .gate-icon{font-size:40px;margin-bottom:8px;filter:drop-shadow(0 0 8px rgba(255,225,77,.5))}
-.gate-title{font-size:22px;font-weight:900;color:var(--text);margin-bottom:10px}
-body[data-theme="arcade"] .gate-title{font-family:'Press Start 2P',monospace;font-size:14px;color:var(--yellow);text-shadow:0 0 10px rgba(255,225,77,.5)}
+.gate-title{font-size:26px;font-weight:900;color:var(--text);margin-bottom:10px}
+body[data-theme="arcade"] .gate-title{font-family:'Press Start 2P',monospace;font-size:18px;color:var(--yellow);text-shadow:0 0 10px rgba(255,225,77,.5)}
 .gate-question{font-size:15px;color:var(--dim);line-height:1.6;margin-bottom:18px}
-body[data-theme="arcade"] .gate-question{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--cyan)}
+body[data-theme="arcade"] .gate-question{font-family:'Press Start 2P',monospace;font-size:12px;color:var(--cyan);line-height:1.8}
 .gate-input-wrap{position:relative;margin-bottom:16px}
 .gate-input{width:100%;text-align:center;font-size:26px;font-weight:800;letter-spacing:6px;padding:12px 16px;border-radius:10px;border:2px solid var(--line);background:var(--bg2);color:var(--text);outline:none;transition:border-color .2s;font-family:inherit}
 .gate-input:focus{border-color:var(--green)}
-body[data-theme="arcade"] .gate-input{border:3px solid var(--line);border-radius:0;font-family:'Press Start 2P',monospace;font-size:18px;background:var(--bg2);box-shadow:inset 0 0 12px rgba(61,225,255,.08)}
+body[data-theme="arcade"] .gate-input{border:3px solid var(--line);border-radius:0;font-family:'Press Start 2P',monospace;font-size:24px;background:var(--bg2);box-shadow:inset 0 0 12px rgba(61,225,255,.08)}
 body[data-theme="arcade"] .gate-input:focus{border-color:var(--cyan)}
 .gate-input.shake{animation:gate-shake .3s}
 @keyframes gate-shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 .gate-err{min-height:20px;font-size:13px;color:var(--pink);margin-bottom:8px}
 .gate-err.ok{color:var(--green)}
 body[data-theme="arcade"] .gate-err{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--pink)}
-.gate-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.gate-keypad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
 .gate-key{height:52px;font-size:20px;font-weight:700;border-radius:10px;border:2px solid var(--line);background:var(--bg2);color:var(--text);cursor:pointer;transition:transform .1s,background .15s;font-family:inherit}
 .gate-key:hover{transform:translateY(-2px);border-color:var(--green)}
 .gate-key:active{transform:scale(.93);background:var(--green);color:#fff}
-body[data-theme="arcade"] .gate-key{border:2px solid var(--line);border-radius:0;font-family:'Press Start 2P',monospace;font-size:14px;box-shadow:0 3px 0 var(--hard)}
+body[data-theme="arcade"] .gate-key{border:2px solid var(--line);border-radius:0;font-family:'Press Start 2P',monospace;font-size:15px;box-shadow:0 3px 0 var(--hard)}
 body[data-theme="arcade"] .gate-key:hover{border-color:var(--cyan);box-shadow:0 3px 0 var(--hard),0 0 10px rgba(61,225,255,.3)}
 body[data-theme="arcade"] .gate-key:active{background:var(--pink);color:var(--bg);box-shadow:none}
 .gate-key.del{grid-column:span 1}
@@ -281,26 +281,41 @@ body[data-theme="arcade"] .gate-btn:hover{box-shadow:3px 3px 0 var(--hard),0 0 1
 body[data-theme="arcade"] .gate-btn.cancel{border-color:var(--dim)}
 
 /* ===== 神秘的入口：传送动画 + 选择弹窗 ===== */
-.portal-overlay{position:fixed;inset:0;z-index:700;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.88);backdrop-filter:blur(6px);opacity:0;visibility:hidden;transition:opacity .3s}
+.portal-overlay{position:fixed;inset:0;z-index:700;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#000;opacity:0;visibility:hidden;transition:opacity .35s}
 .portal-overlay.show{opacity:1;visibility:visible}
-.portal-scene{position:relative;width:min(460px,92%);min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;border-radius:18px;background:linear-gradient(160deg,#1a1030,#0d0a1e);border:2px solid rgba(160,120,255,.5);box-shadow:0 0 60px rgba(120,80,255,.35),inset 0 0 40px rgba(120,80,255,.08)}
-.portal-hole{width:120px;height:120px;border-radius:50%;margin-bottom:22px;position:relative;
-  background:radial-gradient(circle at 30% 30%,#4b2a8a,#1c1040 55%,#000 100%);
-  box-shadow:0 0 40px rgba(120,80,255,.7),inset 0 0 30px rgba(0,0,0,.9);
-  animation:portal-spin 4s linear infinite}
-.portal-hole::before,.portal-hole::after{content:'';position:absolute;border-radius:50%;background:transparent;
-  border:2px solid rgba(150,110,255,.5);inset:-8px;animation:portal-ring 3s ease-out infinite}
-.portal-hole::after{inset:-18px;animation-delay:1.5s;border-color:rgba(255,180,255,.3)}
-@keyframes portal-spin{to{transform:rotate(360deg)}}
-@keyframes portal-ring{0%{transform:scale(.8);opacity:.8}100%{transform:scale(1.25);opacity:0}}
-.portal-line{min-height:34px;font-size:19px;font-weight:700;color:#e6dcff;line-height:1.5;text-shadow:0 0 16px rgba(160,120,255,.6);opacity:0;transform:translateY(8px);transition:opacity .35s,transform .35s}
-.portal-line.show{opacity:1;transform:translateY(0)}
-.portal-line.danger{color:#ff8a8a;text-shadow:0 0 16px rgba(255,80,80,.6)}
-body[data-theme="arcade"] .portal-line{font-family:'Press Start 2P',monospace;font-size:11px}
-body[data-theme="arcade"] .portal-line.danger{color:#ff4d4d}
-.portal-skip{position:absolute;bottom:14px;right:16px;font-size:12px;color:rgba(200,180,255,.6);cursor:pointer;background:none;border:0;padding:6px 10px}
+.portal-scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
+/* 旋转黑洞背景 */
+.portal-hole{position:absolute;left:50%;top:50%;width:46vmin;height:46vmin;transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:
+    conic-gradient(from 0deg,#0a0a1a,#3a1a6a,#0a0a1a,#1c1040,#0a0a1a);
+  -webkit-mask:radial-gradient(circle,#000 55%,transparent 72%);
+  mask:radial-gradient(circle,#000 55%,transparent 72%);
+  filter:blur(2px);
+  animation:portal-spin 5s linear infinite;
+  opacity:.9;z-index:1}
+.portal-hole::after{content:'';position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle at 50% 50%,#000 30%,#2a1050 55%,transparent 75%);
+  animation:portal-pulse 2.2s ease-in-out infinite}
+@keyframes portal-spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes portal-pulse{0%,100%{opacity:.7}50%{opacity:1}}
+/* 彩色碎片 - 螺旋吸入 */
+.portal-shard{position:absolute;width:14px;height:10px;border-radius:2px;opacity:0;z-index:2;
+  animation:shard-in 3.2s ease-in forwards}
+@keyframes shard-in{
+  0%{opacity:1;transform:translate(var(--sx),var(--sy)) rotate(0deg) scale(1)}
+  100%{opacity:0;transform:translate(0,0) rotate(720deg) scale(.15)}
+}
+/* 大标题 - 一次一句 */
+.portal-line{position:relative;z-index:3;min-height:1.4em;max-width:92%;font-size:clamp(26px,6vmin,52px);font-weight:900;
+  color:#f0e8ff;line-height:1.4;text-shadow:0 0 22px rgba(160,120,255,.85),0 0 60px rgba(120,80,255,.5);
+  opacity:0;transform:scale(.85);letter-spacing:2px;transition:opacity .4s,transform .4s;padding:0 10px}
+.portal-line.show{opacity:1;transform:scale(1)}
+.portal-line.danger{color:#ffd0d0;text-shadow:0 0 22px rgba(255,80,80,.9),0 0 60px rgba(255,0,60,.5)}
+body[data-theme="arcade"] .portal-line{font-family:'Press Start 2P',monospace;font-size:clamp(15px,3.4vmin,30px)}
+.portal-skip{position:absolute;bottom:18px;right:20px;z-index:5;font-size:13px;color:rgba(220,200,255,.7);cursor:pointer;background:none;border:0;padding:6px 10px}
 .portal-skip:hover{color:#fff}
-body[data-theme="arcade"] .portal-skip{font-family:'Press Start 2P',monospace;font-size:7px}
+body[data-theme="arcade"] .portal-skip{font-family:'Press Start 2P',monospace;font-size:8px}
 
 .portal-ask{position:fixed;inset:0;z-index:710;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.6);opacity:0;visibility:hidden;transition:opacity .25s}
 .portal-ask.show{opacity:1;visibility:visible}
@@ -343,11 +358,8 @@ body[data-theme="arcade"] .portal-ask-btn{font-family:'Press Start 2P',monospace
 <div class="portal-overlay" id="portalOverlay" role="dialog" aria-modal="true" aria-hidden="true" inert>
   <div class="portal-scene">
     <div class="portal-hole" aria-hidden="true"></div>
+    <div id="portalShards" aria-hidden="true"></div>
     <div class="portal-line" id="portalLine1"></div>
-    <div class="portal-line" id="portalLine2"></div>
-    <div class="portal-line" id="portalLine3"></div>
-    <div class="portal-line" id="portalLine4"></div>
-    <div class="portal-line" id="portalLine5"></div>
     <button type="button" class="portal-skip" id="portalSkip">跳过 ▼</button>
   </div>
 </div>
@@ -386,16 +398,18 @@ body[data-theme="arcade"] .portal-ask-btn{font-family:'Press Start 2P',monospace
 <div class="vmodal" id="vmodal" role="dialog" aria-modal="true" aria-labelledby="vmodalTitle" aria-hidden="true" inert>
   <div class="vmodal-box">
     <button type="button" class="vmodal-close" id="vmodalClose" aria-label="关闭">&#10005;</button>
-    <div class="vmodal-title" id="vmodalTitle">🎉 新版本上线</div>
-    <div class="vmodal-ver">v2.4.0</div>
+    <div class="vmodal-title" id="vmodalTitle">🌸 在你不在的时候，我们偷偷加了这些</div>
+    <div class="vmodal-ver">v2.5.0</div>
     <ul class="vmodal-log">
-      <li><b>新增</b> 谁是知识大王 · 30秒知识挑战</li>
-      <li><b>题库</b> 300道综合知识题，全程本地运行</li>
-      <li><b>挑战</b> 连击加分、舞台灯带与本机排行</li>
-      <li><b>优化</b> 整体体验与稳定性</li>
+      <li><b>新游戏</b> 2048 · 合并数字冲击高分</li>
+      <li><b>神秘</b> 新增"神秘"分区与隐藏入口 🌀</li>
+      <li><b>入口</b> 神秘的传送门，通往未知之地</li>
+      <li><b>门禁</b> 开发者认证答题门禁</li>
+      <li><b>中文化</b> 街机按钮与规则全面中文化</li>
+      <li><b>优化</b> 主题切换统一、动画与体验</li>
     </ul>
-    <div class="vmodal-cta">欢迎来玩！点击下方任意游戏开始 😄</div>
-    <button type="button" class="vmodal-btn" id="vmodalOk">知道了，去玩！</button>
+    <div class="vmodal-cta">偷偷藏了好多，快来找找看 😄</div>
+    <button type="button" class="vmodal-btn" id="vmodalOk">给你一朵小花花 🌸</button>
   </div>
 </div>
 
@@ -501,20 +515,14 @@ body[data-theme="arcade"] .portal-ask-btn{font-family:'Press Start 2P',monospace
       <div class="name">词域远征</div>
       <div class="tag">益智 · 背单词</div>
     </a>
-    <!-- ===== 神秘游戏（不在"全部"显示，点"神秘"标签查看） ===== -->
-    <a class="card" href="2048/index.html" data-delay=".66s" data-categories="神秘" data-mystery="1" onclick="openMysteryGate(event,this)" title="神秘游戏">
+    <!-- 2048（普通游戏，非神秘） -->
+    <a class="card" href="2048/index.html" data-delay=".66s" data-categories="益智 逻辑" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">🔢</span>
       <div class="name">2048</div>
-      <div class="tag">神秘 · 数字</div>
+      <div class="tag">益智 · 数字</div>
     </a>
-    <!-- 吃豆人（神秘版，接入原游戏） -->
-    <a class="card" href="pacman/index.html" data-delay=".72s" data-categories="神秘" data-mystery="1" onclick="openMysteryGate(event,this)" title="神秘游戏">
-      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
-      <span class="ico">👾</span>
-      <div class="name">吃豆人</div>
-      <div class="tag">神秘 · 街机</div>
-    </a>
+    <!-- ===== 神秘游戏（不在"全部"显示，点"神秘"标签查看） ===== -->
     <!-- 神秘的入口（传送门） -->
     <a class="card" href="javascript:void(0)" data-delay=".78s" data-categories="神秘" data-mystery="1" onclick="openPortal(event,this)" title="神秘游戏">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
@@ -547,10 +555,10 @@ document.body.dataset.theme=saved;
 function iconSVG(arcade){
   if(arcade){
     // 吃豆人 Pac-Man（街机）· 深底浅线
-    return '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 9.3 13.7L12 12l8.4-5.4A10 10 0 0 0 12 2Z"/><circle cx="13" cy="6.7" r="1.2" fill="#111"/></svg>';
+    return '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M12 12 L21 6 A10 10 0 1 0 21 18 Z"/><circle cx="13.5" cy="7.5" r="1.1" fill="#0a0a18"/></svg>';
   }
   // 世界树 Yggdrasil（清新）· 浅底深线
-  return '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V10m0 3-4-4m4 1 4-4m-4 11-4 4m4-4 4 4"/><path d="M7.2 13.2a4 4 0 0 1-1.5-7.7A5.7 5.7 0 0 1 16.5 5a4 4 0 0 1 .4 7.9"/><path d="M4 21h16"/></svg>';
+  return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3C9.8 3 8 4.8 8 7c0 .6.1 1.2.4 1.7C6.5 9.4 5.2 11 5.2 13c0 2.2 1.8 4 4 4h5.6c2.2 0 4-1.8 4-4 0-2-1.3-3.6-3.2-4.3.3-.5.4-1.1.4-1.7 0-2.2-1.8-4-4-4z"/><path d="M12 17v4"/><path d="M12 21l-3 2M12 21l3 2"/></svg>';
 }
 function paintIcon(){ toggle.innerHTML = iconSVG(document.body.dataset.theme!=='arcade'); }
 function applyTheme(theme){
@@ -777,7 +785,7 @@ let gateBodyOverflow='';
 
 (function buildGateKeypad(){
   if(!gateKeypad) return;
-  const keys=['1','2','3','4','5','6','7','8','9','del','0','ok'];
+  const keys=['1','2','3','4','5','6','7','8','9','del','0'];
   keys.forEach(function(k){
     const b=document.createElement('button');
     b.type='button';
@@ -914,24 +922,52 @@ function openPortal(ev,el){
   openGate(ev,el,{answer:'1654',question:'毕导的最新视频的长度是多少？',maxLen:4,url:null,onSuccess:startPortalAnimation});
 }
 
+var PORTAL_SHARD_COLORS=['#ff2d78','#3de1ff','#ffe14d','#00ff9d','#b388ff','#ff8a3d','#7ff3ff','#ff5c96'];
+function buildPortalShards(){
+  var wrap=document.getElementById('portalShards');
+  if(!wrap) return;
+  wrap.innerHTML='';
+  for(var i=0;i<26;i++){
+    var sh=document.createElement('i');
+    sh.className='portal-shard';
+    var w=8+Math.random()*14, h=6+Math.random()*10;
+    sh.style.width=w+'px'; sh.style.height=h+'px';
+    sh.style.background=PORTAL_SHARD_COLORS[i%PORTAL_SHARD_COLORS.length];
+    sh.style.boxShadow='0 0 8px '+PORTAL_SHARD_COLORS[i%PORTAL_SHARD_COLORS.length];
+    sh.style.borderRadius=(Math.random()<0.5?'2px':'50%');
+    // 随机起点(视口四周 + 中心偏移), 终点为黑洞中心
+    var ang=Math.random()*Math.PI*2;
+    var dist=(0.3+Math.random()*0.5)*Math.min(window.innerWidth,window.innerHeight);
+    var sx=Math.cos(ang)*dist, sy=Math.sin(ang)*dist*0.8;
+    sh.style.setProperty('--sx', sx+'px');
+    sh.style.setProperty('--sy', sy+'px');
+    sh.style.left='50%'; sh.style.top='50%';
+    sh.style.animationDelay=(Math.random()*0.8)+'s';
+    wrap.appendChild(sh);
+  }
+}
 function startPortalAnimation(){
   const ov=document.getElementById('portalOverlay');
   if(!ov) return;
   portalTimers.forEach(clearTimeout); portalTimers=[];
   portalAskShown=false;
-  // 恢复背景 inert
   document.body.style.overflow='hidden';
   ov.inert=false; ov.setAttribute('aria-hidden','false'); ov.classList.add('show');
-  const lines=[1,2,3,4,5].map(function(i){return document.getElementById('portalLine'+i);});
-  lines.forEach(function(l){ if(l){ l.textContent=''; l.classList.remove('show','danger'); } });
+  buildPortalShards();
+  const line=document.getElementById('portalLine1');
+  if(line){ line.textContent=''; line.classList.remove('show','danger'); }
   const seq=PORTAL_LINES;
-  lines.forEach(function(l,i){
+  seq.forEach(function(text,i){
     portalTimers.push(setTimeout(function(){
-      if(l){ l.textContent=seq[i]; l.classList.add('show'); if(i===4) l.classList.add('danger'); }
-      if(i===seq.length-1){
-        portalTimers.push(setTimeout(function(){ showPortalAsk(); },1200));
+      if(line){
+        line.textContent=text;
+        line.classList.add('show');
+        if(i===4) line.classList.add('danger');
       }
-    }, i*1100));
+      if(i===seq.length-1){
+        portalTimers.push(setTimeout(function(){ showPortalAsk(); },1400));
+      }
+    }, i*1600));
   });
 }
 function showPortalAsk(){
