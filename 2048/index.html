@@ -81,6 +81,40 @@ body[data-theme="arcade"] .tile{border-radius:0;border:2px solid rgba(0,0,0,.35)
 .tile .tinner{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
 .tile-new .tinner,.tile-merged .tinner{animation:pop .18s ease}
 @keyframes pop{0%{transform:scale(0);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+/* ===== arcade LED 低频随机闪烁（每块独立 delay，由 JS 设置 animationDelay） ===== */
+@keyframes ledFlicker{
+  0%,86%,90%,93%,100%{opacity:1;filter:brightness(1)}
+  87%{opacity:.72;filter:brightness(.82) saturate(1.35)}
+  88%{opacity:1;filter:brightness(1.1)}
+  89%{opacity:.82;filter:brightness(.9)}
+  91%{opacity:1;filter:brightness(1.06)}
+  92%{opacity:.88;filter:brightness(.94)}
+}
+body[data-theme="arcade"] .tile{animation:ledFlicker 7s infinite}
+/* ===== 4399 世界树 · 树叶/树枝特效 ===== */
+.leaf-layer{position:fixed;inset:0;z-index:3;pointer-events:none;overflow:hidden}
+body[data-theme="4399"] .leaf-layer .leaf{
+  position:absolute;top:-36px;opacity:0;width:16px;height:20px;
+  background:radial-gradient(circle at 30% 28%,#a9e06e,#54a02a 62%,#3d7d1d);
+  border-radius:70% 18% 70% 24%;box-shadow:0 2px 4px rgba(31,74,23,.18);
+  animation:leafFall linear infinite;
+}
+@keyframes leafFall{
+  0%{opacity:0;transform:translate3d(0,0,0) rotate(0deg) scale(1)}
+  8%{opacity:.6}
+  90%{opacity:.5}
+  100%{opacity:0;transform:translate3d(var(--drift,20px),var(--fall,100vh),0) rotate(250deg)}
+}
+.leaf.burst{position:fixed;z-index:26;top:0;left:0;width:15px;height:18px;opacity:0;
+  background:radial-gradient(circle at 30% 28%,#a9e06e,#54a02a 62%,#3d7d1d);
+  border-radius:70% 18% 70% 24%;pointer-events:none;box-shadow:0 2px 4px rgba(31,74,23,.2);
+  animation:leafBurst ease-out forwards}
+@keyframes leafBurst{
+  0%{opacity:0;transform:translate(0,0) scale(.4) rotate(0deg)}
+  18%{opacity:.95}
+  100%{opacity:0;transform:translate(var(--drift,30px),var(--fall,40px)) scale(1.15) rotate(200deg)}
+}
+
 /* 4399 配色 */
 body[data-theme="4399"] .tile{color:#fff}
 body[data-theme="4399"] .tile.v2{background:#eee4da;color:#776e65;box-shadow:0 3px 6px rgba(119,110,101,.18)}
@@ -146,9 +180,9 @@ body[data-theme="4399"] .dpad button:active{transform:translateY(2px);background
 body[data-theme="4399"] .dpad .dpad-center{background:rgba(56,153,4,.1);border:1px solid rgba(56,153,4,.18);border-radius:50%}
 .dpad button{display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer;transition:transform .1s ease}
 .dpad button[data-dir="0"]{grid-column:2;grid-row:1}
-.dpad button[data-dir="3"]{grid-column:1;grid-row:2}
+.dpad button[data-dir="1"]{grid-column:1;grid-row:2}
 .dpad .dpad-center{grid-column:2;grid-row:2}
-.dpad button[data-dir="1"]{grid-column:3;grid-row:2}
+.dpad button[data-dir="3"]{grid-column:3;grid-row:2}
 .dpad button[data-dir="2"]{grid-column:2;grid-row:3}
 .dpad svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
 body[data-theme="arcade"] .dpad svg{filter:drop-shadow(0 1px 0 rgba(84,5,39,.7))}
@@ -189,9 +223,9 @@ body[data-theme="arcade"] .modal p{font-family:'Press Start 2P',monospace;font-s
   <div class="controls"><b>↑ ↓ ← →</b> 或 <b>W A S D</b> 移动 · 滑动屏幕合并数字<br>相同数字相碰合并，凑出 <b>2048</b> 获胜</div>
   <div class="dpad" role="group" aria-label="移动方向">
     <button type="button" data-dir="0" aria-label="向上移动"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 15 7-7 7 7"/></svg></button>
-    <button type="button" data-dir="3" aria-label="向左移动"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button>
+    <button type="button" data-dir="1" aria-label="向左移动"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button>
     <span class="dpad-center" aria-hidden="true"></span>
-    <button type="button" data-dir="1" aria-label="向右移动"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
+    <button type="button" data-dir="3" aria-label="向右移动"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
     <button type="button" data-dir="2" aria-label="向下移动"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 9 7 7 7-7"/></svg></button>
   </div>
 </main>
@@ -215,6 +249,9 @@ var modalTitle=document.getElementById('modalTitle');
 var modalText=document.getElementById('modalText');
 var modalBtn=document.getElementById('modalBtn');
 var grid=[], tiles=[], nextId=1, score=0, best=0, over=false, won=false;
+var SLIDE_MS=140; // 与 CSS .tile transition 0.13s 匹配
+var tileEls={};   // tile.id -> DOM 元素（复用，实现滑动动画）
+var leafLayer=null;
 try{ best=parseInt(localStorage.getItem('g2048-best')||'0',10)||0; }catch(e){}
 bestEl.textContent=best;
 
@@ -239,7 +276,7 @@ function move(dir){
   if(over) return;
   var total=0, anyMove=false;
   var newGrid=[]; for(var r=0;r<SIZE;r++) newGrid[r]=[null,null,null,null];
-  var movedTiles=[], mergedIds=[];
+  var movedTiles=[], mergedIds=[], mergeAway=[];
   for(var line=0; line<SIZE; line++){
     // 收集该线中非空 tile（按移动方向排序）
     var sources=[]; // {tile} 按移动方向收集非空tile
@@ -269,7 +306,12 @@ function move(dir){
         else if(dir===1){ outR=line; outC=k; }
         else if(dir===2){ outR=SIZE-1-k; outC=line; }
         else { outR=line; outC=SIZE-1-k; }
-        if(isMerge){ t.v=t.v*2; mergedIds.push(t.id); si+=2; }
+        if(isMerge){
+          t.v=t.v*2;
+          mergedIds.push(t.id);
+          mergeAway.push({tile:nextSource, toR:outR, toC:outC}); // 被合并块滑到目标后移除
+          si+=2;
+        }
         else { si+=1; }
         t.r=outR; t.c=outC;
         newGrid[outR][outC]=t;
@@ -282,10 +324,49 @@ function move(dir){
   score+=total;
   scoreEl.textContent=score;
   if(score>best){ best=score; bestEl.textContent=best; try{localStorage.setItem('g2048-best',String(best));}catch(e){} }
-  render(mergedIds);
-  spawn();
-  render([]);
-  check();
+  /* ---- 动画阶段一：滑动（复用 DOM，改 left/top 触发 CSS transition） ---- */
+  var alive={};
+  for(var r=0;r<SIZE;r++)for(var c=0;c<SIZE;c++){
+    var t=(grid[r]&&grid[r][c])||null; if(!t) continue;
+    alive[t.id]=true;
+    var el=tileEls[t.id];
+    if(el){
+      setTileValue(el,t);
+      positionTile(el,t.r,t.c); // 触发滑动过渡
+    }
+  }
+  // 被合并的块也滑向目标位置
+  for(var a=0;a<mergeAway.length;a++){
+    var ma=mergeAway[a];
+    var el=tileEls[ma.tile.id];
+    if(el) positionTile(el,ma.toR,ma.toC);
+  }
+  // 合并存活块 pop 放大
+  for(var m=0;m<mergedIds.length;m++){
+    if(tileEls[mergedIds[m]]) tileEls[mergedIds[m]].classList.add('tile-merged');
+  }
+  // 4399：合并时飘落绿叶
+  if(mergedIds.length) burstLeaves(mergedIds.length*2+1);
+
+  /* ---- 动画阶段二：滑动结束后移除被合并块并生成新块 ---- */
+  setTimeout(function(){
+    for(var id in tileEls){
+      if(!alive[id]){
+        var el=tileEls[id];
+        if(el.parentNode) el.parentNode.removeChild(el);
+        delete tileEls[id];
+      }
+    }
+    spawn();
+    for(var r=0;r<SIZE;r++)for(var c=0;c<SIZE;c++){
+      var t=(grid[r]&&grid[r][c])||null; if(!t||alive[t.id]) continue;
+      var el=createTileEl(t);
+      el.classList.add('tile-new'); // 新块入场 pop
+      tileEls[t.id]=el;
+      tilesEl.appendChild(el);
+    }
+    check();
+  }, SLIDE_MS);
 }
 
 function spawn(){
@@ -296,24 +377,56 @@ function spawn(){
   grid[e.r][e.c]={id:nextId++, v:Math.random()<0.9?2:4, r:e.r, c:e.c};
 }
 
-function render(mergedIds){
-  tilesEl.innerHTML='';
-  var s=tileSize();
+/* ===================== DOM tile 复用（滑动/合并动画基础） ===================== */
+function createTileEl(t){
+  var el=document.createElement('div');
+  el.className='tile v'+t.v;
+  el.setAttribute('data-id',t.id);
+  // arcade LED：每块随机闪烁延迟（低频、独立）
+  el.style.animationDelay=(Math.random()*7).toFixed(2)+'s';
+  var pos=cellPos(t.r,t.c);
+  el.style.width=pos.s+'px'; el.style.height=pos.s+'px';
+  el.style.left=pos.x+'px'; el.style.top=pos.y+'px';
+  var inner=document.createElement('div');
+  inner.className='tinner';
+  inner.textContent=t.v;
+  inner.style.fontSize=fontSize(t.v,pos.s)+'px';
+  el.appendChild(inner);
+  return el;
+}
+function setTileValue(el,t){
+  var inner=el.querySelector('.tinner');
+  if(inner.textContent!=String(t.v)){
+    inner.textContent=t.v;
+    el.className='tile v'+t.v;
+    var pos=cellPos(t.r,t.c);
+    inner.style.fontSize=fontSize(t.v,pos.s)+'px';
+  }
+}
+function positionTile(el,r,c){ var pos=cellPos(r,c); el.style.left=pos.x+'px'; el.style.top=pos.y+'px'; }
+/* 全量同步（新开局 / 主题切换），entrance 为 true 时新块带入场 pop */
+function syncAll(entrance){
+  var alive={};
   for(var r=0;r<SIZE;r++)for(var c=0;c<SIZE;c++){
     var t=(grid[r]&&grid[r][c])||null; if(!t) continue;
-    var pos=cellPos(t.r,t.c);
-    var el=document.createElement('div');
-    el.className='tile v'+t.v;
-    el.style.width=pos.s+'px'; el.style.height=pos.s+'px';
-    el.style.left=pos.x+'px'; el.style.top=pos.y+'px';
-    var inner=document.createElement('div');
-    inner.className='tinner';
-    inner.textContent=t.v;
-    var fs=fontSize(t.v,pos.s);
-    inner.style.fontSize=fs+'px';
-    if(mergedIds.indexOf(t.id)>=0) el.classList.add('tile-merged');
-    el.appendChild(inner);
-    tilesEl.appendChild(el);
+    alive[t.id]=true;
+    var el=tileEls[t.id];
+    if(!el){
+      el=createTileEl(t);
+      if(entrance) el.classList.add('tile-new');
+      tileEls[t.id]=el;
+      tilesEl.appendChild(el);
+    } else {
+      setTileValue(el,t);
+      positionTile(el,t.r,t.c);
+    }
+  }
+  for(var id in tileEls){
+    if(!alive[id]){
+      var el=tileEls[id];
+      if(el.parentNode) el.parentNode.removeChild(el);
+      delete tileEls[id];
+    }
   }
 }
 function fontSize(v,cell){
@@ -338,10 +451,47 @@ function check(){
 }
 function showModal(){ modal.classList.add('show'); modal.hidden=false; }
 function hideModal(){ modal.classList.remove('show'); modal.hidden=true; }
-function newGame(){ resetGrid(); tiles=[]; score=0; over=false; won=false; scoreEl.textContent='0'; hideModal(); spawn(); spawn(); render([]); }
+function newGame(){ resetGrid(); tiles=[]; score=0; over=false; won=false; scoreEl.textContent='0'; hideModal(); spawn(); spawn(); syncAll(true); }
+
+/* ===================== 4399 世界树 · 树叶粒子 ===================== */
+function startLeaves(){
+  if(leafLayer) return;
+  leafLayer=document.createElement('div');
+  leafLayer.className='leaf-layer';
+  for(var i=0;i<9;i++){
+    var l=document.createElement('div');
+    l.className='leaf';
+    l.style.left=(Math.random()*100)+'%';
+    l.style.animationDelay=(Math.random()*9).toFixed(2)+'s';
+    l.style.animationDuration=(7+Math.random()*6).toFixed(2)+'s';
+    l.style.setProperty('--drift',(-40+Math.random()*80)+'px');
+    l.style.setProperty('--fall',(70+Math.random()*50)+'vh');
+    l.style.transform='scale('+(0.7+Math.random()*0.7).toFixed(2)+')';
+    leafLayer.appendChild(l);
+  }
+  document.body.appendChild(leafLayer);
+}
+function stopLeaves(){
+  if(leafLayer){ if(leafLayer.parentNode) leafLayer.parentNode.removeChild(leafLayer); leafLayer=null; }
+}
+function burstLeaves(count){
+  if(document.body.getAttribute('data-theme')!=='4399'||!count) return;
+  var b=board.getBoundingClientRect();
+  for(var i=0;i<count;i++){
+    var l=document.createElement('div');
+    l.className='leaf burst';
+    l.style.left=(b.left+Math.random()*b.width)+'px';
+    l.style.top=(b.top+Math.random()*b.height*0.6)+'px';
+    l.style.setProperty('--drift',(-45+Math.random()*90)+'px');
+    l.style.setProperty('--fall',(20+Math.random()*45)+'px');
+    l.style.animationDuration=(0.9+Math.random()*0.9).toFixed(2)+'s';
+    document.body.appendChild(l);
+    (function(el){ setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); },2000); })(l);
+  }
+}
 
 // 输入
-var keyMap={ ArrowUp:0, w:0, W:0, ArrowRight:1, d:1, D:1, ArrowDown:2, s:2, S:2, ArrowLeft:3, a:3, A:3 };
+var keyMap={ ArrowUp:0, w:0, W:0, ArrowRight:3, d:3, D:3, ArrowDown:2, s:2, S:2, ArrowLeft:1, a:1, A:1 };
 window.addEventListener('keydown',function(e){
   if(keyMap[e.key]!==undefined){ e.preventDefault(); move(keyMap[e.key]); }
 });
@@ -355,7 +505,7 @@ board.addEventListener('touchmove',function(e){ e.preventDefault(); },{passive:f
 board.addEventListener('touchend',function(e){
   var t=e.changedTouches[0]; var dx=t.clientX-tx, dy=t.clientY-ty;
   if(Math.abs(dx)<24&&Math.abs(dy)<24) return;
-  if(Math.abs(dx)>Math.abs(dy)) move(dx>0?1:3);
+  if(Math.abs(dx)>Math.abs(dy)) move(dx>0?3:1);
   else move(dy>0?2:0);
 });
 document.getElementById('newGame').addEventListener('click',newGame);
@@ -373,7 +523,8 @@ function applyTheme(t){
   document.documentElement.setAttribute('data-theme',t);
   try{localStorage.setItem('gh-theme',t);}catch(e){}
   themeToggle.innerHTML=iconSVG(t==='arcade');
-  render([]);
+  if(t==='4399') startLeaves(); else stopLeaves();
+  syncAll(false);
 }
 var initTheme=(function(){ try{return document.documentElement.getAttribute('data-theme')||'4399';}catch(e){return '4399';} })();
 applyTheme(initTheme==='arcade'?'arcade':'4399');
