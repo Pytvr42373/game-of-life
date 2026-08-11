@@ -279,6 +279,42 @@ body[data-theme="arcade"] .gate-btn{font-family:'Press Start 2P',monospace;font-
 body[data-theme="arcade"] .gate-btn:hover{box-shadow:3px 3px 0 var(--hard),0 0 14px rgba(0,255,157,.4)}
 .gate-btn.cancel{background:transparent;color:var(--dim);border-color:var(--line)}
 body[data-theme="arcade"] .gate-btn.cancel{border-color:var(--dim)}
+
+/* ===== 神秘的入口：传送动画 + 选择弹窗 ===== */
+.portal-overlay{position:fixed;inset:0;z-index:700;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.88);backdrop-filter:blur(6px);opacity:0;visibility:hidden;transition:opacity .3s}
+.portal-overlay.show{opacity:1;visibility:visible}
+.portal-scene{position:relative;width:min(460px,92%);min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;border-radius:18px;background:linear-gradient(160deg,#1a1030,#0d0a1e);border:2px solid rgba(160,120,255,.5);box-shadow:0 0 60px rgba(120,80,255,.35),inset 0 0 40px rgba(120,80,255,.08)}
+.portal-hole{width:120px;height:120px;border-radius:50%;margin-bottom:22px;position:relative;
+  background:radial-gradient(circle at 30% 30%,#4b2a8a,#1c1040 55%,#000 100%);
+  box-shadow:0 0 40px rgba(120,80,255,.7),inset 0 0 30px rgba(0,0,0,.9);
+  animation:portal-spin 4s linear infinite}
+.portal-hole::before,.portal-hole::after{content:'';position:absolute;border-radius:50%;background:transparent;
+  border:2px solid rgba(150,110,255,.5);inset:-8px;animation:portal-ring 3s ease-out infinite}
+.portal-hole::after{inset:-18px;animation-delay:1.5s;border-color:rgba(255,180,255,.3)}
+@keyframes portal-spin{to{transform:rotate(360deg)}}
+@keyframes portal-ring{0%{transform:scale(.8);opacity:.8}100%{transform:scale(1.25);opacity:0}}
+.portal-line{min-height:34px;font-size:19px;font-weight:700;color:#e6dcff;line-height:1.5;text-shadow:0 0 16px rgba(160,120,255,.6);opacity:0;transform:translateY(8px);transition:opacity .35s,transform .35s}
+.portal-line.show{opacity:1;transform:translateY(0)}
+.portal-line.danger{color:#ff8a8a;text-shadow:0 0 16px rgba(255,80,80,.6)}
+body[data-theme="arcade"] .portal-line{font-family:'Press Start 2P',monospace;font-size:11px}
+body[data-theme="arcade"] .portal-line.danger{color:#ff4d4d}
+.portal-skip{position:absolute;bottom:14px;right:16px;font-size:12px;color:rgba(200,180,255,.6);cursor:pointer;background:none;border:0;padding:6px 10px}
+.portal-skip:hover{color:#fff}
+body[data-theme="arcade"] .portal-skip{font-family:'Press Start 2P',monospace;font-size:7px}
+
+.portal-ask{position:fixed;inset:0;z-index:710;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.6);opacity:0;visibility:hidden;transition:opacity .25s}
+.portal-ask.show{opacity:1;visibility:visible}
+.portal-ask-box{width:min(400px,92%);background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:30px 26px;text-align:center;box-shadow:0 0 40px rgba(0,0,0,.3)}
+body[data-theme="arcade"] .portal-ask-box{border:3px solid var(--line);border-radius:0;box-shadow:6px 6px 0 var(--hard),0 0 30px rgba(255,120,255,.15)}
+.portal-ask-title{font-size:20px;font-weight:800;color:var(--text);margin-bottom:22px}
+body[data-theme="arcade"] .portal-ask-title{font-family:'Press Start 2P',monospace;font-size:13px;color:var(--yellow)}
+.portal-ask-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.portal-ask-btn{font-weight:700;font-size:15px;padding:12px 26px;border-radius:10px;cursor:pointer;transition:.18s;border:2px solid var(--line);background:var(--bg2);color:var(--text)}
+.portal-ask-btn:hover{transform:translateY(-2px);border-color:var(--green)}
+body[data-theme="arcade"] .portal-ask-btn{font-family:'Press Start 2P',monospace;font-size:10px;border-radius:0;box-shadow:2px 2px 0 var(--hard)}
+.portal-ask-btn.retreat:hover{border-color:var(--dim);color:var(--dim)}
+.portal-ask-btn.bold{border-color:var(--pink);color:var(--pink)}
+.portal-ask-btn.bold:hover{background:var(--pink);color:var(--bg);box-shadow:0 0 16px rgba(255,45,120,.4)}
 </style>
 </head>
 <body data-theme="4399">
@@ -289,15 +325,38 @@ body[data-theme="arcade"] .gate-btn.cancel{border-color:var(--dim)}
     <button type="button" class="gate-close" id="gateClose" aria-label="关闭">✕</button>
     <div class="gate-icon" aria-hidden="true">👾</div>
     <div class="gate-title" id="gateTitle">开发者认证</div>
-    <div class="gate-question">请输入开发者代码：</div>
+    <div class="gate-question" id="gateQuestion">请输入开发者代码：</div>
     <div class="gate-input-wrap">
-      <input class="gate-input" id="gateInput" type="text" inputmode="none" readonly placeholder="· · ·" aria-label="开发者代码输入" maxlength="3">
+      <input class="gate-input" id="gateInput" type="text" inputmode="none" readonly placeholder="· · ·" aria-label="开发者代码输入" maxlength="6">
     </div>
     <div class="gate-err" id="gateErr"></div>
     <div class="gate-keypad" id="gateKeypad" role="group" aria-label="数字键盘"></div>
     <div class="gate-btn-row">
       <button type="button" class="gate-btn cancel" id="gateCancel">取消</button>
       <button type="button" class="gate-btn" id="gateOk">确认进入</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- 神秘的入口：传送动画 + 选择弹窗 -->
+<div class="portal-overlay" id="portalOverlay" role="dialog" aria-modal="true" aria-hidden="true" inert>
+  <div class="portal-scene">
+    <div class="portal-hole" aria-hidden="true"></div>
+    <div class="portal-line" id="portalLine1"></div>
+    <div class="portal-line" id="portalLine2"></div>
+    <div class="portal-line" id="portalLine3"></div>
+    <div class="portal-line" id="portalLine4"></div>
+    <div class="portal-line" id="portalLine5"></div>
+    <button type="button" class="portal-skip" id="portalSkip">跳过 ▼</button>
+  </div>
+</div>
+<div class="portal-ask" id="portalAsk" role="dialog" aria-modal="true" aria-hidden="true" inert>
+  <div class="portal-ask-box">
+    <div class="portal-ask-title" id="portalAskTitle">返回主页吗？</div>
+    <div class="portal-ask-btns">
+      <button type="button" class="portal-ask-btn retreat" id="portalRetreat">我撤退。</button>
+      <button type="button" class="portal-ask-btn bold" id="portalBrave">我不怕！</button>
     </div>
   </div>
 </div>
@@ -351,6 +410,7 @@ body[data-theme="arcade"] .gate-btn.cancel{border-color:var(--dim)}
       <button type="button" data-filter="逻辑" aria-pressed="false" aria-controls="gameGrid">逻辑</button>
       <button type="button" data-filter="反应" aria-pressed="false" aria-controls="gameGrid">反应</button>
       <button type="button" data-filter="经典" aria-pressed="false" aria-controls="gameGrid">经典</button>
+      <button type="button" data-filter="神秘" aria-pressed="false" aria-controls="gameGrid">神秘</button>
     </nav>
   </header>
 
@@ -358,13 +418,14 @@ body[data-theme="arcade"] .gate-btn.cancel{border-color:var(--dim)}
   <header class="harcade">
     <a class="coin-btn" href="pacman/index.html" onclick="openPacmanGate(event,this)" title="INSERT COIN · 进入吃豆人">▶ INSERT COIN ◀</a>
     <h1 class="title"><span class="c">小</span>游<span class="y">戏</span>合<span class="c">集</span></h1>
-    <p class="sub">— SELECT YOUR GAME —</p>
+    <p class="sub">— 选择你的游戏 —</p>
     <nav class="nav" aria-label="GAME CATEGORIES">
-      <button type="button" class="on" data-filter="全部" aria-pressed="true" aria-controls="gameGrid">ALL</button>
-      <button type="button" data-filter="益智" aria-pressed="false" aria-controls="gameGrid">PUZZLE</button>
-      <button type="button" data-filter="逻辑" aria-pressed="false" aria-controls="gameGrid">LOGIC</button>
-      <button type="button" data-filter="反应" aria-pressed="false" aria-controls="gameGrid">REFLEX</button>
-      <button type="button" data-filter="经典" aria-pressed="false" aria-controls="gameGrid">CLASSIC</button>
+      <button type="button" class="on" data-filter="全部" aria-pressed="true" aria-controls="gameGrid">全部</button>
+      <button type="button" data-filter="益智" aria-pressed="false" aria-controls="gameGrid">益智</button>
+      <button type="button" data-filter="逻辑" aria-pressed="false" aria-controls="gameGrid">逻辑</button>
+      <button type="button" data-filter="反应" aria-pressed="false" aria-controls="gameGrid">反应</button>
+      <button type="button" data-filter="经典" aria-pressed="false" aria-controls="gameGrid">经典</button>
+      <button type="button" data-filter="神秘" aria-pressed="false" aria-controls="gameGrid">神秘</button>
     </nav>
   </header>
 
@@ -378,7 +439,7 @@ body[data-theme="arcade"] .gate-btn.cancel{border-color:var(--dim)}
       <div class="tag">经典</div>
     </a>
     <!-- 倒水游戏 -->
-    <a class="card" href="bottle/index.html" data-delay=".12s" data-categories="益智 逻辑" onclick="go(this.href,event)">
+    <a class="card" href="bottle/index.html" data-delay=".12s" data-categories="益智 逻辑 经典" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">🍶</span>
       <div class="name">倒水谜题</div>
@@ -392,7 +453,7 @@ body[data-theme="arcade"] .gate-btn.cancel{border-color:var(--dim)}
       <div class="tag">益智 · 逻辑 · 经典</div>
     </a>
     <!-- Stroop 挑战 -->
-    <a class="card" href="stroop/index.html" data-delay=".3s" data-categories="反应" onclick="go(this.href,event)">
+    <a class="card" href="stroop/index.html" data-delay=".3s" data-categories="反应 经典" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">🎯</span>
       <div class="name">Stroop 挑战</div>
@@ -420,7 +481,7 @@ body[data-theme="arcade"] .gate-btn.cancel{border-color:var(--dim)}
       <div class="tag">益智 · 逻辑</div>
     </a>
     <!-- 24点 -->
-    <a class="card" href="game24/index.html" data-delay=".48s" data-categories="益智 逻辑" onclick="go(this.href,event)">
+    <a class="card" href="game24/index.html" data-delay=".48s" data-categories="益智 逻辑 经典" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">🃏</span>
       <div class="name">24点</div>
@@ -439,6 +500,27 @@ body[data-theme="arcade"] .gate-btn.cancel{border-color:var(--dim)}
       <span class="ico">📖</span>
       <div class="name">词域远征</div>
       <div class="tag">益智 · 背单词</div>
+    </a>
+    <!-- ===== 神秘游戏（不在"全部"显示，点"神秘"标签查看） ===== -->
+    <a class="card" href="2048/index.html" data-delay=".66s" data-categories="神秘" data-mystery="1" onclick="openMysteryGate(event,this)" title="神秘游戏">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <span class="ico">🔢</span>
+      <div class="name">2048</div>
+      <div class="tag">神秘 · 数字</div>
+    </a>
+    <!-- 吃豆人（神秘版，接入原游戏） -->
+    <a class="card" href="pacman/index.html" data-delay=".72s" data-categories="神秘" data-mystery="1" onclick="openMysteryGate(event,this)" title="神秘游戏">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <span class="ico">👾</span>
+      <div class="name">吃豆人</div>
+      <div class="tag">神秘 · 街机</div>
+    </a>
+    <!-- 神秘的入口（传送门） -->
+    <a class="card" href="javascript:void(0)" data-delay=".78s" data-categories="神秘" data-mystery="1" onclick="openPortal(event,this)" title="神秘游戏">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <span class="ico">🌀</span>
+      <div class="name">神秘的入口</div>
+      <div class="tag">神秘 · 传送门</div>
     </a>
   </div>
 
@@ -633,12 +715,20 @@ function filterGames(category){
     button.classList.toggle('on',active);
     button.setAttribute('aria-pressed',String(active));
   });
+  const isMystery=category==='神秘';
+  const isAll=category==='全部';
   cards.forEach(card=>{
+    const mystery=card.dataset.mystery==='1';
     const categories=(card.dataset.categories||'').split(' ');
-    card.hidden=category!=='全部'&&!categories.includes(category);
+    // 全部：隐藏神秘游戏；神秘：只显示神秘；其他：显示对应常规游戏
+    if(isAll){ card.hidden=mystery; }
+    else if(isMystery){ card.hidden=!mystery; }
+    else { card.hidden=mystery||!categories.includes(category); }
   });
 }
 filterButtons.forEach(button=>button.addEventListener('click',()=>filterGames(button.dataset.filter)));
+// 初始应用筛选：默认"全部"，隐藏神秘游戏
+filterGames('全部');
 
 /* ===== bottle 预取：悬停/触摸预热 + 空闲预取主页 ===== */
 const prefetched=new Set();
@@ -676,9 +766,12 @@ const gateKeypad=document.getElementById('gateKeypad');
 const gateOk=document.getElementById('gateOk');
 const gateClose=document.getElementById('gateClose');
 const gateCancel=document.getElementById('gateCancel');
-const GATE_ANSWER='666';
-let gateReturnFocus=null;
+let gateAnswer='666';
+let gateQuestion='请输入开发者代码：';
+let gateMaxLen=3;
 let gateTargetUrl='pacman/index.html';
+let gateOnSuccess=null;
+let gateReturnFocus=null;
 let gateBackground=[];
 let gateBodyOverflow='';
 
@@ -704,7 +797,7 @@ function gatePress(key){
     gateSubmit();
     return;
   } else {
-    if(gateInput.value.length>=3) return;
+    if(gateInput.value.length>=gateMaxLen) return;
     gateInput.value+=key;
   }
   gateErr.textContent='';
@@ -712,10 +805,15 @@ function gatePress(key){
 }
 
 function gateSubmit(){
-  if(gateInput.value===GATE_ANSWER){
+  if(gateInput.value===gateAnswer){
     gateErr.textContent='✓ 认证通过';
     gateErr.className='gate-err ok';
-    setTimeout(function(){ hideGateModal(true); },350);
+    const cb=gateOnSuccess;
+    gateOnSuccess=null;
+    setTimeout(function(){
+      if(cb){ hideGateModal(false); cb(); }
+      else { hideGateModal(true); }
+    },350);
   } else {
     gateErr.textContent=gateInput.value==='' ? '请输入代码' : '✕ 代码错误，再试试';
     gateErr.className='gate-err';
@@ -726,10 +824,17 @@ function gateSubmit(){
   }
 }
 
-function openPacmanGate(ev,el){
+function openGate(ev,el,opts){
   if(ev&&ev.preventDefault)ev.preventDefault();
   if(!gateModal) return;
-  gateTargetUrl=el?el.getAttribute('href'):'pacman/index.html';
+  opts=opts||{};
+  gateAnswer=opts.answer||'666';
+  gateQuestion=opts.question||'请输入开发者代码：';
+  gateMaxLen=opts.maxLen||String(gateAnswer).length;
+  gateTargetUrl=opts.url||(el?el.getAttribute('href'):'pacman/index.html');
+  gateOnSuccess=opts.onSuccess||null;
+  const qEl=document.getElementById('gateQuestion');
+  if(qEl) qEl.textContent=gateQuestion;
   const active=document.activeElement;
   gateReturnFocus=active&&active!==document.body&&active.isConnected?active:el||null;
   gateBackground=Array.from(document.body.children)
@@ -746,6 +851,12 @@ function openPacmanGate(ev,el){
   gateModal.classList.add('show');
   var firstKey=gateKeypad?gateKeypad.querySelector('.gate-key'):null;
   if(firstKey)firstKey.focus({preventScroll:true});
+}
+function openPacmanGate(ev,el){
+  openGate(ev,el,{answer:'666',question:'请输入开发者代码：',maxLen:3,url:el?el.getAttribute('href'):'pacman/index.html'});
+}
+function openMysteryGate(ev,el){
+  openGate(ev,el,{answer:'1654',question:'毕导的最新视频的长度是多少？',maxLen:4,url:el?el.getAttribute('href'):null});
 }
 function hideGateModal(navigate){
   if(!gateModal||!gateModal.classList.contains('show'))return;
@@ -785,6 +896,89 @@ if(gateModal)gateModal.addEventListener('keydown',handleGateKeydown);
 document.addEventListener('focusin',function(e){
   if(gateModal&&gateModal.classList.contains('show')&&!gateModal.contains(e.target))gateModal.focus();
 });
+
+/* ===== 神秘的入口：传送动画 + 选择弹窗逻辑 ===== */
+const PORTAL_LINES=[
+  '你误入了神秘的洞口？',
+  '你想获得什么游戏？',
+  '洞会吞噬你的好奇心！',
+  '洞口里面有神秘的巫师！',
+  '你还不死心吗？'
+];
+const PORTAL_FINAL='那么，你将见识到最神秘的巫师和他最邪恶的作品！';
+const PORTAL_URL='https://space.bilibili.com/254463269';
+let portalTimers=[];
+let portalAskShown=false;
+
+function openPortal(ev,el){
+  openGate(ev,el,{answer:'1654',question:'毕导的最新视频的长度是多少？',maxLen:4,url:null,onSuccess:startPortalAnimation});
+}
+
+function startPortalAnimation(){
+  const ov=document.getElementById('portalOverlay');
+  if(!ov) return;
+  portalTimers.forEach(clearTimeout); portalTimers=[];
+  portalAskShown=false;
+  // 恢复背景 inert
+  document.body.style.overflow='hidden';
+  ov.inert=false; ov.setAttribute('aria-hidden','false'); ov.classList.add('show');
+  const lines=[1,2,3,4,5].map(function(i){return document.getElementById('portalLine'+i);});
+  lines.forEach(function(l){ if(l){ l.textContent=''; l.classList.remove('show','danger'); } });
+  const seq=PORTAL_LINES;
+  lines.forEach(function(l,i){
+    portalTimers.push(setTimeout(function(){
+      if(l){ l.textContent=seq[i]; l.classList.add('show'); if(i===4) l.classList.add('danger'); }
+      if(i===seq.length-1){
+        portalTimers.push(setTimeout(function(){ showPortalAsk(); },1200));
+      }
+    }, i*1100));
+  });
+}
+function showPortalAsk(){
+  if(portalAskShown) return;
+  portalAskShown=true;
+  const ask=document.getElementById('portalAsk');
+  if(ask){ ask.inert=false; ask.setAttribute('aria-hidden','false'); ask.classList.add('show'); }
+}
+function hidePortalAll(){
+  const ov=document.getElementById('portalOverlay');
+  const ask=document.getElementById('portalAsk');
+  portalTimers.forEach(clearTimeout); portalTimers=[];
+  if(ov){ ov.classList.remove('show'); ov.inert=true; ov.setAttribute('aria-hidden','true'); }
+  if(ask){ ask.classList.remove('show'); ask.inert=true; ask.setAttribute('aria-hidden','true'); }
+  document.body.style.overflow='';
+}
+function portalRetreat(){
+  hidePortalAll();
+  // 返回主页（当前页面就是主页，只需关闭动画）
+}
+function portalBrave(){
+  hidePortalAll();
+  try{ sessionStorage.setItem('skipSplash','1'); }catch(e){}
+  // 短暂展示最终句后跳转
+  const ov=document.getElementById('portalOverlay');
+  const l1=document.getElementById('portalLine1');
+  if(ov&&l1){
+    ov.classList.add('show'); ov.inert=false; ov.setAttribute('aria-hidden','false');
+    [1,2,3,4,5].forEach(function(i){var x=document.getElementById('portalLine'+i); if(x){x.textContent='';x.classList.remove('show','danger');}});
+    l1.textContent=PORTAL_FINAL; l1.classList.add('show','danger');
+    document.body.style.overflow='hidden';
+    setTimeout(function(){ ov.classList.remove('show'); document.body.style.overflow=''; location.href=PORTAL_URL; },2200);
+  } else {
+    location.href=PORTAL_URL;
+  }
+}
+document.addEventListener('keydown',function(e){
+  if(portalAskShown&&document.getElementById('portalAsk').classList.contains('show')){
+    if(e.key==='Escape'){ portalRetreat(); }
+  }
+});
+
+document.getElementById('portalSkip').addEventListener('click',function(){ showPortalAsk(); });
+document.getElementById('portalRetreat').addEventListener('click',portalRetreat);
+document.getElementById('portalBrave').addEventListener('click',portalBrave);
+
+
 
 </script>
 

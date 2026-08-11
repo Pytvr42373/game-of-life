@@ -818,7 +818,7 @@ function renderLevelButtons(){
     g.className='level-group';
     const lbl=document.createElement('div');
     lbl.className='level-label';
-    lbl.textContent=isArcade?group.labelEn:group.label;
+    lbl.textContent=group.label;
     g.appendChild(lbl);
     const btns=document.createElement('div');
     btns.className='level-btns';
@@ -826,7 +826,7 @@ function renderLevelButtons(){
       const p=PUZZLES[key];
       const btn=document.createElement('button');
       btn.className='lvl-btn'+(key===state.puzzleKey?' on':'');
-      btn.textContent=isArcade?p.nameEn:p.name;
+      btn.textContent=p.name;
       btn.onclick=()=>loadPuzzle(key);
       btns.appendChild(btn);
     });
