@@ -310,6 +310,33 @@ function sfxDeath(){ [880,660,440,330,220,110].forEach(function(f,i){tone(f,0.14
 function sfxExtra(){ tone(880,0.2,'square',0.06); }
 function sfxGo(){ tone(600,0.08,'square',0.05); }
 
+// ===== BGM（街机风循环，Web Audio 合成） =====
+var bgmTimer=null;
+var bgmStep=0;
+var bgmPattern=[
+  // [bassFreq, bassDur, leadFreq?]
+  [220,0.22,null],[220,0.22,440],[196,0.22,392],[196,0.22,392],
+  [174,0.22,349],[174,0.22,349],[164,0.22,329],[164,0.22,329],
+  [220,0.22,440],[220,0.22,440],[196,0.22,392],[196,0.22,392],
+  [262,0.22,523],[262,0.22,523],[247,0.22,494],[247,0.22,494]
+];
+function bgmBass(f,dur){ tone(f,dur,'triangle',0.045); }
+function bgmLead(f){ if(f) tone(f,0.18,'square',0.018); }
+function bgmTick(){
+  var s=bgmPattern[bgmStep];
+  if(s){ bgmBass(s[0],s[1]); if(s[2]) bgmLead(s[2]); }
+  bgmStep=(bgmStep+1)%bgmPattern.length;
+}
+function startBGM(){
+  if(bgmTimer||reducedMotion) return;
+  audio();           // 确保 AudioContext 已创建
+  bgmStep=0;
+  bgmTimer=setInterval(bgmTick,170);
+}
+function stopBGM(){
+  if(bgmTimer){ clearInterval(bgmTimer); bgmTimer=null; }
+}
+
 function moveActor(actor,dir,step){
   var target=px(actor.r,actor.c);
   var dx=target.x-actor.px, dy=target.y-actor.py;
@@ -459,7 +486,7 @@ function update(dt){
   if(STATE==='idle'){ return; }   // 等待首次输入：吃豆人与幽灵均不动
   if(STATE==='ready'){
     readyTimer=Math.max(0,readyTimer-dt);
-    if(readyTimer===0){ STATE='playing'; announce('游戏开始'); }
+    if(readyTimer===0){ STATE='playing'; announce('游戏开始'); startBGM(); }
     return;
   }
   if(STATE==='playing'){
@@ -498,7 +525,7 @@ function update(dt){
     }
   }
 }
-function die(){ if(STATE!=='playing') return; STATE='dying'; deathTimer=0; lives--; updateHUD(); announce('损失一条生命'); sfxDeath(); }
+function die(){ if(STATE!=='playing') return; STATE='dying'; deathTimer=0; lives--; stopBGM(); updateHUD(); announce('损失一条生命'); sfxDeath(); }
 function win(){
   if(STATE!=='playing') return;
   score+=5000; level++; sfxExtra(); updateHUD();
@@ -507,7 +534,7 @@ function win(){
   beginReady(READY_DURATION_MS);
   updateHUD();
 }
-function gameOver(){ STATE='gameover'; announce('游戏结束，得分 '+score); showModal('GAME OVER','你的得分：'+score+'<br>坚持到了第 '+level+' 关','RETRY'); }
+function gameOver(){ STATE='gameover'; stopBGM(); announce('游戏结束，得分 '+score); showModal('GAME OVER','你的得分：'+score+'<br>坚持到了第 '+level+' 关','RETRY'); }
 
 function draw(){
   ctx.fillStyle='#000';
@@ -620,6 +647,7 @@ function setDirection(direction){
     STATE='playing';
     announce('游戏开始');
     sfxGo();
+    startBGM();
   }
   pendingDir=direction;
 }

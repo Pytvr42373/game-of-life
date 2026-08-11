@@ -82,6 +82,7 @@
   };
 
   let tickId = null;
+  let lastCountSec = null;
 
   /* ============ DOM ============ */
   let el = null;
@@ -248,6 +249,8 @@
     if (state.phase === 'countdown') {
       state.remaining = timeRemaining(state.tDeadline, now);
       renderCountdown();
+      const secs = Math.max(1, Math.ceil(state.remaining / 1000));
+      if (secs !== lastCountSec) { lastCountSec = secs; sfxCountTick(); }
       if (state.remaining <= 0) startPlay();
     } else if (state.phase === 'play' && state.playState === 'question') {
       state.remaining = timeRemaining(state.tDeadline, now);
@@ -286,6 +289,9 @@
 
   /* ============ 游戏流程 ============ */
   function startGame() {
+    sfxClick();
+    sfxStart();
+    startBGM();
     state.score = 0; state.right = 0; state.wrong = 0;
     state.combo = 0; state.maxCombo = 0; state.qIndex = 1;
     state.usedIds = {}; state.prevCats = []; state.wrongQs = [];
@@ -303,6 +309,7 @@
   }
 
   function startPlay() {
+    sfxCountGo();
     state.phase = 'play';
     state.playState = 'question';
     state.remaining = START_TIME;
@@ -391,6 +398,7 @@
     if (state.combo > state.maxCombo) state.maxCombo = state.combo;
     const add = gainFor(state.combo);
     state.score += add;
+    sfxCorrect(state.combo);
     btn.classList.add('correct');
     const hadTimeRoom = state.remaining < MAX_TIME;
     const timeGain = applyTimeDelta(+1000, hadTimeRoom ? '+1 秒' : '已满 30 秒');
@@ -408,6 +416,7 @@
   }
 
   function onWrong(btn, picked, correct) {
+    sfxWrong();
     state.wrong++;
     state.score = Math.max(0, state.score - 50);
     state.combo = 0;
@@ -446,6 +455,10 @@
     state.playState = 'idle';
     if (state.fbTimeout) { window.clearTimeout(state.fbTimeout); state.fbTimeout = null; }
     const pass = reason === 'pass';
+    if (reason === 'timeup') sfxTimeUp();
+    else if (pass) sfxWin();
+    else sfxResult();
+    stopBGM();
     const acc = (state.right + state.wrong) > 0
       ? Math.round(state.right / (state.right + state.wrong) * 100) : 0;
 
@@ -554,6 +567,7 @@
 
   function resumeGame() {
     if (state.phase !== 'pause') return;
+    sfxClick();
     const now = performance.now();
     const pausedFrom = state.pausedFrom;
     state.pausedFrom = null;
@@ -592,6 +606,97 @@
     }
   }
 
+  /* ============ 音效 & BGM（Web Audio 程序化合成，无外部音频文件） ============ */
+  let AC = null;
+  function audio() {
+    if (!AC) {
+      try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { AC = null; }
+    }
+    if (AC && AC.state === 'suspended') AC.resume();
+    return AC;
+  }
+  // 统一发声：振荡器 + 增益包络；reduced-motion 时降低音量
+  function tone(f, dur, type, vol, when) {
+    const a = audio(); if (!a) return;
+    const o = a.createOscillator(), g = a.createGain();
+    const t = a.currentTime + (when || 0);
+    o.type = type || 'square';
+    o.frequency.value = f;
+    const v = clamp((vol == null ? 0.05 : vol) * (reduced ? 0.4 : 1), 0, 1);
+    g.gain.setValueAtTime(v, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(a.destination);
+    o.start(t); o.stop(t + dur + 0.02);
+  }
+  // MIDI 音符号 → 频率
+  function noteFreq(n) { return 440 * Math.pow(2, (n - 69) / 12); }
+
+  // ---- 音效 ----
+  function sfxClick() { tone(720, 0.05, 'square', 0.04); }
+  function sfxStart() { [440, 660, 880].forEach(function (f, i) { tone(f, 0.12, 'square', 0.05, i * 0.08); }); }
+  function sfxCountTick() { tone(660, 0.07, 'square', 0.05); }
+  function sfxCountGo() {
+    tone(880, 0.14, 'square', 0.06);
+    setTimeout(function () { tone(1174, 0.16, 'square', 0.05); }, 70);
+  }
+  function sfxCorrect(combo) {
+    const base = 523 + clamp(combo - 1, 0, 12) * 42; // 连击越高音调越高
+    tone(base, 0.1, 'triangle', 0.06);
+    tone(base * 1.5, 0.16, 'triangle', 0.05, 0.07);
+  }
+  function sfxWrong() {
+    tone(220, 0.22, 'sawtooth', 0.06);
+    tone(147, 0.3, 'sawtooth', 0.05, 0.1);
+  }
+  function sfxTimeUp() { [880, 659, 494].forEach(function (f, i) { tone(f, 0.18, 'square', 0.06, i * 0.13); }); }
+  function sfxResult() { [659, 523, 392, 494, 659].forEach(function (f, i) { tone(f, 0.16, 'triangle', 0.05, i * 0.12); }); }
+  function sfxWin() {
+    [523, 659, 784, 1046, 1318, 1568].forEach(function (f, i) { tone(f, 0.16, 'triangle', 0.06, i * 0.1); });
+  }
+
+  // ---- BGM：轻快循环（I-IV-V-I 琶音 + 旋律），lookahead 调度 ----
+  const BGM_STEP = 0.24; // 每步间隔（秒）
+  const BGM_ROOTS = [48, 53, 55, 48]; // C3 F3 G3 C3（MIDI）
+  const BGM_MELODY = [
+    72, 76, 79, 76, 72, 74, 76, 0,
+    69, 72, 77, 72, 69, 72, 74, 0,
+    71, 74, 79, 74, 71, 74, 76, 0,
+    72, 76, 79, 84, 79, 76, 79, 84
+  ];
+  let bgmTimer = null;
+  let bgmStep = 0;
+  let bgmActive = false;
+  function bgmSched() {
+    const a = audio(); if (!a || !bgmActive) return;
+    // 后台长时间挂起时跳过多余步数，避免一次性排大量音符
+    const nowStep = Math.floor(a.currentTime / BGM_STEP);
+    if (bgmStep < nowStep - 8) bgmStep = nowStep;
+    const horizon = a.currentTime + 0.35;
+    while (bgmStep * BGM_STEP < horizon) {
+      const t = bgmStep * BGM_STEP;
+      const idx = bgmStep % 32;
+      const bar = Math.floor(idx / 8);
+      const root = BGM_ROOTS[bar];
+      const bass = (idx % 2 === 0) ? root : root + 7;
+      tone(noteFreq(bass), 0.2, 'triangle', 0.03, t);
+      const m = BGM_MELODY[idx];
+      if (m) tone(noteFreq(m), 0.18, 'square', 0.028, t);
+      bgmStep++;
+    }
+  }
+  function startBGM() {
+    stopBGM();
+    const a = audio(); if (!a) return;
+    bgmActive = true;
+    bgmStep = 0;
+    bgmSched();
+    bgmTimer = window.setInterval(bgmSched, 120);
+  }
+  function stopBGM() {
+    bgmActive = false;
+    if (bgmTimer) { window.clearInterval(bgmTimer); bgmTimer = null; }
+  }
+
   /* ============ 初始化 ============ */
   function init() {
     buildEls();
@@ -619,6 +724,8 @@
     el.resumeBtn.addEventListener('click', resumeGame);
     el.againBtn.addEventListener('click', startGame);
     el.toMenuBtn.addEventListener('click', function () {
+      sfxClick();
+      stopBGM();
       state.phase = 'menu';
       state.playState = 'idle';
       renderTop5();
