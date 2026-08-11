@@ -173,11 +173,30 @@ body[data-theme="arcade"] .dpad button:hover{color:#fff;filter:brightness(1.1);b
 body[data-theme="arcade"] .dpad button:active{color:#fff;filter:brightness(.96);transform:translateY(4px);box-shadow:0 1px 0 #580729,0 2px 4px rgba(3,25,58,.45),inset 0 3px 6px rgba(80,0,33,.35)}
 body[data-theme="arcade"] .dpad .dpad-center{width:30px;height:30px;align-self:center;justify-self:center;border:3px solid #d9e6ed;border-radius:50%;background:radial-gradient(circle at 34% 27%,#fff8bd 0 7%,#ffe14d 9% 38%,#e99a20 58%,#8b480f 78%,#4d2a0a 100%);box-shadow:0 3px 0 #6d380b,0 5px 7px rgba(3,25,58,.38),inset 0 2px 2px rgba(255,255,255,.48)}
 /* 4399 清新绿玻璃 */
-body[data-theme="4399"] .dpad{background:rgba(255,255,255,.82);border:1px solid rgba(56,153,4,.32);box-shadow:0 8px 24px rgba(56,153,4,.14),inset 0 1px 0 rgba(255,255,255,.85);border-radius:16px;backdrop-filter:blur(10px)}
-body[data-theme="4399"] .dpad button{width:40px;height:40px;color:var(--green);background:#f3f9ee;border:1px solid rgba(56,153,4,.3);box-shadow:0 2px 0 rgba(56,153,4,.25),inset 0 1px 0 rgba(255,255,255,.8);border-radius:10px}
-body[data-theme="4399"] .dpad button:hover{color:#fff;background:var(--green);border-color:var(--green)}
-body[data-theme="4399"] .dpad button:active{transform:translateY(2px);background:var(--orange);border-color:var(--orange);box-shadow:none}
-body[data-theme="4399"] .dpad .dpad-center{background:rgba(56,153,4,.1);border:1px solid rgba(56,153,4,.18);border-radius:50%}
+/* 4399 世界树主题：木制写实摇杆（参考 Skeuomorphism 木纹实现：暖棕底+水平木纹+光照渐变+深度阴影） */
+body[data-theme="4399"] .dpad{background:
+  repeating-linear-gradient(92deg,rgba(80,44,12,.14) 0 2px,rgba(255,214,150,.06) 2px 5px,rgba(80,44,12,.1) 5px 9px),
+  repeating-linear-gradient(88deg,rgba(60,30,8,.18) 0 1px,transparent 1px 12px),
+  linear-gradient(150deg,#b0763a,#8a5527 45%,#6f3f1e);
+  border:2px solid #5d3517;border-radius:14px;
+  box-shadow:0 10px 26px rgba(60,30,8,.45),inset 0 2px 3px rgba(255,220,160,.4),inset 0 -3px 6px rgba(40,18,4,.4);
+  backdrop-filter:none}
+body[data-theme="4399"] .dpad::before{content:'';position:absolute;inset:4px;border-radius:10px;pointer-events:none;
+  background:repeating-linear-gradient(180deg,rgba(255,230,180,.08) 0 1px,transparent 1px 6px);
+  box-shadow:inset 0 1px 1px rgba(255,240,200,.35)}
+body[data-theme="4399"] .dpad button{width:40px;height:40px;color:#4a2a10;font-weight:900;
+  background:
+    repeating-linear-gradient(92deg,rgba(90,50,14,.12) 0 2px,rgba(255,200,130,.08) 2px 5px),
+    linear-gradient(150deg,#d0924f,#a4652e 60%,#8a5020);
+  border:2px solid #6b3a17;border-radius:11px;
+  box-shadow:0 3px 0 #5a2f12,0 6px 10px rgba(50,22,6,.4),inset 0 1px 2px rgba(255,225,170,.55),inset 0 -2px 3px rgba(50,22,6,.4);
+  text-shadow:0 1px 0 rgba(255,220,160,.5)}
+body[data-theme="4399"] .dpad button:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 4px 0 #5a2f12,0 7px 12px rgba(50,22,6,.42),inset 0 1px 2px rgba(255,225,170,.55),inset 0 -2px 3px rgba(50,22,6,.4)}
+body[data-theme="4399"] .dpad button:active{transform:translateY(3px);filter:brightness(.92);box-shadow:0 1px 0 #5a2f12,inset 0 2px 5px rgba(30,12,3,.55)}
+body[data-theme="4399"] .dpad .dpad-center{background:
+  radial-gradient(circle at 32% 30%,#8a5a2c,#5d3517 70%);
+  border:2px solid #4a2a10;border-radius:50%;
+  box-shadow:inset 0 2px 4px rgba(30,12,3,.5),inset 0 -1px 2px rgba(255,220,160,.35)}
 .dpad button{display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer;transition:transform .1s ease}
 .dpad button[data-dir="0"]{grid-column:2;grid-row:1}
 .dpad button[data-dir="1"]{grid-column:1;grid-row:2}
@@ -186,6 +205,7 @@ body[data-theme="4399"] .dpad .dpad-center{background:rgba(56,153,4,.1);border:1
 .dpad button[data-dir="2"]{grid-column:2;grid-row:3}
 .dpad svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
 body[data-theme="arcade"] .dpad svg{filter:drop-shadow(0 1px 0 rgba(84,5,39,.7))}
+body[data-theme="4399"] .dpad svg{filter:drop-shadow(0 1px 0 rgba(255,220,160,.5))}
 .dpad button:focus-visible{outline:2px solid var(--focus,var(--cyan));outline-offset:2px}
 .modal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.62);backdrop-filter:blur(3px)}
 .modal.show{display:flex}
