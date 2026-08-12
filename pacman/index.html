@@ -729,5 +729,77 @@ setPac(); initGhosts(); STATE='ready';
 startGame(false);
 })();
 </script>
+<script>
+/* ===== 防沉迷统一计时（与主页共享 golPlaySeconds，每天提醒一次） ===== */
+(function(){
+  var PLAY_SECONDS_KEY='golPlaySeconds';
+  var PLAY_WARNED_KEY='golPlayWarnedDate';
+  var THRESHOLD=15*60;      // 900 秒 = 15 分钟
+  var STEP=30;              // 每次心跳累加 30 秒
+  var INTERVAL=30000;       // 每 30 秒心跳
+
+  function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+  function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+
+  var today=new Date();
+  var dateKey=today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+
+  function readSeconds(){
+    var v=parseInt(lsGet(PLAY_SECONDS_KEY),10);
+    return isNaN(v)?0:v;
+  }
+  var playSeconds=readSeconds();
+  var warned=false;
+  if(lsGet(PLAY_WARNED_KEY)===dateKey) warned=true;
+
+  var banner=null;
+  function ensureBanner(){
+    if(banner) return banner;
+    banner=document.createElement('div');
+    banner.setAttribute('role','alert');
+    banner.style.cssText='position:fixed;left:16px;right:16px;bottom:20px;z-index:99999;background:rgba(20,20,35,.96);color:#ffe14d;border:2px solid #ff4040;border-radius:12px;padding:14px 18px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:16px;line-height:1.5;box-shadow:0 6px 24px rgba(0,0,0,.35);text-align:center;transform:translateY(20px);opacity:0;transition:opacity .25s ease,transform .25s ease;';
+    var reduced=false;
+    try{ reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
+    if(reduced){ banner.style.transition='none'; }
+    var title=document.createElement('div');
+    title.style.cssText='font-weight:700;font-size:18px;';
+    title.textContent='⏰ 已经玩 '+Math.floor(playSeconds/60)+' 分钟啦';
+    var sub=document.createElement('div');
+    sub.style.cssText='margin-top:4px;color:#eee;font-size:14px;';
+    sub.textContent='注意休息眼睛，眺望一下远方吧 👀';
+    banner.appendChild(title);
+    banner.appendChild(sub);
+    if(document.body) document.body.appendChild(banner);
+    requestAnimationFrame(function(){ banner.style.transform='translateY(0)'; banner.style.opacity='1'; });
+    return banner;
+  }
+  function warnPlay(){
+    // 每天只提醒一次：当天已提醒则不再弹
+    if(warned) return;
+    warned=true;
+    lsSet(PLAY_WARNED_KEY,dateKey);
+    ensureBanner();
+    var t=setTimeout(function(){ if(banner){ banner.style.opacity='0'; banner.style.transform='translateY(20px)'; } },8000);
+    banner.addEventListener('click',function(){ banner.style.opacity='0'; banner.style.transform='translateY(20px)'; clearTimeout(t); });
+  }
+  function tickPlay(){
+    // 仅在页面可见时累计，切走/隐藏时暂停
+    if(document.visibilityState==='visible'){
+      playSeconds+=STEP;
+      lsSet(PLAY_SECONDS_KEY,String(playSeconds));
+      if(playSeconds>=THRESHOLD) warnPlay();
+    }
+  }
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='visible') tickPlay();
+  });
+  setInterval(tickPlay,INTERVAL);
+  // 初次加载：若已累计达到阈值且当天未提醒，立即提示
+  if(playSeconds>=THRESHOLD) warnPlay();
+})();
+</script>
+
+
+
 </body>
 </html>

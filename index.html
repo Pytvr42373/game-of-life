@@ -217,17 +217,28 @@ body[data-theme="arcade"] .card .ico svg.li,body[data-theme="arcade"] .ext-card 
 /* ===== 上新 / 神秘 标签特化（双主题） ===== */
 .h4399 .nav button[data-filter="上新"]{background:linear-gradient(135deg,#ff9a3d,#ff5c8a,#a05cff);color:#fff;border-color:transparent;box-shadow:0 0 12px rgba(255,92,138,.6),0 0 24px rgba(255,154,61,.35);position:relative}
 .h4399 .nav button[data-filter="上新"]::after{content:'★';position:absolute;top:-7px;right:-5px;font-size:12px;color:#ffd54f;filter:drop-shadow(0 0 4px #ffd54f)}
-.h4399 .nav button[data-filter="上新"]:hover{filter:brightness(1.08)}
+.h4399 .nav button[data-filter="上新"]:hover{filter:brightness(1.18) saturate(1.15);transform:translateY(-2px) scale(1.05);box-shadow:0 0 20px rgba(255,92,138,.9),0 0 34px rgba(255,154,61,.55)}
 .h4399 .nav button[data-filter="上新"].on{background:linear-gradient(135deg,#ff5c8a,#a05cff);color:#fff;border-color:#ffd54f;box-shadow:0 0 16px rgba(255,92,138,.85),0 0 30px rgba(160,92,255,.5)}
 .h4399 .nav button[data-filter="神秘"]{background:radial-gradient(circle at 30% 30%,#4a2a7a,#1c1040);color:#d9c8ff;border-color:#8a5ac0;box-shadow:0 0 12px rgba(160,92,255,.5),inset 0 0 8px rgba(160,92,255,.25);position:relative}
 .h4399 .nav button[data-filter="神秘"]::before{content:'';position:absolute;inset:0;border-radius:999px;background:conic-gradient(from 0deg,rgba(120,80,255,0),rgba(160,60,220,.55),rgba(120,80,255,0));-webkit-mask:radial-gradient(circle,transparent 38%,#000 82%,transparent 86%);mask:radial-gradient(circle,transparent 38%,#000 82%,transparent 86%);animation:portal-ico-spin 5s linear infinite;pointer-events:none}
 .h4399 .nav button[data-filter="神秘"].on{background:#241250;color:#fff;border-color:#a05cff;box-shadow:0 0 16px rgba(160,92,255,.9)}
+.h4399 .nav button[data-filter="神秘"]:hover{background:radial-gradient(circle at 30% 30%,#5a3a9a,#251255);color:#fff;border-color:#a05cff;box-shadow:0 0 20px rgba(160,92,255,.95),0 0 40px rgba(120,80,255,.5),inset 0 0 10px rgba(160,92,255,.4);transform:translateY(-2px) scale(1.05)}
+.h4399 .nav button[data-filter="神秘"]:hover::before{animation-duration:1.6s}
+
 .harcade .nav button[data-filter="上新"]{background:linear-gradient(135deg,#ff5c8a,#a05cff,#3de1ff);color:#0a0a18;border-color:#fff;box-shadow:3px 3px 0 #0a0a18,0 0 14px rgba(255,92,138,.7);position:relative}
 .harcade .nav button[data-filter="上新"]::after{content:'★';position:absolute;top:-9px;right:-7px;font-size:13px;color:#ffe14d;filter:drop-shadow(0 0 5px #ffe14d);text-shadow:none}
-.harcade .nav button[data-filter="上新"]:hover{color:#0a0a18;border-color:#fff}
+.harcade .nav button[data-filter="上新"]:hover{color:#0a0a18;border-color:#fff;background:linear-gradient(135deg,#ff5c8a,#a05cff,#3de1ff);box-shadow:3px 3px 0 #0a0a18,0 0 22px rgba(255,92,138,.95),0 0 40px rgba(61,225,255,.5);transform:translateY(-2px) scale(1.05)}
 .harcade .nav button[data-filter="上新"].on{background:linear-gradient(135deg,#ff2d78,#a05cff);color:#fff;border-color:#ffe14d;box-shadow:3px 3px 0 #0a0a18,0 0 18px rgba(255,45,120,.9)}
 .harcade .nav button[data-filter="神秘"]{background:linear-gradient(135deg,#1c1040,#3a1a6a);color:#d9c8ff;border-color:#a05cff;box-shadow:3px 3px 0 #0a0a18,0 0 12px rgba(160,92,255,.6)}
 .harcade .nav button[data-filter="神秘"].on{background:#241250;color:#fff;border-color:#3de1ff;box-shadow:3px 3px 0 #0a0a18,0 0 16px rgba(160,92,255,.9)}
+.harcade .nav button[data-filter="神秘"]:hover{background:linear-gradient(135deg,#2a1660,#4a2a8a);color:#fff;border-color:#3de1ff;box-shadow:3px 3px 0 #0a0a18,0 0 20px rgba(160,92,255,.95),0 0 40px rgba(120,80,255,.5);transform:translateY(-2px) scale(1.05)}
+
+
+@media (prefers-reduced-motion: reduce){
+  .h4399 .nav button[data-filter="上新"]:hover,.h4399 .nav button[data-filter="神秘"]:hover,.harcade .nav button[data-filter="上新"]:hover,.harcade .nav button[data-filter="神秘"]:hover{transform:none!important;transition:none!important}
+  .h4399 .nav button[data-filter="神秘"]:hover::before{animation:none!important}
+}
+
 /* 卡片整体神秘微光边框 */
 .card-portal{box-shadow:0 0 0 rgba(120,80,255,0);transition:box-shadow .3s}
 body[data-theme="4399"] .card-portal{box-shadow:0 6px 20px rgba(106,74,158,.22)}
@@ -263,9 +274,9 @@ body[data-theme="arcade"] .card .corner.br{bottom:-3px;right:-3px;border-left:0;
 body[data-theme="arcade"] .card .new-badge{
   position:absolute;top:-3px;right:-3px;z-index:5;
   font-family:'Press Start 2P',monospace;
-  font-size:8px;letter-spacing:1px;line-height:1;
+  font-size:12px;letter-spacing:1px;line-height:1;
   color:var(--hard);background:var(--yellow);
-  padding:5px 7px 4px;
+  padding:7px 10px 6px;
   box-shadow:3px 3px 0 var(--hard),0 0 12px var(--yellow),0 0 26px rgba(255,225,77,.5);
   animation:newBlink 1.2s steps(1) infinite;
 }
@@ -273,8 +284,8 @@ body[data-theme="arcade"] .card .new-badge{
 body[data-theme="4399"] .card .new-badge{
   position:absolute;top:10px;right:10px;z-index:5;
   font-family:'PingFang SC','Microsoft YaHei',sans-serif;
-  font-size:11px;font-weight:700;line-height:1;color:#fff;
-  background:var(--orange);padding:4px 8px;border-radius:8px;
+  font-size:16px;font-weight:700;line-height:1;color:#fff;
+  background:var(--orange);padding:6px 11px;border-radius:10px;
   box-shadow:0 2px 6px rgba(251,100,0,.4);
 }
 @media (prefers-reduced-motion: reduce){ body[data-theme="arcade"] .card .new-badge{animation:none} }
@@ -630,11 +641,11 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <div class="pac-choice-q">你是否愿意给这个游戏一个好评？</div>
     <div class="pac-choice-btns">
       <button type="button" class="pac-choice-btn yes">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="li" aria-hidden="true"><path d="m11 10 3 3"/><path d="M6.5 21A3.5 3.5 0 1 0 3 17.5a2.62 2.62 0 0 1-.708 1.792A1 1 0 0 0 3 21z"/><path d="M9.969 17.031 21.378 5.624a1 1 0 0 0-3.002-3.002L6.967 14.031"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="li" aria-hidden="true"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg>
         <span>是的，我很喜欢</span>
       </button>
       <button type="button" class="pac-choice-btn love">
-        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/></svg>
+        <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
         <span>是的，我特别喜欢</span>
       </button>
     </div>
@@ -702,7 +713,7 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
 <div class="wrap" inert>
   <!-- 4399 头部 -->
   <header class="h4399">
-    <div class="top"><div class="logo-box"><svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor" aria-hidden="true"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></div><div class="title">好玩<em>小游戏</em></div></div>
+    <div class="top"><div class="logo-box"><svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div><div class="title">好玩<em>小游戏</em></div></div>
     <p class="sub">专注好玩 · 每天都有新发现</p>
     <nav class="nav" aria-label="游戏分类">
       <button type="button" class="on" data-filter="全部" aria-pressed="true" aria-controls="gameGrid">全部</button>
@@ -736,7 +747,7 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <a class="card" href="life/index.html" data-delay="0" data-categories="经典" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">
-        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
+        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li g-life" aria-hidden="true"><defs><linearGradient id="g-life" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3ddc97"/><stop offset=".55" stop-color="#2e7d3f"/><stop offset="1" stop-color="#3de1ff"/></linearGradient></defs><rect stroke="url(#g-life)"  width="18" height="18" x="3" y="3" rx="2"/><path stroke="url(#g-life)"  d="M3 9h18"/><path stroke="url(#g-life)"  d="M3 15h18"/><path stroke="url(#g-life)"  d="M9 3v18"/><path stroke="url(#g-life)"  d="M15 3v18"/></svg>
       </span>
       <div class="name">康威生命游戏</div>
       <div class="tag">经典</div>
@@ -745,7 +756,7 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <a class="card" href="bottle/index.html" data-delay=".12s" data-categories="益智 逻辑 经典" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">
-        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li" aria-hidden="true"><path d="M5.116 4.104A1 1 0 0 1 6.11 3h11.78a1 1 0 0 1 .994 1.105L17.19 20.21A2 2 0 0 1 15.2 22H8.8a2 2 0 0 1-2-1.79z"/><path d="M6 12a5 5 0 0 1 6 0 5 5 0 0 0 6 0"/></svg>
+        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li g-bottle" aria-hidden="true"><defs><linearGradient id="g-bottle" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3aa8ff"/><stop offset=".5" stop-color="#3de1ff"/><stop offset="1" stop-color="#3ddc97"/></linearGradient></defs><path stroke="url(#g-bottle)"  d="M5.116 4.104A1 1 0 0 1 6.11 3h11.78a1 1 0 0 1 .994 1.105L17.19 20.21A2 2 0 0 1 15.2 22H8.8a2 2 0 0 1-2-1.79z"/><path stroke="url(#g-bottle)"  d="M6 12a5 5 0 0 1 6 0 5 5 0 0 0 6 0"/></svg>
       </span>
       <div class="name">倒水谜题</div>
       <div class="tag">益智 · 逻辑</div>
@@ -793,7 +804,7 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <a class="card" href="stroop/index.html" data-delay=".3s" data-categories="反应 经典" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">
-        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li g-stroop" aria-hidden="true"><defs><linearGradient id="g-stroop" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff2d78"/><stop offset=".5" stop-color="#ff8a3d"/><stop offset="1" stop-color="#ffe14d"/></linearGradient></defs><circle stroke="url(#g-stroop)"  cx="12" cy="12" r="10"/><circle stroke="url(#g-stroop)"  cx="12" cy="12" r="6"/><circle stroke="url(#g-stroop)"  cx="12" cy="12" r="2"/></svg>
       </span>
       <div class="name">Stroop 挑战</div>
       <div class="tag">反应</div>
@@ -802,7 +813,7 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <a class="card" href="light-up/index.html" data-delay=".36s" data-categories="益智 逻辑" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">
-        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li g-light" aria-hidden="true"><defs><linearGradient id="g-light" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe14d"/><stop offset=".5" stop-color="#ff8a3d"/><stop offset="1" stop-color="#ff2d78"/></linearGradient></defs><path stroke="url(#g-light)"  d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path stroke="url(#g-light)"  d="M9 18h6"/><path stroke="url(#g-light)"  d="M10 22h4"/></svg>
       </span>
       <div class="name">点灯 · 光廊</div>
       <div class="tag">益智 · 逻辑</div>
@@ -811,7 +822,7 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <a class="card" href="ray-lab/index.html" data-delay=".42s" data-categories="益智 逻辑" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">
-        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li" aria-hidden="true"><path d="M6 18h8"/><path d="M3 22h18"/><path d="M14 22a7 7 0 1 0 0-14h-1"/><path d="M9 14h2"/><path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/><path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/></svg>
+        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li g-ray" aria-hidden="true"><defs><linearGradient id="g-ray" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3de1ff"/><stop offset=".5" stop-color="#3aa8ff"/><stop offset="1" stop-color="#a05cff"/></linearGradient></defs><path stroke="url(#g-ray)"  d="M6 18h8"/><path stroke="url(#g-ray)"  d="M3 22h18"/><path stroke="url(#g-ray)"  d="M14 22a7 7 0 1 0 0-14h-1"/><path stroke="url(#g-ray)"  d="M9 14h2"/><path stroke="url(#g-ray)"  d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/><path stroke="url(#g-ray)"  d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/></svg>
       </span>
       <div class="name">光线侦探</div>
       <div class="tag">益智 · 逻辑</div>
@@ -820,7 +831,7 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <a class="card" href="nonogram/index.html" data-delay=".45s" data-categories="益智 逻辑" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">
-        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
+        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li g-nono" aria-hidden="true"><defs><linearGradient id="g-nono" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8a3d"/><stop offset=".5" stop-color="#ff2d78"/><stop offset="1" stop-color="#8a2be2"/></linearGradient></defs><rect stroke="url(#g-nono)"  width="18" height="18" x="3" y="3" rx="2"/><path stroke="url(#g-nono)"  d="M3 9h18"/><path stroke="url(#g-nono)"  d="M3 15h18"/><path stroke="url(#g-nono)"  d="M9 3v18"/><path stroke="url(#g-nono)"  d="M15 3v18"/></svg>
       </span>
       <div class="name">数织 Nonogram</div>
       <div class="tag">益智 · 逻辑</div>
@@ -829,7 +840,7 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <a class="card" href="game24/index.html" data-delay=".48s" data-categories="益智 逻辑 经典" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">
-        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li" aria-hidden="true"><rect width="12" height="12" x="2" y="10" rx="2" ry="2"/><path d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6"/><path d="M6 18h.01"/><path d="M10 14h.01"/><path d="M15 6h.01"/><path d="M18 9h.01"/></svg>
+        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li g-24" aria-hidden="true"><defs><linearGradient id="g-24" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3ddc97"/><stop offset=".5" stop-color="#3aa8ff"/><stop offset="1" stop-color="#8a2be2"/></linearGradient></defs><rect stroke="url(#g-24)"  width="12" height="12" x="2" y="10" rx="2" ry="2"/><path stroke="url(#g-24)"  d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6"/><path stroke="url(#g-24)"  d="M6 18h.01"/><path stroke="url(#g-24)"  d="M10 14h.01"/><path stroke="url(#g-24)"  d="M15 6h.01"/><path stroke="url(#g-24)"  d="M18 9h.01"/></svg>
       </span>
       <div class="name">24点</div>
       <div class="tag">益智 · 逻辑</div>
@@ -839,7 +850,7 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="new-badge">NEW</span>
       <span class="ico">
-        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li" aria-hidden="true"><path d="M12 18V5"/><path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"/><path d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5"/><path d="M17.997 5.125a4 4 0 0 1 2.526 5.77"/><path d="M18 18a4 4 0 0 0 2-7.464"/><path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517"/><path d="M6 18a4 4 0 0 1-2-7.464"/><path d="M6.003 5.125a4 4 0 0 0-2.526 5.77"/></svg>
+        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li g-brain" aria-hidden="true"><defs><linearGradient id="g-brain" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8a3d"/><stop offset=".5" stop-color="#ff2d78"/><stop offset="1" stop-color="#a05cff"/></linearGradient></defs><path stroke="url(#g-brain)"  d="M12 18V5"/><path stroke="url(#g-brain)"  d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"/><path stroke="url(#g-brain)"  d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5"/><path stroke="url(#g-brain)"  d="M17.997 5.125a4 4 0 0 1 2.526 5.77"/><path stroke="url(#g-brain)"  d="M18 18a4 4 0 0 0 2-7.464"/><path stroke="url(#g-brain)"  d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517"/><path stroke="url(#g-brain)"  d="M6 18a4 4 0 0 1-2-7.464"/><path stroke="url(#g-brain)"  d="M6.003 5.125a4 4 0 0 0-2.526 5.77"/></svg>
       </span>
       <div class="name">谁是知识大王</div>
       <div class="tag">益智 · 反应</div>
@@ -848,7 +859,7 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <a class="card" href="https://pytvr42373.github.io/Baici_Spired/" data-delay=".60s" data-categories="益智" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">
-        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li" aria-hidden="true"><path d="M12 5v16"/><path d="M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li g-word" aria-hidden="true"><defs><linearGradient id="g-word" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3aa8ff"/><stop offset=".5" stop-color="#a05cff"/><stop offset="1" stop-color="#ff2d78"/></linearGradient></defs><path stroke="url(#g-word)"  d="M12 5v16"/><path stroke="url(#g-word)"  d="M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
       </span>
       <div class="name">词域远征</div>
       <div class="tag">益智 · 背单词</div>
@@ -892,7 +903,7 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
       <a class="ext-card ext-code" href="https://Pytvr42373.github.io/c-workshop/" data-delay=".72s" onclick="goDirect(this.href,event)">
         <span class="term-bar" aria-hidden="true"><i class="term-dot r"></i><i class="term-dot y"></i><i class="term-dot g"></i></span>
         <span class="ico" aria-hidden="true">
-          <svg viewBox="0 0 24 24" class="li" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/></svg>
+          <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="li g-code" aria-hidden="true"><defs><linearGradient id="g-code" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3ddc97"/><stop offset=".5" stop-color="#3de1ff"/><stop offset="1" stop-color="#3aa8ff"/></linearGradient></defs><path stroke="url(#g-code)"  d="m16 18 6-6-6-6"/><path stroke="url(#g-code)"  d="m8 6-6 6 6 6"/></svg>
         </span>
         <div class="name">C 语言交互实验室<span class="cursor"></span></div>
         <div class="desc">从 Python 到 C，看见内存</div>
@@ -901,7 +912,7 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
       <!-- 入口B · 涂鸦游戏（手绘/自由风格 · 待接入占位） -->
       <a class="ext-card ext-doodle" href="tusha/index.html" data-delay=".78s" onclick="goDirect(this.href,event)">
         <span class="ico" aria-hidden="true">
-          <svg viewBox="0 0 24 24" class="li" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m11 10 3 3"/><path d="M6.5 21A3.5 3.5 0 1 0 3 17.5a2.62 2.62 0 0 1-.708 1.792A1 1 0 0 0 3 21z"/><path d="M9.969 17.031 21.378 5.624a1 1 0 0 0-3.002-3.002L6.967 14.031"/></svg>
+          <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="li g-tusha" aria-hidden="true"><defs><linearGradient id="g-tusha" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8a3d"/><stop offset=".33" stop-color="#ff2d78"/><stop offset=".66" stop-color="#8a2be2"/><stop offset="1" stop-color="#3aa8ff"/></linearGradient></defs><path stroke="url(#g-tusha)"  d="m11 10 3 3"/><path stroke="url(#g-tusha)"  d="M6.5 21A3.5 3.5 0 1 0 3 17.5a2.62 2.62 0 0 1-.708 1.792A1 1 0 0 0 3 21z"/><path stroke="url(#g-tusha)"  d="M9.969 17.031 21.378 5.624a1 1 0 0 0-3.002-3.002L6.967 14.031"/></svg>
         </span>
         <div class="name">涂鸦游戏</div>
         <div class="tag">涂鸦 · 自由创作</div>
@@ -1621,6 +1632,158 @@ document.getElementById('portalBrave').addEventListener('click',portalBrave);
 
 
 
+</script>
+
+
+<style>
+/* ============ 定时提醒 + 防沉迷提醒横幅（双主题适配） ============ */
+.remind-banner{position:fixed;left:50%;bottom:26px;transform:translate(-50%,180%);z-index:400;
+  display:flex;align-items:center;gap:14px;max-width:min(500px,calc(100vw - 32px));
+  padding:14px 16px;border-radius:14px;background:var(--surface);border:2px solid var(--line);
+  color:var(--text);box-shadow:0 12px 34px rgba(0,0,0,.28);
+  transition:transform .45s cubic-bezier(.2,.9,.3,1.15),opacity .45s ease;opacity:0;pointer-events:none}
+body[data-theme="arcade"] .remind-banner{border:3px solid var(--line);border-radius:0;
+  box-shadow:6px 6px 0 var(--hard),0 0 28px rgba(61,225,255,.25)}
+.remind-banner.show{transform:translate(-50%,0);opacity:1;pointer-events:auto}
+.remind-banner.danger{border-color:var(--orange,#fb6400)}
+body[data-theme="arcade"] .remind-banner.danger{border-color:var(--pink);
+  box-shadow:6px 6px 0 var(--hard),0 0 32px rgba(255,45,120,.45)}
+.remind-ico{font-size:28px;line-height:1;flex-shrink:0}
+.remind-ico.warn{animation:remindPulse .9s ease-in-out infinite}
+@keyframes remindPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+.remind-body{flex:1;min-width:0}
+.remind-title{font-weight:800;font-size:15px;color:var(--text)}
+body[data-theme="arcade"] .remind-title{font-family:'Press Start 2P',monospace;font-size:11px;
+  line-height:1.7;text-shadow:0 0 10px currentColor}
+.remind-sub{font-size:12px;color:var(--dim);margin-top:3px;line-height:1.55}
+body[data-theme="arcade"] .remind-sub{font-size:11px}
+.remind-close{flex-shrink:0;background:var(--green);color:var(--bg);border:0;border-radius:999px;
+  padding:8px 15px;font-size:12px;font-weight:700;cursor:pointer;transition:transform .15s}
+body[data-theme="arcade"] .remind-close{border-radius:0;font-family:'Press Start 2P',monospace;
+  font-size:9px;box-shadow:3px 3px 0 var(--hard)}
+.remind-close:hover{transform:scale(1.06)}
+.remind-close:active{transform:scale(.93)}
+@media (prefers-reduced-motion: reduce){
+  .remind-banner,.remind-banner *,.remind-ico.warn{animation:none!important;transition:none!important}
+}
+</style>
+
+<!-- 定时提醒 / 防沉迷提醒横幅 -->
+<div class="remind-banner" id="remindBanner" role="alert" aria-live="assertive" aria-hidden="true">
+  <div class="remind-ico" id="remindIco" aria-hidden="true">⏰</div>
+  <div class="remind-body">
+    <div class="remind-title" id="remindTitle"></div>
+    <div class="remind-sub" id="remindSub"></div>
+  </div>
+  <button type="button" class="remind-close" id="remindClose">知道了</button>
+</div>
+
+<script>
+(function(){
+  var banner=document.getElementById('remindBanner');
+  if(!banner) return;
+  var titleEl=document.getElementById('remindTitle');
+  var subEl=document.getElementById('remindSub');
+  var icoEl=document.getElementById('remindIco');
+  var closeBtn=document.getElementById('remindClose');
+  var hideTimer=null;
+
+  function showBanner(title,sub,danger){
+    titleEl.textContent=title;
+    subEl.textContent=sub;
+    banner.classList.toggle('danger',!!danger);
+    icoEl.classList.toggle('warn',!!danger);
+    banner.classList.add('show');
+    banner.setAttribute('aria-hidden','false');
+    if(hideTimer) clearTimeout(hideTimer);
+    hideTimer=setTimeout(hideBanner,danger?9000:10000);
+  }
+  function hideBanner(){
+    if(hideTimer){clearTimeout(hideTimer);hideTimer=null;}
+    banner.classList.remove('show');
+    banner.setAttribute('aria-hidden','true');
+  }
+  if(closeBtn) closeBtn.addEventListener('click',hideBanner);
+  banner.addEventListener('click',function(e){ if(e.target===banner) hideBanner(); });
+
+  function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+  function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+
+  // ============ 需求1：定时提醒（17:10 / 17:15 / 17:20 渐进式） ============
+  var today=new Date();
+  var dateKey=today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+  var remindKey='ghRemindDone-'+dateKey;
+  var doneTimes={};
+  var saved=lsGet(remindKey);
+  if(saved){ saved.split(',').forEach(function(t){ if(t) doneTimes[t]=true; }); }
+
+  var SCHED=[
+    {h:17,m:10,danger:false,title:'已经 17:10 了',
+     sub:'今天玩得差不多了，可以准备休息啦 🌿'},
+    {h:17,m:15,danger:false,title:'17:15 了，时间不早啦',
+     sub:'建议今天先到这里，去休息吧 ☕'},
+    {h:17,m:20,danger:true,title:'17:20 了，很晚了！',
+     sub:'为了健康，请立刻停止游戏去休息 ⚠️'}
+  ];
+  function saveDone(){
+    var arr=[];
+    for(var k in doneTimes){ if(doneTimes[k]) arr.push(k); }
+    lsSet(remindKey,arr.join(','));
+  }
+  function checkTimeReminder(){
+    var now=new Date();
+    var h=now.getHours(), m=now.getMinutes();
+    for(var i=0;i<SCHED.length;i++){
+      var s=SCHED[i];
+      if(h===s.h && m===s.m && !doneTimes[s.h+':'+s.m]){
+        doneTimes[s.h+':'+s.m]=true;
+        saveDone();
+        showBanner(s.title,s.sub,s.danger);
+      }
+    }
+  }
+  // 立即检查一次（若恰好在提醒时刻打开页面），再每 30 秒检查
+  checkTimeReminder();
+  setInterval(checkTimeReminder,30000);
+
+  // ============ 需求2：防沉迷提醒（累计游玩 15 分钟） ============
+  var PLAY_SECONDS_KEY='golPlaySeconds';
+  var PLAY_WARNED_KEY='golPlayWarnedDate';
+  var THRESHOLD=15*60; // 900 秒
+  var warnedToday=false;
+  var wd=lsGet(PLAY_WARNED_KEY);
+  if(wd===dateKey) warnedToday=true;
+
+  function readSeconds(){
+    var v=parseInt(lsGet(PLAY_SECONDS_KEY),10);
+    return isNaN(v)?0:v;
+  }
+  var playSeconds=readSeconds();
+
+  function warnPlay(){
+    if(warnedToday) return;
+    warnedToday=true;
+    lsSet(PLAY_WARNED_KEY,dateKey);
+    var mins=Math.floor(playSeconds/60);
+    showBanner('已经玩 '+mins+' 分钟啦','注意休息眼睛，眺望一下远方吧 👀',true);
+  }
+  function tickPlay(){
+    // 仅在页面可见时累计，切走/隐藏时暂停
+    if(document.visibilityState==='visible'){
+      playSeconds+=30;
+      lsSet(PLAY_SECONDS_KEY,String(playSeconds));
+      if(playSeconds>=THRESHOLD) warnPlay();
+    }
+  }
+  // 页面可见性感知：可见才继续心跳累计
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='visible') tickPlay();
+  });
+  // 每 30 秒心跳累计（内部已判断可见性）
+  setInterval(tickPlay,30000);
+  // 初次加载：若已累计达到阈值且当天未提醒，则立即提示
+  if(playSeconds>=THRESHOLD) warnPlay();
+})();
 </script>
 
 </body>

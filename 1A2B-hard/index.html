@@ -211,11 +211,20 @@ body[data-theme="arcade"] .fb-badge .b{color:var(--yellow);text-shadow:0 0 8px v
 body[data-theme="arcade"] .fb-badge.win{box-shadow:3px 3px 0 var(--hard),0 0 16px rgba(0,255,157,.6)!important}
 
 /* 规则提示条（难版专属） */
-.rules{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:2px 0 8px;font-size:12px;color:var(--dim)}
+.rules{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:2px 0 8px;font-size:14px;color:var(--dim)}
 .rules .r{padding:4px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
-.rules .r b{color:var(--green)}
-body[data-theme="arcade"] .rules .r{background:var(--key-bg);border:2px solid var(--line);box-shadow:2px 2px 0 var(--hard);font-family:'Press Start 2P',monospace;font-size:7px}
-body[data-theme="arcade"] .rules .r b{color:var(--green);text-shadow:0 0 8px var(--green)}
+/* A/B 特色徽章（规则条与弹窗共用） */
+.ab{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;padding:0 5px;border-radius:7px;font-weight:900;font-size:16px;line-height:1;vertical-align:middle;color:#fff}
+.ab.a{background:var(--green);box-shadow:0 0 8px rgba(56,153,4,.45)}
+.ab.b{background:#e2a400;box-shadow:0 0 8px rgba(226,164,0,.45)}
+.rules .ab{margin-right:3px}
+.rules .ab.a{background:var(--green)}
+.rules .ab.b{background:#e2a400}
+body[data-theme="arcade"] .rules .r{background:var(--key-bg);border:2px solid var(--line);box-shadow:2px 2px 0 var(--hard);font-family:'Press Start 2P',monospace;font-size:11px}
+body[data-theme="arcade"] .rules .ab.a{background:var(--green);color:#000;text-shadow:none;box-shadow:2px 2px 0 var(--hard),0 0 8px var(--green)}
+body[data-theme="arcade"] .rules .ab.b{background:var(--yellow);color:#000;text-shadow:none;box-shadow:2px 2px 0 var(--hard),0 0 8px var(--yellow)}
+body[data-theme="arcade"] .rule-modal .ab.a{background:var(--green);color:#000;text-shadow:none;box-shadow:2px 2px 0 var(--hard),0 0 8px var(--green)}
+body[data-theme="arcade"] .rule-modal .ab.b{background:var(--yellow);color:#000;text-shadow:none;box-shadow:2px 2px 0 var(--hard),0 0 8px var(--yellow)}
 
 /* ============ 键盘（保持缩小） ============ */
 .kb{position:fixed;left:0;right:0;bottom:0;z-index:40;width:100%;padding:4px 10px max(8px, env(safe-area-inset-bottom));
@@ -241,6 +250,23 @@ body[data-theme="4399"] .modal h2{color:var(--green);font-family:'ZCOOL KuaiLe',
 body[data-theme="arcade"] .modal h2{font-family:'Press Start 2P',monospace;font-size:14px;color:var(--green);text-shadow:0 0 10px var(--green);line-height:1.8}
 .modal .answer{margin:6px 0 12px;font-size:15px;color:var(--dim)}
 .modal .answer b{font-size:22px;letter-spacing:4px;color:var(--text)}
+
+/* ============ 进入规则弹窗（解释 A/B 含义） ============ */
+.rule-overlay{z-index:160}
+.rule-modal .rule-title{margin-bottom:2px}
+.rule-intro{font-size:14px;color:var(--dim);margin:4px 0 14px}
+.rule-line{display:flex;align-items:center;gap:10px;font-size:16px;color:var(--text);margin:12px 0;text-align:left}
+.rule-line .lbl{font-weight:900;color:var(--text)}
+.rule-line .desc{color:var(--dim);font-size:13px}
+.rule-example{background:var(--bg2);border:1px dashed var(--line);border-radius:10px;padding:12px 14px;margin:14px 0 4px;font-size:14px;color:var(--text);text-align:left}
+.rule-example .ex-title{font-weight:900;color:var(--green);margin-bottom:8px;font-size:13px;letter-spacing:1px}
+.rule-example .ex-fb{display:inline-flex;align-items:center;gap:4px;margin-left:6px;font-weight:900;font-size:16px}
+.rule-example .ex-fb .a{color:var(--green)}
+.rule-example .ex-fb .b{color:#e2a400}
+body[data-theme="arcade"] .rule-example{background:var(--key-bg);border:2px solid var(--line);box-shadow:2px 2px 0 var(--hard)}
+body[data-theme="arcade"] .rule-example .ex-title{color:var(--green);text-shadow:0 0 8px var(--green)}
+body[data-theme="arcade"] .rule-example .ex-fb .a{color:var(--green);text-shadow:0 0 8px var(--green)}
+body[data-theme="arcade"] .rule-example .ex-fb .b{color:var(--yellow);text-shadow:0 0 8px var(--yellow)}
 
 /* 统计卡片 */
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
@@ -351,10 +377,8 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
 
   <!-- 难版规则提示 -->
   <div class="rules">
-    <span class="r"><b>A</b> 位置正确</span>
-    <span class="r"><b>B</b> 有但错位</span>
-    <span class="r">无逐格提示</span>
-    <span class="r">次数更少</span>
+    <span class="r"><b class="ab a">A</b> 位置正确</span>
+    <span class="r"><b class="ab b">B</b> 有但错位</span>
   </div>
 
   <div class="hud">
@@ -379,6 +403,23 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
     <button class="key" data-digit="8">8</button>
     <button class="key" data-digit="9">9</button>
     <button class="key" data-digit="0">0</button>
+  </div>
+</div>
+
+<!-- 进入规则弹窗（解释 A/B 含义） -->
+<div class="overlay rule-overlay" id="ruleOverlay">
+  <div class="modal rule-modal">
+    <h2 class="rule-title">&#128218; 1A2B &#183; 难版</h2>
+    <div class="rule-intro">只报 <b>几A几B</b>，不告诉你哪些位置对，请推理破解！</div>
+    <div class="rule-line"><span class="ab a">A</span><span class="lbl">位置正确</span><span class="desc">数字和位置都正确</span></div>
+    <div class="rule-line"><span class="ab b">B</span><span class="lbl">有但错位</span><span class="desc">数字存在但位置不对</span></div>
+    <div class="rule-example">
+      <div class="ex-title">&#128161; 示例</div>
+      <div>答案 <b>1 2 3 4</b>，你猜 <b>1 2 5 6</b> &#8594; <span class="ex-fb"><span class="a">2</span>A <span class="b">0</span>B</span></div>
+    </div>
+    <div class="modal-btns">
+      <button id="ruleStart">&#127918; 开始游戏</button>
+    </div>
   </div>
 </div>
 
@@ -657,6 +698,12 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
 
   function closeModal(){ overlay.classList.remove('on'); }
 
+  /* ================= 进入规则弹窗 ================= */
+  var ruleOverlay = document.getElementById('ruleOverlay');
+  document.getElementById('ruleStart').addEventListener('click', function(){
+    ruleOverlay.classList.remove('on');
+  });
+
   /* ================= 新游戏 ================= */
   function newGame(){
     answer = genAnswer(CURRENT_LEN);
@@ -728,8 +775,82 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
     try { saved = localStorage.getItem('gh-theme')||'4399'; } catch(e){ saved='4399'; }
     applyTheme(saved);
     newGame();
+    /* 进入游戏时弹出规则说明（每次进入均弹，确保 A/B 含义清晰） */
+    ruleOverlay.classList.add('on');
   })();
 })();
 </script>
+<script>
+/* ===== 防沉迷统一计时（与主页共享 golPlaySeconds，每天提醒一次） ===== */
+(function(){
+  var PLAY_SECONDS_KEY='golPlaySeconds';
+  var PLAY_WARNED_KEY='golPlayWarnedDate';
+  var THRESHOLD=15*60;      // 900 秒 = 15 分钟
+  var STEP=30;              // 每次心跳累加 30 秒
+  var INTERVAL=30000;       // 每 30 秒心跳
+
+  function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+  function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+
+  var today=new Date();
+  var dateKey=today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+
+  function readSeconds(){
+    var v=parseInt(lsGet(PLAY_SECONDS_KEY),10);
+    return isNaN(v)?0:v;
+  }
+  var playSeconds=readSeconds();
+  var warned=false;
+  if(lsGet(PLAY_WARNED_KEY)===dateKey) warned=true;
+
+  var banner=null;
+  function ensureBanner(){
+    if(banner) return banner;
+    banner=document.createElement('div');
+    banner.setAttribute('role','alert');
+    banner.style.cssText='position:fixed;left:16px;right:16px;bottom:20px;z-index:99999;background:rgba(20,20,35,.96);color:#ffe14d;border:2px solid #ff4040;border-radius:12px;padding:14px 18px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:16px;line-height:1.5;box-shadow:0 6px 24px rgba(0,0,0,.35);text-align:center;transform:translateY(20px);opacity:0;transition:opacity .25s ease,transform .25s ease;';
+    var reduced=false;
+    try{ reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
+    if(reduced){ banner.style.transition='none'; }
+    var title=document.createElement('div');
+    title.style.cssText='font-weight:700;font-size:18px;';
+    title.textContent='⏰ 已经玩 '+Math.floor(playSeconds/60)+' 分钟啦';
+    var sub=document.createElement('div');
+    sub.style.cssText='margin-top:4px;color:#eee;font-size:14px;';
+    sub.textContent='注意休息眼睛，眺望一下远方吧 👀';
+    banner.appendChild(title);
+    banner.appendChild(sub);
+    if(document.body) document.body.appendChild(banner);
+    requestAnimationFrame(function(){ banner.style.transform='translateY(0)'; banner.style.opacity='1'; });
+    return banner;
+  }
+  function warnPlay(){
+    // 每天只提醒一次：当天已提醒则不再弹
+    if(warned) return;
+    warned=true;
+    lsSet(PLAY_WARNED_KEY,dateKey);
+    ensureBanner();
+    var t=setTimeout(function(){ if(banner){ banner.style.opacity='0'; banner.style.transform='translateY(20px)'; } },8000);
+    banner.addEventListener('click',function(){ banner.style.opacity='0'; banner.style.transform='translateY(20px)'; clearTimeout(t); });
+  }
+  function tickPlay(){
+    // 仅在页面可见时累计，切走/隐藏时暂停
+    if(document.visibilityState==='visible'){
+      playSeconds+=STEP;
+      lsSet(PLAY_SECONDS_KEY,String(playSeconds));
+      if(playSeconds>=THRESHOLD) warnPlay();
+    }
+  }
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='visible') tickPlay();
+  });
+  setInterval(tickPlay,INTERVAL);
+  // 初次加载：若已累计达到阈值且当天未提醒，立即提示
+  if(playSeconds>=THRESHOLD) warnPlay();
+})();
+</script>
+
+
+
 </body>
 </html>

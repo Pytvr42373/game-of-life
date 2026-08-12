@@ -145,5 +145,89 @@
 
 <script src="questions.js"></script>
 <script src="game.js"></script>
+
+<script>
+/* ===== 知识大王 · 紧张倒计时 BGM（Web Audio 实时合成，无外部资源/无版权） ===== */
+(function () {
+  'use strict';
+  var tenseAudio = null, tenseDroneGain = null, tenseOscs = [], tensePulseTimer = null, tenseStarted = false;
+  var tenseReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function tenseAC() {
+    if (!tenseAudio) {
+      try { tenseAudio = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { tenseAudio = null; }
+    }
+    if (tenseAudio && tenseAudio.state === 'suspended') { try { tenseAudio.resume(); } catch (e) {} }
+    return tenseAudio;
+  }
+  // 在用户手势内提前解锁 AudioContext，保证后续紧张 BGM 一定能发声
+  ['mousedown', 'touchstart', 'keydown'].forEach(function (ev) {
+    window.addEventListener(ev, function h() { tenseAC(); window.removeEventListener(ev, h); }, { passive: true });
+  });
+
+  function startTense() {
+    if (tenseStarted) return;
+    tenseStarted = true;
+    var ctx = tenseAC(); if (!ctx) return;
+    var vol = tenseReduced ? 0.5 : 1;
+    // 低频不安 drone（双振荡器轻微失谐 + 低通）
+    var g = ctx.createGain(); g.gain.value = 0.15 * vol; g.connect(ctx.destination);
+    tenseDroneGain = g;
+    var o1 = ctx.createOscillator(); o1.type = 'sawtooth'; o1.frequency.value = 58;
+    var o2 = ctx.createOscillator(); o2.type = 'sawtooth'; o2.frequency.value = 58.7;
+    var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 230; lp.Q.value = 8;
+    o1.connect(lp); o2.connect(lp); lp.connect(g);
+    o1.start(); o2.start(); tenseOscs = [o1, o2];
+    // 急促心跳
+    function beat() {
+      if (!tenseAudio || !tenseStarted) return;
+      var t = ctx.currentTime;
+      var ob = ctx.createOscillator(); ob.type = 'sine'; ob.frequency.value = 85;
+      var og = ctx.createGain();
+      og.gain.setValueAtTime(0, t);
+      og.gain.linearRampToValueAtTime(0.45 * vol, t + 0.025);
+      og.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+      ob.connect(og); og.connect(ctx.destination);
+      ob.start(t); ob.stop(t + 0.17);
+    }
+    beat();
+    tensePulseTimer = setInterval(beat, 400);
+  }
+
+  function stopTense() {
+    if (tensePulseTimer) { clearInterval(tensePulseTimer); tensePulseTimer = null; }
+    if (tenseDroneGain && tenseAudio) { try { tenseDroneGain.gain.linearRampToValueAtTime(0, tenseAudio.currentTime + 0.4); } catch (e) {} }
+    if (tenseAudio) {
+      setTimeout(function () {
+        try { tenseOscs.forEach(function (o) { try { o.stop(); } catch (e) {} }); } catch (e) {}
+        try { tenseAudio.close(); } catch (e) {}
+        tenseAudio = null; tenseDroneGain = null; tenseOscs = [];
+      }, 500);
+    }
+    tenseStarted = false;
+  }
+
+  // 监听 clockTime：剩余首次 <10 时启动紧张 BGM（答对加时回到 10 以上也不再切回普通）
+  var clockEl = document.getElementById('clockTime');
+  if (clockEl && 'MutationObserver' in window) {
+    new MutationObserver(function () {
+      var play = document.getElementById('screen-play');
+      var v = parseInt(clockEl.textContent, 10);
+      if (!isNaN(v) && v < 10 && !tenseStarted && play && play.classList.contains('active')) startTense();
+    }).observe(clockEl, { childList: true, characterData: true, subtree: true });
+  }
+
+  // 回合结束（结果屏）/ 新一轮开始（倒数屏）→ 停止并重置紧张 BGM
+  function watchScreen(id, cb) {
+    var el = document.getElementById(id);
+    if (!el || !('MutationObserver' in window)) return;
+    new MutationObserver(function () { if (el.classList.contains('active')) cb(); })
+      .observe(el, { attributes: true, attributeFilter: ['class'] });
+  }
+  watchScreen('screen-result', stopTense);
+  watchScreen('screen-count', stopTense);
+})();
+</script>
+
 </body>
 </html>
