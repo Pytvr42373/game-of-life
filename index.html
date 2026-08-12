@@ -241,6 +241,24 @@ body[data-theme="arcade"] .card .corner.tl{top:-3px;left:-3px;border-right:0;bor
 body[data-theme="arcade"] .card .corner.tr{top:-3px;right:-3px;border-left:0;border-bottom:0}
 body[data-theme="arcade"] .card .corner.bl{bottom:-3px;left:-3px;border-right:0;border-top:0}
 body[data-theme="arcade"] .card .corner.br{bottom:-3px;right:-3px;border-left:0;border-top:0}
+body[data-theme="arcade"] .card .new-badge{
+  position:absolute;top:-3px;right:-3px;z-index:5;
+  font-family:'Press Start 2P',monospace;
+  font-size:8px;letter-spacing:1px;line-height:1;
+  color:var(--hard);background:var(--yellow);
+  padding:5px 7px 4px;
+  box-shadow:3px 3px 0 var(--hard),0 0 12px var(--yellow),0 0 26px rgba(255,225,77,.5);
+  animation:newBlink 1.2s steps(1) infinite;
+}
+@keyframes newBlink{50%{opacity:.35}}
+body[data-theme="4399"] .card .new-badge{
+  position:absolute;top:10px;right:10px;z-index:5;
+  font-family:'PingFang SC','Microsoft YaHei',sans-serif;
+  font-size:11px;font-weight:700;line-height:1;color:#fff;
+  background:var(--orange);padding:4px 8px;border-radius:8px;
+  box-shadow:0 2px 6px rgba(251,100,0,.4);
+}
+@media (prefers-reduced-motion: reduce){ body[data-theme="arcade"] .card .new-badge{animation:none} }
 body[data-theme="arcade"] .card .hot{display:none}
 body[data-theme="arcade"] .card .ico{font-size:46px;margin-bottom:16px;display:block;filter:drop-shadow(4px 4px 0 #000)}
 body[data-theme="arcade"] .card .name{font-family:'Press Start 2P',monospace;font-size:12px;color:var(--text);text-shadow:2px 2px 0 var(--hard);line-height:1.8;margin-bottom:14px}
@@ -391,6 +409,32 @@ body[data-theme="arcade"] .gate-btn:hover{box-shadow:3px 3px 0 var(--hard),0 0 1
 .gate-btn.cancel{background:transparent;color:var(--dim);border-color:var(--line)}
 body[data-theme="arcade"] .gate-btn.cancel{border-color:var(--dim)}
 
+
+/* ===== 吃豆人好评选择题门禁（选择题，任意一个都通过进入吃豆人） ===== */
+.pac-choice{position:fixed;inset:0;z-index:600;display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto;overscroll-behavior:contain;background:rgba(8,12,6,.5);backdrop-filter:blur(4px);opacity:0;visibility:hidden;transition:opacity .25s}
+.pac-choice.show{opacity:1;visibility:visible}
+.pac-choice-box{position:relative;width:min(400px,100%);background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:26px 24px 24px;box-shadow:0 20px 50px rgba(0,0,0,.25);transform:translateY(8px) scale(.98);transition:transform .25s}
+.pac-choice.show .pac-choice-box{transform:translateY(0) scale(1)}
+body[data-theme="arcade"] .pac-choice-box{border:3px solid var(--line);border-radius:0;box-shadow:6px 6px 0 var(--hard),0 0 30px rgba(61,225,255,.2)}
+.pac-choice-close{position:absolute;top:8px;right:8px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:none;border:0;border-radius:8px;font-size:18px;color:var(--dim);cursor:pointer}
+.pac-choice-close:hover{color:var(--green)}
+.pac-choice-icon{font-size:52px;line-height:1;text-align:center;margin-bottom:8px}
+.pac-choice-title{font-size:22px;font-weight:900;color:var(--green);text-align:center;margin-bottom:4px}
+body[data-theme="arcade"] .pac-choice-title{font-family:'Press Start 2P',monospace;font-size:15px;color:var(--yellow);text-shadow:0 0 14px var(--yellow)}
+.pac-choice-q{font-size:15px;line-height:1.6;color:var(--text);text-align:center;margin:10px 0 18px}
+.pac-choice-btns{display:flex;flex-direction:column;gap:12px}
+.pac-choice-btn{display:flex;align-items:center;justify-content:center;gap:10px;font-weight:700;font-size:16px;padding:14px 18px;border-radius:12px;cursor:pointer;transition:.18s;border:2px solid var(--green);color:var(--green);background:var(--bg2)}
+.pac-choice-btn:hover{transform:translateY(-2px);filter:brightness(1.05);box-shadow:0 6px 18px rgba(56,153,4,.25)}
+.pac-choice-btn:active{transform:scale(.97)}
+.pac-choice-btn svg{flex:none}
+.pac-choice-btn.yes svg{color:#3aa8ff}
+.pac-choice-btn.love svg{color:#ff2d78}
+.pac-choice-btn.love{border-color:#ff2d78;color:#ff2d78}
+body[data-theme="arcade"] .pac-choice-btn{font-family:'Press Start 2P',monospace;font-size:10px;border:3px solid var(--green);border-radius:0;box-shadow:3px 3px 0 var(--hard);color:var(--green)}
+body[data-theme="arcade"] .pac-choice-btn:hover{box-shadow:3px 3px 0 var(--hard),0 0 14px rgba(0,255,157,.4)}
+body[data-theme="arcade"] .pac-choice-btn.love{border-color:var(--pink);color:var(--pink)}
+body[data-theme="arcade"] .pac-choice-btn.love:hover{box-shadow:3px 3px 0 var(--hard),0 0 14px rgba(255,45,120,.4)}
+
 /* ===== 神秘的入口：传送动画 + 选择弹窗 ===== */
 .portal-overlay{position:fixed;inset:0;z-index:700;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#000;opacity:0;visibility:hidden;transition:opacity .35s}
 .portal-overlay.show{opacity:1;visibility:visible}
@@ -398,17 +442,23 @@ body[data-theme="arcade"] .gate-btn.cancel{border-color:var(--dim)}
 /* 旋转黑洞背景 */
 .portal-hole{position:absolute;left:50%;top:50%;width:46vmin;height:46vmin;transform:translate(-50%,-50%);
   border-radius:50%;
-  background:
-    conic-gradient(from 0deg,#0a0a1a,#3a1a6a,#0a0a1a,#1c1040,#0a0a1a);
-  -webkit-mask:radial-gradient(circle,#000 55%,transparent 72%);
-  mask:radial-gradient(circle,#000 55%,transparent 72%);
-  filter:blur(2px);
-  animation:portal-spin 5s linear infinite;
-  opacity:.9;z-index:1}
+  /* 内部填色圆盘：以元素正中心(50%/50%)为圆心，黑核 → 紫晕，49%处完全透明，严格同心 */
+  background:radial-gradient(circle at 50% 50%,#000 0%,#000 28%,#140a2e 38%,#241250 44%,transparent 49%);
+  filter:blur(1px);
+  opacity:.95;z-index:1}
+/* 外部吸积环(描边层)：独立mask切成圆环，与内部圆盘同一元素盒、同一圆心(50%/50%)，
+   环内缘46%与内部填色外缘(~46-49%)相接，同半径无错位 */
+.portal-hole::before{content:'';position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(from 0deg,#0a0a1a,#3a1a6a,#0a0a1a,#1c1040,#0a0a1a);
+  -webkit-mask:radial-gradient(circle,#000 46%,transparent 62%);
+  mask:radial-gradient(circle,#000 46%,transparent 62%);
+  animation:portal-spin-ring 5s linear infinite}
+/* 内部脉冲：轻微明暗呼吸，仍以中心为圆心 */
 .portal-hole::after{content:'';position:absolute;inset:0;border-radius:50%;
-  background:radial-gradient(circle at 50% 50%,#000 30%,#2a1050 55%,transparent 75%);
+  background:radial-gradient(circle at 50% 50%,#000 30%,transparent 46%);
   animation:portal-pulse 2.2s ease-in-out infinite}
 @keyframes portal-spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes portal-spin-ring{to{transform:rotate(360deg)}}
 @keyframes portal-pulse{0%,100%{opacity:.7}50%{opacity:1}}
 /* 彩色碎片 - 螺旋吸入 */
 .portal-shard{position:absolute;width:14px;height:10px;border-radius:2px;opacity:0;z-index:2;
@@ -552,6 +602,26 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
 </div>
 
 
+<!-- 吃豆人好评选择题门禁 -->
+<div class="pac-choice" id="pacChoiceModal" role="dialog" aria-modal="true" aria-labelledby="pacChoiceTitle" aria-hidden="true" inert>
+  <div class="pac-choice-box">
+    <button type="button" class="pac-choice-close" id="pacChoiceClose" aria-label="关闭">✕</button>
+    <div class="pac-choice-icon" aria-hidden="true">👾</div>
+    <div class="pac-choice-title" id="pacChoiceTitle">好评一下？</div>
+    <div class="pac-choice-q">你是否愿意给这个游戏一个好评？</div>
+    <div class="pac-choice-btns">
+      <button type="button" class="pac-choice-btn yes">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true"><path d="M2 21V11h3v10H2zm4-10.5c0-.4.2-.8.5-1.1l4.2-4.7.3.2c.6.4.9 1 .9 1.7l-.7 3.4h5.2c1.3 0 2.3 1 2.3 2.3l-1.2 6.6c-.2 1-1 1.8-2 1.8H9c-1.7 0-3-1.3-3-3v-6.2zM15.5 3.5c1-1 2.6-1 3.6 0 1 1 1 2.6 0 3.6L17 9.2l-2.1-2.1c-1-1-1-2.6 0-3.6z" fill="currentColor"/></svg>
+        <span>是的，我很喜欢</span>
+      </button>
+      <button type="button" class="pac-choice-btn love">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/></svg>
+        <span>是的，我特别喜欢</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- 神秘的入口：传送动画 + 选择弹窗 -->
 <div class="portal-overlay" id="portalOverlay" role="dialog" aria-modal="true" aria-hidden="true" inert>
   <div class="portal-scene">
@@ -606,14 +676,14 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
       <li><b>神秘</b> 内有神秘洞口，管住你的<span class="vw-hh">好奇心</span></li>
     </ul>
     <div class="vmodal-cta">小心，别被洞口卷进去 😈</div>
-    <button type="button" class="vmodal-btn" id="vmodalOk">我偏要进去 🌀</button>
+    <button type="button" class="vmodal-btn" id="vmodalOk">我来调查</button>
   </div>
 </div>
 
 <div class="wrap" inert>
   <!-- 4399 头部 -->
   <header class="h4399">
-    <div class="top"><div class="logo-box"><svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor" aria-hidden="true"><path d="M7.5 5C4.46 5 2 7.46 2 10.5c0 2.4 1.2 4.4 3.2 5.5l1.1 2.1a2 2 0 0 0 1.8 1.1c.7 0 1.4-.4 1.8-1L11 16h2l1.1 2.2c.4.6 1.1 1 1.8 1a2 2 0 0 0 1.8-1.1l1.1-2.1c2-1.1 3.2-3.1 3.2-5.5C22 7.46 19.54 5 16.5 5h-9zM6.5 8.5a1 1 0 0 1 1-1 1 1 0 0 1 1 1 1 1 0 0 1-1 1 1 1 0 0 1-1-1zm11 0a1 1 0 0 1 1-1 1 1 0 0 1 1 1 1 1 0 0 1-1 1 1 1 0 0 1-1-1zM8.5 11a1 1 0 0 1 1 1 1 1 0 0 1-1 1 1 1 0 0 1-1-1 1 1 0 0 1 1-1zm3-2a1 1 0 0 1 1-1 1 1 0 0 1 1 1 1 1 0 0 1-1 1 1 1 0 0 1-1-1zm-3 5a1 1 0 0 1 1-1 1 1 0 0 1 1 1 1 1 0 0 1-1 1 1 1 0 0 1-1-1zm4-1a1 1 0 0 1 1-1 1 1 0 0 1 1 1 1 1 0 0 1-1 1 1 1 0 0 1-1-1z"/></svg></div><div class="title">好玩<em>小游戏</em></div></div>
+    <div class="top"><div class="logo-box"><svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor" aria-hidden="true"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></div><div class="title">好玩<em>小游戏</em></div></div>
     <p class="sub">专注好玩 · 每天都有新发现</p>
     <nav class="nav" aria-label="游戏分类">
       <button type="button" class="on" data-filter="全部" aria-pressed="true" aria-controls="gameGrid">全部</button>
@@ -644,21 +714,25 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <!-- 康威生命游戏 -->
     <a class="card" href="life/index.html" data-delay="0" data-categories="经典" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
-      <span class="hot">热</span>
-      <span class="ico">🦠</span>
+      <span class="ico">
+        <svg viewBox="0 0 44 44" width="44" height="44" aria-hidden="true"><rect x="7" y="7" width="30" height="30" rx="4" fill="#3a7d44"/><g fill="#b8f0c2"><rect x="11" y="11" width="6" height="6"/><rect x="19" y="11" width="6" height="6"/><rect x="27" y="19" width="6" height="6"/><rect x="11" y="27" width="6" height="6"/><rect x="19" y="27" width="6" height="6"/></g><g fill="#215c33"><rect x="11" y="19" width="6" height="6"/><rect x="27" y="11" width="6" height="6"/><rect x="19" y="19" width="6" height="6"/></g></svg>
+      </span>
       <div class="name">康威生命游戏</div>
       <div class="tag">经典</div>
     </a>
     <!-- 倒水游戏 -->
     <a class="card" href="bottle/index.html" data-delay=".12s" data-categories="益智 逻辑 经典" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
-      <span class="ico">🍶</span>
+      <span class="ico">
+        <svg viewBox="0 0 44 44" width="44" height="44" aria-hidden="true"><path d="M15 6h14v3h-2v5l4 7c3 4 3 8 0 11-1.5 1.5-4 2.5-7 2.5s-5.5-1-7-2.5c-3-3-3-7 0-11l4-7V9h-2V6z" fill="#7cc4ff"/><path d="M18 24l3 5h-6l3-5z" fill="#dff2ff"/><rect x="20" y="6" width="4" height="7" rx="1" fill="#2f7fbf"/></svg>
+      </span>
       <div class="name">倒水谜题</div>
       <div class="tag">益智 · 逻辑</div>
     </a>
     <!-- 1A2B 猜数字 -->
     <a class="card" href="1A2B/index.html" data-delay=".18s" data-categories="益智 逻辑 经典" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <span class="new-badge">NEW</span>
       <span class="ico ico-1a2b" aria-hidden="true">
         <svg viewBox="0 0 48 48" width="46" height="46" fill="none">
           <rect x="2" y="2" width="20" height="20" rx="4" fill="#3aa8ff"/>
@@ -677,55 +751,71 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <!-- Stroop 挑战 -->
     <a class="card" href="stroop/index.html" data-delay=".3s" data-categories="反应 经典" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
-      <span class="ico">🎯</span>
+      <span class="ico">
+        <svg viewBox="0 0 44 44" width="44" height="44" aria-hidden="true"><circle cx="22" cy="22" r="18" fill="#ff5c6c"/><circle cx="22" cy="22" r="12" fill="#fff"/><circle cx="22" cy="22" r="6" fill="#ff5c6c"/><circle cx="22" cy="22" r="2" fill="#ffd54f"/></svg>
+      </span>
       <div class="name">Stroop 挑战</div>
       <div class="tag">反应</div>
     </a>
     <!-- 点灯 -->
     <a class="card" href="light-up/index.html" data-delay=".36s" data-categories="益智 逻辑" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
-      <span class="ico">💡</span>
+      <span class="ico">
+        <svg viewBox="0 0 44 44" width="44" height="44" aria-hidden="true"><path d="M22 4c-7 0-12 5-12 12 0 4 2 7 5 9v3c0 1.5 1.5 3 3.5 3h7c2 0 3.5-1.5 3.5-3v-3c3-2 5-5 5-9 0-7-5-12-12-12z" fill="#ffd54f"/><rect x="18" y="30" width="8" height="3" rx="1" fill="#c9a227"/><rect x="17" y="36" width="10" height="3" rx="1.5" fill="#c9a227"/><path d="M22 7v4" stroke="#e0b32e" stroke-width="1.5"/><path d="M14 12l3 3" stroke="#e0b32e" stroke-width="1.5"/><path d="M30 12l-3 3" stroke="#e0b32e" stroke-width="1.5"/></svg>
+      </span>
       <div class="name">点灯 · 光廊</div>
       <div class="tag">益智 · 逻辑</div>
     </a>
     <!-- 光线侦探 -->
     <a class="card" href="ray-lab/index.html" data-delay=".42s" data-categories="益智 逻辑" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
-      <span class="ico">🔬</span>
+      <span class="ico">
+        <svg viewBox="0 0 44 44" width="44" height="44" aria-hidden="true"><rect x="8" y="34" width="6" height="6" fill="#5a5a72"/><rect x="6" y="28" width="10" height="6" fill="#6b6b86"/><path d="M10 28l10-18 4 2-10 18h-4z" fill="#7cc4ff"/><path d="M20 10l4 2-2 4-4-2 2-4z" fill="#9fd8ff"/><circle cx="24" cy="16" r="2" fill="#3a8fd8"/><rect x="26" y="20" width="12" height="3" fill="#5a5a72"/><rect x="32" y="23" width="3" height="11" fill="#5a5a72"/><circle cx="33" cy="35" r="2" fill="#5a5a72"/></svg>
+      </span>
       <div class="name">光线侦探</div>
       <div class="tag">益智 · 逻辑</div>
     </a>
     <!-- 数织 Nonogram -->
     <a class="card" href="nonogram/index.html" data-delay=".45s" data-categories="益智 逻辑" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
-      <span class="ico">🧩</span>
+      <span class="ico">
+        <svg viewBox="0 0 44 44" width="44" height="44" aria-hidden="true"><path d="M16 6h12v4c-3 0-5 2-5 5s2 5 5 5v4H16v-4c3 0 5-2 5-5s-2-5-5-5V6z" fill="#ff9a3d"/><rect x="6" y="6" width="8" height="10" fill="#3aa8ff"/><rect x="30" y="6" width="8" height="10" fill="#ffd166"/><rect x="6" y="28" width="8" height="10" fill="#3ddc97"/><rect x="30" y="28" width="8" height="10" fill="#ff5c8a"/></svg>
+      </span>
       <div class="name">数织 Nonogram</div>
       <div class="tag">益智 · 逻辑</div>
     </a>
     <!-- 24点 -->
     <a class="card" href="game24/index.html" data-delay=".48s" data-categories="益智 逻辑 经典" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
-      <span class="ico">🃏</span>
+      <span class="ico">
+        <svg viewBox="0 0 44 44" width="44" height="44" aria-hidden="true"><rect x="7" y="5" width="30" height="34" rx="3" fill="#fff" stroke="#d0d0e0"/><text x="13" y="16" font-family="Arial" font-size="13" font-weight="bold" fill="#e04040">2</text><text x="31" y="36" font-family="Arial" font-size="13" font-weight="bold" fill="#e04040" text-anchor="end">4</text><path d="M22 12l3.5 5-3.5 5-3.5-5 3.5-5z" fill="#e04040"/><path d="M22 27l2.6 3.7L22 34l-2.6-3.3L22 27z" fill="#e04040"/></svg>
+      </span>
       <div class="name">24点</div>
       <div class="tag">益智 · 逻辑</div>
     </a>
     <!-- 谁是知识大王 -->
     <a class="card" href="brain-king/index.html" data-delay=".54s" data-categories="益智 反应" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
-      <span class="ico">🧠</span>
+      <span class="new-badge">NEW</span>
+      <span class="ico">
+        <svg viewBox="0 0 44 44" width="44" height="44" aria-hidden="true"><path d="M22 12c-1-2-3-3-5-3-3 0-5 2-5 5 0 1.5.5 2.8 1.4 3.8-.2 1 .1 2.2 1 3-1.4.8-2 2.6-1.4 4.2.8 2 3 3.2 5 2.6.5 2 2.3 3.4 4.4 3.4s3.9-1.4 4.4-3.4c2 .6 4.2-.6 5-2.6.6-1.6 0-3.4-1.4-4.2.9-.8 1.2-2 1-3 .9-1 1.4-2.3 1.4-3.8 0-3-2-5-5-5-2 0-4 1-5 3z" fill="#ff9ab0"/><circle cx="14" cy="14" r="1.6" fill="#d9688a"/><circle cx="30" cy="17" r="1.6" fill="#d9688a"/></svg>
+      </span>
       <div class="name">谁是知识大王</div>
       <div class="tag">益智 · 反应</div>
     </a>
     <!-- 词域远征 · 尖塔背单词（外部仓库） -->
     <a class="card" href="https://pytvr42373.github.io/Baici_Spired/" data-delay=".60s" data-categories="益智" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
-      <span class="ico">📖</span>
+      <span class="ico">
+        <svg viewBox="0 0 44 44" width="44" height="44" aria-hidden="true"><path d="M22 10c-4-3-10-4-15-2v28c5-2 11-1 15 2 4-3 10-4 15-2V8c-5-2-11-1-15 2z" fill="#7cc4ff"/><path d="M22 10v28" stroke="#3a8fd8" stroke-width="2"/><path d="M8 13c3-1 6-1 8-.5M8 23c3-1 6-1 8-.5M28 12.5c2-.5 5-.5 8 .5M28 22.5c2-.5 5-.5 8 .5" stroke="#1f6ea8" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </span>
       <div class="name">词域远征</div>
       <div class="tag">益智 · 背单词</div>
     </a>
     <!-- 2048（普通游戏，非神秘） -->
     <a class="card" href="2048/index.html" data-delay=".66s" data-categories="益智 逻辑" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <span class="new-badge">NEW</span>
       <span class="ico ico-2048" aria-hidden="true">
         <svg viewBox="0 0 48 48" width="46" height="46" fill="none">
           <rect x="3" y="3" width="18" height="18" rx="3" fill="#f2b179"/>
@@ -923,7 +1013,13 @@ function handleVersionKeydown(event){
   }
 }
 if(versionClose)versionClose.addEventListener('click',hideVersionModal);
-if(versionOk)versionOk.addEventListener('click',hideVersionModal);
+if(versionOk)versionOk.addEventListener('click',function(){
+  // 关闭版本弹窗 → 切到"神秘"标签 → 滚动到游戏网格（不直接跳神秘游戏）
+  hideVersionModal();
+  filterGames('神秘');
+  const grid=document.getElementById('gameGrid');
+  if(grid){ try{ grid.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){} }
+});
 if(versionModal){
   versionModal.addEventListener('keydown',handleVersionKeydown);
   versionModal.addEventListener('click',event=>{if(event.target===versionModal)hideVersionModal();});
@@ -1042,6 +1138,7 @@ const gateKeypad=document.getElementById('gateKeypad');
 const gateClose=document.getElementById('gateClose');
 const GATE_HASH_DEFAULT='c7e616822f366fb1b5e0756af498cc11d2c0862edcb32ca65882f622ff39de1b'; // SHA-256('666')
 const GATE_HASH_1654='ddb3686e0d40ad1e8779241b49ebb2ddb4c9bece101dff8140fe933ba99faf6b'; // SHA-256('1654')
+const GATE_HASH_0812='6e65b61d030e5ac6492802c6f619a63006e5b0e2cafc0170ab92a68083162528'; // SHA-256('0812') 8月12日 今天的月份日期是？
 let gateHash=GATE_HASH_DEFAULT;
 let gateQuestion='请输入开发者代码：';
 let gateMaxLen=3;
@@ -1150,8 +1247,57 @@ function openGate(ev,el,opts){
   if(firstKey)firstKey.focus({preventScroll:true});
 }
 function openPacmanGate(ev,el){
-  openGate(ev,el,{hash:GATE_HASH_DEFAULT,question:'请输入开发者代码：',maxLen:3,url:el?el.getAttribute('href'):'pacman/index.html'});
+  openPacmanChoice(ev,el);
 }
+/* ===== 吃豆人好评选择题门禁：任意一个选项都通过进入吃豆人 ===== */
+let pacChoiceReturnFocus=null,pacChoiceBackground=[],pacChoiceBodyOverflow='';
+function openPacmanChoice(ev,el){
+  if(ev&&ev.preventDefault)ev.preventDefault();
+  const m=document.getElementById('pacChoiceModal');
+  if(!m)return;
+  const active=document.activeElement;
+  pacChoiceReturnFocus=active&&active!==document.body&&active.isConnected?active:el||null;
+  pacChoiceBackground=Array.from(document.body.children)
+    .filter(function(element){ return element!==m&&element.tagName!=='SCRIPT'&&!element.classList.contains('transition')&&!element.classList.contains('loader')&&!element.classList.contains('splash'); })
+    .map(function(element){ return [element,element.inert]; });
+  pacChoiceBackground.forEach(function(pair){ pair[0].inert=true; });
+  pacChoiceBodyOverflow=document.body.style.overflow;
+  document.body.style.overflow='hidden';
+  m.inert=false; m.setAttribute('aria-hidden','false'); m.classList.add('show');
+  const first=m.querySelector('.pac-choice-btn');
+  if(first)first.focus({preventScroll:true});
+}
+function hidePacmanChoice(navigate){
+  const m=document.getElementById('pacChoiceModal');
+  if(!m||!m.classList.contains('show'))return;
+  const returnFocus=pacChoiceReturnFocus;
+  m.classList.remove('show'); m.inert=true; m.setAttribute('aria-hidden','true');
+  (pacChoiceBackground||[]).forEach(function(pair){ pair[0].inert=pair[1]; });
+  pacChoiceBackground=[];
+  document.body.style.overflow=pacChoiceBodyOverflow;
+  pacChoiceReturnFocus=null;
+  if(navigate){
+    try{ sessionStorage.setItem('skipSplash','1'); }catch(e){}
+    goDirect('pacman/index.html');
+    return;
+  }
+  if(returnFocus&&returnFocus.isConnected&&!returnFocus.closest('[inert]'))returnFocus.focus({preventScroll:true});
+}
+function pacChoiceYes(){ hidePacmanChoice(true); }
+(function(){
+  const m=document.getElementById('pacChoiceModal');
+  if(!m)return;
+  const close=document.getElementById('pacChoiceClose');
+  if(close)close.addEventListener('click',function(){ hidePacmanChoice(false); });
+  m.addEventListener('click',function(e){ if(e.target===m) hidePacmanChoice(false); });
+  const yes=m.querySelector('.pac-choice-btn.yes');
+  const love=m.querySelector('.pac-choice-btn.love');
+  if(yes)yes.addEventListener('click',pacChoiceYes);
+  if(love)love.addEventListener('click',pacChoiceYes);
+  document.addEventListener('keydown',function(e){
+    if(m.classList.contains('show')&&e.key==='Escape'){ e.preventDefault(); hidePacmanChoice(false); }
+  });
+})();
 function openMysteryGate(ev,el){
   openGate(ev,el,{hash:GATE_HASH_1654,question:'毕导的最新视频的长度是多少？',maxLen:4,url:el?el.getAttribute('href'):null});
 }
@@ -1210,7 +1356,7 @@ let portalTimers=[];
 let portalAskShown=false;
 
 function openPortal(ev,el){
-  openGate(ev,el,{hash:GATE_HASH_1654,question:'毕导的最新视频的长度是多少？',maxLen:4,url:null,onSuccess:startPortalAnimation,danger:true});
+  openGate(ev,el,{hash:GATE_HASH_0812,question:'今天的月份日期是？',maxLen:4,url:null,onSuccess:startPortalAnimation,danger:true});
 }
 
 var PORTAL_SHARD_COLORS=['#ff2d78','#3de1ff','#ffe14d','#00ff9d','#b388ff','#ff8a3d','#7ff3ff','#ff5c96'];
@@ -1292,6 +1438,7 @@ function hidePortalAll(){
   document.body.style.overflow='';
 }
 function portalRetreat(){
+  portalStopDanger(); // 修复：点击"我撤退"立即停止黑洞 BGM
   hidePortalAll();
   // 返回主页（当前页面就是主页，只需关闭动画）
 }
