@@ -455,6 +455,18 @@ body[data-theme="arcade"] .portal-line{font-family:'Press Start 2P',monospace;fo
 .portal-warning .warn-ico{display:inline-block;font-size:1.2em;animation:portal-warn-blink .7s steps(2,end) infinite;margin:0 .1em}
 @keyframes portal-warn-pulse{0%,100%{opacity:1}50%{opacity:.55}}
 @keyframes portal-warn-blink{0%{opacity:1}50%{opacity:0}}
+/* 闪烁红色大写 WARNING 标签（先于打字显示） */
+.portal-warnbadge{position:relative;z-index:3;display:inline-flex;align-items:center;gap:6px;padding:10px 26px;
+  background:rgba(120,0,0,.35);border:3px solid #ff4040;border-radius:6px;letter-spacing:6px;
+  box-shadow:0 0 30px rgba(255,40,40,.7),inset 0 0 20px rgba(255,40,40,.35);
+  animation:portal-warnbadge-blink .8s steps(2,end) infinite}
+.portal-warnbadge .wb-txt{font-size:clamp(26px,7vmin,54px);font-weight:900;color:#ff4040;
+  text-shadow:0 0 12px rgba(255,60,60,1),0 0 40px rgba(255,0,0,.8)}
+.portal-warnbadge .wb-ico{font-size:clamp(30px,8vmin,64px);font-weight:900;color:#fff;
+  text-shadow:0 0 14px rgba(255,255,255,.9);animation:portal-warn-ico-blink .4s steps(2,end) infinite}
+@keyframes portal-warnbadge-blink{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes portal-warn-ico-blink{0%,100%{opacity:1}50%{opacity:0}}
+body[data-theme="arcade"] .portal-warnbadge .wb-txt,body[data-theme="arcade"] .portal-warnbadge .wb-ico{font-family:'Press Start 2P',monospace;letter-spacing:3px}
 body[data-theme="arcade"] .portal-warning{font-family:'Press Start 2P',monospace;font-size:clamp(12px,3vmin,20px)}
 /* 最终句巫师/邪恶 危险特效 */
 .portal-line .kw-ev{display:inline-block;font-weight:900;color:#ff3b3b;
@@ -1105,7 +1117,8 @@ const PORTAL_LINES=[
   '你还不死心吗？'
 ];
 const PORTAL_FINAL='那么，你将见识到最神秘的<kw>巫师</kw>和他最<ev>邪恶</ev>的作品！';
-const PORTAL_WARN='<b class="portal-warning">⚠ 睁大你的眼睛 &nbsp; <span class="warn-ico">WARNING！!</span></b>';
+const PORTAL_WARN='<b class="portal-warning">⚠ 睁大你的眼睛</b>';
+const PORTAL_WARN_BADGE='<div class="portal-warnbadge"><span class="wb-txt">WARNING</span><span class="wb-ico">!</span></div>';
 const PORTAL_LAST='我们即将看到这个<kw>巫师</kw>。';
 const PORTAL_URL='https://space.bilibili.com/254463269';
 let portalTimers=[];
@@ -1309,21 +1322,26 @@ function portalBrave(){
   const l3=document.getElementById('portalLine3');
   [l1,l2,l3].forEach(function(x){ if(x){ x.innerHTML=''; x.classList.remove('show','danger'); } });
   portalPlayDanger();
-  // 串行打字机：慢速逐字打出三句
-  typeLine(l1, portalKw(PORTAL_FINAL), function(){
-    setTimeout(function(){
-      typeLine(l2, PORTAL_WARN, function(){
-        setTimeout(function(){
-          typeLine(l3, portalKw(PORTAL_LAST), function(){
-            setTimeout(function(){
-              portalStopDanger();
-              ov.classList.remove('show'); document.body.style.overflow=''; location.href=PORTAL_URL;
-            },1600);
-          }, 130);
-        }, 900);
-      }, 95);
-    }, 700);
-  }, 110);
+  // 先闪烁红色大写 WARNING 标签（停留约2.2s），然后再开始打字
+  if(l1){ l1.innerHTML=PORTAL_WARN_BADGE; l1.classList.add('show'); }
+  setTimeout(function(){
+    if(l1){ l1.innerHTML=''; l1.classList.remove('show'); }
+    // 串行打字机：慢速逐字打出三句（巫师/邪恶 → 睁大眼睛 → 巫师）
+    typeLine(l1, portalKw(PORTAL_FINAL), function(){
+      setTimeout(function(){
+        typeLine(l2, PORTAL_WARN, function(){
+          setTimeout(function(){
+            typeLine(l3, portalKw(PORTAL_LAST), function(){
+              setTimeout(function(){
+                portalStopDanger();
+                ov.classList.remove('show'); document.body.style.overflow=''; location.href=PORTAL_URL;
+              },1600);
+            }, 130);
+          }, 900);
+        }, 95);
+      }, 700);
+    }, 110);
+  }, 2200);
 }
 document.addEventListener('keydown',function(e){
   if(portalAskShown&&document.getElementById('portalAsk').classList.contains('show')){
