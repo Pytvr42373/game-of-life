@@ -369,10 +369,6 @@ body[data-theme="arcade"] .gate-input.wrong{border-color:var(--pink)}
 @keyframes gate-flash{from{opacity:1}to{opacity:.5}}
 .gate-input.shake{animation:gate-shake .3s}
 @keyframes gate-shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-.gate-err{min-height:24px;font-size:16px;font-weight:800;color:var(--pink);margin-bottom:10px;letter-spacing:1px;transition:color .2s}
-.gate-err.ok{color:var(--green)}
-body[data-theme="arcade"] .gate-err{font-family:'Press Start 2P',monospace;font-size:13px;color:var(--pink)}
-body[data-theme="arcade"] .gate-err.ok{color:var(--green);text-shadow:0 0 10px rgba(0,255,157,.5)}
 .gate-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:0}
 .gate-key{height:52px;font-size:20px;font-weight:700;border-radius:10px;border:2px solid var(--line);background:var(--bg2);color:var(--text);cursor:pointer;transition:transform .1s,background .15s;font-family:inherit}
 .gate-key:hover{transform:translateY(-2px);border-color:var(--green)}
@@ -495,6 +491,47 @@ body[data-theme="arcade"] .portal-ask-btn{font-family:'Press Start 2P',monospace
 .portal-ask-btn.retreat:hover{border-color:var(--dim);color:var(--dim)}
 .portal-ask-btn.bold{border-color:var(--pink);color:var(--pink)}
 .portal-ask-btn.bold:hover{background:var(--pink);color:var(--bg);box-shadow:0 0 16px rgba(255,45,120,.4)}
+
+/* ============ 外部入口 · 更多作品区块 ============ */
+.ext-section{max-width:1100px;margin:0 auto;padding:0 20px;margin-top:64px}
+.ext-title{text-align:center;font-size:14px;font-weight:800;letter-spacing:4px;color:var(--dim);margin-bottom:26px}
+body[data-theme="arcade"] .ext-title{font-family:'Press Start 2P',monospace;font-size:11px;letter-spacing:2px;color:var(--cyan);text-shadow:0 0 10px var(--cyan)}
+.ext-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:26px}
+.ext-card{display:block;width:256px;text-decoration:none;color:inherit;cursor:pointer;position:relative;
+  opacity:0;transform:translateY(22px);transition:opacity .5s ease,transform .5s ease}
+.ext-card.show{opacity:1;transform:translateY(0)}
+.ext-card .name{font-weight:800;margin-bottom:10px}
+.ext-card .tag{display:inline-block;font-weight:600;padding:4px 13px;border-radius:999px}
+
+/* ---- 入口A · C 语言交互实验室（编程终端风格） ---- */
+.ext-code{background:#0e1220;border:2px solid #2b3350;border-radius:12px;padding:20px 18px 18px;overflow:hidden;box-shadow:0 10px 26px rgba(0,0,0,.28);transition:transform .2s,box-shadow .2s,border-color .2s}
+.ext-code:hover{transform:translateY(-5px);border-color:#3de1ff;box-shadow:0 14px 32px rgba(61,225,255,.28)}
+body[data-theme="arcade"] .ext-code{border:3px solid #3a3a5c;box-shadow:6px 6px 0 #000,0 0 22px rgba(61,225,255,.2)}
+body[data-theme="arcade"] .ext-code:hover{border-color:var(--cyan);box-shadow:6px 6px 0 #000,0 0 26px var(--cyan)}
+.ext-code .term-bar{display:flex;gap:6px;margin-bottom:16px}
+.ext-code .term-dot{width:11px;height:11px;border-radius:50%}
+.ext-code .term-dot.r{background:#ff5f57}.ext-code .term-dot.y{background:#febc2e}.ext-code .term-dot.g{background:#28c840}
+.ext-code .ico{display:block;margin-bottom:14px;line-height:0}
+.ext-code .ico svg{width:56px;height:56px;filter:drop-shadow(0 0 8px rgba(61,225,255,.5))}
+.ext-code .name{font-family:monospace;font-size:16px;color:#e6edf3}
+.ext-code .cursor{display:inline-block;width:8px;height:15px;background:#3de1ff;vertical-align:-2px;animation:codeBlink 1s steps(1) infinite}
+@keyframes codeBlink{50%{opacity:0}}
+.ext-code .desc{font-family:monospace;font-size:12px;color:#8b93a7;margin-bottom:14px}
+.ext-code .tag{font-family:monospace;font-size:11px;color:#3de1ff;background:rgba(61,225,255,.12);border:1px solid rgba(61,225,255,.35);border-radius:6px;padding:4px 10px;letter-spacing:1px}
+
+/* ---- 入口B · 涂鸦游戏（手绘/自由风格，明显区别于精致卡片） ---- */
+.ext-doodle{background:var(--surface);border:3px dashed #fb6400;border-radius:34px 16px 38px 14px/16px 34px 14px 38px;padding:26px 20px 20px;transform:rotate(-1.4deg);box-shadow:4px 6px 0 rgba(0,0,0,.08);transition:transform .2s,box-shadow .2s}
+body[data-theme="arcade"] .ext-doodle{background:#1a1a38;border-color:#ff2d78;box-shadow:5px 7px 0 #000,0 0 26px rgba(255,45,120,.25)}
+.ext-doodle:hover{transform:rotate(1deg) translateY(-4px);box-shadow:6px 8px 0 rgba(0,0,0,.1)}
+body[data-theme="arcade"] .ext-doodle:hover{box-shadow:5px 7px 0 #000,0 0 30px rgba(255,45,120,.4)}
+.ext-doodle .ico{display:block;margin-bottom:10px;line-height:0}
+.ext-doodle .ico svg{width:56px;height:56px;filter:drop-shadow(0 0 6px rgba(251,100,0,.35))}
+body[data-theme="arcade"] .ext-doodle .ico svg{filter:drop-shadow(0 0 8px rgba(255,45,120,.5))}
+.ext-doodle .name{font-family:'ZCOOL KuaiLe',cursive;font-size:23px;color:#24401d;letter-spacing:1px}
+body[data-theme="arcade"] .ext-doodle .name{color:#ffe14d;text-shadow:0 0 12px rgba(255,225,77,.4)}
+.ext-doodle .tag{font-family:'ZCOOL KuaiLe',cursive;font-size:14px;color:#fb6400;background:var(--tag-bg);border:2px solid #fb6400;border-radius:10px;padding:2px 12px}
+body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;background:#2a2a4a}
+.ext-doodle .note{font-family:'ZCOOL KuaiLe',cursive;font-size:12px;color:var(--dim);margin-top:10px;transform:rotate(-.5deg)}
 </style>
 </head>
 <body data-theme="4399">
@@ -509,7 +546,6 @@ body[data-theme="arcade"] .portal-ask-btn{font-family:'Press Start 2P',monospace
     <div class="gate-input-wrap">
       <input class="gate-input" id="gateInput" type="text" inputmode="none" readonly placeholder="· · ·" aria-label="开发者代码输入" maxlength="6">
     </div>
-    <div class="gate-err" id="gateErr"></div>
     <div class="gate-keypad" id="gateKeypad" role="group" aria-label="数字键盘"></div>
 
   </div>
@@ -715,7 +751,40 @@ body[data-theme="arcade"] .portal-ask-btn{font-family:'Press Start 2P',monospace
     </a>
   </div>
 
-  <div class="hint">更多好玩游戏，<b>持续上新</b>中……</div>
+    <div class="hint">更多好玩游戏，<b>持续上新</b>中……</div>
+
+  <!-- ===== 外部入口 · 更多作品 ===== -->
+  <section class="ext-section">
+    <h2 class="ext-title">MORE · 更多作品 / 外部入口</h2>
+    <div class="ext-grid">
+      <!-- 入口A · c-workshop（C 语言交互实验室 · 外部 GitHub Pages 仓库） -->
+      <a class="ext-card ext-code" href="https://Pytvr42373.github.io/c-workshop/" data-delay=".72s" onclick="go(this.href,event)">
+        <span class="term-bar" aria-hidden="true"><i class="term-dot r"></i><i class="term-dot y"></i><i class="term-dot g"></i></span>
+        <span class="ico" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none">
+            <path d="M13 12 4 24l9 12M35 12l9 12-9 12M28 7 20 41" stroke="#3de1ff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <div class="name">C 语言交互实验室<span class="cursor"></span></div>
+        <div class="desc">从 Python 到 C，看见内存</div>
+        <div class="tag">编程 · 实验室 · GitHub</div>
+      </a>
+      <!-- 入口B · 涂鸦游戏（手绘/自由风格 · 待接入占位） -->
+      <a class="ext-card ext-doodle" href="https://Pytvr42373.github.io/doodle/" data-delay=".78s" onclick="go(this.href,event)">
+        <span class="ico" aria-hidden="true">
+          <svg viewBox="0 0 64 64">
+            <path d="M32 8l7.2 14.6 16.1 2.3-11.6 11.3 2.7 16L32 44.6 17.6 52.2l2.7-16L8.7 24.9l16.1-2.3z" fill="#ffe14d" stroke="#fb6400" stroke-width="3" stroke-linejoin="round"/>
+            <path d="M32 8l7.2 14.6 16.1 2.3-11.6 11.3 2.7 16L32 44.6 17.6 52.2l2.7-16L8.7 24.9l16.1-2.3z" fill="none" stroke="#fb6400" stroke-width="1.5" stroke-dasharray="3 4" stroke-linejoin="round"/>
+            <path d="M54 6l1.5 3.2 3.2 1.5-3.2 1.5-1.5 3.2-1.5-3.2-3.2-1.5 3.2-1.5z" fill="#ff2d78"/>
+            <path d="M8 52c6-3 10 2 16-1s9 3 15 0" fill="none" stroke="#389904" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="2 5"/>
+          </svg>
+        </span>
+        <div class="name">涂鸦游戏</div>
+        <div class="tag">涂鸦 · 自由创作</div>
+        <div class="note">✏️ 手绘风 · 待接入</div>
+      </a>
+    </div>
+  </section>
 </div>
 
 <!-- 跳转过渡遮罩 -->
@@ -780,7 +849,7 @@ function buildSplash(){
 }
 // 卡片入场（开屏关闭后触发；reduced/返回时立即触发）
 function revealCards(){
-  document.querySelectorAll('.card').forEach(c=>{
+  document.querySelectorAll('.card,.ext-card').forEach(c=>{
     if(reduced)c.classList.add('show');
     else setTimeout(()=>c.classList.add('show'),parseFloat(c.dataset.delay||0)*1000);
   });
@@ -964,14 +1033,17 @@ if(window.requestIdleCallback){
 /* ===== 吃豆人答题门禁弹窗逻辑 ===== */
 const gateModal=document.getElementById('gateModal');
 const gateInput=document.getElementById('gateInput');
-const gateErr=document.getElementById('gateErr');
 const gateKeypad=document.getElementById('gateKeypad');
 const gateClose=document.getElementById('gateClose');
-let gateAnswer='666';
+const GATE_HASH_DEFAULT='c7e616822f366fb1b5e0756af498cc11d2c0862edcb32ca65882f622ff39de1b'; // SHA-256('666')
+const GATE_HASH_1654='ddb3686e0d40ad1e8779241b49ebb2ddb4c9bece101dff8140fe933ba99faf6b'; // SHA-256('1654')
+let gateHash=GATE_HASH_DEFAULT;
 let gateQuestion='请输入开发者代码：';
 let gateMaxLen=3;
 let gateTargetUrl='pacman/index.html';
 let gateOnSuccess=null;
+let gateDanger=false;
+let gateInputLocked=false;
 let gateReturnFocus=null;
 let gateBackground=[];
 let gateBodyOverflow='';
@@ -992,6 +1064,7 @@ let gateBodyOverflow='';
 })();
 
 function gatePress(key){
+  if(gateInputLocked) return;
   if(key==='del'){
     gateInput.value=gateInput.value.slice(0,-1);
   } else if(key==='ok'){
@@ -1001,35 +1074,42 @@ function gatePress(key){
     if(gateInput.value.length>=gateMaxLen) return;
     gateInput.value+=key;
   }
-  gateErr.textContent='';
   gateInput.classList.remove('correct','wrong','shake');
 }
 
-function gateSubmit(){
-  if(gateInput.value===gateAnswer){
+async function sha256Hex(str){
+  try{
+    const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+  }catch(e){ return ''; }
+}
+async function gateSubmit(){
+  gateInputLocked=true; // 校验期间锁定输入
+  const hash=await sha256Hex(gateInput.value);
+  if(hash && hash===gateHash){
+    // 正确：持续锁定，直到关闭/跳转
     gateInput.classList.remove('wrong','shake');
     gateInput.classList.add('correct');
     gateInput.value='正确';
-    gateErr.textContent='正确';
-    gateErr.className='gate-err ok';
     const cb=gateOnSuccess;
+    const danger=gateDanger;
     gateOnSuccess=null;
+    if(danger) portalPlayDanger(); // 门禁通过即开始黑洞BGM（处于用户手势内）
     setTimeout(function(){
       if(cb){ hideGateModal(false); cb(); }
       else { hideGateModal(true); }
     },700);
   } else {
+    // 错误：锁定850ms后清空并恢复输入
     gateInput.classList.remove('correct');
     gateInput.classList.add('wrong');
     gateInput.classList.remove('shake');
     void gateInput.offsetWidth;
     gateInput.classList.add('shake');
     gateInput.value='错误';
-    gateErr.textContent='错误';
-    gateErr.className='gate-err';
     setTimeout(function(){
+      gateInputLocked=false;
       gateInput.value='';
-      gateErr.textContent='';
       gateInput.classList.remove('wrong','shake');
     },850);
   }
@@ -1039,11 +1119,12 @@ function openGate(ev,el,opts){
   if(ev&&ev.preventDefault)ev.preventDefault();
   if(!gateModal) return;
   opts=opts||{};
-  gateAnswer=opts.answer||'666';
+  gateHash=opts.hash||GATE_HASH_DEFAULT;
   gateQuestion=opts.question||'请输入开发者代码：';
-  gateMaxLen=opts.maxLen||String(gateAnswer).length;
+  gateMaxLen=opts.maxLen||3;
   gateTargetUrl=opts.url||(el?el.getAttribute('href'):'pacman/index.html');
   gateOnSuccess=opts.onSuccess||null;
+  gateDanger=opts.danger||false;
   const qEl=document.getElementById('gateQuestion');
   if(qEl) qEl.textContent=gateQuestion;
   const active=document.activeElement;
@@ -1055,9 +1136,8 @@ function openGate(ev,el,opts){
   gateBodyOverflow=document.body.style.overflow;
   document.body.style.overflow='hidden';
   gateInput.value='';
+  gateInputLocked=false;
   gateInput.classList.remove('correct','wrong','shake');
-  gateErr.textContent='';
-  gateErr.className='gate-err';
   gateModal.inert=false;
   gateModal.setAttribute('aria-hidden','false');
   gateModal.classList.add('show');
@@ -1065,10 +1145,10 @@ function openGate(ev,el,opts){
   if(firstKey)firstKey.focus({preventScroll:true});
 }
 function openPacmanGate(ev,el){
-  openGate(ev,el,{answer:'666',question:'请输入开发者代码：',maxLen:3,url:el?el.getAttribute('href'):'pacman/index.html'});
+  openGate(ev,el,{hash:GATE_HASH_DEFAULT,question:'请输入开发者代码：',maxLen:3,url:el?el.getAttribute('href'):'pacman/index.html'});
 }
 function openMysteryGate(ev,el){
-  openGate(ev,el,{answer:'1654',question:'毕导的最新视频的长度是多少？',maxLen:4,url:el?el.getAttribute('href'):null});
+  openGate(ev,el,{hash:GATE_HASH_1654,question:'毕导的最新视频的长度是多少？',maxLen:4,url:el?el.getAttribute('href'):null});
 }
 function hideGateModal(navigate){
   if(!gateModal||!gateModal.classList.contains('show'))return;
@@ -1125,7 +1205,7 @@ let portalTimers=[];
 let portalAskShown=false;
 
 function openPortal(ev,el){
-  openGate(ev,el,{answer:'1654',question:'毕导的最新视频的长度是多少？',maxLen:4,url:null,onSuccess:startPortalAnimation});
+  openGate(ev,el,{hash:GATE_HASH_1654,question:'毕导的最新视频的长度是多少？',maxLen:4,url:null,onSuccess:startPortalAnimation,danger:true});
 }
 
 var PORTAL_SHARD_COLORS=['#ff2d78','#3de1ff','#ffe14d','#00ff9d','#b388ff','#ff8a3d','#7ff3ff','#ff5c96'];
