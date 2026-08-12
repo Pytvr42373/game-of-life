@@ -214,6 +214,16 @@ body[data-theme="arcade"] .card-portal .ico{text-shadow:0 0 16px rgba(160,92,255
 .card .ico svg.li,.ext-code .ico svg.li,.ext-doodle .ico svg.li{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 body[data-theme="4399"] .card .ico svg.li,body[data-theme="4399"] .ext-card .ico svg.li{color:#2e7d3f}
 body[data-theme="arcade"] .card .ico svg.li,body[data-theme="arcade"] .ext-card .ico svg.li{color:#3de1ff}
+/* 4 个保留 Lucide 图标：亮/暗主题协调配色 */
+body[data-theme="4399"] .g-stroop{color:#e14d8a}
+body[data-theme="4399"] .g-brain{color:#e8930c}
+body[data-theme="4399"] .g-code{color:#0e9f8a}
+body[data-theme="4399"] .g-tusha{color:#8a5ac0}
+body[data-theme="arcade"] .g-stroop{color:#ff5c9e}
+body[data-theme="arcade"] .g-brain{color:#ffc53d}
+body[data-theme="arcade"] .g-code{color:#45e0a8}
+body[data-theme="arcade"] .g-tusha{color:#b06bff}
+
 /* ===== 上新 / 神秘 标签特化（双主题） ===== */
 .h4399 .nav button[data-filter="上新"]{background:linear-gradient(135deg,#ff9a3d,#ff5c8a,#a05cff);color:#fff;border-color:transparent;box-shadow:0 0 12px rgba(255,92,138,.6),0 0 24px rgba(255,154,61,.35);position:relative}
 .h4399 .nav button[data-filter="上新"]::after{content:'★';position:absolute;top:-7px;right:-5px;font-size:12px;color:#ffd54f;filter:drop-shadow(0 0 4px #ffd54f)}
@@ -641,7 +651,7 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <div class="pac-choice-q">你是否愿意给这个游戏一个好评？</div>
     <div class="pac-choice-btns">
       <button type="button" class="pac-choice-btn yes">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="li" aria-hidden="true"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg>
+        <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg>
         <span>是的，我很喜欢</span>
       </button>
       <button type="button" class="pac-choice-btn love">
@@ -713,7 +723,14 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
 <div class="wrap" inert>
   <!-- 4399 头部 -->
   <header class="h4399">
-    <div class="top"><div class="logo-box"><svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div><div class="title">好玩<em>小游戏</em></div></div>
+    <div class="top"><div class="logo-box"><svg viewBox="0 0 48 48" width="32" height="32" fill="none" aria-hidden="true">
+            <rect x="4" y="12" width="40" height="24" rx="7" fill="#2b2f36"/>
+            <rect x="4" y="12" width="40" height="24" rx="7" fill="none" stroke="#ffffff" stroke-opacity=".92" stroke-width="1.6"/>
+            <rect x="16" y="18" width="6" height="12" rx="2" fill="#ccd1da"/>
+            <rect x="12" y="22" width="14" height="6" rx="2" fill="#ccd1da"/>
+            <circle cx="34" cy="21" r="4.2" fill="#ffc53d" stroke="#7a5c00" stroke-width="1"/>
+            <circle cx="40" cy="27" r="4.2" fill="#ff5b57" stroke="#8a1b18" stroke-width="1"/>
+          </svg></div><div class="title">好玩<em>小游戏</em></div></div>
     <p class="sub">专注好玩 · 每天都有新发现</p>
     <nav class="nav" aria-label="游戏分类">
       <button type="button" class="on" data-filter="全部" aria-pressed="true" aria-controls="gameGrid">全部</button>
@@ -747,7 +764,20 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <a class="card" href="life/index.html" data-delay="0" data-categories="经典" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">
-        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li g-life" aria-hidden="true"><defs><linearGradient id="g-life" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3ddc97"/><stop offset=".55" stop-color="#2e7d3f"/><stop offset="1" stop-color="#3de1ff"/></linearGradient></defs><rect stroke="url(#g-life)"  width="18" height="18" x="3" y="3" rx="2"/><path stroke="url(#g-life)"  d="M3 9h18"/><path stroke="url(#g-life)"  d="M3 15h18"/><path stroke="url(#g-life)"  d="M9 3v18"/><path stroke="url(#g-life)"  d="M15 3v18"/></svg>
+        <svg viewBox="0 0 48 48" width="44" height="44" fill="none" aria-hidden="true">
+          <rect x="3" y="3" width="13" height="13" rx="3" fill="#3aa8ff"/>
+          <rect x="18" y="3" width="13" height="13" rx="3" fill="#ff8a3d"/>
+          <rect x="33" y="3" width="13" height="13" rx="3" fill="#3ddc97"/>
+          <rect x="3" y="18" width="13" height="13" rx="3" fill="#ffd166"/>
+          <rect x="18" y="18" width="13" height="13" rx="3" fill="#8a2be2"/>
+          <rect x="33" y="18" width="13" height="13" rx="3" fill="#ff2d78"/>
+          <rect x="3" y="33" width="13" height="13" rx="3" fill="#3de1ff"/>
+          <rect x="18" y="33" width="13" height="13" rx="3" fill="#a05cff"/>
+          <rect x="33" y="33" width="13" height="13" rx="3" fill="#f2b179"/>
+          <rect x="21" y="21" width="7" height="7" rx="2" fill="#ffffff" opacity=".9"/>
+          <rect x="6" y="36" width="7" height="7" rx="2" fill="#ffffff" opacity=".9"/>
+          <rect x="36" y="6" width="7" height="7" rx="2" fill="#ffffff" opacity=".9"/>
+        </svg>
       </span>
       <div class="name">康威生命游戏</div>
       <div class="tag">经典</div>
@@ -756,7 +786,13 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <a class="card" href="bottle/index.html" data-delay=".12s" data-categories="益智 逻辑 经典" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">
-        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li g-bottle" aria-hidden="true"><defs><linearGradient id="g-bottle" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3aa8ff"/><stop offset=".5" stop-color="#3de1ff"/><stop offset="1" stop-color="#3ddc97"/></linearGradient></defs><path stroke="url(#g-bottle)"  d="M5.116 4.104A1 1 0 0 1 6.11 3h11.78a1 1 0 0 1 .994 1.105L17.19 20.21A2 2 0 0 1 15.2 22H8.8a2 2 0 0 1-2-1.79z"/><path stroke="url(#g-bottle)"  d="M6 12a5 5 0 0 1 6 0 5 5 0 0 0 6 0"/></svg>
+        <svg viewBox="0 0 48 48" width="44" height="44" fill="none" aria-hidden="true">
+          <path d="M18 6h12v6l-3.5 8 10.5 12a7 7 0 0 1-5.4 12H16.4a7 7 0 0 1-5.4-12L21.5 20 18 12z" fill="#d7f1ff"/>
+          <path d="M17 32l-5.2 6a7 7 0 0 0 4.6 8h15.2a7 7 0 0 0 4.6-8l-5.2-6z" fill="#3aa8ff"/>
+          <circle cx="23" cy="39" r="2.2" fill="#ffffff" opacity=".9"/>
+          <circle cx="29" cy="35" r="1.5" fill="#ffffff" opacity=".9"/>
+          <circle cx="20" cy="43" r="1.3" fill="#ffffff" opacity=".85"/>
+        </svg>
       </span>
       <div class="name">倒水谜题</div>
       <div class="tag">益智 · 逻辑</div>
@@ -813,7 +849,14 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <a class="card" href="light-up/index.html" data-delay=".36s" data-categories="益智 逻辑" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">
-        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li g-light" aria-hidden="true"><defs><linearGradient id="g-light" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe14d"/><stop offset=".5" stop-color="#ff8a3d"/><stop offset="1" stop-color="#ff2d78"/></linearGradient></defs><path stroke="url(#g-light)"  d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path stroke="url(#g-light)"  d="M9 18h6"/><path stroke="url(#g-light)"  d="M10 22h4"/></svg>
+        <svg viewBox="0 0 48 48" width="44" height="44" fill="none" aria-hidden="true">
+          <path d="M24 2v5M9 8l4 4M39 8l-4 4M3 24h5M40 24h5" stroke="#ffd166" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="24" cy="19" r="12.5" fill="#ffe14d"/>
+          <circle cx="24" cy="19" r="12.5" fill="none" stroke="#ff8a3d" stroke-width="2"/>
+          <path d="M19 23l3-4 2 6 2-6 3 4" stroke="#ff8a3d" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="17" y="31" width="14" height="9" rx="3" fill="#5f6b7a"/>
+          <rect x="20" y="40" width="8" height="3" rx="1.5" fill="#3d4552"/>
+        </svg>
       </span>
       <div class="name">点灯 · 光廊</div>
       <div class="tag">益智 · 逻辑</div>
@@ -822,7 +865,14 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <a class="card" href="ray-lab/index.html" data-delay=".42s" data-categories="益智 逻辑" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">
-        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li g-ray" aria-hidden="true"><defs><linearGradient id="g-ray" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3de1ff"/><stop offset=".5" stop-color="#3aa8ff"/><stop offset="1" stop-color="#a05cff"/></linearGradient></defs><path stroke="url(#g-ray)"  d="M6 18h8"/><path stroke="url(#g-ray)"  d="M3 22h18"/><path stroke="url(#g-ray)"  d="M14 22a7 7 0 1 0 0-14h-1"/><path stroke="url(#g-ray)"  d="M9 14h2"/><path stroke="url(#g-ray)"  d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/><path stroke="url(#g-ray)"  d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/></svg>
+        <svg viewBox="0 0 48 48" width="44" height="44" fill="none" aria-hidden="true">
+          <path d="M25 10 L40 38 H10 Z" fill="#a05cff"/>
+          <path d="M25 10 L40 38 H10 Z" fill="none" stroke="#7c3fb0" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M4 21 L16 27" stroke="#ffe14d" stroke-width="3.2" stroke-linecap="round"/>
+          <path d="M31 30 L39 21" stroke="#ff2d78" stroke-width="3" stroke-linecap="round"/>
+          <path d="M33 32 L41 26" stroke="#3ddc97" stroke-width="3" stroke-linecap="round"/>
+          <path d="M35 34 L43 31" stroke="#3aa8ff" stroke-width="3" stroke-linecap="round"/>
+        </svg>
       </span>
       <div class="name">光线侦探</div>
       <div class="tag">益智 · 逻辑</div>
@@ -831,7 +881,23 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <a class="card" href="nonogram/index.html" data-delay=".45s" data-categories="益智 逻辑" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">
-        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li g-nono" aria-hidden="true"><defs><linearGradient id="g-nono" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8a3d"/><stop offset=".5" stop-color="#ff2d78"/><stop offset="1" stop-color="#8a2be2"/></linearGradient></defs><rect stroke="url(#g-nono)"  width="18" height="18" x="3" y="3" rx="2"/><path stroke="url(#g-nono)"  d="M3 9h18"/><path stroke="url(#g-nono)"  d="M3 15h18"/><path stroke="url(#g-nono)"  d="M9 3v18"/><path stroke="url(#g-nono)"  d="M15 3v18"/></svg>
+        <svg viewBox="0 0 48 48" width="44" height="44" fill="none" aria-hidden="true">
+          <rect x="5" y="5" width="38" height="38" rx="6" fill="#2b3648"/>
+          <rect x="8" y="8" width="10" height="10" rx="2" fill="#3aa8ff"/>
+          <rect x="8" y="8" width="10" height="10" rx="2" fill="none" stroke="#5b6b82" stroke-width="1.5"/>
+          <rect x="19" y="8" width="10" height="10" rx="2" fill="none" stroke="#5b6b82" stroke-width="1.5"/>
+          <rect x="30" y="8" width="10" height="10" rx="2" fill="#ff2d78"/>
+          <rect x="30" y="8" width="10" height="10" rx="2" fill="none" stroke="#5b6b82" stroke-width="1.5"/>
+          <rect x="8" y="19" width="10" height="10" rx="2" fill="none" stroke="#5b6b82" stroke-width="1.5"/>
+          <rect x="19" y="19" width="10" height="10" rx="2" fill="#ffd166"/>
+          <rect x="19" y="19" width="10" height="10" rx="2" fill="none" stroke="#5b6b82" stroke-width="1.5"/>
+          <rect x="30" y="19" width="10" height="10" rx="2" fill="none" stroke="#5b6b82" stroke-width="1.5"/>
+          <rect x="8" y="30" width="10" height="10" rx="2" fill="#3ddc97"/>
+          <rect x="8" y="30" width="10" height="10" rx="2" fill="none" stroke="#5b6b82" stroke-width="1.5"/>
+          <rect x="19" y="30" width="10" height="10" rx="2" fill="none" stroke="#5b6b82" stroke-width="1.5"/>
+          <rect x="30" y="30" width="10" height="10" rx="2" fill="#8a2be2"/>
+          <rect x="30" y="30" width="10" height="10" rx="2" fill="none" stroke="#5b6b82" stroke-width="1.5"/>
+        </svg>
       </span>
       <div class="name">数织 Nonogram</div>
       <div class="tag">益智 · 逻辑</div>
@@ -840,7 +906,13 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <a class="card" href="game24/index.html" data-delay=".48s" data-categories="益智 逻辑 经典" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">
-        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li g-24" aria-hidden="true"><defs><linearGradient id="g-24" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3ddc97"/><stop offset=".5" stop-color="#3aa8ff"/><stop offset="1" stop-color="#8a2be2"/></linearGradient></defs><rect stroke="url(#g-24)"  width="12" height="12" x="2" y="10" rx="2" ry="2"/><path stroke="url(#g-24)"  d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6"/><path stroke="url(#g-24)"  d="M6 18h.01"/><path stroke="url(#g-24)"  d="M10 14h.01"/><path stroke="url(#g-24)"  d="M15 6h.01"/><path stroke="url(#g-24)"  d="M18 9h.01"/></svg>
+        <svg viewBox="0 0 48 48" width="44" height="44" fill="none" aria-hidden="true">
+          <rect x="3" y="10" width="18" height="18" rx="4" fill="#f2b179"/>
+          <text x="12" y="25" font-family="Arial,sans-serif" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">2</text>
+          <rect x="27" y="10" width="18" height="18" rx="4" fill="#3aa8ff"/>
+          <text x="36" y="25" font-family="Arial,sans-serif" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">4</text>
+          <text x="24" y="44" font-family="Arial,sans-serif" font-size="8" font-weight="bold" fill="#e85d2a" text-anchor="middle">24点</text>
+        </svg>
       </span>
       <div class="name">24点</div>
       <div class="tag">益智 · 逻辑</div>
@@ -859,7 +931,17 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <a class="card" href="https://pytvr42373.github.io/Baici_Spired/" data-delay=".60s" data-categories="益智" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">
-        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li g-word" aria-hidden="true"><defs><linearGradient id="g-word" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3aa8ff"/><stop offset=".5" stop-color="#a05cff"/><stop offset="1" stop-color="#ff2d78"/></linearGradient></defs><path stroke="url(#g-word)"  d="M12 5v16"/><path stroke="url(#g-word)"  d="M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+        <svg viewBox="0 0 48 48" width="44" height="44" fill="none" aria-hidden="true">
+          <path d="M24 13 C18 10 10 10 5 12 V37 C10 35 18 35 24 38 Z" fill="#3aa8ff"/>
+          <path d="M24 13 C30 10 38 10 43 12 V37 C38 35 30 35 24 38 Z" fill="#ff8a3d"/>
+          <path d="M24 13 V38" stroke="#ffffff" stroke-width="2.2"/>
+          <rect x="9" y="17" width="11" height="2.6" rx="1.3" fill="#ffffff" opacity=".92"/>
+          <rect x="9" y="22" width="8.5" height="2.6" rx="1.3" fill="#ffffff" opacity=".7"/>
+          <rect x="9" y="27" width="11.5" height="2.6" rx="1.3" fill="#ffffff" opacity=".85"/>
+          <rect x="29" y="17" width="10" height="2.6" rx="1.3" fill="#ffffff" opacity=".92"/>
+          <rect x="29" y="22" width="11.5" height="2.6" rx="1.3" fill="#ffffff" opacity=".7"/>
+          <rect x="29" y="27" width="8" height="2.6" rx="1.3" fill="#ffffff" opacity=".85"/>
+        </svg>
       </span>
       <div class="name">词域远征</div>
       <div class="tag">益智 · 背单词</div>
