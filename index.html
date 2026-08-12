@@ -447,6 +447,25 @@ body[data-theme="arcade"] .portal-line{font-family:'Press Start 2P',monospace;fo
   50%{transform:translate(-2px,2px) rotate(1.5deg)}
   75%{transform:translate(1px,1px) rotate(-1deg)}
 }
+.portal-lines{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;gap:18px;width:92%}
+/* WARNING 危险提示：红色 warning + 闪烁感叹号 */
+.portal-warning{display:inline-flex;align-items:center;gap:10px;font-size:clamp(18px,4vmin,30px);font-weight:900;
+  color:#ff4040;letter-spacing:3px;text-shadow:0 0 10px rgba(255,40,40,.9),0 0 30px rgba(255,0,0,.6),0 0 60px rgba(200,0,0,.4);
+  animation:portal-warn-pulse 1s ease-in-out infinite}
+.portal-warning .warn-ico{display:inline-block;font-size:1.2em;animation:portal-warn-blink .7s steps(2,end) infinite;margin:0 .1em}
+@keyframes portal-warn-pulse{0%,100%{opacity:1}50%{opacity:.55}}
+@keyframes portal-warn-blink{0%{opacity:1}50%{opacity:0}}
+body[data-theme="arcade"] .portal-warning{font-family:'Press Start 2P',monospace;font-size:clamp(12px,3vmin,20px)}
+/* 最终句巫师/邪恶 危险特效 */
+.portal-line .kw-ev{display:inline-block;font-weight:900;color:#ff3b3b;
+  text-shadow:0 0 10px rgba(255,60,60,.95),0 0 28px rgba(255,0,60,.7),0 0 52px rgba(180,0,60,.5);
+  animation:portal-kw-shake .5s ease-in-out infinite,mw-glow 1.2s ease-in-out infinite;margin:0 .06em}
+.portal-line .kw-wiz{display:inline-block;font-weight:900;color:#a05cff;
+  text-shadow:0 0 10px rgba(160,92,255,.95),0 0 28px rgba(120,40,255,.7),0 0 52px rgba(90,20,200,.5);
+  animation:portal-kw-shake .5s ease-in-out infinite,wz-float 1.6s ease-in-out infinite;margin:0 .06em}
+@keyframes mw-glow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.5)}}
+@keyframes wz-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+body[data-theme="arcade"] .portal-line .kw-ev,body[data-theme="arcade"] .portal-line .kw-wiz{font-family:'Press Start 2P',monospace}
 .portal-skip{position:absolute;bottom:18px;right:20px;z-index:5;font-size:13px;color:rgba(220,200,255,.7);cursor:pointer;background:none;border:0;padding:6px 10px}
 .portal-skip:hover{color:#fff}
 body[data-theme="arcade"] .portal-skip{font-family:'Press Start 2P',monospace;font-size:8px}
@@ -490,7 +509,11 @@ body[data-theme="arcade"] .portal-ask-btn{font-family:'Press Start 2P',monospace
   <div class="portal-scene">
     <div class="portal-hole" aria-hidden="true"></div>
     <div id="portalShards" aria-hidden="true"></div>
-    <div class="portal-line" id="portalLine1"></div>
+    <div class="portal-lines">
+      <div class="portal-line" id="portalLine1"></div>
+      <div class="portal-line" id="portalLine2"></div>
+      <div class="portal-line" id="portalLine3"></div>
+    </div>
     <button type="button" class="portal-skip" id="portalSkip">跳过 ▼</button>
   </div>
 </div>
@@ -1081,7 +1104,9 @@ const PORTAL_LINES=[
   '洞口里面有{{神秘的巫师}}！',
   '你还不死心吗？'
 ];
-const PORTAL_FINAL='那么，你将见识到最神秘的巫师和他最邪恶的作品！';
+const PORTAL_FINAL='那么，你将见识到最神秘的<kw>巫师</kw>和他最<ev>邪恶</ev>的作品！';
+const PORTAL_WARN='<b class="portal-warning">⚠ 睁大你的眼睛 &nbsp; <span class="warn-ico">WARNING！!</span></b>';
+const PORTAL_LAST='我们即将看到这个<kw>巫师</kw>。';
 const PORTAL_URL='https://space.bilibili.com/254463269';
 let portalTimers=[];
 let portalAskShown=false;
@@ -1091,7 +1116,7 @@ function openPortal(ev,el){
 }
 
 var PORTAL_SHARD_COLORS=['#ff2d78','#3de1ff','#ffe14d','#00ff9d','#b388ff','#ff8a3d','#7ff3ff','#ff5c96'];
-var PORTAL_SHARD_ICONS=['🎮','👾','💾','🕹️','⭐','✨','🧩','🎲','💎','🪙','🎯','⚡'];
+var PORTAL_SHARD_ICONS=['🎮','👾','💾','🕹️','⭐','✨','🧩','🎲','💎','🪙','🎯','⚡','😈','👁️','🕷️','🔮','🗡️','💀','👻','🦇','🔮','⚰️','🪦','🌑','🗝️','📿','🕯️'];
 function buildPortalShards(){
   var wrap=document.getElementById('portalShards');
   if(!wrap) return;
@@ -1099,7 +1124,7 @@ function buildPortalShards(){
   var total=70;
   for(var i=0;i<total;i++){
     var sh=document.createElement('i');
-    var isIcon=(i%5===0); // 每5个放一个icon碎片
+    var isIcon=(i%3===0); // 每3个放一个icon碎片（更多icon）
     if(isIcon){
       sh.className='portal-shard portal-icon';
       sh.textContent=PORTAL_SHARD_ICONS[i%PORTAL_SHARD_ICONS.length];
@@ -1139,7 +1164,7 @@ function startPortalAnimation(){
   ov.inert=false; ov.setAttribute('aria-hidden','false'); ov.classList.add('show');
   buildPortalShards();
   const line=document.getElementById('portalLine1');
-  if(line){ line.textContent=''; line.classList.remove('show','danger'); }
+  [1,2,3].forEach(function(i){ var x=document.getElementById('portalLine'+i); if(x){ x.textContent=''; x.classList.remove('show','danger'); } });
   const seq=PORTAL_LINES;
   seq.forEach(function(text,i){
     portalTimers.push(setTimeout(function(){
@@ -1172,21 +1197,72 @@ function portalRetreat(){
   hidePortalAll();
   // 返回主页（当前页面就是主页，只需关闭动画）
 }
+/* ===== 危险向 BGM（Web Audio 实时合成，无外部资源/无版权） ===== */
+var portalAudio=null, portalDroneOsc=null, portalDroneGain=null, portalPulseTimer=null;
+function portalPlayDanger(){
+  try{
+    if(portalAudio) return;
+    var AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC) return;
+    portalAudio=new AC();
+    var ctx=portalAudio;
+    // 低频恐怖 drone（双振荡器轻微失谐）
+    var g=ctx.createGain(); g.gain.value=0.16; g.connect(ctx.destination);
+    portalDroneGain=g;
+    var o1=ctx.createOscillator(); o1.type='sawtooth'; o1.frequency.value=55;
+    var o2=ctx.createOscillator(); o2.type='sawtooth'; o2.frequency.value=55.8;
+    var lp=ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=220; lp.Q.value=8;
+    o1.connect(lp); o2.connect(lp); lp.connect(g);
+    o1.start(); o2.start();
+    portalDroneOsc=[o1,o2];
+    // 心跳脉冲：低频鼓点
+    function heartbeat(){
+      if(!portalAudio) return;
+      var t=ctx.currentTime;
+      var ob=ctx.createOscillator(); ob.type='sine'; ob.frequency.value=70;
+      var og=ctx.createGain();
+      og.gain.setValueAtTime(0,t);
+      og.gain.linearRampToValueAtTime(0.5,t+0.03);
+      og.gain.exponentialRampToValueAtTime(0.001,t+0.22);
+      ob.connect(og); og.connect(ctx.destination);
+      ob.start(t); ob.stop(t+0.25);
+    }
+    heartbeat();
+    portalPulseTimer=setInterval(function(){ heartbeat(); },1800);
+  }catch(e){}
+}
+function portalStopDanger(){
+  try{
+    if(portalPulseTimer){ clearInterval(portalPulseTimer); portalPulseTimer=null; }
+    if(portalDroneGain){ try{portalDroneGain.gain.linearRampToValueAtTime(0,portalAudio.currentTime+0.4);}catch(e){} }
+    if(portalAudio){ setTimeout(function(){ try{portalAudio.close();}catch(e){} portalAudio=null; portalDroneOsc=null; portalDroneGain=null; },500); }
+  }catch(e){ portalAudio=null; }
+}
+function portalKw(html){ return html.replace(/<kw>/g,'<b class="kw-wiz">').replace(/<\/kw>/g,'</b>').replace(/<ev>/g,'<b class="kw-ev">').replace(/<\/ev>/g,'</b>'); }
 function portalBrave(){
   hidePortalAll();
   try{ sessionStorage.setItem('skipSplash','1'); }catch(e){}
-  // 短暂展示最终句后跳转
   const ov=document.getElementById('portalOverlay');
+  if(!ov){ location.href=PORTAL_URL; return; }
+  ov.classList.add('show'); ov.inert=false; ov.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';
   const l1=document.getElementById('portalLine1');
-  if(ov&&l1){
-    ov.classList.add('show'); ov.inert=false; ov.setAttribute('aria-hidden','false');
-    [1,2,3,4,5].forEach(function(i){var x=document.getElementById('portalLine'+i); if(x){x.textContent='';x.classList.remove('show','danger');}});
-    l1.textContent=PORTAL_FINAL; l1.classList.add('show','danger');
-    document.body.style.overflow='hidden';
-    setTimeout(function(){ ov.classList.remove('show'); document.body.style.overflow=''; location.href=PORTAL_URL; },2200);
-  } else {
-    location.href=PORTAL_URL;
-  }
+  const l2=document.getElementById('portalLine2');
+  const l3=document.getElementById('portalLine3');
+  [l1,l2,l3].forEach(function(x){ if(x){ x.innerHTML=''; x.classList.remove('show','danger'); } });
+  portalPlayDanger();
+  // 第一句：最终句（巫师紫/邪恶红特效）
+  if(l1){ l1.innerHTML=portalKw(PORTAL_FINAL); l1.classList.add('show','danger'); }
+  setTimeout(function(){
+    if(l2){ l2.innerHTML=PORTAL_WARN; l2.classList.add('show'); }
+  },1500);
+  setTimeout(function(){
+    if(l3){ l3.innerHTML=portalKw(PORTAL_LAST); l3.classList.add('show'); }
+  },3000);
+  setTimeout(function(){
+    portalStopDanger();
+    ov.classList.remove('show'); document.body.style.overflow=''; location.href=PORTAL_URL;
+  },4600);
 }
 document.addEventListener('keydown',function(e){
   if(portalAskShown&&document.getElementById('portalAsk').classList.contains('show')){
