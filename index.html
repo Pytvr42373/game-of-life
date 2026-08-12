@@ -191,6 +191,28 @@ body[data-theme="arcade"] .harcade{display:block}
 
 /* ===== 卡片通用 ===== */
 .card{display:block;width:210px;text-align:center;text-decoration:none;color:inherit;cursor:pointer;position:relative;opacity:0;transform:translateY(20px)}
+/* 神秘洞口入口卡片特效（双主题） */
+.card-portal .ico{position:relative;z-index:1;display:inline-block;font-size:44px;margin-bottom:14px;
+  animation:portal-ico-pulse 2.6s ease-in-out infinite}
+.card-portal .ico::before{content:'';position:absolute;inset:-16px;z-index:-1;border-radius:50%;
+  background:conic-gradient(from 0deg,rgba(120,80,255,0),rgba(120,80,255,.6),rgba(160,60,220,.35),rgba(120,80,255,0));
+  -webkit-mask:radial-gradient(circle,transparent 30%,#000 62%,transparent 70%);
+  mask:radial-gradient(circle,transparent 30%,#000 62%,transparent 70%);
+  animation:portal-ico-spin 4.5s linear infinite;filter:blur(1px)}
+.card-portal .ico::after{content:'';position:absolute;inset:-26px;z-index:-2;border-radius:50%;
+  border:2px dashed transparent;
+  animation:portal-ico-orbit 5s linear infinite}
+@keyframes portal-ico-pulse{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.12);filter:brightness(1.18)}}
+@keyframes portal-ico-spin{to{transform:rotate(360deg)}}
+@keyframes portal-ico-orbit{to{transform:rotate(360deg)}}
+body[data-theme="4399"] .card-portal .ico::after{border-top-color:#6a4a9e;border-right-color:#9a6ac8;border-bottom-color:#4a7ad0;border-left-color:#8a5ac0;opacity:.7}
+body[data-theme="arcade"] .card-portal .ico::after{border-top-color:#ff2d78;border-right-color:#3de1ff;border-bottom-color:#a05cff;border-left-color:#ffe14d;opacity:.9}
+body[data-theme="4399"] .card-portal .ico{text-shadow:0 0 18px rgba(106,74,158,.7),0 0 40px rgba(90,80,200,.4)}
+body[data-theme="arcade"] .card-portal .ico{text-shadow:0 0 16px rgba(160,92,255,.9),0 0 40px rgba(255,45,120,.5)}
+/* 卡片整体神秘微光边框 */
+.card-portal{box-shadow:0 0 0 rgba(120,80,255,0);transition:box-shadow .3s}
+body[data-theme="4399"] .card-portal{box-shadow:0 6px 20px rgba(106,74,158,.22)}
+body[data-theme="arcade"] .card-portal{box-shadow:0 0 22px rgba(160,92,255,.4),inset 0 0 18px rgba(160,92,255,.15)}
 .card.show{opacity:1;transform:translateY(0)}
 .card[hidden]{display:none}
 
@@ -650,7 +672,7 @@ body[data-theme="arcade"] .portal-ask-btn{font-family:'Press Start 2P',monospace
     </a>
     <!-- ===== 神秘游戏（不在"全部"显示，点"神秘"标签查看） ===== -->
     <!-- 神秘的入口（传送门） -->
-    <a class="card" href="javascript:void(0)" data-delay=".78s" data-categories="神秘" data-mystery="1" onclick="openPortal(event,this)" title="神秘游戏">
+    <a class="card card-portal" href="javascript:void(0)" data-delay=".78s" data-categories="神秘" data-mystery="1" onclick="openPortal(event,this)" title="神秘游戏">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">🌀</span>
       <div class="name">神秘的入口</div>
