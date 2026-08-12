@@ -198,7 +198,7 @@ body[data-theme="arcade"] .harcade{display:block}
   background:conic-gradient(from 0deg,rgba(120,80,255,0),rgba(120,80,255,.6),rgba(160,60,220,.35),rgba(120,80,255,0));
   -webkit-mask:radial-gradient(circle,transparent 30%,#000 62%,transparent 70%);
   mask:radial-gradient(circle,transparent 30%,#000 62%,transparent 70%);
-  animation:portal-ico-spin 4.5s linear infinite;filter:blur(1px)}
+  animation:portal-ico-spin 5s linear infinite;filter:blur(1px)}
 .card-portal .ico::after{content:'';position:absolute;inset:-26px;z-index:-2;border-radius:50%;
   border:2px dashed transparent;
   animation:portal-ico-orbit 5s linear infinite}
@@ -209,6 +209,25 @@ body[data-theme="4399"] .card-portal .ico::after{border-top-color:#6a4a9e;border
 body[data-theme="arcade"] .card-portal .ico::after{border-top-color:#ff2d78;border-right-color:#3de1ff;border-bottom-color:#a05cff;border-left-color:#ffe14d;opacity:.9}
 body[data-theme="4399"] .card-portal .ico{text-shadow:0 0 18px rgba(106,74,158,.7),0 0 40px rgba(90,80,200,.4)}
 body[data-theme="arcade"] .card-portal .ico{text-shadow:0 0 16px rgba(160,92,255,.9),0 0 40px rgba(255,45,120,.5)}
+
+/* ===== 素材库图标(Lucide) 主题适配 ===== */
+.card .ico svg.li,.ext-code .ico svg.li,.ext-doodle .ico svg.li{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+body[data-theme="4399"] .card .ico svg.li,body[data-theme="4399"] .ext-card .ico svg.li{color:#2e7d3f}
+body[data-theme="arcade"] .card .ico svg.li,body[data-theme="arcade"] .ext-card .ico svg.li{color:#3de1ff}
+/* ===== 上新 / 神秘 标签特化（双主题） ===== */
+.h4399 .nav button[data-filter="上新"]{background:linear-gradient(135deg,#ff9a3d,#ff5c8a,#a05cff);color:#fff;border-color:transparent;box-shadow:0 0 12px rgba(255,92,138,.6),0 0 24px rgba(255,154,61,.35);position:relative}
+.h4399 .nav button[data-filter="上新"]::after{content:'★';position:absolute;top:-7px;right:-5px;font-size:12px;color:#ffd54f;filter:drop-shadow(0 0 4px #ffd54f)}
+.h4399 .nav button[data-filter="上新"]:hover{filter:brightness(1.08)}
+.h4399 .nav button[data-filter="上新"].on{background:linear-gradient(135deg,#ff5c8a,#a05cff);color:#fff;border-color:#ffd54f;box-shadow:0 0 16px rgba(255,92,138,.85),0 0 30px rgba(160,92,255,.5)}
+.h4399 .nav button[data-filter="神秘"]{background:radial-gradient(circle at 30% 30%,#4a2a7a,#1c1040);color:#d9c8ff;border-color:#8a5ac0;box-shadow:0 0 12px rgba(160,92,255,.5),inset 0 0 8px rgba(160,92,255,.25);position:relative}
+.h4399 .nav button[data-filter="神秘"]::before{content:'';position:absolute;inset:0;border-radius:999px;background:conic-gradient(from 0deg,rgba(120,80,255,0),rgba(160,60,220,.55),rgba(120,80,255,0));-webkit-mask:radial-gradient(circle,transparent 38%,#000 82%,transparent 86%);mask:radial-gradient(circle,transparent 38%,#000 82%,transparent 86%);animation:portal-ico-spin 5s linear infinite;pointer-events:none}
+.h4399 .nav button[data-filter="神秘"].on{background:#241250;color:#fff;border-color:#a05cff;box-shadow:0 0 16px rgba(160,92,255,.9)}
+.harcade .nav button[data-filter="上新"]{background:linear-gradient(135deg,#ff5c8a,#a05cff,#3de1ff);color:#0a0a18;border-color:#fff;box-shadow:3px 3px 0 #0a0a18,0 0 14px rgba(255,92,138,.7);position:relative}
+.harcade .nav button[data-filter="上新"]::after{content:'★';position:absolute;top:-9px;right:-7px;font-size:13px;color:#ffe14d;filter:drop-shadow(0 0 5px #ffe14d);text-shadow:none}
+.harcade .nav button[data-filter="上新"]:hover{color:#0a0a18;border-color:#fff}
+.harcade .nav button[data-filter="上新"].on{background:linear-gradient(135deg,#ff2d78,#a05cff);color:#fff;border-color:#ffe14d;box-shadow:3px 3px 0 #0a0a18,0 0 18px rgba(255,45,120,.9)}
+.harcade .nav button[data-filter="神秘"]{background:linear-gradient(135deg,#1c1040,#3a1a6a);color:#d9c8ff;border-color:#a05cff;box-shadow:3px 3px 0 #0a0a18,0 0 12px rgba(160,92,255,.6)}
+.harcade .nav button[data-filter="神秘"].on{background:#241250;color:#fff;border-color:#3de1ff;box-shadow:3px 3px 0 #0a0a18,0 0 16px rgba(160,92,255,.9)}
 /* 卡片整体神秘微光边框 */
 .card-portal{box-shadow:0 0 0 rgba(120,80,255,0);transition:box-shadow .3s}
 body[data-theme="4399"] .card-portal{box-shadow:0 6px 20px rgba(106,74,158,.22)}
@@ -611,7 +630,7 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <div class="pac-choice-q">你是否愿意给这个游戏一个好评？</div>
     <div class="pac-choice-btns">
       <button type="button" class="pac-choice-btn yes">
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true"><path d="M2 21V11h3v10H2zm4-10.5c0-.4.2-.8.5-1.1l4.2-4.7.3.2c.6.4.9 1 .9 1.7l-.7 3.4h5.2c1.3 0 2.3 1 2.3 2.3l-1.2 6.6c-.2 1-1 1.8-2 1.8H9c-1.7 0-3-1.3-3-3v-6.2zM15.5 3.5c1-1 2.6-1 3.6 0 1 1 1 2.6 0 3.6L17 9.2l-2.1-2.1c-1-1-1-2.6 0-3.6z" fill="currentColor"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="li" aria-hidden="true"><path d="m11 10 3 3"/><path d="M6.5 21A3.5 3.5 0 1 0 3 17.5a2.62 2.62 0 0 1-.708 1.792A1 1 0 0 0 3 21z"/><path d="M9.969 17.031 21.378 5.624a1 1 0 0 0-3.002-3.002L6.967 14.031"/></svg>
         <span>是的，我很喜欢</span>
       </button>
       <button type="button" class="pac-choice-btn love">
@@ -691,6 +710,7 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
       <button type="button" data-filter="逻辑" aria-pressed="false" aria-controls="gameGrid">逻辑</button>
       <button type="button" data-filter="反应" aria-pressed="false" aria-controls="gameGrid">反应</button>
       <button type="button" data-filter="经典" aria-pressed="false" aria-controls="gameGrid">经典</button>
+      <button type="button" data-filter="上新" aria-pressed="false" aria-controls="gameGrid">上新</button>
       <button type="button" data-filter="神秘" aria-pressed="false" aria-controls="gameGrid">神秘</button>
     </nav>
   </header>
@@ -706,6 +726,7 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
       <button type="button" data-filter="逻辑" aria-pressed="false" aria-controls="gameGrid">逻辑</button>
       <button type="button" data-filter="反应" aria-pressed="false" aria-controls="gameGrid">反应</button>
       <button type="button" data-filter="经典" aria-pressed="false" aria-controls="gameGrid">经典</button>
+      <button type="button" data-filter="上新" aria-pressed="false" aria-controls="gameGrid">上新</button>
       <button type="button" data-filter="神秘" aria-pressed="false" aria-controls="gameGrid">神秘</button>
     </nav>
   </header>
@@ -715,7 +736,7 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <a class="card" href="life/index.html" data-delay="0" data-categories="经典" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">
-        <svg viewBox="0 0 44 44" width="44" height="44" aria-hidden="true"><rect x="7" y="7" width="30" height="30" rx="4" fill="#3a7d44"/><g fill="#b8f0c2"><rect x="11" y="11" width="6" height="6"/><rect x="19" y="11" width="6" height="6"/><rect x="27" y="19" width="6" height="6"/><rect x="11" y="27" width="6" height="6"/><rect x="19" y="27" width="6" height="6"/></g><g fill="#215c33"><rect x="11" y="19" width="6" height="6"/><rect x="27" y="11" width="6" height="6"/><rect x="19" y="19" width="6" height="6"/></g></svg>
+        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
       </span>
       <div class="name">康威生命游戏</div>
       <div class="tag">经典</div>
@@ -724,13 +745,13 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <a class="card" href="bottle/index.html" data-delay=".12s" data-categories="益智 逻辑 经典" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">
-        <svg viewBox="0 0 44 44" width="44" height="44" aria-hidden="true"><path d="M15 6h14v3h-2v5l4 7c3 4 3 8 0 11-1.5 1.5-4 2.5-7 2.5s-5.5-1-7-2.5c-3-3-3-7 0-11l4-7V9h-2V6z" fill="#7cc4ff"/><path d="M18 24l3 5h-6l3-5z" fill="#dff2ff"/><rect x="20" y="6" width="4" height="7" rx="1" fill="#2f7fbf"/></svg>
+        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li" aria-hidden="true"><path d="M5.116 4.104A1 1 0 0 1 6.11 3h11.78a1 1 0 0 1 .994 1.105L17.19 20.21A2 2 0 0 1 15.2 22H8.8a2 2 0 0 1-2-1.79z"/><path d="M6 12a5 5 0 0 1 6 0 5 5 0 0 0 6 0"/></svg>
       </span>
       <div class="name">倒水谜题</div>
       <div class="tag">益智 · 逻辑</div>
     </a>
     <!-- 1A2B 猜数字 -->
-    <a class="card" href="1A2B/index.html" data-delay=".18s" data-categories="益智 逻辑 经典" onclick="go(this.href,event)">
+    <a class="card" href="1A2B/index.html" data-delay=".18s" data-categories="益智 逻辑 经典 上新" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="new-badge">NEW</span>
       <span class="ico ico-1a2b" aria-hidden="true">
@@ -748,11 +769,31 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
       <div class="name">1A2B 猜数字</div>
       <div class="tag">益智 · 逻辑 · 经典</div>
     </a>
+    <!-- 1A2B 难版 -->
+    <a class="card" href="1A2B-hard/index.html" data-delay=".24s" data-categories="益智 逻辑" onclick="go(this.href,event)">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <span class="new-badge">NEW</span>
+      <span class="ico ico-1a2b-hard" aria-hidden="true">
+        <svg viewBox="0 0 48 48" width="46" height="46" fill="none">
+          <rect x="2" y="2" width="20" height="20" rx="4" fill="#8a2be2"/>
+          <rect x="26" y="2" width="20" height="20" rx="4" fill="#ff2d78"/>
+          <rect x="2" y="26" width="20" height="20" rx="4" fill="#ff8a3d"/>
+          <rect x="26" y="26" width="20" height="20" rx="4" fill="#3ddc97"/>
+          <path d="M7 7l2 2 2-2 2 2" stroke="#fff" stroke-width="1.4" fill="none"/>
+          <text x="12" y="18" font-family="Arial,sans-serif" font-size="15" font-weight="bold" fill="#fff" text-anchor="middle">H</text>
+          <text x="36" y="18" font-family="Arial,sans-serif" font-size="15" font-weight="bold" fill="#fff" text-anchor="middle">A</text>
+          <text x="12" y="42" font-family="Arial,sans-serif" font-size="15" font-weight="bold" fill="#5a3a00" text-anchor="middle">R</text>
+          <text x="36" y="42" font-family="Arial,sans-serif" font-size="15" font-weight="bold" fill="#045d3c" text-anchor="middle">D</text>
+        </svg>
+      </span>
+      <div class="name">1A2B 难版</div>
+      <div class="tag">益智 · 逻辑 · 专家</div>
+    </a>
     <!-- Stroop 挑战 -->
     <a class="card" href="stroop/index.html" data-delay=".3s" data-categories="反应 经典" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">
-        <svg viewBox="0 0 44 44" width="44" height="44" aria-hidden="true"><circle cx="22" cy="22" r="18" fill="#ff5c6c"/><circle cx="22" cy="22" r="12" fill="#fff"/><circle cx="22" cy="22" r="6" fill="#ff5c6c"/><circle cx="22" cy="22" r="2" fill="#ffd54f"/></svg>
+        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
       </span>
       <div class="name">Stroop 挑战</div>
       <div class="tag">反应</div>
@@ -761,7 +802,7 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <a class="card" href="light-up/index.html" data-delay=".36s" data-categories="益智 逻辑" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">
-        <svg viewBox="0 0 44 44" width="44" height="44" aria-hidden="true"><path d="M22 4c-7 0-12 5-12 12 0 4 2 7 5 9v3c0 1.5 1.5 3 3.5 3h7c2 0 3.5-1.5 3.5-3v-3c3-2 5-5 5-9 0-7-5-12-12-12z" fill="#ffd54f"/><rect x="18" y="30" width="8" height="3" rx="1" fill="#c9a227"/><rect x="17" y="36" width="10" height="3" rx="1.5" fill="#c9a227"/><path d="M22 7v4" stroke="#e0b32e" stroke-width="1.5"/><path d="M14 12l3 3" stroke="#e0b32e" stroke-width="1.5"/><path d="M30 12l-3 3" stroke="#e0b32e" stroke-width="1.5"/></svg>
+        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
       </span>
       <div class="name">点灯 · 光廊</div>
       <div class="tag">益智 · 逻辑</div>
@@ -770,7 +811,7 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <a class="card" href="ray-lab/index.html" data-delay=".42s" data-categories="益智 逻辑" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">
-        <svg viewBox="0 0 44 44" width="44" height="44" aria-hidden="true"><rect x="8" y="34" width="6" height="6" fill="#5a5a72"/><rect x="6" y="28" width="10" height="6" fill="#6b6b86"/><path d="M10 28l10-18 4 2-10 18h-4z" fill="#7cc4ff"/><path d="M20 10l4 2-2 4-4-2 2-4z" fill="#9fd8ff"/><circle cx="24" cy="16" r="2" fill="#3a8fd8"/><rect x="26" y="20" width="12" height="3" fill="#5a5a72"/><rect x="32" y="23" width="3" height="11" fill="#5a5a72"/><circle cx="33" cy="35" r="2" fill="#5a5a72"/></svg>
+        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li" aria-hidden="true"><path d="M6 18h8"/><path d="M3 22h18"/><path d="M14 22a7 7 0 1 0 0-14h-1"/><path d="M9 14h2"/><path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/><path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/></svg>
       </span>
       <div class="name">光线侦探</div>
       <div class="tag">益智 · 逻辑</div>
@@ -779,7 +820,7 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <a class="card" href="nonogram/index.html" data-delay=".45s" data-categories="益智 逻辑" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">
-        <svg viewBox="0 0 44 44" width="44" height="44" aria-hidden="true"><path d="M16 6h12v4c-3 0-5 2-5 5s2 5 5 5v4H16v-4c3 0 5-2 5-5s-2-5-5-5V6z" fill="#ff9a3d"/><rect x="6" y="6" width="8" height="10" fill="#3aa8ff"/><rect x="30" y="6" width="8" height="10" fill="#ffd166"/><rect x="6" y="28" width="8" height="10" fill="#3ddc97"/><rect x="30" y="28" width="8" height="10" fill="#ff5c8a"/></svg>
+        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
       </span>
       <div class="name">数织 Nonogram</div>
       <div class="tag">益智 · 逻辑</div>
@@ -788,17 +829,17 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <a class="card" href="game24/index.html" data-delay=".48s" data-categories="益智 逻辑 经典" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">
-        <svg viewBox="0 0 44 44" width="44" height="44" aria-hidden="true"><rect x="7" y="5" width="30" height="34" rx="3" fill="#fff" stroke="#d0d0e0"/><text x="13" y="16" font-family="Arial" font-size="13" font-weight="bold" fill="#e04040">2</text><text x="31" y="36" font-family="Arial" font-size="13" font-weight="bold" fill="#e04040" text-anchor="end">4</text><path d="M22 12l3.5 5-3.5 5-3.5-5 3.5-5z" fill="#e04040"/><path d="M22 27l2.6 3.7L22 34l-2.6-3.3L22 27z" fill="#e04040"/></svg>
+        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li" aria-hidden="true"><rect width="12" height="12" x="2" y="10" rx="2" ry="2"/><path d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6"/><path d="M6 18h.01"/><path d="M10 14h.01"/><path d="M15 6h.01"/><path d="M18 9h.01"/></svg>
       </span>
       <div class="name">24点</div>
       <div class="tag">益智 · 逻辑</div>
     </a>
     <!-- 谁是知识大王 -->
-    <a class="card" href="brain-king/index.html" data-delay=".54s" data-categories="益智 反应" onclick="go(this.href,event)">
+    <a class="card" href="brain-king/index.html" data-delay=".54s" data-categories="益智 反应 上新" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="new-badge">NEW</span>
       <span class="ico">
-        <svg viewBox="0 0 44 44" width="44" height="44" aria-hidden="true"><path d="M22 12c-1-2-3-3-5-3-3 0-5 2-5 5 0 1.5.5 2.8 1.4 3.8-.2 1 .1 2.2 1 3-1.4.8-2 2.6-1.4 4.2.8 2 3 3.2 5 2.6.5 2 2.3 3.4 4.4 3.4s3.9-1.4 4.4-3.4c2 .6 4.2-.6 5-2.6.6-1.6 0-3.4-1.4-4.2.9-.8 1.2-2 1-3 .9-1 1.4-2.3 1.4-3.8 0-3-2-5-5-5-2 0-4 1-5 3z" fill="#ff9ab0"/><circle cx="14" cy="14" r="1.6" fill="#d9688a"/><circle cx="30" cy="17" r="1.6" fill="#d9688a"/></svg>
+        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li" aria-hidden="true"><path d="M12 18V5"/><path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"/><path d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5"/><path d="M17.997 5.125a4 4 0 0 1 2.526 5.77"/><path d="M18 18a4 4 0 0 0 2-7.464"/><path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517"/><path d="M6 18a4 4 0 0 1-2-7.464"/><path d="M6.003 5.125a4 4 0 0 0-2.526 5.77"/></svg>
       </span>
       <div class="name">谁是知识大王</div>
       <div class="tag">益智 · 反应</div>
@@ -807,13 +848,13 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <a class="card" href="https://pytvr42373.github.io/Baici_Spired/" data-delay=".60s" data-categories="益智" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="ico">
-        <svg viewBox="0 0 44 44" width="44" height="44" aria-hidden="true"><path d="M22 10c-4-3-10-4-15-2v28c5-2 11-1 15 2 4-3 10-4 15-2V8c-5-2-11-1-15 2z" fill="#7cc4ff"/><path d="M22 10v28" stroke="#3a8fd8" stroke-width="2"/><path d="M8 13c3-1 6-1 8-.5M8 23c3-1 6-1 8-.5M28 12.5c2-.5 5-.5 8 .5M28 22.5c2-.5 5-.5 8 .5" stroke="#1f6ea8" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li" aria-hidden="true"><path d="M12 5v16"/><path d="M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
       </span>
       <div class="name">词域远征</div>
       <div class="tag">益智 · 背单词</div>
     </a>
     <!-- 2048（普通游戏，非神秘） -->
-    <a class="card" href="2048/index.html" data-delay=".66s" data-categories="益智 逻辑" onclick="go(this.href,event)">
+    <a class="card" href="2048/index.html" data-delay=".66s" data-categories="益智 逻辑 上新" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
       <span class="new-badge">NEW</span>
       <span class="ico ico-2048" aria-hidden="true">
@@ -851,9 +892,7 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
       <a class="ext-card ext-code" href="https://Pytvr42373.github.io/c-workshop/" data-delay=".72s" onclick="goDirect(this.href,event)">
         <span class="term-bar" aria-hidden="true"><i class="term-dot r"></i><i class="term-dot y"></i><i class="term-dot g"></i></span>
         <span class="ico" aria-hidden="true">
-          <svg viewBox="0 0 48 48" fill="none">
-            <path d="M13 12 4 24l9 12M35 12l9 12-9 12M28 7 20 41" stroke="#3de1ff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <svg viewBox="0 0 24 24" class="li" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/></svg>
         </span>
         <div class="name">C 语言交互实验室<span class="cursor"></span></div>
         <div class="desc">从 Python 到 C，看见内存</div>
@@ -862,12 +901,7 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
       <!-- 入口B · 涂鸦游戏（手绘/自由风格 · 待接入占位） -->
       <a class="ext-card ext-doodle" href="tusha/index.html" data-delay=".78s" onclick="goDirect(this.href,event)">
         <span class="ico" aria-hidden="true">
-          <svg viewBox="0 0 64 64">
-            <path d="M32 8l7.2 14.6 16.1 2.3-11.6 11.3 2.7 16L32 44.6 17.6 52.2l2.7-16L8.7 24.9l16.1-2.3z" fill="#ffe14d" stroke="#fb6400" stroke-width="3" stroke-linejoin="round"/>
-            <path d="M32 8l7.2 14.6 16.1 2.3-11.6 11.3 2.7 16L32 44.6 17.6 52.2l2.7-16L8.7 24.9l16.1-2.3z" fill="none" stroke="#fb6400" stroke-width="1.5" stroke-dasharray="3 4" stroke-linejoin="round"/>
-            <path d="M54 6l1.5 3.2 3.2 1.5-3.2 1.5-1.5 3.2-1.5-3.2-3.2-1.5 3.2-1.5z" fill="#ff2d78"/>
-            <path d="M8 52c6-3 10 2 16-1s9 3 15 0" fill="none" stroke="#389904" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="2 5"/>
-          </svg>
+          <svg viewBox="0 0 24 24" class="li" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m11 10 3 3"/><path d="M6.5 21A3.5 3.5 0 1 0 3 17.5a2.62 2.62 0 0 1-.708 1.792A1 1 0 0 0 3 21z"/><path d="M9.969 17.031 21.378 5.624a1 1 0 0 0-3.002-3.002L6.967 14.031"/></svg>
         </span>
         <div class="name">涂鸦游戏</div>
         <div class="tag">涂鸦 · 自由创作</div>
