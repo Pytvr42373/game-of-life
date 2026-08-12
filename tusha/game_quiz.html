@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>知识闯关 · 涂色游乐园</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+<script src="quiz-data.js"></script>
+<style>
+  :root{
+    --paper:#fbf6ea; --ink:#2e2a26; --ink-soft:#6b6257;
+    --red:#e6503f; --blue:#3d6fb4; --yellow:#f2b73c; --green:#4f9d69; --purple:#8a6bb1;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:var(--paper);color:var(--ink);
+    overflow-x:hidden;min-height:100vh;position:relative;}
+  .paper{position:fixed;inset:0;z-index:-2;background:
+    radial-gradient(1200px 600px at 85% -10%,rgba(242,183,60,.16),transparent 60%),
+    radial-gradient(900px 500px at -10% 110%,rgba(61,111,180,.1),transparent 60%),
+    var(--paper);}
+  .paper::before{content:'';position:absolute;inset:0;
+    background-image:linear-gradient(rgba(120,110,95,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(120,110,95,.05) 1px,transparent 1px);
+    background-size:26px 26px;}
+  .paper::after{content:'';position:absolute;inset:0;opacity:.5;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 5vw;position:relative;z-index:3;}
+  .back{display:flex;align-items:center;gap:8px;font-family:'ZCOOL KuaiLe',cursive;font-size:18px;color:#fff;
+    background:var(--ink);border:2.5px solid var(--ink);border-radius:14px 22px 16px 20px;padding:8px 16px;
+    cursor:pointer;filter:url(#crayon-light);box-shadow:0 4px 0 rgba(46,42,38,.25);transition:transform .15s;}
+  .back:hover{transform:translateY(-2px);}
+  .brand{font-family:'Permanent Marker',cursive;font-size:20px;color:var(--ink);}
+  .brand em{font-style:normal;color:var(--red);}
+
+  .hero{text-align:center;padding:6px 6vw 10px;position:relative;z-index:2;}
+  .hero h1{font-family:'ZCOOL KuaiLe',cursive;font-size:clamp(34px,6vw,52px);font-weight:400;color:var(--ink);
+    filter:url(#crayon);text-shadow:1.5px 1.5px 0 rgba(46,42,38,.12),-1px 2px 0 rgba(255,255,255,.5);}
+  .swiggle{width:150px;height:12px;margin:4px auto 0;}
+  .swiggle svg{width:100%;height:100%;display:block;filter:url(#crayon-light);}
+
+  .stage{max-width:620px;margin:14px auto 40px;padding:0 5vw;position:relative;z-index:2;}
+
+  /* 状态栏：进度 + 总分 + 难度阶段 */
+  .statusbar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:14px;
+    font-family:'ZCOOL KuaiLe',cursive;font-size:17px;color:var(--ink);}
+  .statusbar .chip{background:rgba(255,255,255,.65);border:1.5px dashed rgba(46,42,38,.32);
+    border-radius:20px;padding:4px 13px;font-size:15px;color:var(--ink-soft);}
+  .statusbar .chip b{color:var(--ink);font-family:'Permanent Marker',cursive;font-size:18px;margin:0 2px;}
+  .statusbar .lvchip{display:inline-flex;align-items:center;gap:6px;}
+
+  /* 进度条（手绘） */
+  .progresswrap{margin:2px 0 16px;}
+  .progtrack{position:relative;height:22px;background:rgba(255,255,255,.7);border:2.5px solid var(--ink);
+    border-radius:14px 18px 16px 16px;filter:url(#crayon-light);overflow:hidden;}
+  .progfill{height:100%;width:0%;background:linear-gradient(90deg,var(--yellow),var(--green));
+    border-right:2px solid rgba(46,42,38,.3);transition:width .5s;}
+  .progtrack .progtext{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-family:'ZCOOL KuaiLe',cursive;font-size:13px;color:var(--ink);text-shadow:0 1px 0 rgba(255,255,255,.7);}
+
+  /* 难度阶段点 */
+  .lvsteps{display:flex;gap:8px;margin-top:10px;}
+  .lvstep{flex:1;text-align:center;font-family:'ZCOOL KuaiLe',cursive;font-size:14px;color:var(--ink-soft);
+    padding:7px 4px;border:2px solid rgba(46,42,38,.22);border-radius:14px 18px 15px 17px;background:rgba(255,255,255,.5);
+    position:relative;transition:all .25s;}
+  .lvstep.done{background:var(--green);color:#fff;border-color:var(--ink);}
+  .lvstep.cur{background:var(--yellow);color:var(--ink);border-color:var(--ink);transform:translateY(-3px) rotate(-1deg);
+    box-shadow:0 4px 0 rgba(46,42,38,.2);}
+  .lvstep.lock{opacity:.45;}
+
+  /* 题目卡片 */
+  .qcard{position:relative;background:rgba(255,255,255,.78);border:2.5px solid var(--ink);
+    border-radius:20px 30px 24px 28px;padding:26px 22px 20px;margin-top:8px;
+    box-shadow:0 6px 0 rgba(46,42,38,.1);filter:url(#crayon-light);}
+  .qcard .tape{position:absolute;top:-13px;left:50%;transform:translateX(-50%) rotate(-2deg);
+    width:110px;height:26px;background:rgba(242,183,60,.55);border:1.5px dashed rgba(46,42,38,.35);
+    border-radius:4px;backdrop-filter:blur(1px);}
+  .qcard .pin{position:absolute;top:12px;right:16px;width:20px;height:20px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#f7a39a,#e6503f);border:2px solid var(--ink);
+    box-shadow:0 3px 0 rgba(46,42,38,.2);}
+  .qmeta{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+  .tag{font-family:'ZCOOL KuaiLe',cursive;font-size:14px;color:#fff;padding:3px 12px;border-radius:12px 16px 13px 15px;
+    border:2px solid var(--ink);filter:url(#crayon-light);}
+  .tag.easy{background:var(--green);} .tag.mid{background:var(--blue);}
+  .tag.hard{background:var(--purple);} .tag.veryhard{background:var(--red);}
+  .qmeta .pt{font-family:'Permanent Marker',cursive;font-size:17px;color:var(--ink-soft);}
+  .qtext{font-size:18px;line-height:1.75;color:var(--ink);}
+
+  /* 选项按钮 */
+  .opts{display:flex;flex-direction:column;gap:12px;margin-top:20px;}
+  .opt{position:relative;display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+    font-family:'PingFang SC','Microsoft YaHei',sans-serif;font-size:16px;line-height:1.5;color:var(--ink);
+    background:#fff;border:2.5px solid var(--ink);border-radius:16px 22px 18px 20px;padding:13px 16px;
+    cursor:pointer;box-shadow:0 4px 0 rgba(46,42,38,.18);transition:transform .12s,background .2s;filter:url(#crayon-light);}
+  .opt:hover{transform:translateY(-2px);}
+  .opt .key{flex-shrink:0;width:34px;height:34px;border-radius:11px 15px 12px 14px;border:2.5px solid var(--ink);
+    display:flex;align-items:center;justify-content:center;font-family:'Permanent Marker',cursive;font-size:17px;color:#fff;}
+  .opt.k0 .key{background:var(--red);} .opt.k1 .key{background:var(--blue);}
+  .opt.k2 .key{background:var(--yellow);color:var(--ink);} .opt.k3 .key{background:var(--green);}
+  .opt:disabled{cursor:default;}
+  .opt.correct{background:#e7f4ea;transform:translateY(-1px);box-shadow:0 4px 0 rgba(46,42,38,.18);}
+  .opt.correct .key{background:var(--green);}
+  .opt.wrong{background:#fbe4e1;box-shadow:0 2px 0 rgba(46,42,38,.18);transform:translateY(1px);}
+  .opt.wrong .key{background:var(--red);}
+  .opt.dim{opacity:.5;}
+
+  /* 反馈 / 解析 */
+  .feedback{margin-top:16px;border:2.5px dashed var(--ink);border-radius:16px 24px 18px 22px;
+    padding:16px 18px;background:rgba(255,255,255,.7);display:none;}
+  .feedback.show{display:block;animation:fadein .3s;}
+  @keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+  .fb-title{font-family:'ZCOOL KuaiLe',cursive;font-size:20px;margin-bottom:8px;}
+  .fb-title.ok{color:var(--green);} .fb-title.no{color:var(--red);}
+  .fb-explain{font-size:15px;line-height:1.7;color:var(--ink);}
+  .fb-explain b{color:var(--blue);}
+
+  .toolrow{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  .tool{font-family:'ZCOOL KuaiLe',cursive;font-size:17px;color:#fff;background:var(--blue);
+    border:2.5px solid var(--ink);border-radius:14px 20px 16px 18px;padding:10px 22px;cursor:pointer;
+    filter:url(#crayon-light);box-shadow:0 4px 0 rgba(46,42,38,.2);transition:transform .15s;}
+  .tool:hover{transform:translateY(-2px);}
+  .tool:disabled{opacity:.45;cursor:default;transform:none;}
+  .tool.ghost{background:var(--ink-soft);}
+
+  /* 完成结算 */
+  .winmodal{position:fixed;inset:0;z-index:10;display:none;place-items:center;background:rgba(46,42,38,.5);padding:0 5vw;}
+  .winmodal.show{display:grid;}
+  .winbox{background:var(--paper);border:3px solid var(--ink);border-radius:26px 36px 28px 32px;
+    padding:34px 30px;text-align:center;box-shadow:0 10px 0 rgba(46,42,38,.2);transform:rotate(-1deg);
+    max-width:94%;width:380px;position:relative;}
+  .winbox .tape{position:absolute;top:-13px;left:50%;transform:translateX(-50%) rotate(1deg);
+    width:120px;height:26px;background:rgba(242,183,60,.6);border:1.5px dashed rgba(46,42,38,.35);border-radius:4px;}
+  .winbox h2{font-family:'ZCOOL KuaiLe',cursive;font-size:32px;color:var(--ink);filter:url(#crayon);}
+  .winbox .emoji{font-size:44px;margin:8px 0 2px;}
+  .winbox p{margin:10px 0 4px;font-size:17px;color:var(--ink);}
+  .winbox .scorebig{font-family:'Permanent Marker',cursive;font-size:54px;color:var(--red);
+    text-shadow:1.5px 1.5px 0 rgba(46,42,38,.15);margin:6px 0;}
+  .winbox .sub{color:var(--ink-soft);font-size:14px;line-height:1.7;}
+  .winbox .sub b{color:var(--ink);}
+  .winbox .btns{display:flex;gap:12px;justify-content:center;margin-top:20px;}
+
+  @media(max-width:480px){
+    .qtext{font-size:16px;}
+    .opt{font-size:15px;padding:12px 13px;}
+    .statusbar{font-size:15px;}
+    .winbox{width:100%;}
+  }
+</style>
+</head>
+<body>
+  <div class="paper"></div>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <filter id="crayon" x="-8%" y="-8%" width="116%" height="116%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.08 0.6" numOctaves="3" seed="3" stitchTiles="stitch" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+      <filter id="crayon-light" x="-4%" y="-4%" width="108%" height="108%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.12 0.7" numOctaves="2" seed="5" stitchTiles="stitch" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.5" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+    </defs>
+  </svg>
+
+  <header class="topbar">
+    <div class="back" onclick="location.href='index.html'">← 返回</div>
+    <div class="brand">Doodle <em>Lab</em></div>
+  </header>
+
+  <section class="hero">
+    <h1>知识闯关</h1>
+    <div class="swiggle"><svg viewBox="0 0 150 12"><path d="M3 6 C 20 2, 32 9, 50 6 C 68 3, 84 9, 102 6 C 120 3, 132 9, 147 6" fill="none" stroke="#3d6fb4" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+  </section>
+
+  <main class="stage">
+    <div class="statusbar">
+      <span class="lvchip">难度 · <b id="stageName">简单</b></span>
+      <span class="chip">第 <b id="qNum">1</b> / <b id="qTotal">30</b> 题</span>
+      <span class="chip">总分 <b id="scoreNum">0</b></span>
+    </div>
+
+    <div class="progresswrap">
+      <div class="progtrack">
+        <div class="progfill" id="progFill"></div>
+        <div class="progtext" id="progText">0 / 30</div>
+      </div>
+      <div class="lvsteps" id="lvSteps"></div>
+    </div>
+
+    <div class="qcard">
+      <div class="tape"></div>
+      <div class="pin"></div>
+      <div class="qmeta">
+        <span class="tag" id="qTag">简单</span>
+        <span class="pt" id="qPt">+1 分</span>
+      </div>
+      <div class="qtext" id="qText">题目文本</div>
+      <div class="opts" id="opts"></div>
+
+      <div class="feedback" id="fb">
+        <div class="fb-title" id="fbTitle">✓ 答对了！</div>
+        <div class="fb-explain" id="fbExplain">解析……</div>
+      </div>
+
+      <div class="toolrow">
+        <button class="tool" id="nextBtn" style="display:none">下一题 →</button>
+        <button class="tool ghost" id="retryBtn" style="display:none">↻ 再试一次</button>
+      </div>
+    </div>
+  </main>
+
+  <div class="winmodal" id="winModal">
+    <div class="winbox">
+      <div class="tape"></div>
+      <div class="emoji">🎉</div>
+      <h2>闯关完成！</h2>
+      <div class="scorebig" id="finalScore">0</div>
+      <p>最终总分</p>
+      <div class="sub" id="finalSub">全部 30 题作答完成</div>
+      <div class="btns">
+        <button class="tool" onclick="location.href='index.html'">返回主页</button>
+        <button class="tool ghost" onclick="restartAll()">↻ 重新挑战</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ===== 难度阶段配置 =====
+  const STAGES = [
+    {name:'简单', score:1, cls:'easy'},
+    {name:'中等', score:2, cls:'mid'},
+    {name:'难',   score:3, cls:'hard'},
+    {name:'很难', score:4, cls:'veryhard'}
+  ];
+  const TOTAL = QUIZ_DATA.length;
+
+  let order = [];       // 打乱后的题目顺序（QUIZ_DATA 的索引）
+  let idx = 0;          // 当前题号（指向 order）
+  let score = 0;
+  let answered = false; // 本题是否已作答（用于锁定）
+  let curAnswer = 0;    // 本题选项打乱后，正确选项所在的新索引
+
+  // 每道题按难度匹配分
+  function pointsOf(q){ const s=STAGES.find(x=>x.name===q.level); return s?s.score:1; }
+
+  // Fisher-Yates 洗牌
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]]=[a[j],a[i]];
+    }
+    return a;
+  }
+
+  // 打乱 30 题顺序，混合所有难度随机出题（不在按难度分阶段）
+  function buildOrder(){
+    order = shuffle(Array.from({length:TOTAL},(_,i)=>i));
+    idx = 0;
+  }
+
+  function render(){
+    const q = QUIZ_DATA[order[idx]];
+    const st = STAGES.findIndex(s=>s.name===q.level);
+    const stage = STAGES[st];
+
+    document.getElementById('stageName').textContent = stage.name;
+    document.getElementById('qNum').textContent = idx+1;
+    document.getElementById('qTotal').textContent = TOTAL;
+    document.getElementById('scoreNum').textContent = score;
+
+    // 进度
+    const pct = (idx/TOTAL*100);
+    document.getElementById('progFill').style.width = pct+'%';
+    document.getElementById('progText').textContent = idx+' / '+TOTAL;
+
+    // 难度图例（当前题难度高亮，不再按顺序分阶段）
+    const steps = document.getElementById('lvSteps');
+    steps.innerHTML='';
+    STAGES.forEach((s,i)=>{
+      const d=document.createElement('div');
+      d.className='lvstep'+(i===st?' cur':'');
+      d.textContent = s.name;
+      steps.appendChild(d);
+    });
+
+    // 题目
+    const qtag = document.getElementById('qTag');
+    qtag.className='tag '+stage.cls;
+    qtag.textContent = q.level;
+    document.getElementById('qPt').textContent = '+'+stage.score+' 分';
+    document.getElementById('qText').textContent = q.question;
+
+    // 选项：每次渲染都随机打乱 4 个选项，正确项位置也随机（不固定在第一项）
+    const optsEl = document.getElementById('opts');
+    optsEl.innerHTML='';
+    const keys=['A','B','C','D'];
+    const shuffledOpts = shuffle(q.options.map((text,orig)=>({text,orig})));
+    curAnswer = shuffledOpts.findIndex(o=>o.orig===q.answer);
+    shuffledOpts.forEach((o,oi)=>{
+      const b=document.createElement('button');
+      b.className='opt k'+oi;
+      b.innerHTML='<span class="key">'+keys[oi]+'</span><span>'+o.text+'</span>';
+      b.onclick=()=>answer(oi);
+      optsEl.appendChild(b);
+    });
+
+    // 重置反馈
+    answered=false;
+    const fb=document.getElementById('fb');
+    fb.classList.remove('show');
+    document.getElementById('nextBtn').style.display='none';
+    document.getElementById('retryBtn').style.display='none';
+  }
+
+  function answer(oi){
+    if(answered) return;
+    const q = QUIZ_DATA[order[idx]];
+    const st = STAGES.findIndex(s=>s.name===q.level);
+    const stage = STAGES[st];
+    const opts=document.getElementById('opts').children;
+
+    if(oi===curAnswer){
+      // 答对
+      answered=true;
+      opts[oi].classList.add('correct');
+      opts[oi].classList.remove('dim');
+      for(let i=0;i<opts.length;i++) if(i!==oi) opts[i].classList.add('dim');
+      score += stage.score;
+      document.getElementById('scoreNum').textContent = score;
+      const fb=document.getElementById('fb');
+      fb.querySelector('.fb-title').className='fb-title ok';
+      fb.querySelector('.fb-title').textContent='✓ 答对了！+'+stage.score+' 分';
+      fb.querySelector('.fb-explain').innerHTML='<b>解析：</b>'+q.explain;
+      fb.classList.add('show');
+      document.getElementById('nextBtn').style.display='inline-block';
+      if(idx>=TOTAL-1) document.getElementById('nextBtn').textContent='完成 🎉';
+    }else{
+      // 答错：显示解析，可重试
+      opts[oi].classList.add('wrong');
+      document.getElementById('retryBtn').style.display='inline-block';
+      const fb=document.getElementById('fb');
+      fb.querySelector('.fb-title').className='fb-title no';
+      fb.querySelector('.fb-title').textContent='✗ 答错了，再看看解析～';
+      fb.querySelector('.fb-explain').innerHTML='<b>解析：</b>'+q.explain;
+      fb.classList.add('show');
+    }
+  }
+
+  function retry(){
+    // 重试：清空本题目反馈与选项状态，但保留已答错误的标记
+    const opts=document.getElementById('opts').children;
+    for(let i=0;i<opts.length;i++){ opts[i].classList.remove('wrong','dim'); }
+    const fb=document.getElementById('fb');
+    fb.classList.remove('show');
+    document.getElementById('retryBtn').style.display='none';
+    answered=false;
+  }
+
+  function next(){
+    if(idx<TOTAL-1){
+      idx++;
+      render();
+    }else{
+      // 完成结算
+      document.getElementById('finalScore').textContent=score;
+      document.getElementById('finalSub').innerHTML='全部 <b>'+TOTAL+'</b> 题作答完成<br>满分 <b>'+MAX_SCORE()+'</b> 分';
+      document.getElementById('winModal').classList.add('show');
+    }
+  }
+
+  function MAX_SCORE(){
+    let s=0;
+    QUIZ_DATA.forEach(q=>{ s+=pointsOf(q); });
+    return s;
+  }
+
+  function restartAll(){
+    document.getElementById('winModal').classList.remove('show');
+    buildOrder(); score=0; render();
+    document.getElementById('scoreNum').textContent=0;
+  }
+
+  document.getElementById('nextBtn').onclick=next;
+  document.getElementById('retryBtn').onclick=retry;
+
+  buildOrder();
+  render();
+</script>
+</body>
+</html>
