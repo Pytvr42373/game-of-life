@@ -253,11 +253,12 @@ body[data-theme="arcade"] .vmodal-ver{background:var(--green);font-family:'Press
 .vmodal-log b{color:var(--orange);font-weight:800}
 body[data-theme="arcade"] .vmodal-log li{color:var(--text);border-bottom:1px dashed var(--line)}
 body[data-theme="arcade"] .vmodal-log b{color:var(--pink)}
-/* 好奇心：放大 + 异色 + 剧烈左右摇摆 + 上下抖动 */
-.vmodal-log .vw-hh{display:inline-block;font-size:1.45em;font-weight:900;color:#ff4d6d;
-  text-shadow:0 0 8px rgba(255,77,109,.8),0 0 20px rgba(255,0,80,.5);
+/* 好奇心：放大 + 异色 + 剧烈左右摇摆 + 上下抖动（双主题配色） */
+.vmodal-log .vw-hh{display:inline-block;font-size:1.45em;font-weight:900;color:#e14d3a;
+  text-shadow:0 0 8px rgba(225,77,58,.6),0 0 20px rgba(200,90,40,.4);
   animation:vw-hh .55s ease-in-out infinite}
-body[data-theme="arcade"] .vmodal-log .vw-hh{font-family:'Press Start 2P',monospace;font-size:1.3em}
+body[data-theme="arcade"] .vmodal-log .vw-hh{color:#ff2d78;font-family:'Press Start 2P',monospace;font-size:1.3em;
+  text-shadow:0 0 8px rgba(255,45,120,.8),0 0 22px rgba(255,45,120,.5)}
 @keyframes vw-hh{
   0%,100%{transform:translate(0,0) rotate(0)}
   20%{transform:translate(-5px,-2px) rotate(-6deg)}
@@ -265,10 +266,12 @@ body[data-theme="arcade"] .vmodal-log .vw-hh{font-family:'Press Start 2P',monosp
   60%{transform:translate(-4px,-1px) rotate(-5deg)}
   80%{transform:translate(5px,2px) rotate(6deg)}
 }
-/* 侵蚀：异色 + 上下抖动 */
-.vmodal-log .vw-qs{display:inline-block;font-weight:900;color:#7ff3ff;
-  text-shadow:0 0 8px rgba(127,243,255,.85),0 0 20px rgba(61,225,255,.6);
-  animation:vw-qs .5s ease-in-out infinite}
+/* 侵蚀（标题内）：异色 + 上下抖动（双主题配色，适配大字号） */
+.vmodal-title .vw-qs{display:inline-block;font-weight:900;color:#0e8a8f;
+  text-shadow:0 0 8px rgba(14,138,143,.5),0 0 20px rgba(14,138,143,.35);
+  animation:vw-qs .5s ease-in-out infinite;margin:0 .05em}
+body[data-theme="arcade"] .vmodal-title .vw-qs{color:#3de1ff;font-family:'Press Start 2P',monospace;
+  text-shadow:0 0 10px rgba(61,225,255,.8),0 0 26px rgba(61,225,255,.5)}
 @keyframes vw-qs{
   0%,100%{transform:translateY(0)}
   50%{transform:translateY(-4px)}
@@ -504,14 +507,10 @@ body[data-theme="arcade"] .portal-ask-btn{font-family:'Press Start 2P',monospace
 <div class="vmodal" id="vmodal" role="dialog" aria-modal="true" aria-labelledby="vmodalTitle" aria-hidden="true" inert>
   <div class="vmodal-box">
     <button type="button" class="vmodal-close" id="vmodalClose" aria-label="关闭">&#10005;</button>
-    <div class="vmodal-title" id="vmodalTitle">🌸 在你不在的时候，我们偷偷加了这些</div>
+    <div class="vmodal-title" id="vmodalTitle">洞口<span class="vw-qs">侵蚀</span>了我们的游戏</div>
     <div class="vmodal-ver">v2.6.0</div>
     <ul class="vmodal-log">
       <li><b>神秘</b> 内有神秘洞口，管住你的<span class="vw-hh">好奇心</span></li>
-      <li><b>过场动画</b> 洞口<span class="vw-qs">侵蚀</span>了我们的游戏</li>
-      <li><b>门禁</b> 开发者认证答题门禁 · LED质感</li>
-      <li><b>中文化</b> 街机按钮与规则全面中文化</li>
-      <li><b>优化</b> 主题切换统一、动画与体验</li>
     </ul>
     <div class="vmodal-cta">小心，别被洞口卷进去 😈</div>
     <button type="button" class="vmodal-btn" id="vmodalOk">我偏要进去 🌀</button>
