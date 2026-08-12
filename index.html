@@ -132,6 +132,19 @@ body[data-theme="arcade"] .transition .t-text{--go-font:'Press Start 2P',monospa
 .transition.t-flash .t-bg2{background:var(--go-text);animation:tFlash .55s ease forwards}
 @keyframes tFlash{0%{opacity:.3}100%{opacity:0}}
 
+/* 认游戏：展示即将进入的游戏 icon + 名字 */
+.transition .t-game{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;gap:16px;margin-bottom:6px}
+.transition .t-game-ico{width:96px;height:96px;display:flex;align-items:center;justify-content:center;font-size:76px;line-height:1;
+  animation:tGameIco .4s cubic-bezier(.2,.8,.3,1.2) both}
+.transition .t-game-ico img,.transition .t-game-ico svg{width:88px;height:88px}
+.transition .t-game-ico .ico,.transition .t-game-ico .ico-2048,.transition .t-game-ico .ico-1a2b{display:flex;align-items:center;justify-content:center;margin:0;font-size:76px;line-height:1}
+.transition .t-game-name{font-size:clamp(16px,4.5vw,28px);font-weight:900;letter-spacing:2px;color:var(--go-text);
+  animation:tGameName .4s ease .05s both}
+@keyframes tGameIco{0%{opacity:0;transform:scale(.4) rotate(-12deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+@keyframes tGameName{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
+body[data-theme="arcade"] .transition .t-game-name{font-family:'Press Start 2P',monospace;font-size:clamp(12px,3vw,20px);text-shadow:3px 3px 0 var(--hard),0 0 20px currentColor}
+body[data-theme="arcade"] .transition .t-game-ico svg{filter:drop-shadow(0 0 14px rgba(61,225,255,.6))}
+
 /* ============ 尊重 reduce-motion：关闭动画 ============ */
 @media (prefers-reduced-motion: reduce){
   body,.splash,.splash *,.transition,.transition *,.loader,.loader *,.vmodal,.vmodal *,.harcade .coin-btn,body[data-theme="arcade"] .hint b,.theme-switch{animation:none!important;transition:none!important}
@@ -634,6 +647,10 @@ body[data-theme="arcade"] .portal-ask-btn{font-family:'Press Start 2P',monospace
 <div class="transition" id="transition" aria-hidden="true">
   <div class="t-bg"></div>
   <div class="t-bg2"></div>
+  <div class="t-game" id="tGame">
+    <div class="t-game-ico" id="tGameIco"></div>
+    <div class="t-game-name" id="tGameName"></div>
+  </div>
   <div class="t-text"></div>
 </div>
 
@@ -804,10 +821,18 @@ function go(url,ev){
   if(ev&&ev.preventDefault)ev.preventDefault();
   try{ sessionStorage.setItem('skipSplash','1'); }catch(e){}
   if(reduced){ location.href=url; return; }
+  const card=ev&&ev.currentTarget;
   const t=document.getElementById('transition');
+  const ico=t.querySelector('#tGameIco'), nm=t.querySelector('#tGameName');
+  if(card){
+    const cico=card.querySelector('.ico');
+    if(cico) ico.innerHTML=cico.innerHTML;
+    const cn=card.querySelector('.name');
+    if(cn) nm.textContent=cn.textContent;
+  }
   t.querySelector('.t-text').textContent=goTexts[Math.floor(Math.random()*goTexts.length)];
   t.className='transition on '+tClasses[Math.floor(Math.random()*tClasses.length)];
-  setTimeout(()=>{location.href=url;},500);
+  setTimeout(()=>{location.href=url;},400);
 }
 
 const cards=document.querySelectorAll('.card');
