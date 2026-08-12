@@ -131,9 +131,9 @@
     font-family:'ZCOOL KuaiLe',cursive;font-size:25px;color:#fff;background:var(--red);
     border:2.5px solid var(--ink);border-radius:50%;transform:rotate(12deg);
     filter:url(#crayon-light);box-shadow:0 3px 0 rgba(46,42,38,.25);}
-  /* 知识闯关：灯泡 hover 逐渐变亮 */
-  .game.quiz .bulb{transition:fill .5s ease, filter .5s ease;}
-  .game.quiz:hover .bulb{fill:rgba(255,226,138,.94);filter:drop-shadow(0 0 14px rgba(255,205,90,.75));}
+  /* 知识闯关：灯泡 hover 逐渐变亮（fill 由 CSS 控制，避免内联属性压住过渡） */
+  .game.quiz .bulb{fill:rgba(242,183,60,.38);transition:fill .6s ease, filter .6s ease;}
+  .game.quiz:hover .bulb{fill:rgba(255,242,188,1);filter:drop-shadow(0 0 8px rgba(255,214,102,.95)) drop-shadow(0 0 26px rgba(255,234,168,.65));}
   /* 背景颜料晕染色块（低透明度 · 缓慢流动） */
   .blob{position:fixed;border-radius:50%;filter:blur(46px);opacity:.3;z-index:0;pointer-events:none;animation:blobFlow 15s ease-in-out infinite;}
   .blob.b1{width:300px;height:300px;background:radial-gradient(circle,rgba(230,80,63,.5),transparent 70%);top:6%;left:-70px;}
