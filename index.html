@@ -253,6 +253,26 @@ body[data-theme="arcade"] .vmodal-ver{background:var(--green);font-family:'Press
 .vmodal-log b{color:var(--orange);font-weight:800}
 body[data-theme="arcade"] .vmodal-log li{color:var(--text);border-bottom:1px dashed var(--line)}
 body[data-theme="arcade"] .vmodal-log b{color:var(--pink)}
+/* 好奇心：放大 + 异色 + 剧烈左右摇摆 + 上下抖动 */
+.vmodal-log .vw-hh{display:inline-block;font-size:1.45em;font-weight:900;color:#ff4d6d;
+  text-shadow:0 0 8px rgba(255,77,109,.8),0 0 20px rgba(255,0,80,.5);
+  animation:vw-hh .55s ease-in-out infinite}
+body[data-theme="arcade"] .vmodal-log .vw-hh{font-family:'Press Start 2P',monospace;font-size:1.3em}
+@keyframes vw-hh{
+  0%,100%{transform:translate(0,0) rotate(0)}
+  20%{transform:translate(-5px,-2px) rotate(-6deg)}
+  40%{transform:translate(4px,2px) rotate(5deg)}
+  60%{transform:translate(-4px,-1px) rotate(-5deg)}
+  80%{transform:translate(5px,2px) rotate(6deg)}
+}
+/* 侵蚀：异色 + 上下抖动 */
+.vmodal-log .vw-qs{display:inline-block;font-weight:900;color:#7ff3ff;
+  text-shadow:0 0 8px rgba(127,243,255,.85),0 0 20px rgba(61,225,255,.6);
+  animation:vw-qs .5s ease-in-out infinite}
+@keyframes vw-qs{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-4px)}
+}
 .vmodal-cta{font-size:13px;color:var(--dim);margin-bottom:16px}
 .vmodal-btn{font-weight:700;font-size:15px;padding:10px 28px;border-radius:10px;cursor:pointer;transition:.18s;
   background:linear-gradient(135deg,var(--green),var(--green2,var(--green)));border:2px solid var(--green2,var(--green));color:#fff}
@@ -485,17 +505,16 @@ body[data-theme="arcade"] .portal-ask-btn{font-family:'Press Start 2P',monospace
   <div class="vmodal-box">
     <button type="button" class="vmodal-close" id="vmodalClose" aria-label="关闭">&#10005;</button>
     <div class="vmodal-title" id="vmodalTitle">🌸 在你不在的时候，我们偷偷加了这些</div>
-    <div class="vmodal-ver">v2.5.0</div>
+    <div class="vmodal-ver">v2.6.0</div>
     <ul class="vmodal-log">
-      <li><b>新游戏</b> 2048 · 合并数字冲击高分</li>
-      <li><b>神秘</b> 新增"神秘"分区与隐藏入口 🌀</li>
-      <li><b>入口</b> 神秘的传送门，通往未知之地</li>
-      <li><b>门禁</b> 开发者认证答题门禁</li>
+      <li><b>神秘</b> 内有神秘洞口，管住你的<span class="vw-hh">好奇心</span></li>
+      <li><b>过场动画</b> 洞口<span class="vw-qs">侵蚀</span>了我们的游戏</li>
+      <li><b>门禁</b> 开发者认证答题门禁 · LED质感</li>
       <li><b>中文化</b> 街机按钮与规则全面中文化</li>
       <li><b>优化</b> 主题切换统一、动画与体验</li>
     </ul>
-    <div class="vmodal-cta">偷偷藏了好多，快来找找看 😄</div>
-    <button type="button" class="vmodal-btn" id="vmodalOk">给你一朵小花花 🌸</button>
+    <div class="vmodal-cta">小心，别被洞口卷进去 😈</div>
+    <button type="button" class="vmodal-btn" id="vmodalOk">我偏要进去 🌀</button>
   </div>
 </div>
 
