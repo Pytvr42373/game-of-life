@@ -1238,6 +1238,64 @@ function portalStopDanger(){
     if(portalAudio){ setTimeout(function(){ try{portalAudio.close();}catch(e){} portalAudio=null; portalDroneOsc=null; portalDroneGain=null; },500); }
   }catch(e){ portalAudio=null; }
 }
+/* ===== 打字机音效（Web Audio 合成短促嗒嗒声） ===== */
+var typeAudio=null;
+function typeTick(){
+  try{
+    var AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC) return;
+    if(!typeAudio) typeAudio=new AC();
+    var ctx=typeAudio;
+    var t=ctx.currentTime;
+    // 短促高频嗒嗒声
+    var o=ctx.createOscillator(); o.type='square'; o.frequency.value=2200+Math.random()*400;
+    var g=ctx.createGain();
+    g.gain.setValueAtTime(0.05,t);
+    g.gain.exponentialRampToValueAtTime(0.001,t+0.05);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(t); o.stop(t+0.06);
+  }catch(e){}
+}
+function typeLine(el, html, onDone, typeSpeed){
+  if(!el){ if(onDone) onDone(); return; }
+  var speed=typeSpeed||95;
+  el.classList.add('show');
+  el.innerHTML='';
+  var tmp=document.createElement('div'); tmp.innerHTML=html;
+  // 递归收集 {node, textIdx} 目标结构：每步重建目标节点树，只显示前 n 个字符
+  function rebuild(root, n){
+    var out=document.createDocumentFragment();
+    var used=0;
+    (function walk(node){
+      if(used>=n) return true;
+      if(node.nodeType===3){ // text
+        var txt=node.nodeValue;
+        var take=Math.min(txt.length, n-used);
+        out.appendChild(document.createTextNode(txt.slice(0,take)));
+        used+=take;
+      } else {
+        var clone=node.cloneNode(false);
+        var done=false;
+        Array.prototype.forEach.call(node.childNodes,function(c){ if(!done) done=walk(c); });
+        out.appendChild(clone);
+        if(done) return true;
+      }
+      return used>=n;
+    })(tmp);
+    return {frag:out, used:used};
+  }
+  // 字符总数
+  var total=tmp.textContent.length;
+  var k=0;
+  (function step(){
+    if(k>=total){ if(onDone) onDone(); return; }
+    var r=rebuild(tmp, k+1);
+    el.innerHTML=''; el.appendChild(r.frag);
+    typeTick();
+    k++;
+    setTimeout(step, speed);
+  })();
+}
 function portalKw(html){ return html.replace(/<kw>/g,'<b class="kw-wiz">').replace(/<\/kw>/g,'</b>').replace(/<ev>/g,'<b class="kw-ev">').replace(/<\/ev>/g,'</b>'); }
 function portalBrave(){
   hidePortalAll();
@@ -1251,18 +1309,21 @@ function portalBrave(){
   const l3=document.getElementById('portalLine3');
   [l1,l2,l3].forEach(function(x){ if(x){ x.innerHTML=''; x.classList.remove('show','danger'); } });
   portalPlayDanger();
-  // 第一句：最终句（巫师紫/邪恶红特效）
-  if(l1){ l1.innerHTML=portalKw(PORTAL_FINAL); l1.classList.add('show','danger'); }
-  setTimeout(function(){
-    if(l2){ l2.innerHTML=PORTAL_WARN; l2.classList.add('show'); }
-  },1500);
-  setTimeout(function(){
-    if(l3){ l3.innerHTML=portalKw(PORTAL_LAST); l3.classList.add('show'); }
-  },3000);
-  setTimeout(function(){
-    portalStopDanger();
-    ov.classList.remove('show'); document.body.style.overflow=''; location.href=PORTAL_URL;
-  },4600);
+  // 串行打字机：慢速逐字打出三句
+  typeLine(l1, portalKw(PORTAL_FINAL), function(){
+    setTimeout(function(){
+      typeLine(l2, PORTAL_WARN, function(){
+        setTimeout(function(){
+          typeLine(l3, portalKw(PORTAL_LAST), function(){
+            setTimeout(function(){
+              portalStopDanger();
+              ov.classList.remove('show'); document.body.style.overflow=''; location.href=PORTAL_URL;
+            },1600);
+          }, 130);
+        }, 900);
+      }, 95);
+    }, 700);
+  }, 110);
 }
 document.addEventListener('keydown',function(e){
   if(portalAskShown&&document.getElementById('portalAsk').classList.contains('show')){
