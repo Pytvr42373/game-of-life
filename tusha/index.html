@@ -127,10 +127,28 @@
   .game.board .art .doodle{top:6px;right:14px;transform:rotate(14deg);}
   .game.fourcolor .art .doodle{top:8px;left:14px;transform:rotate(-10deg);}
   /* "荐"推荐徽标 */
-  .rec{position:absolute;top:-12px;right:-8px;z-index:4;width:34px;height:34px;display:grid;place-items:center;
-    font-family:'ZCOOL KuaiLe',cursive;font-size:18px;color:#fff;background:var(--red);
-    border:2px solid var(--ink);border-radius:50%;transform:rotate(12deg);
+  .rec{position:absolute;top:-18px;right:-10px;z-index:4;width:48px;height:48px;display:grid;place-items:center;
+    font-family:'ZCOOL KuaiLe',cursive;font-size:25px;color:#fff;background:var(--red);
+    border:2.5px solid var(--ink);border-radius:50%;transform:rotate(12deg);
     filter:url(#crayon-light);box-shadow:0 3px 0 rgba(46,42,38,.25);}
+  /* 知识闯关：灯泡 hover 逐渐变亮 */
+  .game.quiz .bulb{transition:fill .5s ease, filter .5s ease;}
+  .game.quiz:hover .bulb{fill:rgba(255,226,138,.94);filter:drop-shadow(0 0 14px rgba(255,205,90,.75));}
+  /* 背景颜料晕染色块（低透明度 · 缓慢流动） */
+  .blob{position:fixed;border-radius:50%;filter:blur(46px);opacity:.3;z-index:0;pointer-events:none;animation:blobFlow 15s ease-in-out infinite;}
+  .blob.b1{width:300px;height:300px;background:radial-gradient(circle,rgba(230,80,63,.5),transparent 70%);top:6%;left:-70px;}
+  .blob.b2{width:260px;height:260px;background:radial-gradient(circle,rgba(61,111,180,.5),transparent 70%);top:28%;right:-60px;animation-delay:-5s;}
+  .blob.b3{width:280px;height:280px;background:radial-gradient(circle,rgba(242,183,60,.5),transparent 70%);bottom:4%;left:22%;animation-delay:-9s;}
+  .blob.b4{width:220px;height:220px;background:radial-gradient(circle,rgba(79,157,105,.45),transparent 70%);bottom:18%;right:14%;animation-delay:-12s;}
+  @keyframes blobFlow{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(20px,-16px) scale(1.08)}}
+  /* 手绘工具装饰（蜡笔/尺子/圆规/颜料 · 半透明 · 克制） */
+  .deco{position:fixed;z-index:0;pointer-events:none;opacity:.5;}
+  .deco svg{width:100%;height:100%;display:block;filter:url(#crayon-light);}
+  .deco.crayon{width:76px;height:28px;top:15%;left:3%;--r:-24deg;animation:floaty 7s ease-in-out infinite;}
+  .deco.ruler{width:124px;height:18px;top:24%;right:3%;--r:14deg;animation:floaty 8s ease-in-out infinite -2s;}
+  .deco.compass{width:46px;height:66px;bottom:12%;left:4%;--r:-6deg;animation:floaty 9s ease-in-out infinite -4s;}
+  .deco.paint{width:48px;height:54px;bottom:14%;right:4%;--r:16deg;animation:floaty 7.5s ease-in-out infinite -1s;}
+  @keyframes floaty{0%,100%{transform:translateY(0) rotate(var(--r))}50%{transform:translateY(-9px) rotate(var(--r))}}
 
   /* 信息区：正文用系统黑体，标题/按钮用站酷快乐体 */
   .type{display:inline-block;font-size:13px;letter-spacing:1px;color:#fff;padding:3px 11px;border-radius:20px;
@@ -197,6 +215,23 @@
 </head>
 <body>
   <div class="paper"></div>
+
+  <!-- 背景颜料晕染色块（低透明度 · 流动） -->
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div>
+
+  <!-- 手绘工具装饰：蜡笔 / 尺子 / 圆规 / 颜料 -->
+  <div class="deco crayon" aria-hidden="true">
+    <svg viewBox="0 0 76 28"><rect x="4" y="7" width="56" height="14" rx="3" fill="#e6503f" stroke="#2e2a26" stroke-width="2"/><path d="M60 7 L74 14 L60 21 Z" fill="#f2b73c" stroke="#2e2a26" stroke-width="2" stroke-linejoin="round"/><rect x="16" y="10" width="22" height="8" rx="2" fill="#3d6fb4" opacity=".85"/></svg>
+  </div>
+  <div class="deco ruler" aria-hidden="true">
+    <svg viewBox="0 0 124 18"><rect x="2" y="2" width="120" height="14" rx="2" fill="#f2b73c" stroke="#2e2a26" stroke-width="2"/><g stroke="#2e2a26" stroke-width="1.6" stroke-linecap="round"><line x1="12" y1="3" x2="12" y2="9"/><line x1="26" y1="3" x2="26" y2="9"/><line x1="40" y1="3" x2="40" y2="9"/><line x1="54" y1="3" x2="54" y2="9"/><line x1="68" y1="3" x2="68" y2="9"/><line x1="82" y1="3" x2="82" y2="9"/><line x1="96" y1="3" x2="96" y2="9"/><line x1="110" y1="3" x2="110" y2="9"/></g></svg>
+  </div>
+  <div class="deco compass" aria-hidden="true">
+    <svg viewBox="0 0 46 66"><g stroke="#2e2a26" stroke-width="2.6" stroke-linecap="round" fill="none"><path d="M23 7 L11 58"/><path d="M23 7 L35 58"/></g><circle cx="23" cy="7" r="3.6" fill="#e6503f" stroke="#2e2a26" stroke-width="2"/><path d="M8 60 L15 55 M38 60 L31 55" stroke="#2e2a26" stroke-width="2" stroke-linecap="round"/></svg>
+  </div>
+  <div class="deco paint" aria-hidden="true">
+    <svg viewBox="0 0 48 54"><rect x="9" y="14" width="30" height="30" rx="9" fill="#4f9d69" stroke="#2e2a26" stroke-width="2"/><rect x="16" y="7" width="16" height="10" rx="2" fill="#e6503f" stroke="#2e2a26" stroke-width="2"/><circle cx="24" cy="20" r="4.5" fill="#3d6fb4"/></svg>
+  </div>
 
   <!-- SVG 蜡笔/铅笔粗糙滤镜：feTurbulence 控制颗粒粗细，feDisplacementMap scale 控制边缘撕裂强度 -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
