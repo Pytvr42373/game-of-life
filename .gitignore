@@ -1,6 +1,11 @@
 # 本地调研文档，不入库
 docs/
 
+# 本地 Agent 指令与配置
+[Aa][Gg][Ee][Nn][Tt].md
+[Aa][Gg][Ee][Nn][Tt][Ss].md
+.opencode/
+
 # 系统与编辑器
 .DS_Store
 Thumbs.db
@@ -31,3 +36,10 @@ credentials*
 *.secret
 .git-credentials
 .gh_token
+.netrc
+.npmrc
+.pypirc
+*.jks
+*.keystore
+id_rsa
+id_ed25519
