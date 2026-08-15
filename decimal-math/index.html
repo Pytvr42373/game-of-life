@@ -4,7 +4,33 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <script>try{if(localStorage.getItem('gh-theme')==='arcade')document.documentElement.classList.add('pre-arcade')}catch(e){}</script>
-<style>html{background:#f4f8ef}html.pre-arcade{background:#0b0b18}</style>
+<style>html{background:#f4f8ef}html.pre-arcade{background:#0b0b18}
+/* ===== 多分辨率适配：键盘不挡答案 ===== */
+/* 默认(参考)键盘高约248px；窄屏键高44 → 键盘~228px */
+@media(max-width:360px){
+  .wrap{--kb-h:224px}
+  .kb{--kb-h:224px}
+  .wrap{padding-bottom:calc(var(--kb-h) + 8px)}
+}
+/* 矮屏(高度不足，如横屏/小窗)：压缩键盘与间距，保证答案可见 */
+@media(max-height:640px){
+  .wrap{--kb-h:200px;padding-top:14px}
+  .kb{--kb-h:200px;gap:5px}
+  .kb .key{height:38px;font-size:15px}
+  .qcard{padding:14px 14px 12px}
+  .scoreboard{margin-top:8px}
+}
+@media(max-height:480px){
+  .wrap{--kb-h:176px;padding-top:10px}
+  .kb{--kb-h:176px;gap:4px;padding-top:5px}
+  .kb .key{height:32px;font-size:13px}
+  .qcard{padding:10px 12px 8px}
+  .expr{font-size:clamp(20px,6vw,30px)}
+  .ans-row{margin-top:10px}
+}
+/* 保证答案行始终在键盘上方：wrap 已用 padding-bottom 预留键盘高度，
+   答案输入区(.ans-row)位于 qcard 上部，内容可滚动到键盘上方不被遮挡 */
+</style>
 <title>算数练习 · 二位小数四则</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -105,7 +131,7 @@ body[data-theme="arcade"] .theme-switch{background:rgba(255,255,255,.9);border:1
 .theme-switch:active{transform:scale(.94)}
 
 /* ============ 主容器 ============ */
-.wrap{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:28px 16px 288px;
+.wrap{--kb-h:248px;position:relative;z-index:1;max-width:520px;margin:0 auto;padding:28px 16px calc(var(--kb-h) + 10px);
   display:flex;flex-direction:column;align-items:center;min-height:100vh}
 
 /* ============ Hero 4399 ============ */
@@ -197,16 +223,16 @@ body[data-theme="arcade"] #ansInput:focus{border-color:var(--green);box-shadow:i
 /* 反馈 */
 .fb{min-height:24px;margin-top:14px;font-size:16px;font-weight:800;text-align:center;transition:opacity .2s}
 .fb.ok{color:var(--green)}
-.fb.no{color:var(--orange,#fb6400)}
+.fb.no{color:#e0442f}
 body[data-theme="arcade"] .fb{font-family:'Press Start 2P',monospace;font-size:10px;line-height:1.8}
 body[data-theme="arcade"] .fb.ok{color:var(--green);text-shadow:0 0 8px var(--green)}
-body[data-theme="arcade"] .fb.no{color:var(--pink);text-shadow:0 0 8px var(--pink)}
+body[data-theme="arcade"] .fb.no{color:#ff4d4d;text-shadow:0 0 8px rgba(255,77,77,.7)}
 .fb.pop{animation:popIn .28s ease}
 @keyframes popIn{0%{transform:scale(.7);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
 
 /* ============ 数字键盘 ============ */
-.kb{position:fixed;left:0;right:0;bottom:0;z-index:40;width:100%;padding:8px 12px max(12px, env(safe-area-inset-bottom));
+.kb{--kb-h:248px;position:fixed;left:0;right:0;bottom:0;z-index:40;width:100%;padding:8px 12px max(12px, env(safe-area-inset-bottom));
   display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-width:400px;margin:0 auto}
 body[data-theme="4399"] .kb{background:linear-gradient(180deg,rgba(234,245,222,.94),rgba(255,255,255,.98));
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);box-shadow:0 -6px 24px rgba(47,157,49,.06)}
