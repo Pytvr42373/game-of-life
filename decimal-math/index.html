@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<script>try{if(localStorage.getItem('gh-theme')==='arcade')document.documentElement.classList.add('pre-arcade')}catch(e){}</script>
+<style>html{background:#f4f8ef}html.pre-arcade{background:#0b0b18}</style>
+<title>算数练习 · 二位小数四则</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Bungee&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Bungee&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet"></noscript>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+/* ============ 4399 清新绿主题 ============ */
+body[data-theme="4399"]{
+  --bg:#f4f8ef; --bg2:#ffffff; --surface:#ffffff; --line:#d8e8cd;
+  --text:#24401d; --dim:#6f8a63; --green:#389904; --green2:#448230; --orange:#fb6400; --orange2:#e64e00;
+  --key-bg:#e6efde; --key-text:#24401d; --key-border:#cfe3bf;
+  --overlay:rgba(36,64,29,.42);
+  --shadow-sm:0 2px 8px rgba(56,153,4,.10);
+  --shadow-md:0 6px 20px rgba(56,153,4,.15);
+  --shadow-lg:0 12px 36px rgba(56,153,4,.20);
+  --radius:16px;
+  background:linear-gradient(180deg,#eef6e6 0%,#ffffff 50%,#f5fbef 100%);
+  color:var(--text);
+}
+body[data-theme="4399"]::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.6;
+  background:
+    radial-gradient(circle at 10% 15%, rgba(56,153,4,.10), transparent 35%),
+    radial-gradient(circle at 90% 85%, rgba(251,100,0,.08), transparent 35%),
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,.4), transparent 60%);
+}
+
+/* ============ arcade 街机霓虹主题 ============ */
+body[data-theme="arcade"]{
+  --bg:#0b0b18; --bg2:#14142b; --surface:#191934; --line:#3a3a5c; --hard:#000;
+  --text:#f4f4ff; --dim:#7a7aa0; --green:#00ff9d; --pink:#ff2d78; --cyan:#3de1ff; --yellow:#ffe14d;
+  --key-bg:#24244a; --key-text:#f4f4ff; --key-border:#3a3a5c;
+  --overlay:rgba(0,0,0,.75);
+  --shadow-sm:0 2px 8px rgba(0,0,0,.30);
+  --shadow-md:0 6px 20px rgba(0,0,0,.40);
+  --shadow-lg:0 12px 36px rgba(0,0,0,.50);
+  --radius:16px;
+  background-color:#0b0b18;color:var(--text);
+  background-image:radial-gradient(circle at 50% 0%, #2a2a55 0%, transparent 60%);
+}
+body[data-theme="arcade"]::before{
+  content:'';position:fixed;inset:0;pointer-events:none;opacity:.15;z-index:0;
+  background-image:linear-gradient(#3a3a5c 1px,transparent 1px),linear-gradient(90deg,#3a3a5c 1px,transparent 1px);
+  background-size:26px 26px;
+}
+body[data-theme="arcade"]::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(0deg, rgba(0,0,0,.12) 0 1px, transparent 1px 3px);
+  mix-blend-mode:multiply;opacity:.5;
+}
+
+body{
+  font-family:'PingFang SC','Microsoft YaHei',sans-serif;
+  min-height:100vh;
+  transition:background .4s,color .4s;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* ============ 返回主页 ============ */
+.back-home{
+  position:fixed;top:14px;left:14px;z-index:99;
+  text-decoration:none;font-weight:700;
+  padding:8px 16px;border-radius:999px;cursor:pointer;
+  font-size:13px;font-family:inherit;
+  background:rgba(255,255,255,.65);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1.5px solid var(--line);color:var(--green);
+  box-shadow:var(--shadow-sm);
+  transition:transform .18s,background .18s,border-color .18s,box-shadow .18s;
+}
+.back-home:hover{background:rgba(255,255,255,.9);border-color:var(--green);transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.back-home:active{transform:translateY(0)}
+body[data-theme="arcade"] .back-home{
+  background:rgba(11,11,24,.72);border:2px solid var(--line);color:var(--cyan);
+  font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:1px;
+  box-shadow:3px 3px 0 var(--hard);
+}
+body[data-theme="arcade"] .back-home:hover{border-color:var(--cyan);box-shadow:3px 3px 0 var(--hard),0 0 12px var(--cyan)}
+
+/* ============ 主题切换器（右下角，键盘上方） ============ */
+.theme-switch{position:fixed;right:14px;bottom:236px;z-index:99;width:46px;height:46px;border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;user-select:none;
+  background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.25);
+  box-shadow:0 3px 12px rgba(0,0,0,.3);transition:transform .2s,background .2s;color:#22c55e}
+body[data-theme="4399"] .theme-switch{background:rgba(10,10,24,.75);border:1px solid rgba(61,225,255,.4);color:#7ff3ff;box-shadow:0 0 14px rgba(61,225,255,.25)}
+body[data-theme="arcade"] .theme-switch{background:rgba(255,255,255,.9);border:1px solid rgba(34,197,94,.35);color:#16a34a;box-shadow:0 3px 12px rgba(34,197,94,.15)}
+.theme-switch:hover{transform:scale(1.08)}
+.theme-switch:active{transform:scale(.94)}
+
+/* ============ 主容器 ============ */
+.wrap{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:28px 16px 288px;
+  display:flex;flex-direction:column;align-items:center;min-height:100vh}
+
+/* ============ Hero 4399 ============ */
+body[data-theme="4399"] .h4399{display:block}
+.h4399{display:none;text-align:center;margin-bottom:10px}
+.h4399 .topbar{display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:3px}
+.h4399 .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--green),var(--green2));
+  display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;
+  box-shadow:0 3px 8px rgba(56,153,4,.25)}
+.h4399 .title{font-size:1.4rem;font-weight:900;color:var(--green);letter-spacing:.5px;text-shadow:0 1px 0 rgba(56,153,4,.12);display:inline}
+.h4399 .title em{font-style:normal;color:var(--orange)}
+.h4399 .sub{font-size:.74rem;color:var(--dim);margin:0}
+
+/* ============ Hero arcade ============ */
+body[data-theme="arcade"] .harcade{display:block}
+.harcade{display:none;text-align:center;margin-bottom:14px}
+.harcade .logo{font-family:'Press Start 2P',monospace;font-size:10px;letter-spacing:3px;color:var(--yellow);text-shadow:0 0 14px var(--yellow),3px 3px 0 var(--hard);margin-bottom:10px;animation:blink 1.4s steps(1) infinite}
+.harcade .title{font-family:'Press Start 2P',monospace;font-size:clamp(15px,4.5vw,24px);line-height:1.6;color:var(--text);text-shadow:3px 3px 0 var(--hard),0 0 20px rgba(61,225,255,.45);margin-bottom:6px}
+.harcade .title .c{color:var(--pink);text-shadow:3px 3px 0 var(--hard),0 0 20px var(--pink)}
+.harcade .title .y{color:var(--cyan);text-shadow:3px 3px 0 var(--hard),0 0 20px var(--cyan);font-family:'PingFang SC','Microsoft YaHei',sans-serif;font-weight:900}
+.harcade .hard-badge{display:inline-block;margin-left:8px;padding:3px 8px;font-family:'Press Start 2P',monospace;font-size:8px;
+  color:#000;background:var(--green);box-shadow:2px 2px 0 var(--hard);animation:blink 1.2s steps(1) infinite}
+.harcade .sub{color:var(--dim);font-family:'Press Start 2P',monospace;font-size:8px;letter-spacing:3px}
+@keyframes blink{50%{opacity:0}}
+
+/* ============ 模式选择 ============ */
+.setup{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;width:100%}
+.length-pick{display:flex;gap:7px;flex-wrap:wrap;justify-content:center}
+.length-pick button{font-weight:700;font-size:13px;padding:8px 12px;border-radius:10px;cursor:pointer;transition:.18s;letter-spacing:.5px}
+body[data-theme="4399"] .length-pick button{background:var(--surface);border:2px solid var(--line);color:var(--text)}
+body[data-theme="4399"] .length-pick button:hover{border-color:var(--green)}
+body[data-theme="4399"] .length-pick button.on{background:linear-gradient(135deg,var(--green),var(--green2));border-color:var(--green2);color:#fff;box-shadow:0 3px 10px rgba(56,153,4,.3)}
+body[data-theme="arcade"] .length-pick button{background:var(--key-bg);border:3px solid var(--line);color:var(--key-text);box-shadow:3px 3px 0 var(--hard)}
+body[data-theme="arcade"] .length-pick button:hover{border-color:var(--cyan);box-shadow:4px 4px 0 var(--hard)}
+body[data-theme="arcade"] .length-pick button.on{background:var(--green);border-color:var(--green);color:#000;box-shadow:3px 3px 0 var(--hard)}
+
+.new-btn{font-weight:700;font-size:13px;padding:8px 14px;border-radius:10px;cursor:pointer;transition:.18s}
+body[data-theme="4399"] .new-btn{background:linear-gradient(135deg,var(--orange),var(--orange2));border:2px solid var(--orange2);color:#fff;box-shadow:0 3px 10px rgba(251,100,0,.25)}
+.new-btn:hover{filter:brightness(1.08);transform:translateY(-2px)}
+.new-btn:active{transform:translateY(0)}
+.new-btn.ghost{background:var(--surface);color:var(--green);border:2px solid var(--line);box-shadow:var(--shadow-sm)}
+.new-btn.ghost:hover{border-color:var(--green);filter:none;box-shadow:var(--shadow-md)}
+body[data-theme="arcade"] .new-btn{background:var(--pink);border:3px solid var(--pink);color:#fff;text-shadow:2px 2px 0 #000;box-shadow:3px 3px 0 var(--hard)}
+body[data-theme="arcade"] .new-btn:hover{background:#ff6aa0;border-color:var(--cyan)}
+body[data-theme="arcade"] .new-btn.ghost{background:var(--key-bg);border:3px solid var(--line);color:var(--text);text-shadow:none}
+
+/* ============ 计分板 ============ */
+.scoreboard{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:4px 0 6px;width:100%}
+.scoreboard .chip{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 14px;color:var(--dim);font-size:12px}
+.scoreboard .chip b{color:var(--green2);font-size:15px}
+body[data-theme="arcade"] .scoreboard .chip{background:var(--surface);border:2px solid var(--line);box-shadow:3px 3px 0 var(--hard);color:var(--dim);font-family:'Press Start 2P',monospace;font-size:8px;padding:6px 10px}
+body[data-theme="arcade"] .scoreboard .chip b{color:var(--green);text-shadow:0 0 8px var(--green);font-family:'Press Start 2P',monospace;font-size:9px}
+
+/* 进度圆点 */
+.progress{display:flex;gap:6px;justify-content:center;margin:2px 0 12px}
+.progress .dot{width:12px;height:12px;border-radius:50%;background:var(--line);transition:background .2s,transform .2s}
+body[data-theme="arcade"] .progress .dot{border:1px solid var(--line);background:transparent;box-shadow:1px 1px 0 var(--hard)}
+.progress .dot.done{background:var(--green)}
+body[data-theme="arcade"] .progress .dot.done{background:var(--green);box-shadow:0 0 8px var(--green)}
+.progress .dot.cur{background:var(--orange,#fb6400);transform:scale(1.35)}
+body[data-theme="arcade"] .progress .dot.cur{background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+
+/* ============ 题目卡片 ============ */
+.qcard{width:100%;max-width:440px;padding:24px 18px 20px;border-radius:var(--radius);text-align:center}
+body[data-theme="4399"] .qcard{background:var(--surface);border:2px solid var(--line);box-shadow:var(--shadow-md)}
+body[data-theme="arcade"] .qcard{background:var(--surface);border:3px solid var(--line);box-shadow:6px 6px 0 var(--hard),0 0 26px rgba(61,225,255,.10)}
+.expr{font-size:clamp(26px,7.4vw,40px);font-weight:900;color:var(--text);letter-spacing:1px;line-height:1.3;
+  font-family:'ZCOOL KuaiLe','PingFang SC',sans-serif;min-height:1.3em}
+body[data-theme="arcade"] .expr{font-family:'Press Start 2P',monospace;font-size:clamp(15px,4.6vw,23px);color:var(--yellow);text-shadow:2px 2px 0 var(--hard),0 0 14px rgba(255,225,77,.35);line-height:1.7}
+.ans-row{display:flex;gap:10px;margin-top:16px}
+#ansInput{flex:1;min-width:0;padding:11px 12px;font-size:22px;font-weight:800;text-align:center;color:var(--text);
+  border-radius:12px;border:2px solid var(--line);background:var(--cell-empty,#fff);outline:none;font-family:'ZCOOL KuaiLe','PingFang SC',sans-serif;letter-spacing:1px}
+#ansInput::placeholder{color:var(--dim);font-size:14px;font-weight:500}
+#ansInput:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(56,153,4,.12)}
+body[data-theme="arcade"] #ansInput{background:var(--key-bg);border:3px solid var(--line);color:var(--key-text);box-shadow:inset 2px 2px 0 var(--hard);font-family:'Press Start 2P',monospace;font-size:14px;padding:14px 10px}
+body[data-theme="arcade"] #ansInput:focus{border-color:var(--green);box-shadow:inset 2px 2px 0 var(--hard),0 0 10px rgba(0,255,157,.4)}
+#ansInput.dim{color:var(--dim)}
+.ans-row .new-btn{flex:none;align-self:stretch;padding:0 18px;font-size:15px}
+
+/* 反馈 */
+.fb{min-height:24px;margin-top:12px;font-size:16px;font-weight:800;text-align:center;transition:opacity .2s}
+.fb.ok{color:var(--green)}
+.fb.no{color:var(--orange,#fb6400)}
+body[data-theme="arcade"] .fb{font-family:'Press Start 2P',monospace;font-size:10px;line-height:1.8}
+body[data-theme="arcade"] .fb.ok{color:var(--green);text-shadow:0 0 8px var(--green)}
+body[data-theme="arcade"] .fb.no{color:var(--pink);text-shadow:0 0 8px var(--pink)}
+.fb.pop{animation:popIn .25s ease}
+@keyframes popIn{0%{transform:scale(.7);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+
+/* 规则提示 */
+.rules{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:0 0 12px;font-size:11px;color:var(--dim)}
+.rules .r{padding:3px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
+body[data-theme="arcade"] .rules .r{background:var(--key-bg);border:2px solid var(--line);box-shadow:2px 2px 0 var(--hard);font-family:'Press Start 2P',monospace;font-size:6px}
+
+/* ============ 数字键盘 ============ */
+.kb{position:fixed;left:0;right:0;bottom:0;z-index:40;width:100%;padding:6px 12px max(10px, env(safe-area-inset-bottom));
+  display:grid;grid-template-columns:repeat(4,1fr);gap:5px;max-width:400px;margin:0 auto}
+body[data-theme="4399"] .kb{background:linear-gradient(180deg,rgba(238,246,230,.96),rgba(255,255,255,.98));backdrop-filter:blur(8px);border-top:1px solid var(--line)}
+body[data-theme="arcade"] .kb{background:rgba(11,11,24,.92);backdrop-filter:blur(8px);border-top:3px solid var(--line)}
+.key{height:46px;border-radius:10px;font-size:18px;font-weight:800;cursor:pointer;transition:.12s;touch-action:manipulation;user-select:none;font-family:inherit}
+body[data-theme="4399"] .key{background:var(--key-bg);border:2px solid var(--key-border);color:var(--key-text)}
+body[data-theme="4399"] .key:hover{background:var(--bg2);border-color:var(--green);transform:translateY(-1px)}
+body[data-theme="4399"] .key:active{transform:translateY(1px)}
+body[data-theme="arcade"] .key{background:var(--key-bg);border:3px solid var(--line);color:var(--key-text);box-shadow:3px 3px 0 var(--hard);font-family:'Press Start 2P',monospace;font-size:12px}
+body[data-theme="arcade"] .key:hover{background:#2e2e58;border-color:var(--cyan);transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--hard)}
+body[data-theme="arcade"] .key:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--hard)}
+.key.submit{grid-column:span 2}
+body[data-theme="4399"] .key.submit{background:linear-gradient(135deg,var(--green),var(--green2));border-color:var(--green2);color:#fff;box-shadow:0 3px 10px rgba(56,153,4,.3)}
+body[data-theme="arcade"] .key.submit{background:var(--green);border-color:var(--green);color:#000;text-shadow:none;box-shadow:3px 3px 0 var(--hard)}
+.key:disabled{opacity:.5;cursor:not-allowed}
+
+/* ============ 结果弹窗 ============ */
+.overlay{position:fixed;inset:0;background:var(--overlay);backdrop-filter:blur(4px);z-index:150;display:none;align-items:center;justify-content:center;padding:20px}
+.overlay.on{display:flex}
+.modal{width:100%;max-width:380px;border-radius:var(--radius);padding:22px;text-align:center;max-height:88vh;overflow:auto}
+body[data-theme="4399"] .modal{background:var(--surface);border:2px solid var(--line);box-shadow:var(--shadow-lg)}
+body[data-theme="arcade"] .modal{background:var(--surface);border:3px solid var(--line);box-shadow:8px 8px 0 var(--hard),0 0 30px rgba(61,225,255,.15)}
+.modal h2{font-size:20px;margin-bottom:4px}
+body[data-theme="4399"] .modal h2{color:var(--green);font-family:'ZCOOL KuaiLe',sans-serif}
+body[data-theme="arcade"] .modal h2{font-family:'Press Start 2P',monospace;font-size:14px;color:var(--green);text-shadow:0 0 10px var(--green);line-height:1.8}
+.rsub{margin:6px 0 2px;font-size:13px;color:var(--dim)}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.stat-box{text-align:center;padding:14px 4px;border-radius:var(--radius);background:var(--surface);border:2px solid var(--line);box-shadow:var(--shadow-sm);transition:transform .18s}
+.stat-box:hover{transform:translateY(-2px)}
+.stat-box .num{font-size:21px;font-weight:900;color:var(--green);margin-bottom:4px;font-family:'ZCOOL KuaiLe',sans-serif;line-height:1}
+.stat-box .lbl{font-size:10px;color:var(--dim);letter-spacing:.5px}
+body[data-theme="arcade"] .stat-box{background:var(--key-bg);border:2px solid var(--line);box-shadow:3px 3px 0 var(--hard)}
+body[data-theme="arcade"] .stat-box .num{color:var(--green);text-shadow:0 0 8px var(--green);font-family:'Press Start 2P',monospace;font-size:13px}
+body[data-theme="arcade"] .stat-box .lbl{font-family:'Press Start 2P',monospace;font-size:6px;line-height:1.8}
+.modal-btns{display:flex;gap:12px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+.modal-btns button{font-family:inherit;font-weight:800;font-size:13px;padding:8px 18px;border-radius:10px;cursor:pointer;transition:.18s;
+  background:linear-gradient(135deg,var(--orange),var(--orange2));border:2px solid var(--orange2);color:#fff;box-shadow:0 4px 14px rgba(251,100,0,.28)}
+.modal-btns button:hover{filter:brightness(1.08);transform:translateY(-2px)}
+.modal-btns button.ghost{background:var(--surface);color:var(--green);border:2px solid var(--line);box-shadow:var(--shadow-sm)}
+.modal-btns button.ghost:hover{border-color:var(--green);filter:none;box-shadow:var(--shadow-md)}
+body[data-theme="arcade"] .modal-btns button{background:var(--green);border:3px solid var(--green);color:#000;box-shadow:3px 3px 0 var(--hard)}
+body[data-theme="arcade"] .modal-btns button:hover{filter:brightness(1.1)}
+body[data-theme="arcade"] .modal-btns button.ghost{background:var(--key-bg);border:3px solid var(--line);color:var(--text)}
+
+/* ============ 加载进度条 ============ */
+.loader{position:fixed;inset:0;z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;gap:24px;
+  background:var(--bg);color:var(--text);transition:opacity .5s}
+.loader.on{display:flex;opacity:1;pointer-events:auto}
+.loader .core{position:relative;width:120px;height:120px;display:flex;align-items:center;justify-content:center}
+.loader .core .ring{position:absolute;inset:0;border-radius:50%;border:4px solid transparent;border-top-color:var(--green);animation:spin 1s linear infinite}
+.loader .core .ring.r2{inset:12px;border-top-color:var(--orange,#fb6400);animation:spin 1.3s linear infinite reverse}
+.loader .core .pixel{font-family:'Press Start 2P',monospace;font-size:26px;color:var(--green);text-shadow:0 0 18px currentColor;animation:pulse 1s ease-in-out infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.25);opacity:.7}}
+.loader .load-track{width:240px;height:8px;background:var(--line);border-radius:6px;overflow:hidden;position:relative;box-shadow:0 0 12px var(--green)}
+.loader .load-track i{position:absolute;height:100%;width:45%;border-radius:6px;
+  background:linear-gradient(90deg,var(--green),var(--orange,#fb6400),var(--green));background-size:300% 100%;animation:slide 1s linear infinite}
+@keyframes slide{0%{transform:translateX(-50%)}100%{transform:translateX(350%)}}
+.loader .load-text{font-family:'PingFang SC','Microsoft YaHei';font-size:13px;letter-spacing:2px;color:var(--dim)}
+body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monospace;font-size:10px}
+.loader .load-text b{color:var(--green)}
+
+/* ============ 动效偏好 ============ */
+@media (prefers-reduced-motion: reduce){
+  *{animation:none!important;transition:none!important}
+}
+
+/* ============ 响应式 ============ */
+@media(max-width:480px){
+  .wrap{padding-top:22px}
+  .length-pick button{padding:9px 12px;font-size:13px}
+  .key{height:46px}
+  .theme-switch{bottom:242px}
+}
+@media(max-width:360px){
+  .key{height:44px}
+}
+</style>
+</head>
+<body data-theme="4399">
+
+<!-- 加载过渡 -->
+<div class="loader" id="loader">
+  <div class="core"><div class="ring"></div><div class="ring r2"></div><div class="pixel">+</div></div>
+  <div class="load-track"><i></i></div>
+  <div class="load-text">LOADING <b>DECIMAL MATH</b>...</div>
+</div>
+
+<a class="back-home" href="../index.html">&#8592; 主页</a>
+<div class="theme-switch" id="themeToggle" role="button" aria-label="切换主题" title="切换主题"></div>
+
+<div class="wrap">
+
+  <header class="h4399">
+    <div class="topbar"><div class="logo">&#247;</div><div class="title">算数<em>练习</em></div></div>
+    <div class="sub">二位小数 · 四则混合 · 100 以内</div>
+  </header>
+
+  <header class="harcade">
+    <div class="logo">&#9654; DECIMAL TRAINER &#9664;</div>
+    <div class="title"><span class="c">算数</span><span class="y">练习</span><span class="hard-badge">2-DEC</span></div>
+    <div class="sub">- FOUR OPERATIONS -</div>
+  </header>
+
+  <div class="setup">
+    <div class="length-pick" id="modePick">
+      <button class="on" data-mode="mix">混合</button>
+      <button data-mode="add">加法</button>
+      <button data-mode="sub">减法</button>
+      <button data-mode="mul">乘法</button>
+      <button data-mode="div">除法</button>
+    </div>
+    <button class="new-btn ghost" id="newRound">&#8635; 重开</button>
+  </div>
+
+  <div class="rules">
+    <span class="r">100 以内</span>
+    <span class="r">二位小数</span>
+    <span class="r">减法可为负</span>
+  </div>
+
+  <div class="scoreboard">
+    <div class="chip">第 <b id="qCur">1</b>/<span id="qTotal">10</span> 题</div>
+    <div class="chip">得分 <b id="scoreVal">0</b></div>
+    <div class="chip">连对 <b id="streakVal">0</b></div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <div class="qcard">
+    <div class="expr" id="expr">12.34 + 56.78 =</div>
+    <div class="ans-row">
+      <input id="ansInput" type="text" inputmode="decimal" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="输入答案" maxlength="14" aria-label="答案输入框">
+      <button class="new-btn" id="submitBtn">提交</button>
+    </div>
+    <div class="fb" id="fb"></div>
+  </div>
+
+  <div class="kb" aria-label="数字键盘">
+    <button class="key" data-k="7">7</button>
+    <button class="key" data-k="8">8</button>
+    <button class="key" data-k="9">9</button>
+    <button class="key" data-k="back" aria-label="退格">&#9003;</button>
+    <button class="key" data-k="4">4</button>
+    <button class="key" data-k="5">5</button>
+    <button class="key" data-k="6">6</button>
+    <button class="key" data-k="dot">.</button>
+    <button class="key" data-k="1">1</button>
+    <button class="key" data-k="2">2</button>
+    <button class="key" data-k="3">3</button>
+    <button class="key" data-k="neg">-</button>
+    <button class="key" data-k="0">0</button>
+    <button class="key" data-k="clear">C</button>
+    <button class="key submit" id="kbSubmit" data-k="submit">提交</button>
+  </div>
+</div>
+
+<!-- 结果弹窗 -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2 id="rTitle">&#127881; 本轮完成！</h2>
+    <div class="rsub" id="rSub"></div>
+    <div class="stats-grid">
+      <div class="stat-box"><div class="num" id="stScore">0</div><div class="lbl">得分</div></div>
+      <div class="stat-box"><div class="num" id="stAcc">0%</div><div class="lbl">正确率</div></div>
+      <div class="stat-box"><div class="num" id="stStreak">0</div><div class="lbl">本轮连对</div></div>
+      <div class="stat-box"><div class="num" id="stBest">0</div><div class="lbl">最佳连对</div></div>
+    </div>
+    <div class="modal-btns">
+      <button class="ghost" id="modalClose">关闭</button>
+      <button id="modalNext">再来一轮</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ==================== 纯函数：出题与精度（整数运算，避免浮点误差） ==================== */
+  var MAXC = 10000;          // 100.00，以“分”为单位的整数
+  var ROUND_LEN = 10;        // 每轮题数
+
+  function rndInt(a,b){ return a + Math.floor(Math.random()*(b-a+1)); }
+
+  // 生成区间 [lo,hi] 内的“真实二位小数”（以分为整数，百分位非零）
+  function rndCents(lo,hi){
+    var v;
+    for(var g=0;g<200;g++){
+      v = rndInt(lo,hi);
+      if(v%100!==0) return v;
+    }
+    return lo + (Math.floor((hi-lo)/100)*100) + 3;   // 兜底
+  }
+
+  // 分 → 展示字符串："617"→"6.17"，"-617"→"-6.17"
+  function fmt(c){
+    var neg = c<0, a = neg?-c:c;
+    var ip = Math.floor(a/100), fp = a%100;
+    return (neg?'-':'') + ip + '.' + (fp<10?'0':'') + fp;
+  }
+
+  /* 加法：A、B∈[1.00,99.99]（真实二位小数），A+B≤100.00 */
+  function genAdd(){
+    for(var i=0;i<200;i++){
+      var a = rndCents(100,9000);
+      var hi = MAXC - a;
+      if(hi<1) continue;
+      var b = rndCents(1,hi);
+      if(a+b<=MAXC) return {a:a,b:b,op:'+',ans:a+b};
+    }
+    return {a:1234,b:5678,op:'+',ans:6912};
+  }
+
+  /* 减法：A、B∈[1.00,99.99]，结果可为负，|结果|≤100 */
+  function genSub(){
+    var a = rndCents(1,9999);
+    var b = rndCents(1,9999);
+    return {a:a,b:b,op:'-',ans:a-b};
+  }
+
+  /* 乘法：A 为二位小数，乘数 k∈[2,9]，A×k≤100，答案为二位小数 */
+  function genMul(){
+    for(var i=0;i<300;i++){
+      var a = rndCents(2,9999);
+      var kmax = Math.min(9, Math.floor(MAXC/a));
+      if(kmax<2) continue;
+      var k = rndInt(2,kmax);
+      return {a:a,k:k,op:'×',ans:a*k};
+    }
+    return {a:1234,k:2,op:'×',ans:2468};
+  }
+
+  /* 除法（反向构造，保证答案与被除数都是二位有限小数）：
+     先选答案 A（二位小数、非整数），再选除数 d∈[2,9]，被除数=A×d 须≤100 且为真二位小数 */
+  function genDiv(){
+    for(var i=0;i<400;i++){
+      var d = rndInt(2,9);
+      var hi = Math.min(9999, Math.floor(MAXC/d));
+      if(hi<101) continue;
+      var a = rndCents(101,hi);
+      var divd = a*d;
+      if(divd>MAXC) continue;
+      if(divd%100===0) continue;   // 被除数不要是整元（如 12.00）
+      if(a%100===0) continue;      // 答案不要是整元（防御）
+      return {a:a,d:d,op:'÷',ans:a,divd:divd};
+    }
+    return {a:617,d:2,op:'÷',ans:617,divd:1234};
+  }
+
+  /* 出题入口 */
+  function genQuestion(mode){
+    if(mode==='mix') return genQuestion(['add','sub','mul','div'][rndInt(0,3)]);
+    if(mode==='add') return genAdd();
+    if(mode==='sub') return genSub();
+    if(mode==='mul') return genMul();
+    return genDiv();
+  }
+
+  /* 题目展示文本（不含等号） */
+  function qText(q){
+    if(q.op==='×') return fmt(q.a) + ' × ' + q.k;
+    if(q.op==='÷') return fmt(q.divd) + ' ÷ ' + q.d;
+    return fmt(q.a) + ' ' + q.op + ' ' + fmt(q.b);
+  }
+
+  /* 解析用户输入为精确值：{neg, ip, fpInt, L}，非法返回 null（无浮点） */
+  function parseInput(s){
+    if(typeof s!=='string') return null;
+    s = s.trim();
+    if(!s) return null;
+    var neg=false, i=0;
+    if(s[0]==='-'||s[0]==='+'){ neg=(s[0]==='-'); i=1; }
+    if(i>=s.length) return null;
+    var ip='', fp='', seenDot=false;
+    for(;i<s.length;i++){
+      var ch=s[i];
+      if(ch>='0'&&ch<='9'){ if(seenDot) fp+=ch; else ip+=ch; }
+      else if(ch==='.'&&!seenDot){ seenDot=true; }
+      else return null;
+    }
+    if(ip==='') ip='0';
+    if(fp.length>6) return null;                 // 精度上限，防超大
+    return {neg:neg, ip:parseInt(ip,10), fpInt: fp?parseInt(fp,10):0, L: fp.length};
+  }
+
+  /* 校验答案是否与“分”整数答案精确相等（整数运算） */
+  function checkAnswer(s, answerCents){
+    var p = parseInput(s);
+    if(!p) return false;
+    var sign = p.neg ? -1 : 1;
+    var num = p.ip * Math.pow(10,p.L) + p.fpInt;   // 精确值 = num / 10^L
+    var c;
+    if(p.L < 2){
+      c = sign * num * Math.pow(10, 2-p.L);
+    } else if(p.L === 2){
+      c = sign * num;
+    } else {
+      var q = Math.pow(10, p.L-2);
+      if(num % q !== 0) return false;            // 多于两位小数且不整 → 不可能等于二位小数答案
+      c = sign * (num / q);
+    }
+    return c === answerCents;
+  }
+
+  /* ==================== 游戏状态 ==================== */
+  var MODE = 'mix';
+  var q = null, idx = 0, score = 0, streak = 0, maxStreak = 0, rightCount = 0;
+  var roundDone = false, lockInput = false;
+
+  var exprEl = document.getElementById('expr');
+  var ansEl  = document.getElementById('ansInput');
+  var fbEl   = document.getElementById('fb');
+  var qCurEl = document.getElementById('qCur');
+  var qTotalEl = document.getElementById('qTotal');
+  var scoreEl = document.getElementById('scoreVal');
+  var streakEl = document.getElementById('streakVal');
+  var progressEl = document.getElementById('progress');
+  var submitBtn = document.getElementById('submitBtn');
+  var overlay = document.getElementById('overlay');
+
+  qTotalEl.textContent = ROUND_LEN;
+
+  function renderProgress(){
+    var html = '';
+    for(var i=1;i<=ROUND_LEN;i++){
+      var cls = 'dot';
+      if(i<idx) cls += ' done';
+      else if(i===idx) cls += ' cur';
+      html += '<span class="'+cls+'"></span>';
+    }
+    progressEl.innerHTML = html;
+  }
+
+  function updateHud(){
+    qCurEl.textContent = Math.min(idx, ROUND_LEN);
+    scoreEl.textContent = score;
+    streakEl.textContent = streak;
+    renderProgress();
+  }
+
+  function nextQuestion(){
+    idx++;
+    if(idx>ROUND_LEN){ endRound(); return; }
+    q = genQuestion(MODE);
+    exprEl.textContent = qText(q) + ' =';
+    ansEl.value = '';
+    ansEl.classList.remove('dim');
+    fbEl.textContent = '';
+    fbEl.className = 'fb';
+    lockInput = false;
+    updateHud();
+    try{ ansEl.focus({preventScroll:true}); }catch(e){ ansEl.focus(); }
+  }
+
+  function shake(){
+    var card = document.querySelector('.qcard');
+    card.style.animation = 'none';
+    void card.offsetWidth;
+    card.style.animation = 'shake .3s';
+    setTimeout(function(){ card.style.animation=''; }, 320);
+  }
+
+  function submitAnswer(){
+    if(lockInput || roundDone) return;
+    var s = ansEl.value;
+    if(!s.trim()){
+      shake();
+      fbEl.textContent = '请输入答案';
+      fbEl.className = 'fb';
+      return;
+    }
+    var ok = checkAnswer(s, q.ans);
+    lockInput = true;
+    if(ok){
+      score += 10; rightCount++; streak++; maxStreak = Math.max(maxStreak, streak);
+      fbEl.textContent = '✓ 正确！';
+      fbEl.className = 'fb ok pop';
+    } else {
+      streak = 0;
+      fbEl.textContent = '✗ 错误，正确答案：' + fmt(q.ans);
+      fbEl.className = 'fb no pop';
+    }
+    updateHud();
+    setTimeout(function(){ nextQuestion(); }, 1200);
+  }
+
+  /* ==================== 本地统计 ==================== */
+  var STATS_KEY = 'decimal-math-stats';
+  function loadStats(){
+    try{
+      var r = localStorage.getItem(STATS_KEY);
+      if(r){ var s = JSON.parse(r); if(s && typeof s==='object') return s; }
+    }catch(e){}
+    return { played:0, right:0, total:0, best:0 };
+  }
+  function saveStats(s){
+    try{ localStorage.setItem(STATS_KEY, JSON.stringify(s)); }catch(e){}
+  }
+
+  function endRound(){
+    roundDone = true;
+    var st = loadStats();
+    st.played++; st.right += rightCount; st.total += ROUND_LEN;
+    st.best = Math.max(st.best, maxStreak);
+    saveStats(st);
+
+    var acc = Math.round(rightCount/ROUND_LEN*100);
+    document.getElementById('rTitle').textContent = acc===100 ? '🎉 全对！' : (acc>=80 ? '🌟 太棒了！' : '📖 本轮完成');
+    var sub;
+    if(acc===100) sub = '满分通过，算数之神就是你！';
+    else if(acc>=80) sub = '正确率 '+acc+'%，思路很稳，继续冲满分！';
+    else if(acc>=60) sub = '正确率 '+acc+'%，不错，再练练手感会更好！';
+    else sub = '正确率 '+acc+'%，别灰心，多练几轮一定进步！';
+    document.getElementById('rSub').textContent = sub;
+    document.getElementById('stScore').textContent = score;
+    document.getElementById('stAcc').textContent = acc + '%';
+    document.getElementById('stStreak').textContent = maxStreak;
+    document.getElementById('stBest').textContent = st.best;
+    overlay.classList.add('on');
+  }
+
+  function newRound(){
+    idx = 0; score = 0; streak = 0; maxStreak = 0; rightCount = 0;
+    roundDone = false; lockInput = false;
+    overlay.classList.remove('on');
+    nextQuestion();
+  }
+
+  /* ==================== 键盘输入 ==================== */
+  function keyAction(k){
+    if(lockInput || roundDone) return;
+    var v = ansEl.value;
+    if(k>='0'&&k<='9'){ ansEl.value = v + k; }
+    else if(k==='dot'){ if(v.indexOf('.')===-1) ansEl.value += '.'; }
+    else if(k==='neg'){ if(v.charAt(0)==='-') ansEl.value = v.slice(1); else ansEl.value = '-' + v; }
+    else if(k==='back'){ ansEl.value = v.slice(0,-1); }
+    else if(k==='clear'){ ansEl.value = ''; }
+    else if(k==='submit'){ submitAnswer(); return; }
+    ansEl.classList.remove('dim');
+    try{ ansEl.focus({preventScroll:true}); }catch(e){ ansEl.focus(); }
+  }
+
+  document.querySelectorAll('.key[data-k]').forEach(function(k){
+    k.addEventListener('click', function(){
+      keyAction(k.getAttribute('data-k'));
+    });
+  });
+  submitBtn.addEventListener('click', submitAnswer);
+  ansEl.addEventListener('keydown', function(e){
+    if(e.key==='Enter'){ e.preventDefault(); submitAnswer(); }
+  });
+
+  /* ==================== 模式切换 ==================== */
+  document.querySelectorAll('#modePick button').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(btn.classList.contains('on') && !roundDone) return;
+      document.querySelectorAll('#modePick button').forEach(function(b){ b.classList.remove('on'); });
+      btn.classList.add('on');
+      MODE = btn.getAttribute('data-mode');
+      newRound();
+    });
+  });
+  document.getElementById('newRound').addEventListener('click', newRound);
+  document.getElementById('modalNext').addEventListener('click', newRound);
+  document.getElementById('modalClose').addEventListener('click', function(){ overlay.classList.remove('on'); });
+
+  /* ==================== 主题切换 ==================== */
+  var toggle = document.getElementById('themeToggle');
+  var loader = document.getElementById('loader');
+  function iconSVG(arcade){
+    if(arcade){
+      return '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M12 12 L21 6 A10 10 0 1 0 21 18 Z"/><circle cx="13.5" cy="7.5" r="1.1" fill="#0a0a18"/></svg>';
+    }
+    return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3C9.8 3 8 4.8 8 7c0 .6.1 1.2.4 1.7C6.5 9.4 5.2 11 5.2 13c0 2.2 1.8 4 4 4h5.6c2.2 0 4-1.8 4-4 0-2-1.3-3.6-3.2-4.3.3-.5.4-1.1.4-1.7 0-2.2-1.8-4-4-4z"/><path d="M12 17v4"/><path d="M12 21l-3 2M12 21l3 2"/></svg>';
+  }
+  function applyTheme(t){
+    document.body.dataset.theme = t;
+    toggle.innerHTML = iconSVG(t!=='arcade');
+    try{ localStorage.setItem('gh-theme', t); }catch(e){}
+  }
+  toggle.addEventListener('click', function(){
+    var next = document.body.dataset.theme==='arcade' ? '4399' : 'arcade';
+    loader.classList.add('on');
+    setTimeout(function(){
+      applyTheme(next);
+      loader.classList.remove('on');
+    }, 500);
+  });
+
+  /* ==================== 初始化 ==================== */
+  (function init(){
+    var saved = '4399';
+    try{ saved = localStorage.getItem('gh-theme')||'4399'; }catch(e){}
+    applyTheme(saved);
+    newRound();
+  })();
+})();
+</script>
+</body>
+</html>
