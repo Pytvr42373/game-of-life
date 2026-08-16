@@ -92,7 +92,7 @@ canvas.game.c2{max-width:calc(50% - 6px);}
 #toast{position:fixed;left:50%;top:18%;transform:translateX(-50%);background:var(--panel2);border:2px solid var(--accent);color:var(--text);padding:10px 20px;border-radius:20px;z-index:100;opacity:0;transition:opacity .3s;pointer-events:none;font-weight:700;box-shadow:0 0 20px var(--accent);}
 #toast.show{opacity:1;}
 .rotate-hint{position:fixed;inset:0;background:#000;color:#fff;z-index:200;display:none;align-items:center;justify-content:center;text-align:center;font-size:16px;flex-direction:column;gap:12px;}
-.rotate-hint.show{display:flex;}
+.rotate-hint.show{display:none;}
 input[type=range]{width:200px;accent-color:var(--accent);}
 .row{display:flex;align-items:center;gap:10px;justify-content:center;flex-wrap:wrap;}
 .mt6{margin-top:6px;}
@@ -189,6 +189,8 @@ input[type=range]{width:200px;accent-color:var(--accent);}
 .rm-sub{color:var(--dim);font-size:11px;text-align:center;}
 
 @media (orientation:portrait){ .rotate-hint.show{display:flex;} }
+/* 横屏(含桌面)强制隐藏，避免桌面端被横屏提示遮挡 */
+@media (orientation:landscape){ .rotate-hint.show{display:none;} }
 </style>
 </head>
 <body data-theme="arcade">
