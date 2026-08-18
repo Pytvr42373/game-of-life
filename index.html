@@ -572,7 +572,7 @@ body[data-theme="arcade"] .portal-skip{font-family:'Press Start 2P',monospace;fo
 .portal-ask.show{opacity:1;visibility:visible}
 .portal-ask-box{width:min(400px,92%);background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:30px 26px;text-align:center;box-shadow:0 0 40px rgba(0,0,0,.3)}
 body[data-theme="arcade"] .portal-ask-box{border:3px solid var(--line);border-radius:0;box-shadow:6px 6px 0 var(--hard),0 0 30px rgba(255,120,255,.15)}
-.portal-ask-title{font-size:20px;font-weight:800;color:var(--text);margin-bottom:22px}
+.portal-ask-title{font-size:20px;font-weight:800;color:var(--text);margin-bottom:6px}
 body[data-theme="arcade"] .portal-ask-title{font-family:'Press Start 2P',monospace;font-size:13px;color:var(--yellow)}
 .portal-ask-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 .portal-ask-btn{font-weight:700;font-size:15px;padding:12px 26px;border-radius:10px;cursor:pointer;transition:.18s;border:2px solid var(--line);background:var(--bg2);color:var(--text)}
@@ -581,6 +581,10 @@ body[data-theme="arcade"] .portal-ask-btn{font-family:'Press Start 2P',monospace
 .portal-ask-btn.retreat:hover{border-color:var(--dim);color:var(--dim)}
 .portal-ask-btn.bold{border-color:var(--pink);color:var(--pink)}
 .portal-ask-btn.bold:hover{background:var(--pink);color:var(--bg);box-shadow:0 0 16px rgba(255,45,120,.4)}
+.portal-ask-sub{font-size:13px;color:var(--dim);margin-bottom:20px;line-height:1.6}
+body[data-theme="arcade"] .portal-ask-sub{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--cyan)}
+.portal-ask-btn.newgame{border-color:var(--green);color:var(--green)}
+.portal-ask-btn.newgame:hover{background:var(--green);color:var(--bg);box-shadow:0 0 16px rgba(56,153,4,.4)}
 
 /* ============ 外部入口 · 更多作品区块 ============ */
 .ext-section{max-width:1100px;margin:0 auto;padding:0 20px;margin-top:64px}
@@ -677,10 +681,12 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
 </div>
 <div class="portal-ask" id="portalAsk" role="dialog" aria-modal="true" aria-hidden="true" inert>
   <div class="portal-ask-box">
-    <div class="portal-ask-title" id="portalAskTitle">返回主页吗？</div>
+    <div class="portal-ask-title" id="portalAskTitle">洞的另一头，是本次更新……🌙</div>
+    <div class="portal-ask-sub">碎片深处，隐约有新作的气息</div>
     <div class="portal-ask-btns">
       <button type="button" class="portal-ask-btn retreat" id="portalRetreat">我撤退。</button>
       <button type="button" class="portal-ask-btn bold" id="portalBrave">我不怕！</button>
+      <button type="button" class="portal-ask-btn newgame" id="portalNewGame">前往黎明迷局 🎮</button>
     </div>
   </div>
 </div>
@@ -710,13 +716,16 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
 <div class="vmodal" id="vmodal" role="dialog" aria-modal="true" aria-labelledby="vmodalTitle" aria-hidden="true" inert>
   <div class="vmodal-box">
     <button type="button" class="vmodal-close" id="vmodalClose" aria-label="关闭">&#10005;</button>
-    <div class="vmodal-title" id="vmodalTitle">洞口<span class="vw-qs">侵蚀</span>了我们的游戏</div>
-    <div class="vmodal-ver">v2.6.0</div>
+    <div class="vmodal-title" id="vmodalTitle">本次更新 · <span class="vw-qs">新作降临</span></div>
+    <div class="vmodal-ver">v2.7.0</div>
     <ul class="vmodal-log">
-      <li><b>神秘</b> 内有神秘洞口，管住你的<span class="vw-hh">好奇心</span></li>
+      <li><b>黎明迷局</b> 全新2D追逃大作上线（6求生者/2监管者/3地图）</li>
+      <li><b>吃豆人</b> 完整版重做（5模式/双人/成长系统）</li>
+      <li><b>算数练习</b> 新增（二位小数四则）</li>
+      <li><b>彩蛋</b> 神秘洞口仍在，这次藏了什么惊喜？</li>
     </ul>
-    <div class="vmodal-cta">小心，别被洞口卷进去 😈</div>
-    <button type="button" class="vmodal-btn" id="vmodalOk">我来调查</button>
+    <div class="vmodal-cta">本次更新，等你来玩 🎮</div>
+    <button type="button" class="vmodal-btn" id="vmodalOk">去看看</button>
   </div>
 </div>
 
@@ -797,10 +806,26 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
       <div class="name">倒水谜题</div>
       <div class="tag">益智 · 逻辑</div>
     </a>
+    <!-- 黎明迷局 · 2D追逃 -->
+    <a class="card" href="identity-v/index.html" data-delay=".15s" data-categories="益智 动作 上新" onclick="go(this.href,event)">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <span class="new-badge">NEW</span>
+      <span class="ico" aria-hidden="true">
+        <svg viewBox="0 0 48 48" width="44" height="44" fill="none">
+          <rect x="2" y="2" width="44" height="44" rx="10" fill="#1a1530"/>
+          <circle cx="24" cy="22" r="11" fill="#d9c98a"/>
+          <circle cx="27" cy="19" r="9.5" fill="#1a1530"/>
+          <path d="M8 42c3-6 8-9 14-9s11 3 14 9" fill="#3a2a5a"/>
+          <path d="M4 10c4-2 7 1 7 1M40 8c-3-2-6 1-6 1" stroke="#6b5b8a" stroke-width="1.5" stroke-linecap="round"/>
+          <text x="24" y="47" font-family="Arial,sans-serif" font-size="8" font-weight="bold" fill="#d9c98a" text-anchor="middle">D5</text>
+        </svg>
+      </span>
+      <div class="name">黎明迷局</div>
+      <div class="tag">追逃 · 哥特 · 双阵营</div>
+    </a>
     <!-- 1A2B 猜数字 -->
     <a class="card" href="1A2B/index.html" data-delay=".18s" data-categories="益智 逻辑 经典 上新" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
-      <span class="new-badge">NEW</span>
       <span class="ico ico-1a2b" aria-hidden="true">
         <svg viewBox="0 0 48 48" width="46" height="46" fill="none">
           <rect x="2" y="2" width="20" height="20" rx="4" fill="#3aa8ff"/>
@@ -819,7 +844,6 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <!-- 1A2B 难版 -->
     <a class="card" href="1A2B-hard/index.html" data-delay=".24s" data-categories="益智 逻辑 上新" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
-      <span class="new-badge">NEW</span>
       <span class="ico ico-1a2b-hard" aria-hidden="true">
         <svg viewBox="0 0 48 48" width="46" height="46" fill="none">
           <rect x="2" y="2" width="20" height="20" rx="4" fill="#8a2be2"/>
@@ -920,7 +944,6 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <!-- 算数练习 · 二位小数四则 -->
     <a class="card" href="decimal-math/index.html" data-delay=".51s" data-categories="益智 逻辑 上新" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
-      <span class="new-badge">NEW</span>
       <span class="ico" aria-hidden="true">
         <svg viewBox="0 0 48 48" width="44" height="44" fill="none">
           <rect x="2" y="2" width="20" height="20" rx="4" fill="#3aa8ff"/>
@@ -936,28 +959,10 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
       <div class="name">算数练习</div>
       <div class="tag">益智 · 数学 · 小数</div>
     </a>
-    <!-- 黎明迷局 · 2D追逃 -->
-    <a class="card" href="identity-v/index.html" data-delay=".57s" data-categories="益智 动作 上新" onclick="go(this.href,event)">
-      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
-      <span class="new-badge">NEW</span>
-      <span class="ico" aria-hidden="true">
-        <svg viewBox="0 0 48 48" width="44" height="44" fill="none">
-          <rect x="2" y="2" width="44" height="44" rx="10" fill="#1a1530"/>
-          <circle cx="24" cy="22" r="11" fill="#d9c98a"/>
-          <circle cx="27" cy="19" r="9.5" fill="#1a1530"/>
-          <path d="M8 42c3-6 8-9 14-9s11 3 14 9" fill="#3a2a5a"/>
-          <path d="M4 10c4-2 7 1 7 1M40 8c-3-2-6 1-6 1" stroke="#6b5b8a" stroke-width="1.5" stroke-linecap="round"/>
-          <text x="24" y="47" font-family="Arial,sans-serif" font-size="8" font-weight="bold" fill="#d9c98a" text-anchor="middle">D5</text>
-        </svg>
-      </span>
-      <div class="name">黎明迷局</div>
-      <div class="tag">追逃 · 哥特 · 双阵营</div>
-    </a>
 
     <!-- 谁是知识大王 -->
     <a class="card" href="brain-king/index.html" data-delay=".54s" data-categories="益智 反应 上新" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
-      <span class="new-badge">NEW</span>
       <span class="ico">
         <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="li g-brain" aria-hidden="true"><defs><linearGradient id="g-brain" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8a3d"/><stop offset=".5" stop-color="#ff2d78"/><stop offset="1" stop-color="#a05cff"/></linearGradient></defs><path stroke="url(#g-brain)"  d="M12 18V5"/><path stroke="url(#g-brain)"  d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"/><path stroke="url(#g-brain)"  d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5"/><path stroke="url(#g-brain)"  d="M17.997 5.125a4 4 0 0 1 2.526 5.77"/><path stroke="url(#g-brain)"  d="M18 18a4 4 0 0 0 2-7.464"/><path stroke="url(#g-brain)"  d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517"/><path stroke="url(#g-brain)"  d="M6 18a4 4 0 0 1-2-7.464"/><path stroke="url(#g-brain)"  d="M6.003 5.125a4 4 0 0 0-2.526 5.77"/></svg>
       </span>
@@ -986,7 +991,6 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
     <!-- 2048（普通游戏，非神秘） -->
     <a class="card" href="2048/index.html" data-delay=".66s" data-categories="益智 逻辑 上新" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
-      <span class="new-badge">NEW</span>
       <span class="ico ico-2048" aria-hidden="true">
         <svg viewBox="0 0 48 48" width="46" height="46" fill="none">
           <rect x="3" y="3" width="18" height="18" rx="3" fill="#f2b179"/>
@@ -1178,11 +1182,9 @@ function handleVersionKeydown(event){
 }
 if(versionClose)versionClose.addEventListener('click',hideVersionModal);
 if(versionOk)versionOk.addEventListener('click',function(){
-  // 关闭版本弹窗 → 切到"神秘"标签 → 滚动到游戏网格（不直接跳神秘游戏）
+  // 本次更新弹窗 → 去看看 → 跳转黎明迷局（本次更新大作）
   hideVersionModal();
-  filterGames('神秘');
-  const grid=document.getElementById('gameGrid');
-  if(grid){ try{ grid.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){} }
+  go('identity-v/index.html');
 });
 if(versionModal){
   versionModal.addEventListener('keydown',handleVersionKeydown);
@@ -1748,6 +1750,12 @@ document.addEventListener('keydown',function(e){
 document.getElementById('portalSkip').addEventListener('click',function(){ showPortalAsk(); });
 document.getElementById('portalRetreat').addEventListener('click',portalRetreat);
 document.getElementById('portalBrave').addEventListener('click',portalBrave);
+document.getElementById('portalNewGame').addEventListener('click',function(){
+  // 黑洞"吐"出新作：前往黎明迷局
+  portalStopDanger();
+  hidePortalAll();
+  go('identity-v/index.html');
+});
 
 
 
