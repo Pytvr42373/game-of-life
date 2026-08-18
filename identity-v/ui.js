@@ -38,7 +38,7 @@
     }
 
     // 雾斑
-    for (var i = 0; i < 14; i++) {
+    for (var i = 0; i < 7; i++) {
       fogBlobs.push({ x: Math.random(), y: Math.random(), r: 0.2 + Math.random() * 0.3, spd: 0.004 + Math.random() * 0.01, ph: Math.random() * 6.28 });
     }
 
@@ -75,6 +75,9 @@
     buildHunterList();
     buildMapList();
 
+    // 启动时始终显示主菜单，避免进入后卡在加载/空白界面
+    showPanel('menu');
+
     lastTime = performance.now();
     requestAnimationFrame(loop);
   };
@@ -86,10 +89,18 @@
 
   /* ================= 存档 ================= */
   function loadSave() {
-    var d = { stats: { wins: 0, losses: 0, best: 0, games: 0 }, settings: { volume: 0.7, muted: false, reducedMotion: false, difficulty: 'normal' } };
+    var def = { stats: { wins: 0, losses: 0, best: 0, games: 0 }, settings: { volume: 0.7, muted: false, reducedMotion: false, difficulty: 'normal' } };
+    var d = JSON.parse(JSON.stringify(def));
     try {
       var raw = localStorage.getItem('dawn-maze-save');
-      if (raw) d = JSON.parse(raw);
+      if (raw) {
+        var p = JSON.parse(raw);
+        if (p && typeof p === 'object' && !Array.isArray(p)) {
+          d = p;
+          if (!d.stats || typeof d.stats !== 'object') d.stats = JSON.parse(JSON.stringify(def.stats));
+          if (!d.settings || typeof d.settings !== 'object') d.settings = JSON.parse(JSON.stringify(def.settings));
+        }
+      }
     } catch (e) {}
     return d;
   }
@@ -245,6 +256,8 @@
       var el = $(panels[i]);
       if (el) el.style.display = (panels[i] === id) ? 'flex' : 'none';
     }
+    var home = $('btn-home');
+    if (home) home.style.display = 'flex';
     if (id === 'menu') { G.state = 'menu'; }
   }
 
@@ -431,6 +444,11 @@
     frame++;
 
     if (!G) return;
+    // 自愈兜底：主菜单状态下菜单面板必须可见，避免卡在加载界面
+    if (G.state === 'menu') {
+      var menuEl = $('menu');
+      if (menuEl && menuEl.style.display !== 'flex') showPanel('menu');
+    }
     if (G.state === 'playing') {
       var inp = sampleInput();
       G.updateInput(inp);
@@ -519,12 +537,12 @@
   /* ================= 雾 ================= */
   function drawFog(inMenu) {
     if (reducedMotion) return;
-    var baseA = inMenu ? 0.10 : 0.07;
+    var baseA = inMenu ? 0.032 : 0.02;
     for (var i = 0; i < fogBlobs.length; i++) {
       var b = fogBlobs[i];
       var x = (b.x * (cw + 400) - 200 + frame * b.spd * 60) % (cw + 400) - 200;
       var y = b.y * ch + Math.sin(frame * 0.005 + b.ph) * 20;
-      var r = b.r * 320;
+      var r = b.r * 170;
       var a = baseA * (0.5 + 0.5 * Math.sin(frame * 0.01 + b.ph));
       var g = ctx.createRadialGradient(x, y, 0, x, y, r);
       g.addColorStop(0, 'rgba(180,190,215,' + a.toFixed(3) + ')');
@@ -1025,7 +1043,7 @@
     // 暗角
     var v = ctx.createRadialGradient(cw / 2, ch / 2, Math.min(cw, ch) * 0.35, cw / 2, ch / 2, Math.max(cw, ch) * 0.75);
     v.addColorStop(0, 'rgba(0,0,0,0)');
-    v.addColorStop(1, 'rgba(0,0,10,0.55)');
+    v.addColorStop(1, 'rgba(0,0,10,0.34)');
     ctx.fillStyle = v;
     ctx.fillRect(0, 0, cw, ch);
   }
@@ -1036,7 +1054,7 @@
     // 顶部信息条
     ctx.fillStyle = 'rgba(8,8,16,0.5)';
     ctx.fillRect(0, 0, cw, 34);
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
     ctx.font = 'bold 12px serif';
     ctx.textAlign = 'left';
     ctx.fillText(G.map.name + ' · ' + DIFF[G.difficulty].name, 12, 22);
@@ -1316,6 +1334,13 @@
     currentSave = loadSave();
     if (currentSave.map != null) selectedMap = currentSave.map;
     UI.init();
+    // 超时兜底：无论初始化是否完成，主菜单状态下都确保菜单可见，避免卡在加载界面
+    setTimeout(function () {
+      try {
+        var menuEl = document.getElementById('menu');
+        if (G && G.state === 'menu' && menuEl && menuEl.style.display !== 'flex') showPanel('menu');
+      } catch (e) {}
+    }, 1500);
   };
 
   function startAsSurvivor(charId) {
@@ -1339,6 +1364,8 @@
   function hideAllPanels() {
     var panels = ['menu', 'charsel', 'huntersel', 'mapsel', 'settings', 'tutorial', 'stats', 'pause', 'result'];
     for (var i = 0; i < panels.length; i++) { var el = $(panels[i]); if (el) el.style.display = 'none'; }
+    var home = $('btn-home');
+    if (home) home.style.display = 'none';
   }
 
   function restart() {

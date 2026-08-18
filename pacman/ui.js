@@ -34,6 +34,8 @@ U.show = function(name){
   for(var i=0;i<scrNames.length;i++){ $('scr-'+scrNames[i]).classList.toggle('active', scrNames[i]===name); }
   if(name==='game'){ $('rotateHint').classList.add('show'); $('btnPause').classList.add('show'); }
   else { $('rotateHint').classList.remove('show'); $('btnPause').classList.remove('show'); }
+  /* 返回主页胶囊: 游戏进行中隐藏(暂停/结算覆盖层自带按钮), 其余界面显示 */
+  var hb=$('homeBtn'); if(hb) hb.classList.toggle('hidden', name==='game');
 };
 U.on = function(action){
   PAC.Audio.unlock();

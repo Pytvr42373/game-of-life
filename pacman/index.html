@@ -40,24 +40,24 @@ body[data-theme="arcade"] #crt::after{content:'';position:absolute;inset:0;backg
 .screen.active{display:flex;}
 /* 标题 */
 h1.title{font-family:var(--pf,'Press Start 2P','monospace');font-size:clamp(22px,5vw,42px);color:var(--accent);letter-spacing:3px;text-shadow:0 0 10px var(--accent),0 0 30px var(--accent2),3px 3px 0 var(--accent2);margin-bottom:8px;text-align:center;}
-.sub{color:var(--dim);font-size:13px;letter-spacing:2px;}
+.sub{color:var(--dim);font-size:14px;letter-spacing:2px;}
 /* 按钮 */
-.btn{font-family:var(--pf,'Press Start 2P','monospace');font-size:13px;min-width:250px;max-width:92vw;padding:14px 20px;margin:4px 0;color:var(--btnText);background:var(--btn);border:none;border-radius:8px;cursor:pointer;box-shadow:0 5px 0 var(--shadow),0 0 18px color-mix(in srgb,var(--btn) 40%,transparent);transition:transform .12s,box-shadow .12s;text-align:center;}
+.btn{font-family:var(--pf,'Press Start 2P','monospace');font-size:14px;min-width:250px;max-width:92vw;padding:14px 20px;margin:4px 0;color:var(--btnText);background:var(--btn);border:none;border-radius:8px;cursor:pointer;box-shadow:0 5px 0 var(--shadow),0 0 18px color-mix(in srgb,var(--btn) 40%,transparent);transition:transform .12s,box-shadow .12s;text-align:center;}
 .btn:hover{transform:translateY(-2px);}
 .btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--shadow);}
 .btn.ghost{background:var(--panel2);color:var(--text);box-shadow:0 5px 0 var(--line),0 0 12px rgba(0,0,0,.4);border:1px solid var(--line);}
-.btn.small{min-width:150px;font-size:11px;padding:10px 14px;}
+.btn.small{min-width:150px;font-size:12px;padding:10px 14px;}
 .btn.danger{background:var(--accent2);box-shadow:0 5px 0 #8c1d40;}
 .btn.row2{display:flex;flex-direction:column;gap:4px;}
-.btn.row2 small{font-family:'PingFang SC','Microsoft YaHei',sans-serif;font-size:10px;opacity:.8;}
+.btn.row2 small{font-family:'PingFang SC','Microsoft YaHei',sans-serif;font-size:11px;opacity:.8;}
 /* 卡片面板 */
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;width:min(560px,94vw);}
 .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;width:min(720px,94vw);}
 .map-card{background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:10px;cursor:pointer;transition:border .15s,transform .15s;text-align:center;}
 .map-card.sel{border-color:var(--accent);box-shadow:0 0 16px color-mix(in srgb,var(--accent) 45%,transparent);transform:translateY(-2px);}
 .map-card canvas{width:100%;height:auto;background:#000;border-radius:6px;image-rendering:pixelated;}
-.map-card .mname{font-weight:700;color:var(--accent);margin-top:6px;font-size:14px;}
-.map-card .mdesc{color:var(--dim);font-size:11px;margin-top:2px;min-height:26px;}
+.map-card .mname{font-weight:700;color:var(--accent);margin-top:6px;font-size:15px;}
+.map-card .mdesc{color:var(--dim);font-size:12px;margin-top:2px;min-height:26px;}
 /* 难度选择 */
 .diff-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
 .diff-chip{padding:10px 18px;border-radius:20px;background:var(--panel2);border:2px solid var(--line);color:var(--text);cursor:pointer;font-weight:700;}
@@ -66,8 +66,8 @@ h1.title{font-family:var(--pf,'Press Start 2P','monospace');font-size:clamp(22px
 #scr-game{justify-content:flex-start;padding-top:10px;}
 #hud{width:min(940px,96vw);display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;}
 .hud-cell{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 12px;text-align:center;min-width:84px;}
-.hud-cell .lb{font-size:10px;color:var(--dim);letter-spacing:1px;}
-.hud-cell .vl{font-family:var(--pf,'Press Start 2P','monospace');font-size:15px;color:var(--accent);}
+.hud-cell .lb{font-size:11px;color:var(--dim);letter-spacing:1px;}
+.hud-cell .vl{font-family:var(--pf,'Press Start 2P','monospace');font-size:17px;color:var(--accent);}
 .hud-cell .vl.good{color:var(--good);}.hud-cell .vl.info{color:var(--info);}.hud-cell .vl.danger{color:var(--accent2);}
 .lives-ico{display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--accent);margin-left:2px;box-shadow:0 0 6px var(--accent);}
 #canvasWrap{display:flex;gap:10px;justify-content:center;align-items:flex-start;width:min(940px,96vw);}
@@ -78,7 +78,7 @@ canvas.game.c2{max-width:calc(50% - 6px);}
 .overlay.show{display:flex;}
 .overlay h2{font-family:var(--pf,'Press Start 2P','monospace');color:var(--accent);font-size:24px;text-shadow:0 0 12px var(--accent);}
 .overlay .res-msg{font-size:22px;font-weight:700;color:var(--good);}
-.overlay .res-detail{color:var(--text);font-size:14px;line-height:1.9;text-align:center;}
+.overlay .res-detail{color:var(--text);font-size:15px;line-height:1.9;text-align:center;}
 /* 摇杆 & 虚拟键 */
 #joy{position:fixed;left:18px;bottom:20px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.25);z-index:40;display:none;touch-action:none;}
 #joy.show{display:block;}
@@ -86,6 +86,13 @@ canvas.game.c2{max-width:calc(50% - 6px);}
 #dpad{position:fixed;right:16px;bottom:20px;z-index:40;display:none;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(3,52px);gap:4px;touch-action:none;}
 #dpad.show{display:grid;}
 #dpad button{font-size:22px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:var(--text);border-radius:10px;touch-action:none;}
+
+/* 返回主页: 毛玻璃胶囊链接 (双主题适配) */
+.home-pill{position:fixed;left:12px;top:12px;z-index:60;display:inline-flex;align-items:center;gap:6px;font-family:var(--pf,'Press Start 2P','monospace');font-size:12px;color:var(--text);text-decoration:none;padding:9px 14px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 2px 12px rgba(0,0,0,.35);cursor:pointer;transition:transform .12s,background .12s;user-select:none;-webkit-user-select:none;}
+.home-pill:hover{transform:translateY(-2px);background:rgba(255,255,255,.16);}
+.home-pill:active{transform:translateY(1px);}
+.home-pill.hidden{display:none;}
+
 #btnPause{position:fixed;right:14px;top:12px;z-index:45;width:44px;height:44px;border-radius:50%;background:var(--panel2);border:2px solid var(--line);color:var(--text);font-size:18px;display:none;touch-action:none;}
 #btnPause.show{display:block;}
 /* toast */
@@ -100,7 +107,7 @@ input[type=range]{width:200px;accent-color:var(--accent);}
 
 /* ==================== 元系统 ==================== */
 .meta-bar{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:4px;}
-.meta-chip{background:var(--panel2);border:1px solid var(--line);color:var(--text);font-size:12px;padding:6px 12px;border-radius:20px;font-weight:700;box-shadow:0 0 10px rgba(0,0,0,.3);}
+.meta-chip{background:var(--panel2);border:1px solid var(--line);color:var(--text);font-size:13px;padding:6px 12px;border-radius:20px;font-weight:700;box-shadow:0 0 10px rgba(0,0,0,.3);}
 .meta-chip.gold{color:var(--accent);border-color:var(--accent);}
 .meta-chip.red{color:var(--accent2);border-color:var(--accent2);}
 /* 教程 */
@@ -349,6 +356,7 @@ input[type=range]{width:200px;accent-color:var(--accent);}
       <div class="btn" onclick="PAC.UI.resume()">继续</div>
       <div class="btn" onclick="PAC.UI.restart()">重新开始</div>
       <div class="btn ghost" onclick="PAC.UI.on('menu')">回主菜单</div>
+      <div class="btn ghost" onclick="location.href='../index.html'">🏠 返回主页</div>
     </div>
     <div class="overlay" id="resultOverlay">
       <h2 id="resTitle">结果</h2>
@@ -357,6 +365,7 @@ input[type=range]{width:200px;accent-color:var(--accent);}
       <div class="res-meta" id="resMeta"></div>
       <div class="btn" id="resAgain" onclick="PAC.UI.restart()">再来一局</div>
       <div class="btn ghost" onclick="PAC.UI.on('menu')">主菜单</div>
+      <div class="btn ghost" onclick="location.href='../index.html'">🏠 返回主页</div>
     </div>
   </section>
   <!-- 抽卡结果 -->
@@ -367,6 +376,7 @@ input[type=range]{width:200px;accent-color:var(--accent);}
   </div>
 </div>
 
+<a class="home-pill" id="homeBtn" href="../index.html">← 主页</a>
 <div id="joy"><div id="joyKnob"></div></div>
 <div id="dpad">
   <div></div><button data-d="up">▲</button><div></div>

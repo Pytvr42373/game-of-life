@@ -81,6 +81,16 @@
     display:flex;align-items:center;justify-content:center;letter-spacing:1px;pointer-events:auto;
     box-shadow:0 2px 8px rgba(0,0,0,0.5);}
   .tbtn:active{background:rgba(80,66,120,0.7);}
+
+  /* 返回主页按钮（毛玻璃胶囊 · 哥特适配） */
+  .back-home{position:fixed;top:14px;left:14px;z-index:90;text-decoration:none;font-weight:bold;
+    padding:8px 16px;border-radius:999px;cursor:pointer;font-size:13px;font-family:inherit;
+    background:rgba(20,18,42,0.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    border:1px solid var(--line);color:var(--gold2);letter-spacing:2px;
+    box-shadow:0 2px 12px rgba(0,0,0,0.5);transition:transform .18s,background .18s,border-color .18s,box-shadow .18s;}
+  .back-home:hover{background:rgba(42,36,76,0.72);border-color:var(--gold);color:#fff;
+    transform:translateY(-2px);box-shadow:0 0 16px rgba(216,180,106,0.35);}
+  .back-home:active{transform:translateY(0);}
   #btn-interact{right:110px;bottom:30px;}
   #btn-skill{right:24px;bottom:30px;width:74px;height:74px;background:rgba(60,40,30,0.6);}
   #btn-skill2{right:24px;bottom:118px;width:56px;height:56px;font-size:11px;}
@@ -90,6 +100,9 @@
 </head>
 <body>
 <canvas id="game"></canvas>
+
+<!-- 返回主页（左上角 · 毛玻璃胶囊 · 哥特适配） -->
+<a class="back-home" id="btn-home" href="../index.html" aria-label="返回主页">← 主页</a>
 
 <!-- ================= 主菜单 ================= -->
 <div class="panel" id="menu">
@@ -217,7 +230,15 @@
 <script src="ui.js"></script>
 <script>
 window.addEventListener('load', function () {
-  UI.start(new Game());
+  // 初始化容错：即使初始化抛出异常，也保证主菜单能显示，避免卡在加载界面
+  var initOk = false;
+  try { UI.start(new Game()); initOk = true; } catch (e) { initOk = false; }
+  if (!initOk) {
+    try {
+      var mm = document.getElementById('menu');
+      if (mm) mm.style.display = 'flex';
+    } catch (e2) {}
+  }
   // 首次进入展示教程
   try {
     if (!localStorage.getItem('dawn-maze-seen-tut')) {
