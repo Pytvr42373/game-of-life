@@ -627,6 +627,125 @@ body[data-theme="arcade"] .ext-doodle .name{color:#ffe14d;text-shadow:0 0 12px r
 body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;background:#2a2a4a}
 .ext-doodle .note{font-family:'ZCOOL KuaiLe',cursive;font-size:12px;color:var(--dim);margin-top:10px;transform:rotate(-.5deg)}
 </style>
+
+<style>
+/* ============================================================
+   降世神通 · 彩蛋（独立模块）
+   入口卡片 / 蓝天白云过场 / 四元素字特效 / MC传送门
+   单主题：双主题（4399/arcade）共用同一套样式
+   ============================================================ */
+/* ---------- 入口卡片 ---------- */
+.card-avatar .ico{position:relative;z-index:1;display:inline-block;width:86px;height:86px;margin-bottom:14px;border-radius:50%;animation:avIcoBreathe 3.2s ease-in-out infinite}
+.card-avatar .ico::before{content:'';position:absolute;inset:-15px;z-index:-1;border-radius:50%;background:conic-gradient(from 0deg,rgba(255,180,80,0),rgba(58,168,255,.8),rgba(140,80,255,.55),rgba(80,220,180,.45),rgba(255,180,80,0));-webkit-mask:radial-gradient(circle,transparent 30%,#000 60%,transparent 72%);mask:radial-gradient(circle,transparent 30%,#000 60%,transparent 72%);animation:avIcoSpin 6s linear infinite;filter:blur(1px)}
+.card-avatar .ico::after{content:'';position:absolute;inset:-25px;z-index:-2;border-radius:50%;border:2px dashed transparent;animation:avIcoSpin 11s linear infinite reverse}
+body[data-theme="4399"] .card-avatar .ico::after{border-top-color:#ffb347;border-right-color:#3aa8ff;border-bottom-color:#b07f3a;border-left-color:#5fd4a8;opacity:.75}
+body[data-theme="arcade"] .card-avatar .ico::after{border-top-color:#ffd54f;border-right-color:#3de1ff;border-bottom-color:#ff9b6a;border-left-color:#b388ff;opacity:.9}
+body[data-theme="4399"] .card-avatar .ico{filter:drop-shadow(0 0 14px rgba(58,168,255,.55))}
+body[data-theme="arcade"] .card-avatar .ico{filter:drop-shadow(0 0 18px rgba(160,120,255,.8))}
+@keyframes avIcoBreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.09)}}
+@keyframes avIcoSpin{to{transform:rotate(360deg)}}
+.av-badge{position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:50%;background:radial-gradient(circle at 35% 30%,#3a3a72,#14142c 72%);box-shadow:inset 0 0 14px rgba(140,120,255,.3),0 0 20px rgba(58,168,255,.22);overflow:visible}
+.av-badge .av-face{width:90%;height:90%;display:block}
+.av-orbit{position:absolute;inset:-9px;animation:avIcoSpin 14s linear infinite;pointer-events:none}
+.av-glyph{position:absolute;width:27px;height:27px;display:block}
+.av-glyph.g-fire{top:-4px;left:50%;transform:translateX(-50%)}
+.av-glyph.g-air{right:-4px;top:50%;transform:translateY(-50%)}
+.av-glyph.g-water{bottom:-4px;left:50%;transform:translateX(-50%)}
+.av-glyph.g-earth{left:-4px;top:50%;transform:translateY(-50%)}
+.av-glyph.g-fire{filter:drop-shadow(0 0 6px rgba(255,120,40,.9))}
+.av-glyph.g-air{filter:drop-shadow(0 0 6px rgba(220,250,255,.85))}
+.av-glyph.g-water{filter:drop-shadow(0 0 6px rgba(60,160,255,.85))}
+.av-glyph.g-earth{filter:drop-shadow(0 0 6px rgba(190,140,70,.85))}
+
+/* ---------- 彩蛋过场：蓝天白云 + 洒落光芒 ---------- */
+.avatar-overlay{position:fixed;inset:0;z-index:800;overflow:hidden;background:#5aa7e8;opacity:0;visibility:hidden;transition:opacity .5s ease;font-family:'PingFang SC','Microsoft YaHei',sans-serif}
+.avatar-overlay.show{opacity:1;visibility:visible}
+.av-sky{position:absolute;inset:0;background:linear-gradient(180deg,#2f7fd0 0%,#5aa7e8 34%,#8fc6f0 62%,#c9e9fb 82%,#eef8ff 100%)}
+.av-sun{position:absolute;top:7%;right:10%;width:15vmin;height:15vmin;border-radius:50%;background:radial-gradient(circle,rgba(255,246,214,.95) 0%,rgba(255,224,150,.55) 46%,rgba(255,224,150,0) 70%);filter:blur(1px);animation:avSunBreathe 7s ease-in-out infinite}
+@keyframes avSunBreathe{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.1);opacity:1}}
+.av-cloud{position:absolute;height:26px;background:#fff;border-radius:999px;opacity:.9;filter:blur(1px);animation:avCloudDrift linear infinite}
+.av-cloud::before,.av-cloud::after{content:'';position:absolute;background:#fff;border-radius:999px}
+.av-cloud::before{width:60%;height:160%;top:-70%;left:12%}
+.av-cloud::after{width:44%;height:120%;top:-48%;right:14%}
+@keyframes avCloudDrift{0%{transform:translateX(-35vw)}100%{transform:translateX(110vw)}}
+.av-rays{position:absolute;inset:0;pointer-events:none;z-index:2;overflow:hidden}
+.av-ray{position:absolute;top:-15%;width:4px;height:58vh;border-radius:999px;background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.9) 30%,rgba(255,240,190,.95) 55%,rgba(255,255,255,0));filter:blur(1.5px);opacity:0;animation:avRayFall var(--d,7s) linear var(--dl,0s) infinite}
+@keyframes avRayFall{0%{transform:translateY(-35vh) rotate(var(--r,0deg));opacity:0}12%{opacity:var(--o,.8)}80%{opacity:var(--o,.8)}100%{transform:translateY(115vh) rotate(var(--r,0deg));opacity:0}}
+.av-spark{position:absolute;top:-10px;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle,#fff 0%,rgba(255,255,255,.7) 35%,rgba(255,255,255,0) 70%);opacity:0;animation:avSparkFall var(--d,6s) linear var(--dl,0s) infinite}
+@keyframes avSparkFall{0%{transform:translateY(0) translateX(0);opacity:0}10%{opacity:.9}90%{opacity:.6}100%{transform:translateY(110vh) translateX(var(--sway,20px));opacity:0}}
+.av-scene{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;gap:14px;overflow-y:auto;overscroll-behavior:contain}
+.av-line{position:relative;max-width:94%;font-size:clamp(20px,4.6vmin,42px);font-weight:900;color:#16355a;line-height:1.55;letter-spacing:2px;text-shadow:0 2px 0 rgba(255,255,255,.55),0 4px 18px rgba(120,180,230,.5);opacity:0;transform:translateY(18px);transition:opacity .5s ease,transform .5s ease;min-height:1.4em}
+.av-line.show{opacity:1;transform:none}
+/* 安昂脑袋 */
+.av-aang{position:relative;width:min(36vmin,212px);height:min(36vmin,212px);margin:2px 0;opacity:0;transform:scale(.55) translateY(24px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,1.2,.4,1);filter:drop-shadow(0 0 24px rgba(90,180,255,.85)) drop-shadow(0 6px 20px rgba(30,60,110,.35))}
+.av-aang.show{opacity:1;transform:scale(1) translateY(0)}
+.av-aang svg{width:100%;height:100%;display:block}
+/* 四元素符号行 */
+.av-elements{display:flex;gap:20px;align-items:center;opacity:0;transition:opacity .6s ease .35s}
+.av-elements.show{opacity:1}
+.av-elements .el{width:42px;height:42px;display:block;animation:avElFloat 2.6s ease-in-out infinite}
+.av-elements .el:nth-child(2){animation-delay:.4s}
+.av-elements .el:nth-child(3){animation-delay:.8s}
+.av-elements .el:nth-child(4){animation-delay:1.2s}
+.av-elements .el svg{width:100%;height:100%;display:block}
+.av-elements .el.f{filter:drop-shadow(0 0 8px rgba(255,120,40,.9))}
+.av-elements .el.a{filter:drop-shadow(0 0 8px rgba(225,250,255,.9))}
+.av-elements .el.w{filter:drop-shadow(0 0 8px rgba(60,160,255,.9))}
+.av-elements .el.e{filter:drop-shadow(0 0 8px rgba(195,145,70,.9))}
+@keyframes avElFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* ---------- 四元素字特效（火橙红/气白/水蓝/土棕） ---------- */
+.av-el{display:inline-block;font-weight:900;margin:0 .05em}
+.av-el.f{color:#ff7a1f;text-shadow:0 0 8px rgba(255,110,30,.95),0 0 22px rgba(255,70,0,.75),0 0 40px rgba(255,40,0,.5);animation:avElFire 1s ease-in-out infinite}
+.av-el.a{color:#eafcff;text-shadow:0 0 8px rgba(255,255,255,.95),0 0 22px rgba(170,225,255,.8),0 0 40px rgba(140,210,255,.5);opacity:.96;animation:avElAir 3.2s ease-in-out infinite}
+.av-el.w{color:#3aa8ff;text-shadow:0 0 8px rgba(70,165,255,.9),0 0 22px rgba(40,130,255,.7),0 0 42px rgba(30,100,255,.45);animation:avElWater 2.4s ease-in-out infinite}
+.av-el.e{color:#a06f2f;text-shadow:0 0 6px rgba(190,140,70,.75),0 2px 0 rgba(70,45,15,.6),0 0 16px rgba(150,105,50,.45);animation:avElEarth 3.4s ease-in-out infinite}
+@keyframes avElFire{0%,100%{transform:translateY(0) scale(1);filter:brightness(1)}35%{transform:translateY(-4px) scale(1.14) rotate(-2deg);filter:brightness(1.45)}70%{transform:translateY(-1px) scale(1.06) rotate(2deg);filter:brightness(1.1)}}
+@keyframes avElAir{0%,100%{transform:translateY(0) scale(1);opacity:.96;filter:blur(0)}50%{transform:translateY(-9px) scale(1.08);opacity:.72;filter:blur(1.5px)}}
+@keyframes avElWater{0%,100%{transform:translateY(0) skewX(0deg)}20%{transform:translateY(3px) skewX(7deg)}40%{transform:translateY(-2px) skewX(-5deg)}60%{transform:translateY(2px) skewX(5deg)}80%{transform:translateY(-3px) skewX(-7deg)}}
+@keyframes avElEarth{0%,100%{transform:translate(0,0)}25%{transform:translate(1.5px,1.5px)}50%{transform:translate(-1px,1px)}75%{transform:translate(1px,-1px)}}
+
+/* ---------- 询问弹窗（复用 portal-ask 结构，置顶于过场之上） ---------- */
+.avatar-ask{z-index:810}
+.avatar-ask .portal-ask-box{border-color:#7fb6e8;background:linear-gradient(180deg,#ffffff,var(--surface));box-shadow:0 0 46px rgba(80,150,255,.35)}
+.avatar-ask .avatar-ask-ico{width:72px;height:72px;margin:0 auto 10px;filter:drop-shadow(0 0 10px rgba(90,180,255,.7));animation:avIcoBreathe 2.4s ease-in-out infinite}
+.avatar-ask .avatar-ask-ico svg{width:100%;height:100%;display:block}
+.avatar-ask .portal-ask-btn.bold{border-color:#3aa8ff;color:#2f7fd0}
+.avatar-ask .portal-ask-btn.bold:hover{background:#3aa8ff;color:#fff;box-shadow:0 0 18px rgba(58,168,255,.5)}
+
+/* ---------- MC 传送门式动画（环形渐变 + 旋转粒子 + 中心发光） ---------- */
+.avatar-portal{position:fixed;inset:0;z-index:820;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;background:#04050e;opacity:0;visibility:hidden;transition:opacity .5s ease;font-family:'PingFang SC','Microsoft YaHei',sans-serif}
+.avatar-portal.show{opacity:1;visibility:visible}
+.avatar-portal .av-starfield{position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(90,60,200,.25),transparent 55%),radial-gradient(circle at 75% 75%,rgba(0,200,255,.18),transparent 55%)}
+.mc-stage{position:relative;display:flex;flex-direction:column;align-items:center;gap:26px;padding:20px}
+.mc-gate{position:relative;width:min(58vmin,410px);height:min(58vmin,410px);border-radius:50%}
+.mc-ring{position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,#140a2e,#7b2fff 25%,#00d4ff 50%,#ff2ddb 75%,#140a2e);-webkit-mask:radial-gradient(circle,transparent 32%,#000 52%,transparent 68%);mask:radial-gradient(circle,transparent 32%,#000 52%,transparent 68%);animation:mcSpin 3.6s linear infinite;filter:blur(2px)}
+.mc-ring.r2{inset:7%;background:conic-gradient(from 180deg,#0e0620,#a05cff 30%,#3de1ff 55%,#a05cff 80%,#0e0620);-webkit-mask:radial-gradient(circle,transparent 42%,#000 60%,transparent 72%);mask:radial-gradient(circle,transparent 42%,#000 60%,transparent 72%);animation:mcSpin 5.4s linear infinite reverse;filter:blur(1px)}
+.mc-vortex{position:absolute;inset:13%;border-radius:50%;background:radial-gradient(circle,#fff 0%,#d4b8ff 10%,#8a5cf0 30%,#3a1a6a 56%,#0a0518 74%,transparent 82%);box-shadow:0 0 70px rgba(140,80,255,.9),inset 0 0 70px rgba(0,212,255,.55);animation:mcVortexPulse 2.2s ease-in-out infinite}
+.mc-core{position:absolute;left:50%;top:50%;width:17%;height:17%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,#fff 0%,#e6d4ff 35%,#a05cff 70%,rgba(160,92,255,0) 100%);animation:mcCorePulse 1.5s ease-in-out infinite}
+.mc-particles{position:absolute;inset:0}
+.mc-part{position:absolute;left:50%;top:50%;width:7px;height:7px;border-radius:50%;opacity:0;animation:mcPartIn var(--dur,2.8s) cubic-bezier(.12,.55,.2,1) forwards;box-shadow:0 0 8px var(--pc)}
+@keyframes mcSpin{to{transform:rotate(360deg)}}
+@keyframes mcVortexPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.4)}}
+@keyframes mcCorePulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.3)}}
+@keyframes mcPartIn{0%{opacity:0;transform:rotate(var(--a)) translate(calc(var(--r)*0.95)) rotate(var(--na)) scale(.4)}18%{opacity:1}100%{opacity:0;transform:rotate(calc(var(--a) + 320deg)) translate(calc(var(--r)*0.05)) rotate(calc(var(--na) - 320deg)) scale(1.4)}}
+.mc-frame{position:absolute;inset:-11%;pointer-events:none;opacity:.9}
+.mc-frame .blk{position:absolute;display:block;width:13%;height:13%;background:linear-gradient(135deg,#382a58,#181028);border:2px solid #5a3a9a;border-radius:5px;box-shadow:0 0 18px rgba(140,90,255,.65),inset 0 0 12px rgba(58,168,255,.35)}
+.mc-frame .blk.tl{top:0;left:0}.mc-frame .blk.tr{top:0;right:0}.mc-frame .blk.bl{bottom:0;left:0}.mc-frame .blk.br{bottom:0;right:0}
+.mc-go-text{position:relative;font-size:clamp(22px,5vmin,40px);font-weight:900;color:#efe6ff;letter-spacing:3px;text-align:center;text-shadow:0 0 16px rgba(170,130,255,.95),0 0 44px rgba(120,80,255,.65);padding:0 16px;opacity:0;animation:mcGoIn .9s ease .2s forwards}
+@keyframes mcGoIn{from{opacity:0;transform:translateY(20px) scale(.92)}to{opacity:1;transform:none}}
+.mc-load{width:min(300px,70%);height:6px;border-radius:999px;background:rgba(255,255,255,.12);overflow:hidden;position:relative;opacity:0;animation:mcGoIn .6s ease .4s forwards}
+.mc-load i{position:absolute;inset:0;background:linear-gradient(90deg,#a05cff,#3de1ff,#ff2ddb,#a05cff);background-size:300% 100%;transform-origin:left;animation:mcLoadBar 3.2s linear forwards,mcLoadShine 1s linear infinite}
+@keyframes mcLoadBar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes mcLoadShine{0%{background-position:0 0}100%{background-position:-300% 0}}
+
+/* ---------- 尊重 prefers-reduced-motion ---------- */
+@media (prefers-reduced-motion: reduce){
+  .card-avatar .ico,.card-avatar .ico::before,.card-avatar .ico::after,.av-orbit,.av-aang,.av-elements .el,.av-el,.avatar-ask .avatar-ask-ico,.mc-ring,.mc-ring.r2,.mc-vortex,.mc-core,.mc-load i,.av-sun,.av-cloud,.av-ray,.av-spark{animation:none!important}
+  .av-line,.av-aang,.av-elements,.mc-go-text,.mc-load{opacity:1!important;transform:none!important}
+  .av-el{opacity:1!important;filter:none!important}
+}
+</style>
 </head>
 <body data-theme="4399">
 
@@ -691,6 +810,119 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
   </div>
 </div>
 
+
+<!-- 降世神通 · 彩蛋过场（蓝天白云 + 洒落光芒 + 台词演出） -->
+<div class="avatar-overlay" id="avatarOverlay" role="dialog" aria-modal="true" aria-label="降世神通彩蛋" aria-hidden="true" inert>
+  <div class="av-sky" aria-hidden="true">
+    <div class="av-sun"></div>
+    <div class="av-cloud" style="top:14%;width:110px;animation-duration:38s"></div>
+    <div class="av-cloud" style="top:30%;width:150px;animation-duration:52s;animation-delay:-20s;opacity:.75"></div>
+    <div class="av-cloud" style="top:8%;width:82px;animation-duration:44s;animation-delay:-30s;opacity:.6"></div>
+    <div class="av-cloud" style="top:46%;width:180px;animation-duration:60s;animation-delay:-10s;opacity:.55"></div>
+  </div>
+  <div class="av-rays" id="avRays" aria-hidden="true"></div>
+  <div class="av-scene">
+    <div class="av-line" id="avLine1"></div>
+    <div class="av-aang" id="avAang" aria-hidden="true">
+      <svg viewBox="0 0 120 120" aria-hidden="true">
+        <defs>
+          <radialGradient id="avBg2" cx="50%" cy="40%" r="68%">
+            <stop offset="0%" stop-color="#4a4a8a"/>
+            <stop offset="100%" stop-color="#14142c"/>
+          </radialGradient>
+          <radialGradient id="avSkin2" cx="42%" cy="34%" r="82%">
+            <stop offset="0%" stop-color="#f8d8ac"/>
+            <stop offset="100%" stop-color="#dfa674"/>
+          </radialGradient>
+          <linearGradient id="avArrow2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#a8e0ff"/>
+            <stop offset="100%" stop-color="#3f92e2"/>
+          </linearGradient>
+        </defs>
+        <circle cx="60" cy="60" r="57" fill="url(#avBg2)"/>
+        <circle cx="60" cy="60" r="55" fill="none" stroke="rgba(150,130,255,.4)" stroke-width="1.6"/>
+        <circle cx="60" cy="60" r="44" fill="rgba(120,170,255,.10)"/>
+        <circle cx="16" cy="60" r="8.5" fill="url(#avSkin2)"/>
+        <circle cx="104" cy="60" r="8.5" fill="url(#avSkin2)"/>
+        <path d="M12.5 56.5q-1.5 3.5 0 7M107.5 56.5q1.5 3.5 0 7" stroke="#c98f5e" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <circle cx="60" cy="60" r="40" fill="url(#avSkin2)"/>
+        <path d="M20 62a40 40 0 0 0 80 0 40 40 0 0 1-80 0z" fill="rgba(150,90,50,.13)"/>
+        <path d="M55.5 24 L64.5 24 L64.5 46 L72 52 L60 64 L48 52 L55.5 46 Z" fill="url(#avArrow2)" stroke="#2f7fd0" stroke-width="1"/>
+        <ellipse cx="45" cy="72" rx="9.6" ry="7.4" fill="#fff"/>
+        <ellipse cx="75" cy="72" rx="9.6" ry="7.4" fill="#fff"/>
+        <ellipse cx="45" cy="72" rx="5.4" ry="5.8" fill="#6b7a8a"/>
+        <ellipse cx="75" cy="72" rx="5.4" ry="5.8" fill="#6b7a8a"/>
+        <circle cx="43.3" cy="70.5" r="1.7" fill="#fff"/>
+        <circle cx="73.3" cy="70.5" r="1.7" fill="#fff"/>
+        <path d="M35 66 Q45 61 54 64.5" stroke="#7a5333" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M66 64.5 Q75 61 85 66" stroke="#7a5333" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M60 74 q-3 3 0 6" stroke="#c98f5e" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+        <path d="M51 86 Q60 92 69 86" stroke="#b0664a" stroke-width="2.1" fill="none" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="av-elements" id="avElements" aria-hidden="true">
+      <span class="el f"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C12 2 6.5 7.2 6.5 12.5A5.5 5.5 0 0 0 12 18a5.5 5.5 0 0 0 5.5-5.5C17.5 7.2 12 2 12 2z" fill="#ff7a1f"/><path d="M12 6.5c-2.2 2.4-3.2 4.2-3.2 5.9a3.2 3.2 0 0 0 6.4 0c0-1.7-1-3.5-3.2-5.9z" fill="#ffd54f"/></svg></span>
+      <span class="el a"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12 m-7 0 a7 7 0 1 1 7 7 a6 6 0 1 1 6 -6 a5 5 0 1 1 -5 -5 a4 4 0 1 1 -4 4 a3 3 0 1 1 3 3" fill="none" stroke="#eafcff" stroke-width="2.2" stroke-linecap="round"/></svg></span>
+      <span class="el w"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="16.5" cy="6" r="3.4" fill="none" stroke="#3aa8ff" stroke-width="2.2"/><path d="M2.5 15.5c2.6-3 5.2-3 7.8 0s5.2 3 7.8 0 4.6-2.6 5.6-1.4" fill="none" stroke="#3aa8ff" stroke-width="2.2" stroke-linecap="round"/></svg></span>
+      <span class="el e"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5L21 20H3z" fill="none" stroke="#b07f3a" stroke-width="2.2" stroke-linejoin="round"/><path d="M7 14h10" stroke="#b07f3a" stroke-width="2.2" stroke-linecap="round"/></svg></span>
+    </div>
+    <div class="av-line" id="avLine2"></div>
+    <div class="av-line" id="avLine3"></div>
+  </div>
+</div>
+<!-- 降世神通 · 询问弹窗（复用 portal-ask 结构与样式，保持视觉统一） -->
+<div class="portal-ask avatar-ask" id="avatarAsk" role="dialog" aria-modal="true" aria-labelledby="avatarAskTitle" aria-hidden="true" inert>
+  <div class="portal-ask-box">
+    <div class="avatar-ask-ico" aria-hidden="true">
+      <svg viewBox="0 0 120 120" aria-hidden="true">
+        <defs>
+          <radialGradient id="avSkin3" cx="42%" cy="34%" r="82%">
+            <stop offset="0%" stop-color="#f8d8ac"/>
+            <stop offset="100%" stop-color="#dfa674"/>
+          </radialGradient>
+          <linearGradient id="avArrow3" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#a8e0ff"/>
+            <stop offset="100%" stop-color="#3f92e2"/>
+          </linearGradient>
+        </defs>
+        <circle cx="60" cy="60" r="44" fill="url(#avSkin3)"/>
+        <path d="M20 62a40 40 0 0 0 80 0 40 40 0 0 1-80 0z" fill="rgba(150,90,50,.13)"/>
+        <path d="M55.5 24 L64.5 24 L64.5 46 L72 52 L60 64 L48 52 L55.5 46 Z" fill="url(#avArrow3)" stroke="#2f7fd0" stroke-width="1"/>
+        <ellipse cx="45" cy="72" rx="9.6" ry="7.4" fill="#fff"/>
+        <ellipse cx="75" cy="72" rx="9.6" ry="7.4" fill="#fff"/>
+        <ellipse cx="45" cy="72" rx="5.4" ry="5.8" fill="#6b7a8a"/>
+        <ellipse cx="75" cy="72" rx="5.4" ry="5.8" fill="#6b7a8a"/>
+        <circle cx="43.3" cy="70.5" r="1.7" fill="#fff"/>
+        <circle cx="73.3" cy="70.5" r="1.7" fill="#fff"/>
+        <path d="M35 66 Q45 61 54 64.5" stroke="#7a5333" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M66 64.5 Q75 61 85 66" stroke="#7a5333" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M51 86 Q60 92 69 86" stroke="#b0664a" stroke-width="2.1" fill="none" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="portal-ask-title" id="avatarAskTitle">你想要了解这些力量吗？</div>
+    <div class="portal-ask-sub">四元素的力量，正向你敞开大门</div>
+    <div class="portal-ask-btns">
+      <button type="button" class="portal-ask-btn retreat" id="avatarNo">还是不了。</button>
+      <button type="button" class="portal-ask-btn bold" id="avatarYes">我想要！</button>
+    </div>
+  </div>
+</div>
+<!-- 降世神通 · MC 传送门（环形渐变 + 旋转粒子 + 中心发光） -->
+<div class="avatar-portal" id="avatarPortal" role="dialog" aria-modal="true" aria-label="进入降世神通的世界" aria-hidden="true" inert>
+  <div class="av-starfield" aria-hidden="true"></div>
+  <div class="mc-stage">
+    <div class="mc-gate" aria-hidden="true">
+      <div class="mc-ring"></div>
+      <div class="mc-ring r2"></div>
+      <div class="mc-vortex"></div>
+      <div class="mc-core"></div>
+      <div class="mc-particles" id="mcParticles"></div>
+      <div class="mc-frame"><i class="blk tl"></i><i class="blk tr"></i><i class="blk bl"></i><i class="blk br"></i></div>
+    </div>
+    <div class="mc-go-text" id="mcGoText">我们将进入降世神通的世界。</div>
+    <div class="mc-load"><i></i></div>
+  </div>
+</div>
 <!-- 开屏动画 -->
 <button class="splash" id="splash" type="button" aria-label="点击进入主页" autofocus>
   <span class="bg"></span>
@@ -1013,6 +1245,58 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
       <span class="ico">🌀</span>
       <div class="name">神秘的入口</div>
       <div class="tag">神秘 · 传送门</div>
+    </a>
+
+    <!-- 降世神通 · 神秘彩蛋入口（自绘安昂 SVG + 四元素符号环绕动画） -->
+    <a class="card card-avatar" href="javascript:void(0)" data-delay=".82s" data-categories="神秘" data-mystery="1" onclick="openAvatar(event,this)" title="降世神通 · 四元素之力" aria-label="降世神通彩蛋">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <span class="ico">
+        <span class="av-badge">
+          <span class="av-orbit" aria-hidden="true">
+            <svg class="av-glyph g-fire" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C12 2 6.5 7.2 6.5 12.5A5.5 5.5 0 0 0 12 18a5.5 5.5 0 0 0 5.5-5.5C17.5 7.2 12 2 12 2z" fill="#ff7a1f"/><path d="M12 6.5c-2.2 2.4-3.2 4.2-3.2 5.9a3.2 3.2 0 0 0 6.4 0c0-1.7-1-3.5-3.2-5.9z" fill="#ffd54f"/></svg>
+            <svg class="av-glyph g-air" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12 m-7 0 a7 7 0 1 1 7 7 a6 6 0 1 1 6 -6 a5 5 0 1 1 -5 -5 a4 4 0 1 1 -4 4 a3 3 0 1 1 3 3" fill="none" stroke="#eafcff" stroke-width="2.2" stroke-linecap="round"/></svg>
+            <svg class="av-glyph g-water" viewBox="0 0 24 24" aria-hidden="true"><circle cx="16.5" cy="6" r="3.4" fill="none" stroke="#3aa8ff" stroke-width="2.2"/><path d="M2.5 15.5c2.6-3 5.2-3 7.8 0s5.2 3 7.8 0 4.6-2.6 5.6-1.4" fill="none" stroke="#3aa8ff" stroke-width="2.2" stroke-linecap="round"/></svg>
+            <svg class="av-glyph g-earth" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5L21 20H3z" fill="none" stroke="#b07f3a" stroke-width="2.2" stroke-linejoin="round"/><path d="M7 14h10" stroke="#b07f3a" stroke-width="2.2" stroke-linecap="round"/></svg>
+          </span>
+          <svg class="av-face" viewBox="0 0 120 120" aria-hidden="true">
+            <defs>
+              <radialGradient id="avBg" cx="50%" cy="40%" r="68%">
+                <stop offset="0%" stop-color="#4a4a8a"/>
+                <stop offset="100%" stop-color="#14142c"/>
+              </radialGradient>
+              <radialGradient id="avSkin" cx="42%" cy="34%" r="82%">
+                <stop offset="0%" stop-color="#f8d8ac"/>
+                <stop offset="100%" stop-color="#dfa674"/>
+              </radialGradient>
+              <linearGradient id="avArrow" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#a8e0ff"/>
+                <stop offset="100%" stop-color="#3f92e2"/>
+              </linearGradient>
+            </defs>
+            <circle cx="60" cy="60" r="57" fill="url(#avBg)"/>
+            <circle cx="60" cy="60" r="55" fill="none" stroke="rgba(150,130,255,.4)" stroke-width="1.6"/>
+            <circle cx="60" cy="60" r="44" fill="rgba(120,170,255,.10)"/>
+            <circle cx="16" cy="60" r="8.5" fill="url(#avSkin)"/>
+            <circle cx="104" cy="60" r="8.5" fill="url(#avSkin)"/>
+            <path d="M12.5 56.5q-1.5 3.5 0 7M107.5 56.5q1.5 3.5 0 7" stroke="#c98f5e" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+            <circle cx="60" cy="60" r="40" fill="url(#avSkin)"/>
+            <path d="M20 62a40 40 0 0 0 80 0 40 40 0 0 1-80 0z" fill="rgba(150,90,50,.13)"/>
+            <path d="M55.5 24 L64.5 24 L64.5 46 L72 52 L60 64 L48 52 L55.5 46 Z" fill="url(#avArrow)" stroke="#2f7fd0" stroke-width="1"/>
+            <ellipse cx="45" cy="72" rx="9.6" ry="7.4" fill="#fff"/>
+            <ellipse cx="75" cy="72" rx="9.6" ry="7.4" fill="#fff"/>
+            <ellipse cx="45" cy="72" rx="5.4" ry="5.8" fill="#6b7a8a"/>
+            <ellipse cx="75" cy="72" rx="5.4" ry="5.8" fill="#6b7a8a"/>
+            <circle cx="43.3" cy="70.5" r="1.7" fill="#fff"/>
+            <circle cx="73.3" cy="70.5" r="1.7" fill="#fff"/>
+            <path d="M35 66 Q45 61 54 64.5" stroke="#7a5333" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M66 64.5 Q75 61 85 66" stroke="#7a5333" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M60 74 q-3 3 0 6" stroke="#c98f5e" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+            <path d="M51 86 Q60 92 69 86" stroke="#b0664a" stroke-width="2.1" fill="none" stroke-linecap="round"/>
+          </svg>
+        </span>
+      </span>
+      <div class="name">降世神通</div>
+      <div class="tag">神秘 · 四元素</div>
     </a>
   </div>
 
@@ -1913,5 +2197,353 @@ body[data-theme="arcade"] .remind-close{border-radius:0;font-family:'Press Start
 })();
 </script>
 
+
+<script>
+/* ===== 降世神通 · 彩蛋逻辑（独立模块，不依赖外部资源，全程序化合成） ===== */
+(function(){
+'use strict';
+var AV_URL='https://www.bilibili.com/video/BV1Qf4y1i73V/?p=1';
+var AV_REDUCED=false;
+try{ AV_REDUCED=matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
+
+/* ---------- 关键 DOM ---------- */
+var avOverlay=null, avRays=null, avLine1=null, avAang=null, avElements=null, avLine2=null, avLine3=null, avAsk=null, avPortal=null, mcParticles=null;
+function avEl(id){ return document.getElementById(id); }
+function avInitDom(){
+  avOverlay=avEl('avatarOverlay'); avRays=avEl('avRays'); avLine1=avEl('avLine1'); avAang=avEl('avAang');
+  avElements=avEl('avElements'); avLine2=avEl('avLine2'); avLine3=avEl('avLine3');
+  avAsk=avEl('avatarAsk'); avPortal=avEl('avatarPortal'); mcParticles=avEl('mcParticles');
+}
+avInitDom();
+
+/* ---------- 音频（Web Audio 实时合成：BGM / 鸟鸣 / 锣 / 太鼓 / 风铃 / 氛围风噪） ---------- */
+var avAC=null, avMaster=null, avStopped=false, avMusicTimer=null, avBirdsTimer=null, avAmbient=null;
+/* 五声音阶：C D E G A */
+var AV_PENTA=[261.63,293.66,329.63,392.0,440.0,523.25,587.33,659.25,783.99];
+function avAudio(){
+  if(!avAC){
+    var AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC) return null;
+    avAC=new AC();
+    avMaster=avAC.createGain();
+    avMaster.gain.value=0.5;
+    avMaster.connect(avAC.destination);
+  }
+  if(avAC.state==='suspended'){ try{avAC.resume();}catch(e){} }
+  return avAC;
+}
+function avBird(){
+  var ctx=avAudio(); if(!ctx||avStopped) return;
+  var t=ctx.currentTime;
+  var n=2+Math.floor(Math.random()*2);
+  for(var i=0;i<n;i++){
+    var o=ctx.createOscillator(), g=ctx.createGain();
+    var f0=1800+Math.random()*1400;
+    o.type='sine';
+    o.frequency.setValueAtTime(f0,t+i*0.16);
+    o.frequency.exponentialRampToValueAtTime(f0*1.6,t+i*0.16+0.06);
+    o.frequency.exponentialRampToValueAtTime(f0*0.92,t+i*0.16+0.14);
+    g.gain.setValueAtTime(0,t+i*0.16);
+    g.gain.linearRampToValueAtTime(0.14,t+i*0.16+0.02);
+    g.gain.exponentialRampToValueAtTime(0.001,t+i*0.16+0.15);
+    o.connect(g); g.connect(avMaster);
+    o.start(t+i*0.16); o.stop(t+i*0.16+0.18);
+  }
+}
+function avChime(){
+  var ctx=avAudio(); if(!ctx||avStopped) return;
+  var t=ctx.currentTime;
+  var bases=[880,1174.66,1318.51,1760];
+  var base=bases[Math.floor(Math.random()*bases.length)];
+  for(var i=0;i<3;i++){
+    var o=ctx.createOscillator(), g=ctx.createGain();
+    o.type='sine';
+    o.frequency.value=base*(1+i*0.005);
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(0.06,t+0.02);
+    g.gain.exponentialRampToValueAtTime(0.001,t+2.2);
+    o.connect(g); g.connect(avMaster);
+    o.start(t); o.stop(t+2.4);
+  }
+}
+function avGong(){
+  var ctx=avAudio(); if(!ctx||avStopped) return;
+  var t=ctx.currentTime;
+  var o=ctx.createOscillator(), o2=ctx.createOscillator(), g=ctx.createGain();
+  o.type='sine'; o.frequency.value=110;
+  o2.type='triangle'; o2.frequency.value=110.6;
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(0.5,t+0.02);
+  g.gain.exponentialRampToValueAtTime(0.001,t+3.4);
+  o.connect(g); o2.connect(g); g.connect(avMaster);
+  o.start(t); o2.start(t); o.stop(t+3.6); o2.stop(t+3.6);
+}
+function avDrum(){
+  var ctx=avAudio(); if(!ctx||avStopped) return;
+  var t=ctx.currentTime;
+  var o=ctx.createOscillator(), g=ctx.createGain();
+  o.type='sine';
+  o.frequency.setValueAtTime(120,t);
+  o.frequency.exponentialRampToValueAtTime(48,t+0.3);
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(0.5,t+0.02);
+  g.gain.exponentialRampToValueAtTime(0.001,t+0.5);
+  o.connect(g); g.connect(avMaster);
+  o.start(t); o.stop(t+0.55);
+}
+function avPluck(freq,vol){
+  var ctx=avAudio(); if(!ctx||avStopped) return;
+  var t=ctx.currentTime;
+  var o=ctx.createOscillator(), g=ctx.createGain();
+  o.type='triangle';
+  o.frequency.value=freq;
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(vol,t+0.02);
+  g.gain.exponentialRampToValueAtTime(0.001,t+1.6);
+  o.connect(g); g.connect(avMaster);
+  o.start(t); o.stop(t+1.7);
+}
+function avStartPad(){
+  var ctx=avAudio(); if(!ctx||avStopped) return;
+  var t=ctx.currentTime;
+  var notes=[261.63,329.63,392.0];
+  for(var i=0;i<notes.length;i++){
+    var o=ctx.createOscillator(), g=ctx.createGain();
+    o.type='sine'; o.frequency.value=notes[i];
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.linearRampToValueAtTime(0.05,t+2.5);
+    g.gain.setValueAtTime(0.05,t+6);
+    g.gain.linearRampToValueAtTime(0.0001,t+9);
+    o.connect(g); g.connect(avMaster);
+    o.start(t); o.stop(t+9.2);
+  }
+}
+function avStartAmbience(){
+  var ctx=avAudio(); if(!ctx||avStopped) return;
+  var t=ctx.currentTime;
+  var len=ctx.sampleRate*4;
+  var buf=ctx.createBuffer(1,len,ctx.sampleRate);
+  var d=buf.getChannelData(0);
+  for(var i=0;i<len;i++){ d[i]=(Math.random()*2-1)*0.5; }
+  var src=ctx.createBufferSource(); src.buffer=buf; src.loop=true;
+  var f=ctx.createBiquadFilter(); f.type='lowpass'; f.frequency.value=420;
+  var g=ctx.createGain(); g.gain.value=0.045;
+  src.connect(f); f.connect(g); g.connect(avMaster);
+  src.start(t);
+  avAmbient=src;
+}
+function avScheduleBGM(){
+  if(avStopped) return;
+  var ctx=avAudio(); if(!ctx) return;
+  var f=AV_PENTA[Math.floor(Math.random()*AV_PENTA.length)];
+  avPluck(f,0.09+Math.random()*0.05);
+  var r=Math.random();
+  if(r<0.06) avGong();
+  else if(r<0.18) avDrum();
+  else if(r<0.3) avChime();
+  avMusicTimer=setTimeout(avScheduleBGM,2400+Math.random()*800);
+}
+function avBirdsLoop(){
+  if(avStopped) return;
+  avBird();
+  avBirdsTimer=setTimeout(avBirdsLoop,1600+Math.random()*2600);
+}
+function avStartAudio(){
+  var ctx=avAudio(); if(!ctx) return;
+  avStopped=false;
+  avStartAmbience();
+  avStartPad();
+  avScheduleBGM();
+  avBirdsLoop();
+  setTimeout(function(){ if(!avStopped) avGong(); },400);
+}
+function avStopAudio(){
+  avStopped=true;
+  if(avMusicTimer){ clearTimeout(avMusicTimer); avMusicTimer=null; }
+  if(avBirdsTimer){ clearTimeout(avBirdsTimer); avBirdsTimer=null; }
+  try{ if(avMaster&&avAC){ avMaster.gain.linearRampToValueAtTime(0,avAC.currentTime+0.4); } }catch(e){}
+  setTimeout(function(){
+    try{ if(avAC){ avAC.close(); } }catch(e){}
+    avAC=null; avMaster=null; avAmbient=null;
+  },500);
+}
+
+/* ---------- 视觉元素 ---------- */
+function avBuildRays(){
+  if(!avRays) return;
+  avRays.innerHTML='';
+  var rayCount = AV_REDUCED ? 0 : 14;
+  for(var i=0;i<rayCount;i++){
+    var r=document.createElement('i');
+    r.className='av-ray';
+    r.style.left=(Math.random()*100)+'%';
+    r.style.setProperty('--r',((Math.random()*30-15).toFixed(0))+'deg');
+    r.style.setProperty('--d',(5+Math.random()*6).toFixed(1)+'s');
+    r.style.setProperty('--dl',(Math.random()*6).toFixed(1)+'s');
+    r.style.setProperty('--o',(0.5+Math.random()*0.5).toFixed(2));
+    avRays.appendChild(r);
+  }
+  var sparkCount = AV_REDUCED ? 0 : 18;
+  for(var j=0;j<sparkCount;j++){
+    var s=document.createElement('i');
+    s.className='av-spark';
+    s.style.left=(Math.random()*98)+'%';
+    s.style.setProperty('--d',(4+Math.random()*5).toFixed(1)+'s');
+    s.style.setProperty('--dl',(Math.random()*6).toFixed(1)+'s');
+    s.style.setProperty('--sway',((Math.random()*40-20).toFixed(0))+'px');
+    avRays.appendChild(s);
+  }
+}
+function avBuildMcParticles(){
+  if(!mcParticles) return;
+  mcParticles.innerHTML='';
+  var count = AV_REDUCED ? 0 : 46;
+  var colors=['#7b2fff','#a05cff','#3de1ff','#ff2ddb','#00d4ff','#b388ff'];
+  var rMax=Math.min(window.innerWidth,window.innerHeight)*0.55;
+  for(var i=0;i<count;i++){
+    var p=document.createElement('i');
+    p.className='mc-part';
+    var a=Math.random()*360;
+    var r=(0.2+Math.random()*0.72)*rMax;
+    var dur=(2.2+Math.random()*2.2).toFixed(2);
+    var size=(4+Math.random()*6).toFixed(1);
+    p.style.setProperty('--a',a.toFixed(1)+'deg');
+    p.style.setProperty('--r',r.toFixed(0)+'px');
+    p.style.setProperty('--na',(-a).toFixed(1)+'deg');
+    p.style.setProperty('--dur',dur+'s');
+    p.style.setProperty('--pc',colors[i%colors.length]);
+    p.style.width=size+'px'; p.style.height=size+'px';
+    p.style.animationDelay=(Math.random()*1.4).toFixed(2)+'s';
+    mcParticles.appendChild(p);
+  }
+}
+function avTypeText(el,text,onDone,speed){
+  if(!el){ if(onDone) onDone(); return; }
+  el.classList.add('show');
+  el.textContent='';
+  if(AV_REDUCED){ el.textContent=text; if(onDone) onDone(); return; }
+  var i=0;
+  (function step(){
+    if(i>=text.length){ if(onDone) onDone(); return; }
+    el.textContent=text.slice(0,++i);
+    setTimeout(step,speed||90);
+  })();
+}
+var L2_TEXT='这位大师说，世界有四种力量，火、气、水、土';
+var L2_HTML='这位大师说，世界有四种力量，<span class="av-el f">火</span>、<span class="av-el a">气</span>、<span class="av-el w">水</span>、<span class="av-el e">土</span>';
+function avPlayLine2(done){
+  if(!avLine2){ if(done) done(); return; }
+  avLine2.classList.add('show');
+  avLine2.textContent='';
+  if(AV_REDUCED){ avLine2.innerHTML=L2_HTML; if(done) done(); return; }
+  var i=0;
+  (function step(){
+    if(i>=L2_TEXT.length){
+      setTimeout(function(){ avLine2.innerHTML=L2_HTML; if(done) done(); },220);
+      return;
+    }
+    avLine2.textContent=L2_TEXT.slice(0,++i);
+    setTimeout(step,85);
+  })();
+}
+
+/* ---------- 过场流程控制 ---------- */
+function avSetOverlay(on){
+  if(!avOverlay) return;
+  if(on){ avOverlay.inert=false; avOverlay.setAttribute('aria-hidden','false'); avOverlay.classList.add('show'); }
+  else{ avOverlay.classList.remove('show'); avOverlay.inert=true; avOverlay.setAttribute('aria-hidden','true'); }
+}
+function avSetAsk(on){
+  if(!avAsk) return;
+  if(on){ avAsk.inert=false; avAsk.setAttribute('aria-hidden','false'); avAsk.classList.add('show'); }
+  else{ avAsk.classList.remove('show'); avAsk.inert=true; avAsk.setAttribute('aria-hidden','true'); }
+}
+function avSetPortal(on){
+  if(!avPortal) return;
+  if(on){ avPortal.inert=false; avPortal.setAttribute('aria-hidden','false'); avPortal.classList.add('show'); }
+  else{ avPortal.classList.remove('show'); avPortal.inert=true; avPortal.setAttribute('aria-hidden','true'); }
+}
+function avClearLines(){
+  [avLine1,avLine2,avLine3].forEach(function(x){ if(x){ x.classList.remove('show'); x.innerHTML=''; x.textContent=''; } });
+  if(avAang) avAang.classList.remove('show');
+  if(avElements) avElements.classList.remove('show');
+}
+function openAvatar(ev,el){
+  if(ev&&ev.preventDefault) ev.preventDefault();
+  if(!avOverlay) return;
+  avBuildRays();
+  avClearLines();
+  avSetAsk(false);
+  avSetPortal(false);
+  avSetOverlay(true);
+  document.body.style.overflow='hidden';
+  avStartAudio();
+  setTimeout(function(){ avPlayStage2(); }, AV_REDUCED?200:1800);
+}
+function avPlayStage2(){
+  avTypeText(avLine1,'我们打败了巫师，看到了一位大师。',function(){
+    setTimeout(function(){
+      if(avAang) avAang.classList.add('show');
+      if(avElements) avElements.classList.add('show');
+      avGong();
+      setTimeout(function(){ avPlayStage3(); }, AV_REDUCED?300:1500);
+    }, AV_REDUCED?200:500);
+  }, AV_REDUCED?0:85);
+}
+function avPlayStage3(){
+  if(avLine1) avLine1.classList.remove('show');
+  avPlayLine2(function(){
+    setTimeout(function(){ avPlayStage4(); }, AV_REDUCED?200:1400);
+  });
+}
+function avPlayStage4(){
+  if(avLine2) avLine2.classList.remove('show');
+  avTypeText(avLine3,'你想要了解这些力量吗？',function(){
+    setTimeout(function(){ avShowAsk(); }, AV_REDUCED?100:700);
+  }, AV_REDUCED?0:80);
+}
+function avShowAsk(){
+  avSetAsk(true);
+  var b=avEl('avatarYes'); if(b) b.focus({preventScroll:true});
+}
+function avatarYes(){
+  avSetAsk(false);
+  avSetOverlay(false);
+  avBuildMcParticles();
+  avSetPortal(true);
+  avGong();
+  setTimeout(function(){ avJump(); }, AV_REDUCED?1600:4200);
+}
+function avatarNo(){
+  avSetAsk(false);
+  avSetOverlay(false);
+  avSetPortal(false);
+  avStopAudio();
+  document.body.style.overflow='';
+  var card=document.querySelector('.card-avatar');
+  if(card) card.focus({preventScroll:true});
+}
+function avJump(){
+  avStopAudio();
+  document.body.style.overflow='';
+  try{ sessionStorage.setItem('skipSplash','1'); }catch(e){}
+  location.href=AV_URL;
+}
+window.openAvatar=openAvatar;
+
+/* ---------- 绑定 ---------- */
+function avBind(){
+  var yes=avEl('avatarYes'), no=avEl('avatarNo');
+  if(yes) yes.addEventListener('click',avatarYes);
+  if(no) no.addEventListener('click',avatarNo);
+  document.addEventListener('keydown',function(e){
+    if(avAsk&&avAsk.classList.contains('show')){
+      if(e.key==='Escape'){ e.preventDefault(); avatarNo(); }
+    }
+  });
+}
+avBind();
+})();
+</script>
 </body>
 </html>
