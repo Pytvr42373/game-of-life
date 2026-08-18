@@ -224,29 +224,41 @@ body[data-theme="arcade"] .g-brain{color:#ffc53d}
 body[data-theme="arcade"] .g-code{color:#45e0a8}
 body[data-theme="arcade"] .g-tusha{color:#b06bff}
 
-/* ===== 上新 / 神秘 标签特化（双主题） ===== */
-.h4399 .nav button[data-filter="上新"]{background:linear-gradient(135deg,#ff9a3d,#ff5c8a,#a05cff);color:#fff;border-color:transparent;box-shadow:0 0 12px rgba(255,92,138,.6),0 0 24px rgba(255,154,61,.35);position:relative}
-.h4399 .nav button[data-filter="上新"]::after{content:'★';position:absolute;top:-7px;right:-5px;font-size:12px;color:#ffd54f;filter:drop-shadow(0 0 4px #ffd54f)}
-.h4399 .nav button[data-filter="上新"]:hover{filter:brightness(1.18) saturate(1.15);transform:translateY(-2px) scale(1.05);box-shadow:0 0 20px rgba(255,92,138,.9),0 0 34px rgba(255,154,61,.55)}
+/* ===== 上新 / 神秘 标签特化（双主题） =====
+   动画风格与"降世神通"入口一致：呼吸缩放(avIcoBreathe) + 旋转光晕(avIcoSpin) + 能量流动/装饰旋转
+   复用全局关键帧 avIcoBreathe / avIcoSpin，适配按钮尺寸，克制不干扰可读性 */
+.h4399 .nav button[data-filter="上新"]{background:linear-gradient(135deg,#ff9a3d,#ff5c8a,#a05cff);color:#fff;border-color:transparent;box-shadow:0 0 12px rgba(255,92,138,.6),0 0 24px rgba(255,154,61,.35);position:relative;animation:avIcoBreathe 3s ease-in-out infinite}
+.h4399 .nav button[data-filter="上新"]::before{content:'';position:absolute;inset:0;border-radius:999px;background:conic-gradient(from 0deg,rgba(255,154,61,0),rgba(255,92,138,.75),rgba(160,92,255,.55),rgba(255,154,61,0));-webkit-mask:radial-gradient(circle,transparent 38%,#000 82%,transparent 86%);mask:radial-gradient(circle,transparent 38%,#000 82%,transparent 86%);animation:avIcoSpin 6s linear infinite;filter:blur(1px);pointer-events:none}
+.h4399 .nav button[data-filter="上新"]::after{content:'★';position:absolute;top:-7px;right:-5px;font-size:12px;color:#ffd54f;filter:drop-shadow(0 0 4px #ffd54f);animation:avIcoBreathe 2.4s ease-in-out infinite}
+.h4399 .nav button[data-filter="上新"]:hover{filter:brightness(1.18) saturate(1.15);transform:translateY(-2px) scale(1.05);box-shadow:0 0 20px rgba(255,92,138,.9),0 0 34px rgba(255,154,61,.55);animation:none}
+.h4399 .nav button[data-filter="上新"]:hover::before{animation-duration:2.2s}
 .h4399 .nav button[data-filter="上新"].on{background:linear-gradient(135deg,#ff5c8a,#a05cff);color:#fff;border-color:#ffd54f;box-shadow:0 0 16px rgba(255,92,138,.85),0 0 30px rgba(160,92,255,.5)}
-.h4399 .nav button[data-filter="神秘"]{background:radial-gradient(circle at 30% 30%,#4a2a7a,#1c1040);color:#d9c8ff;border-color:#8a5ac0;box-shadow:0 0 12px rgba(160,92,255,.5),inset 0 0 8px rgba(160,92,255,.25);position:relative}
-.h4399 .nav button[data-filter="神秘"]::before{content:'';position:absolute;inset:0;border-radius:999px;background:conic-gradient(from 0deg,rgba(120,80,255,0),rgba(160,60,220,.55),rgba(120,80,255,0));-webkit-mask:radial-gradient(circle,transparent 38%,#000 82%,transparent 86%);mask:radial-gradient(circle,transparent 38%,#000 82%,transparent 86%);animation:portal-ico-spin 5s linear infinite;pointer-events:none}
+.h4399 .nav button[data-filter="神秘"]{background:radial-gradient(circle at 30% 30%,#4a2a7a,#1c1040);color:#d9c8ff;border-color:#8a5ac0;box-shadow:0 0 12px rgba(160,92,255,.5),inset 0 0 8px rgba(160,92,255,.25);position:relative;animation:avIcoBreathe 3.4s ease-in-out infinite}
+.h4399 .nav button[data-filter="神秘"]::before{content:'';position:absolute;inset:0;border-radius:999px;background:conic-gradient(from 0deg,rgba(120,80,255,0),rgba(160,60,220,.55),rgba(120,80,255,0));-webkit-mask:radial-gradient(circle,transparent 38%,#000 82%,transparent 86%);mask:radial-gradient(circle,transparent 38%,#000 82%,transparent 86%);animation:avIcoSpin 6s linear infinite;filter:blur(1px);pointer-events:none}
+.h4399 .nav button[data-filter="神秘"]::after{content:'';position:absolute;inset:-9px;border-radius:999px;border:2px dashed transparent;animation:avIcoSpin 11s linear infinite reverse;pointer-events:none;opacity:.6;border-top-color:#8a5ac0;border-right-color:#a05cff;border-bottom-color:#4a7ad0;border-left-color:#b06bff}
 .h4399 .nav button[data-filter="神秘"].on{background:#241250;color:#fff;border-color:#a05cff;box-shadow:0 0 16px rgba(160,92,255,.9)}
-.h4399 .nav button[data-filter="神秘"]:hover{background:radial-gradient(circle at 30% 30%,#5a3a9a,#251255);color:#fff;border-color:#a05cff;box-shadow:0 0 20px rgba(160,92,255,.95),0 0 40px rgba(120,80,255,.5),inset 0 0 10px rgba(160,92,255,.4);transform:translateY(-2px) scale(1.05)}
+.h4399 .nav button[data-filter="神秘"]:hover{background:radial-gradient(circle at 30% 30%,#5a3a9a,#251255);color:#fff;border-color:#a05cff;box-shadow:0 0 20px rgba(160,92,255,.95),0 0 40px rgba(120,80,255,.5),inset 0 0 10px rgba(160,92,255,.4);transform:translateY(-2px) scale(1.05);animation:none}
 .h4399 .nav button[data-filter="神秘"]:hover::before{animation-duration:1.6s}
+.h4399 .nav button[data-filter="神秘"]:hover::after{animation-duration:4s}
 
-.harcade .nav button[data-filter="上新"]{background:linear-gradient(135deg,#ff5c8a,#a05cff,#3de1ff);color:#0a0a18;border-color:#fff;box-shadow:3px 3px 0 #0a0a18,0 0 14px rgba(255,92,138,.7);position:relative}
-.harcade .nav button[data-filter="上新"]::after{content:'★';position:absolute;top:-9px;right:-7px;font-size:13px;color:#ffe14d;filter:drop-shadow(0 0 5px #ffe14d);text-shadow:none}
-.harcade .nav button[data-filter="上新"]:hover{color:#0a0a18;border-color:#fff;background:linear-gradient(135deg,#ff5c8a,#a05cff,#3de1ff);box-shadow:3px 3px 0 #0a0a18,0 0 22px rgba(255,92,138,.95),0 0 40px rgba(61,225,255,.5);transform:translateY(-2px) scale(1.05)}
+.harcade .nav button[data-filter="上新"]{background:linear-gradient(135deg,#ff5c8a,#a05cff,#3de1ff);color:#0a0a18;border-color:#fff;box-shadow:3px 3px 0 #0a0a18,0 0 14px rgba(255,92,138,.7);position:relative;animation:avIcoBreathe 3s ease-in-out infinite}
+.harcade .nav button[data-filter="上新"]::before{content:'';position:absolute;inset:0;border-radius:999px;background:conic-gradient(from 0deg,rgba(255,92,138,0),rgba(255,92,138,.7),rgba(160,92,255,.55),rgba(61,225,255,.5),rgba(255,92,138,0));-webkit-mask:radial-gradient(circle,transparent 38%,#000 82%,transparent 86%);mask:radial-gradient(circle,transparent 38%,#000 82%,transparent 86%);animation:avIcoSpin 6s linear infinite;filter:blur(1px);pointer-events:none}
+.harcade .nav button[data-filter="上新"]::after{content:'★';position:absolute;top:-9px;right:-7px;font-size:13px;color:#ffe14d;filter:drop-shadow(0 0 5px #ffe14d);text-shadow:none;animation:avIcoBreathe 2.4s ease-in-out infinite}
+.harcade .nav button[data-filter="上新"]:hover{color:#0a0a18;border-color:#fff;background:linear-gradient(135deg,#ff5c8a,#a05cff,#3de1ff);box-shadow:3px 3px 0 #0a0a18,0 0 22px rgba(255,92,138,.95),0 0 40px rgba(61,225,255,.5);transform:translateY(-2px) scale(1.05);animation:none}
+.harcade .nav button[data-filter="上新"]:hover::before{animation-duration:2.2s}
 .harcade .nav button[data-filter="上新"].on{background:linear-gradient(135deg,#ff2d78,#a05cff);color:#fff;border-color:#ffe14d;box-shadow:3px 3px 0 #0a0a18,0 0 18px rgba(255,45,120,.9)}
-.harcade .nav button[data-filter="神秘"]{background:linear-gradient(135deg,#1c1040,#3a1a6a);color:#d9c8ff;border-color:#a05cff;box-shadow:3px 3px 0 #0a0a18,0 0 12px rgba(160,92,255,.6)}
+.harcade .nav button[data-filter="神秘"]{background:linear-gradient(135deg,#1c1040,#3a1a6a);color:#d9c8ff;border-color:#a05cff;box-shadow:3px 3px 0 #0a0a18,0 0 12px rgba(160,92,255,.6);animation:avIcoBreathe 3.4s ease-in-out infinite}
+.harcade .nav button[data-filter="神秘"]::before{content:'';position:absolute;inset:0;border-radius:999px;background:conic-gradient(from 0deg,rgba(120,80,255,0),rgba(160,92,255,.6),rgba(61,225,255,.45),rgba(120,80,255,0));-webkit-mask:radial-gradient(circle,transparent 38%,#000 82%,transparent 86%);mask:radial-gradient(circle,transparent 38%,#000 82%,transparent 86%);animation:avIcoSpin 6s linear infinite;filter:blur(1px);pointer-events:none}
+.harcade .nav button[data-filter="神秘"]::after{content:'';position:absolute;inset:-9px;border-radius:999px;border:2px dashed transparent;animation:avIcoSpin 11s linear infinite reverse;pointer-events:none;opacity:.55;border-top-color:#a05cff;border-right-color:#3de1ff;border-bottom-color:#ff2d78;border-left-color:#ffe14d}
 .harcade .nav button[data-filter="神秘"].on{background:#241250;color:#fff;border-color:#3de1ff;box-shadow:3px 3px 0 #0a0a18,0 0 16px rgba(160,92,255,.9)}
-.harcade .nav button[data-filter="神秘"]:hover{background:linear-gradient(135deg,#2a1660,#4a2a8a);color:#fff;border-color:#3de1ff;box-shadow:3px 3px 0 #0a0a18,0 0 20px rgba(160,92,255,.95),0 0 40px rgba(120,80,255,.5);transform:translateY(-2px) scale(1.05)}
-
+.harcade .nav button[data-filter="神秘"]:hover{background:linear-gradient(135deg,#2a1660,#4a2a8a);color:#fff;border-color:#3de1ff;box-shadow:3px 3px 0 #0a0a18,0 0 20px rgba(160,92,255,.95),0 0 40px rgba(120,80,255,.5);transform:translateY(-2px) scale(1.05);animation:none}
+.harcade .nav button[data-filter="神秘"]:hover::before{animation-duration:1.6s}
+.harcade .nav button[data-filter="神秘"]:hover::after{animation-duration:4s}
 
 @media (prefers-reduced-motion: reduce){
+  .h4399 .nav button[data-filter="上新"],.h4399 .nav button[data-filter="神秘"],.harcade .nav button[data-filter="上新"],.harcade .nav button[data-filter="神秘"]{animation:none!important;transition:none!important}
   .h4399 .nav button[data-filter="上新"]:hover,.h4399 .nav button[data-filter="神秘"]:hover,.harcade .nav button[data-filter="上新"]:hover,.harcade .nav button[data-filter="神秘"]:hover{transform:none!important;transition:none!important}
-  .h4399 .nav button[data-filter="神秘"]:hover::before{animation:none!important}
+  .h4399 .nav button[data-filter="上新"]::before,.h4399 .nav button[data-filter="上新"]::after,.h4399 .nav button[data-filter="神秘"]::before,.h4399 .nav button[data-filter="神秘"]::after,.harcade .nav button[data-filter="上新"]::before,.harcade .nav button[data-filter="上新"]::after,.harcade .nav button[data-filter="神秘"]::before,.harcade .nav button[data-filter="神秘"]::after{animation:none!important}
 }
 
 /* 卡片整体神秘微光边框 */
