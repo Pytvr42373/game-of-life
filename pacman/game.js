@@ -72,7 +72,7 @@ PAC.drawMaze = function(ctx, maze, ox, oy, ts, time, pal){
 PAC.drawPac = function(ctx, p, ox, oy, ts, time){
   if(!p.alive) return;
   var pos=PAC.Move.entPos(p);
-  var x=ox+pos.x*ts, y=oy+pos.y*ts;
+  var x=ox+pos.x*ts+ts/2, y=oy+pos.y*ts+ts/2; /* 格子中心，避免穿模 */
   var ang=(p.dir.x||p.dir.y)? Math.atan2(p.dir.y,p.dir.x) : 0;
   var mouth = p.moving? (0.12+0.22*Math.abs(Math.sin(time*13))): 0.14;
   /* 元系统皮肤: P1 按装备皮肤变色/加图案, P2 保持绿色便于区分 */
@@ -164,7 +164,7 @@ Pacman.prototype = {
     if(this.stunned>0){ this.stunned-=dt; return; }
     if(this.moving){
       var pos=PAC.Move.entPos(this);
-      this.trail.push({x:pos.x*this.engine.ts, y:pos.y*this.engine.ts, a:1});
+      this.trail.push({x:pos.x*this.engine.ts+this.engine.ts/2, y:pos.y*this.engine.ts+this.engine.ts/2, a:1});
       if(this.trail.length>10) this.trail.shift();
       for(var i=0;i<this.trail.length;i++) this.trail[i].a*=0.86;
     }

@@ -117,7 +117,7 @@ Ghost.prototype = {
 PAC.GhostDraw = function(g, ctx, ox, oy, ts, time){
   if(!g.visible) return;
   var pos=PAC.Move.entPos(g);
-  var x=ox+pos.x*ts, y=oy+pos.y*ts, r=ts*0.46;
+  var x=ox+pos.x*ts+ts/2, y=oy+pos.y*ts+ts/2, r=ts*0.46; /* 格子中心，避免穿模 */
   var body=g.def.color, blink=false;
   if(g.state==='fright'){
     var left=g.scaredTimer;
