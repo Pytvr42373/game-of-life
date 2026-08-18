@@ -65,6 +65,7 @@ var AudioSys = (function () {
   return {
     init: init, resume: resume, setVolume: setVolume, setMuted: setMuted,
     get ready() { return !!ctx; },
+    get chaseOn() { return chaseOn; },
 
     uiClick: function () { tone(660, 0.06, 'square', 0.08); },
     uiOpen: function () { tone(440, 0.1, 'sine', 0.12); tone(660, 0.12, 'sine', 0.1, null, 0.06); },

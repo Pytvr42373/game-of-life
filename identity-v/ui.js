@@ -20,10 +20,24 @@
 
   function $(id) { return document.getElementById(id); }
 
+  /* 极罕见兜底：canvas 2d 上下文不可用时，用 no-op 上下文防止整条渲染链路崩溃（避免白屏无响应） */
+  function makeNoopCtx() {
+    return new Proxy({}, {
+      get: function (t, p) {
+        if (typeof p === 'symbol') return undefined;
+        if (p === 'canvas') return canvas;
+        if (p in t) return t[p];
+        return function () { return { addColorStop: function () {}, width: 10 }; };
+      },
+      set: function () { return true; }
+    });
+  }
+
   /* ================= 初始化 ================= */
   UI.init = function () {
     canvas = $('game');
-    ctx = canvas.getContext('2d');
+    ctx = canvas && canvas.getContext ? canvas.getContext('2d') : null;
+    if (!ctx) ctx = makeNoopCtx(); // 兜底，避免后续渲染崩溃
     resize();
     window.addEventListener('resize', resize);
 
@@ -84,7 +98,7 @@
 
   function resize() {
     cw = window.innerWidth; ch = window.innerHeight;
-    canvas.width = cw; canvas.height = ch;
+    if (canvas) { canvas.width = cw; canvas.height = ch; }
   }
 
   /* ================= 存档 ================= */
@@ -444,10 +458,19 @@
     frame++;
 
     if (!G) return;
-    // 自愈兜底：主菜单状态下菜单面板必须可见，避免卡在加载界面
+    // 自愈兜底：主菜单状态下若所有面板都不可见（异常/白屏）才强制回主菜单；
+    // 用户在设置/角色选择等子面板时不得打断，避免点击菜单按钮被拉回主菜单
     if (G.state === 'menu') {
       var menuEl = $('menu');
-      if (menuEl && menuEl.style.display !== 'flex') showPanel('menu');
+      if (menuEl && menuEl.style.display !== 'flex') {
+        var subPanelVisible = false;
+        var subPanels = ['charsel', 'huntersel', 'mapsel', 'settings', 'tutorial', 'stats'];
+        for (var pi = 0; pi < subPanels.length; pi++) {
+          var pe = $(subPanels[pi]);
+          if (pe && pe.style.display === 'flex') { subPanelVisible = true; break; }
+        }
+        if (!subPanelVisible) showPanel('menu');
+      }
     }
     if (G.state === 'playing') {
       var inp = sampleInput();
@@ -459,8 +482,9 @@
         else if ((!G.player || G.player.kind !== 'survivor' || G.heartRate <= 60) && AudioSys.chaseOn) AudioSys.stopChase();
       }
     } else if (G.state === 'paused') {
-      // 不更新
-      if (prevState !== 'paused') showPanel('pause');
+      // 不更新；暂停面板幂等显示（进入 paused 的当帧 prevState 已同步为 paused，故不能依赖 prevState 判断）
+      showPanel('pause');
+      if (events.pause) G.togglePause(); // 再次按 P/Esc 恢复对局，避免卡在暂停界面
     } else if (G.state === 'over') {
       if (prevState !== 'over') { UI.onMatchOver(); }
     }
@@ -1334,11 +1358,20 @@
     currentSave = loadSave();
     if (currentSave.map != null) selectedMap = currentSave.map;
     UI.init();
-    // 超时兜底：无论初始化是否完成，主菜单状态下都确保菜单可见，避免卡在加载界面
+    // 超时兜底：初始化异常时，若所有面板均不可见才强制回主菜单，避免卡在加载界面；
+    // 不打断用户已打开的子面板
     setTimeout(function () {
       try {
         var menuEl = document.getElementById('menu');
-        if (G && G.state === 'menu' && menuEl && menuEl.style.display !== 'flex') showPanel('menu');
+        if (G && G.state === 'menu' && menuEl && menuEl.style.display !== 'flex') {
+          var subVisible = false;
+          var sps = ['charsel', 'huntersel', 'mapsel', 'settings', 'tutorial', 'stats'];
+          for (var q = 0; q < sps.length; q++) {
+            var pe2 = document.getElementById(sps[q]);
+            if (pe2 && pe2.style.display === 'flex') { subVisible = true; break; }
+          }
+          if (!subVisible) showPanel('menu');
+        }
       } catch (e) {}
     }, 1500);
   };
