@@ -227,11 +227,11 @@ body[data-theme="arcade"] .g-tusha{color:#b06bff}
 /* ===== 上新 / 神秘 标签特化（双主题） =====
    动画风格与"降世神通"入口一致：呼吸缩放(avIcoBreathe) + 旋转光晕(avIcoSpin) + 能量流动/装饰旋转
    复用全局关键帧 avIcoBreathe / avIcoSpin，适配按钮尺寸，克制不干扰可读性 */
-.h4399 .nav button[data-filter="上新"]{background:linear-gradient(135deg,#ff9a3d,#ff5c8a,#a05cff);color:#fff;border-color:transparent;box-shadow:0 0 12px rgba(255,92,138,.6),0 0 24px rgba(255,154,61,.35);position:relative;animation:avIcoBreathe 3s ease-in-out infinite}
-.h4399 .nav button[data-filter="上新"]::before{content:'';position:absolute;inset:0;border-radius:999px;background:conic-gradient(from 0deg,rgba(255,154,61,0),rgba(255,92,138,.75),rgba(160,92,255,.55),rgba(255,154,61,0));-webkit-mask:radial-gradient(circle,transparent 38%,#000 82%,transparent 86%);mask:radial-gradient(circle,transparent 38%,#000 82%,transparent 86%);animation:avIcoSpin 6s linear infinite;filter:blur(1px);pointer-events:none}
-.h4399 .nav button[data-filter="上新"]::after{content:'★';position:absolute;top:-7px;right:-5px;font-size:12px;color:#ffd54f;filter:drop-shadow(0 0 4px #ffd54f);animation:avIcoBreathe 2.4s ease-in-out infinite}
+.h4399 .nav button[data-filter="上新"]{background:linear-gradient(135deg,#ff9a3d,#ff5c8a,#a05cff);color:#fff;border-color:transparent;box-shadow:0 0 12px rgba(255,92,138,.6),0 0 24px rgba(255,154,61,.35);position:relative}
+.h4399 .nav button[data-filter="上新"]::before{content:'';position:absolute;inset:0;border-radius:999px;background:linear-gradient(135deg,rgba(255,154,61,.3),rgba(255,92,138,.25),rgba(160,92,255,.2));pointer-events:none}
+.h4399 .nav button[data-filter="上新"]::after{content:'★';position:absolute;top:-7px;right:-5px;font-size:12px;color:#ffd54f;filter:drop-shadow(0 0 4px #ffd54f)}
 .h4399 .nav button[data-filter="上新"]:hover{filter:brightness(1.18) saturate(1.15);transform:translateY(-2px) scale(1.05);box-shadow:0 0 20px rgba(255,92,138,.9),0 0 34px rgba(255,154,61,.55);animation:none}
-.h4399 .nav button[data-filter="上新"]:hover::before{animation-duration:2.2s}
+
 .h4399 .nav button[data-filter="上新"].on{background:linear-gradient(135deg,#ff5c8a,#a05cff);color:#fff;border-color:#ffd54f;box-shadow:0 0 16px rgba(255,92,138,.85),0 0 30px rgba(160,92,255,.5)}
 .h4399 .nav button[data-filter="神秘"]{background:radial-gradient(circle at 30% 30%,#4a2a7a,#1c1040);color:#d9c8ff;border-color:#8a5ac0;box-shadow:0 0 12px rgba(160,92,255,.5),inset 0 0 8px rgba(160,92,255,.25);position:relative;animation:avIcoBreathe 3.4s ease-in-out infinite}
 .h4399 .nav button[data-filter="神秘"]::before{content:'';position:absolute;inset:0;border-radius:999px;background:conic-gradient(from 0deg,rgba(120,80,255,0),rgba(160,60,220,.55),rgba(120,80,255,0));-webkit-mask:radial-gradient(circle,transparent 38%,#000 82%,transparent 86%);mask:radial-gradient(circle,transparent 38%,#000 82%,transparent 86%);animation:avIcoSpin 6s linear infinite;filter:blur(1px);pointer-events:none}
@@ -241,11 +241,11 @@ body[data-theme="arcade"] .g-tusha{color:#b06bff}
 .h4399 .nav button[data-filter="神秘"]:hover::before{animation-duration:1.6s}
 .h4399 .nav button[data-filter="神秘"]:hover::after{animation-duration:4s}
 
-.harcade .nav button[data-filter="上新"]{background:linear-gradient(135deg,#ff5c8a,#a05cff,#3de1ff);color:#0a0a18;border-color:#fff;box-shadow:3px 3px 0 #0a0a18,0 0 14px rgba(255,92,138,.7);position:relative;animation:avIcoBreathe 3s ease-in-out infinite}
-.harcade .nav button[data-filter="上新"]::before{content:'';position:absolute;inset:0;border-radius:999px;background:conic-gradient(from 0deg,rgba(255,92,138,0),rgba(255,92,138,.7),rgba(160,92,255,.55),rgba(61,225,255,.5),rgba(255,92,138,0));-webkit-mask:radial-gradient(circle,transparent 38%,#000 82%,transparent 86%);mask:radial-gradient(circle,transparent 38%,#000 82%,transparent 86%);animation:avIcoSpin 6s linear infinite;filter:blur(1px);pointer-events:none}
-.harcade .nav button[data-filter="上新"]::after{content:'★';position:absolute;top:-9px;right:-7px;font-size:13px;color:#ffe14d;filter:drop-shadow(0 0 5px #ffe14d);text-shadow:none;animation:avIcoBreathe 2.4s ease-in-out infinite}
+.harcade .nav button[data-filter="上新"]{background:linear-gradient(135deg,#ff5c8a,#a05cff,#3de1ff);color:#0a0a18;border-color:#fff;box-shadow:3px 3px 0 #0a0a18,0 0 14px rgba(255,92,138,.7);position:relative}
+.harcade .nav button[data-filter="上新"]::before{content:'';position:absolute;inset:0;border-radius:999px;background:linear-gradient(135deg,rgba(255,92,138,.3),rgba(160,92,255,.25),rgba(61,225,255,.2));pointer-events:none}
+.harcade .nav button[data-filter="上新"]::after{content:'★';position:absolute;top:-9px;right:-7px;font-size:13px;color:#ffe14d;filter:drop-shadow(0 0 5px #ffe14d);text-shadow:none}
 .harcade .nav button[data-filter="上新"]:hover{color:#0a0a18;border-color:#fff;background:linear-gradient(135deg,#ff5c8a,#a05cff,#3de1ff);box-shadow:3px 3px 0 #0a0a18,0 0 22px rgba(255,92,138,.95),0 0 40px rgba(61,225,255,.5);transform:translateY(-2px) scale(1.05);animation:none}
-.harcade .nav button[data-filter="上新"]:hover::before{animation-duration:2.2s}
+
 .harcade .nav button[data-filter="上新"].on{background:linear-gradient(135deg,#ff2d78,#a05cff);color:#fff;border-color:#ffe14d;box-shadow:3px 3px 0 #0a0a18,0 0 18px rgba(255,45,120,.9)}
 .harcade .nav button[data-filter="神秘"]{background:linear-gradient(135deg,#1c1040,#3a1a6a);color:#d9c8ff;border-color:#a05cff;box-shadow:3px 3px 0 #0a0a18,0 0 12px rgba(160,92,255,.6);animation:avIcoBreathe 3.4s ease-in-out infinite}
 .harcade .nav button[data-filter="神秘"]::before{content:'';position:absolute;inset:0;border-radius:999px;background:conic-gradient(from 0deg,rgba(120,80,255,0),rgba(160,92,255,.6),rgba(61,225,255,.45),rgba(120,80,255,0));-webkit-mask:radial-gradient(circle,transparent 38%,#000 82%,transparent 86%);mask:radial-gradient(circle,transparent 38%,#000 82%,transparent 86%);animation:avIcoSpin 6s linear infinite;filter:blur(1px);pointer-events:none}
@@ -647,7 +647,7 @@ body[data-theme="arcade"] .ext-doodle .tag{color:#ff2d78;border-color:#ff2d78;ba
    单主题：双主题（4399/arcade）共用同一套样式
    ============================================================ */
 /* ---------- 入口卡片 ---------- */
-.card-avatar .ico{position:relative;z-index:1;display:inline-block;width:86px;height:86px;margin-bottom:14px;border-radius:50%;animation:avIcoBreathe 3.2s ease-in-out infinite}
+.card-avatar .ico{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;width:86px;height:86px;margin:0 auto 14px;border-radius:50%;animation:avIcoBreathe 3.2s ease-in-out infinite}
 .card-avatar .ico::before{content:'';position:absolute;inset:-15px;z-index:-1;border-radius:50%;background:conic-gradient(from 0deg,rgba(255,180,80,0),rgba(58,168,255,.8),rgba(140,80,255,.55),rgba(80,220,180,.45),rgba(255,180,80,0));-webkit-mask:radial-gradient(circle,transparent 30%,#000 60%,transparent 72%);mask:radial-gradient(circle,transparent 30%,#000 60%,transparent 72%);animation:avIcoSpin 6s linear infinite;filter:blur(1px)}
 .card-avatar .ico::after{content:'';position:absolute;inset:-25px;z-index:-2;border-radius:50%;border:2px dashed transparent;animation:avIcoSpin 11s linear infinite reverse}
 body[data-theme="4399"] .card-avatar .ico::after{border-top-color:#ffb347;border-right-color:#3aa8ff;border-bottom-color:#b07f3a;border-left-color:#5fd4a8;opacity:.75}
@@ -960,16 +960,13 @@ body[data-theme="arcade"] .card-avatar .ico{filter:drop-shadow(0 0 18px rgba(160
 <div class="vmodal" id="vmodal" role="dialog" aria-modal="true" aria-labelledby="vmodalTitle" aria-hidden="true" inert>
   <div class="vmodal-box">
     <button type="button" class="vmodal-close" id="vmodalClose" aria-label="关闭">&#10005;</button>
-    <div class="vmodal-title" id="vmodalTitle">本次更新 · <span class="vw-qs">新作降临</span></div>
-    <div class="vmodal-ver">v2.7.0</div>
+    <div class="vmodal-title" id="vmodalTitle">我们打败了<span class="vw-qs">巫师</span>。<br>这次来了一位<span class="vw-qs">大师</span>。</div>
+    <div class="vmodal-ver">v3.0.0</div>
     <ul class="vmodal-log">
-      <li><b>黎明迷局</b> 全新2D追逃大作上线（6求生者/2监管者/3地图）</li>
-      <li><b>吃豆人</b> 完整版重做（5模式/双人/成长系统）</li>
-      <li><b>算数练习</b> 新增（二位小数四则）</li>
-      <li><b>彩蛋</b> 神秘洞口仍在，这次藏了什么惊喜？</li>
+      <li>洞口的<b>神秘</b>深处，藏着一份来自大师的邀请……</li>
     </ul>
-    <div class="vmodal-cta">本次更新，等你来玩 🎮</div>
-    <button type="button" class="vmodal-btn" id="vmodalOk">去看看</button>
+    <div class="vmodal-cta">想知道大师带来了什么？</div>
+    <button type="button" class="vmodal-btn" id="vmodalOk">去见大师</button>
   </div>
 </div>
 
@@ -1478,9 +1475,12 @@ function handleVersionKeydown(event){
 }
 if(versionClose)versionClose.addEventListener('click',hideVersionModal);
 if(versionOk)versionOk.addEventListener('click',function(){
-  // 本次更新弹窗 → 去看看 → 跳转黎明迷局（本次更新大作）
+  // v3.0.0 → 去见大师 → 跳转到「神秘」标签页（降世神通彩蛋入口所在分类）
   hideVersionModal();
-  go('identity-v/index.html');
+  filterGames('神秘');
+  const hdr=document.body.dataset.theme==='arcade'?'.harcade':'.h4399';
+  const mb=document.querySelector(hdr+' .nav button[data-filter="神秘"]');
+  if(mb) mb.scrollIntoView({behavior:'smooth',block:'center'});
 });
 if(versionModal){
   versionModal.addEventListener('keydown',handleVersionKeydown);
