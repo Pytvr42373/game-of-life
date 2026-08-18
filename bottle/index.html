@@ -172,8 +172,8 @@
                 return nativeRegister.apply(serviceWorkers, arguments);
               }
 
-              if ((script.origin === bottleBase.origin && script.pathname === '/sw.js') ||
-                  (scope && scope.origin === bottleBase.origin && scope.pathname === '/')) {
+              if (script.origin === bottleBase.origin ||
+                  (scope && scope.origin === bottleBase.origin)) {
                 var message = 'Bottle PWA is disabled for this deployment.';
                 var error = typeof DOMException === 'function'
                   ? new DOMException(message, 'SecurityError')
@@ -181,6 +181,12 @@
                 if (error.name !== 'SecurityError') error.name = 'SecurityError';
                 return Promise.reject(error);
               }
+
+              // 主动注销任何已注册的 Service Worker（子路径部署不需要 PWA）
+              navigator.serviceWorker.getRegistrations().then(function(regs){
+                regs.forEach(function(r){ try{ r.unregister(); }catch(_){} });
+              }).catch(function(){});
+
               return nativeRegister.apply(serviceWorkers, arguments);
             });
           }
