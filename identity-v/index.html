@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>黎明迷局 · 雾夜追逃</title>
+<style>
+  :root{
+    --bg:#0a0b14; --panel:rgba(16,16,30,0.92); --line:#3a3a56;
+    --gold:#d8b46a; --gold2:#f0d8a0; --text:#cfc9e8; --dim:#8a86a8;
+    --red:#e04a4a; --green:#7dffb0;
+  }
+  *{margin:0;padding:0;box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);
+    font-family:Georgia,'Times New Roman','STKaiti','KaiTi',serif;color:var(--text);}
+  #game{position:fixed;inset:0;width:100vw;height:100vh;display:block;}
+
+  /* ---------- 通用面板 ---------- */
+  .panel{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;
+    background:radial-gradient(ellipse at 50% 40%,rgba(30,28,60,0.55),rgba(6,6,14,0.92) 80%);
+    z-index:20;text-align:center;overflow:auto;padding:16px;}
+  .panel.show{display:flex;}
+  .title{font-size:min(56px,9vw);color:var(--gold2);text-shadow:0 0 30px rgba(216,180,106,0.5),0 0 4px rgba(0,0,0,0.8);
+    letter-spacing:10px;font-weight:bold;line-height:1.15;}
+  .subtitle{color:var(--dim);font-size:min(15px,3.4vw);letter-spacing:4px;margin:8px 0 26px;}
+  .panel-title{font-size:min(30px,6vw);color:var(--gold2);letter-spacing:6px;margin-bottom:6px;text-shadow:0 0 18px rgba(216,180,106,0.4);}
+  .panel-sub{color:var(--dim);font-size:13px;letter-spacing:2px;margin-bottom:18px;max-width:640px;line-height:1.7;}
+
+  /* 按钮 */
+  .menu-col{display:flex;flex-direction:column;gap:12px;width:min(320px,86vw);}
+  .btn{background:linear-gradient(180deg,rgba(50,44,84,0.9),rgba(28,24,52,0.9));
+    border:1px solid var(--line);color:var(--gold2);padding:13px 22px;font-size:16px;font-family:inherit;
+    letter-spacing:4px;cursor:pointer;transition:all .18s;box-shadow:0 2px 12px rgba(0,0,0,0.5);}
+  .btn:hover{background:linear-gradient(180deg,rgba(80,66,120,0.95),rgba(40,34,70,0.95));border-color:var(--gold);
+    box-shadow:0 0 18px rgba(216,180,106,0.35);transform:translateY(-1px);}
+  .btn.small{padding:9px 16px;font-size:14px;letter-spacing:2px;}
+  .btn.back{margin-top:14px;background:transparent;border-color:var(--line);color:var(--dim);}
+
+  /* 角色卡 */
+  .card-row{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;max-width:1100px;}
+  .char-card{background:var(--panel);border:1px solid var(--line);padding:14px;width:210px;cursor:pointer;
+    transition:all .18s;display:flex;flex-direction:column;align-items:center;gap:8px;}
+  .char-card:hover{border-color:var(--gold);transform:translateY(-3px);box-shadow:0 0 22px rgba(216,180,106,0.25);}
+  .char-card canvas{image-rendering:auto;}
+  .char-info .cn{color:var(--gold2);font-size:18px;letter-spacing:2px;font-weight:bold;}
+  .char-info .ct{color:var(--dim);font-size:12px;letter-spacing:2px;margin:2px 0 6px;}
+  .char-info .cs{color:var(--text);font-size:11px;line-height:1.6;text-align:center;background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.06);border-radius:4px;padding:3px 6px;margin:2px 0;}
+  .char-info .desc{font-size:11px;color:var(--dim);line-height:1.5;text-align:left;}
+
+  /* 设置 */
+  .set-row{display:flex;align-items:center;gap:14px;justify-content:space-between;width:min(420px,88vw);
+    margin:10px 0;font-size:14px;letter-spacing:2px;}
+  .set-row input[type=range]{width:200px;accent-color:var(--gold);}
+  .set-row select{background:#1c1a34;color:var(--gold2);border:1px solid var(--line);padding:6px 10px;font-family:inherit;font-size:14px;}
+  .set-row label{display:flex;align-items:center;gap:8px;color:var(--text);}
+  input[type=checkbox]{accent-color:var(--gold);width:18px;height:18px;}
+
+  /* 教程 */
+  .tut-box{background:var(--panel);border:1px solid var(--line);max-width:640px;padding:20px 26px;text-align:left;
+    line-height:1.9;font-size:14px;color:var(--text);max-height:60vh;overflow:auto;margin-bottom:14px;}
+  .tut-box h3{color:var(--gold2);letter-spacing:3px;margin:10px 0 4px;}
+  .tut-box b{color:var(--gold2);}
+  .tut-box .k{background:rgba(255,255,255,0.08);border:1px solid var(--line);border-radius:4px;padding:0 6px;color:#fff;font-family:monospace;}
+
+  /* 结算 */
+  .result-score{font-size:min(42px,8vw);color:var(--gold2);margin:10px 0;letter-spacing:3px;}
+  #result-lines{font-size:16px;line-height:2.1;color:var(--text);margin-bottom:16px;letter-spacing:1px;}
+
+  /* 暂停 */
+  #pause,#result{background:radial-gradient(ellipse at 50% 40%,rgba(20,18,44,0.8),rgba(5,5,12,0.96) 80%);}
+
+  /* 触摸控件 */
+  #touch{position:fixed;inset:0;z-index:15;display:none;pointer-events:none;}
+  #stickzone{position:fixed;left:24px;bottom:26px;width:150px;height:150px;border-radius:50%;
+    background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);pointer-events:auto;}
+  #stick{position:fixed;width:56px;height:56px;border-radius:50%;display:none;align-items:center;justify-content:center;
+    background:rgba(216,180,106,0.35);border:1px solid rgba(216,180,106,0.7);pointer-events:none;z-index:16;}
+  .tbtn{position:fixed;width:64px;height:64px;border-radius:50%;background:rgba(30,28,56,0.6);
+    border:1px solid rgba(216,180,106,0.5);color:var(--gold2);font-size:13px;font-family:inherit;
+    display:flex;align-items:center;justify-content:center;letter-spacing:1px;pointer-events:auto;
+    box-shadow:0 2px 8px rgba(0,0,0,0.5);}
+  .tbtn:active{background:rgba(80,66,120,0.7);}
+  #btn-interact{right:110px;bottom:30px;}
+  #btn-skill{right:24px;bottom:30px;width:74px;height:74px;background:rgba(60,40,30,0.6);}
+  #btn-skill2{right:24px;bottom:118px;width:56px;height:56px;font-size:11px;}
+  #btn-crouch{right:118px;bottom:118px;width:56px;height:56px;font-size:11px;}
+  #btn-pause{top:12px;right:14px;width:48px;height:48px;font-size:12px;}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<!-- ================= 主菜单 ================= -->
+<div class="panel" id="menu">
+  <div class="title">黎明迷局</div>
+  <div class="subtitle">MIDNIGHT PURSUIT · 雾夜追逃</div>
+  <div class="menu-col">
+    <button class="btn" id="btn-start">开始求生</button>
+    <button class="btn" id="btn-hunter">扮演监管者</button>
+    <button class="btn" id="btn-maps">地图选择</button>
+    <button class="btn" id="btn-settings">设置</button>
+    <button class="btn" id="btn-tutorial">操作教程</button>
+    <button class="btn" id="btn-stats">对战战绩</button>
+  </div>
+</div>
+
+<!-- ================= 选择求生者 ================= -->
+<div class="panel" id="charsel">
+  <div class="panel-title">选择求生者</div>
+  <div class="panel-sub">你的队友将与 AI 求生者一起对抗监管者：破译 3 台密码机 → 通电大门 → 逃脱</div>
+  <div class="card-row" id="charsel-list"></div>
+  <button class="btn back" id="btn-back-chars">返回</button>
+</div>
+
+<!-- ================= 选择监管者 ================= -->
+<div class="panel" id="huntersel">
+  <div class="panel-title">扮演监管者</div>
+  <div class="panel-sub">追击并淘汰全部 3 名求生者：命中 2 次倒地 → 牵制 → 挂上处刑架</div>
+  <div class="card-row" id="huntersel-list"></div>
+  <button class="btn back" id="btn-back-hunters">返回</button>
+</div>
+
+<!-- ================= 地图选择 ================= -->
+<div class="panel" id="mapsel">
+  <div class="panel-title">选择地图</div>
+  <div class="card-row" id="mapsel-list"></div>
+  <button class="btn back" id="btn-back-maps">返回</button>
+</div>
+
+<!-- ================= 设置 ================= -->
+<div class="panel" id="settings">
+  <div class="panel-title">设置</div>
+  <div class="set-row"><span>音量</span><input type="range" id="volume" min="0" max="1" step="0.05"></div>
+  <div class="set-row"><span>难度</span>
+    <select id="difficulty">
+      <option value="easy">休闲</option>
+      <option value="normal">普通</option>
+      <option value="nightmare">噩梦</option>
+    </select>
+  </div>
+  <div class="set-row"><label><input type="checkbox" id="reduced-motion"> 减少动态效果</label></div>
+  <div class="set-row"><label><input type="checkbox" id="mute"> 静音</label></div>
+  <button class="btn back" id="btn-back-settings">返回</button>
+</div>
+
+<!-- ================= 教程 ================= -->
+<div class="panel" id="tutorial">
+  <div class="panel-title">操作教程</div>
+  <div class="tut-box">
+    <h3>目标（求生者）</h3>
+    <p>找到密码机（<b>黄色灯</b>），靠近后按 <span class="k">E / 空格 / 回车</span> 修机。破译 <b>3 台</b> 后大门通电，到大门口长按交互开门并走进去即可 <b>逃脱</b>。</p>
+    <h3>修机校准</h3>
+    <p>修机时会出现移动指针，指针落入 <b>绿色区</b> 时再次按交互即可完美校准（+进度）；错过或按偏会损失进度并<b>暴露位置</b>。</p>
+    <h3>溜鬼</h3>
+    <p>监管者靠近时屏幕边缘会<b>心跳</b>并泛红。被追时可以：<b>翻窗</b>（朝窗户走自动翻越）、<b>放板</b>（站在板子上按交互，可砸晕监管者）、绕障碍物、使用角色技能（<span class="k">Shift</span>）。</p>
+    <h3>受伤与救援</h3>
+    <p>被命中 <b>2 次</b> 倒地。倒地后靠近队友按交互可被扶起；被挂上处刑架后队友长按交互可救援。受伤也可自己长按交互自疗。</p>
+    <h3>目标（监管者）</h3>
+    <p>按 <span class="k">空格</span> 攻击（命中 2 次倒地）。靠近倒地者按 <span class="k">E</span> 牵制，拖到处刑架再按 <span class="k">E</span> 挂上，倒计时结束即<b>淘汰</b>。技能：<span class="k">Shift</span>（冲刺/传送）、<span class="k">Q</span>（全视之眼）。淘汰全部求生者即胜。</p>
+    <h3>操作按键</h3>
+    <p>移动 <span class="k">WASD / 方向键</span> · 交互 <span class="k">E / 空格 / 回车</span> · 技能 <span class="k">Shift</span> · 技能2 <span class="k">Q</span> · 蹲伏 <span class="k">C</span> · 暂停 <span class="k">P / Esc</span>。触屏设备使用左下摇杆与右侧按钮。</p>
+  </div>
+  <button class="btn back" id="btn-back-tutorial">返回</button>
+</div>
+
+<!-- ================= 战绩 ================= -->
+<div class="panel" id="stats">
+  <div class="panel-title">对战战绩</div>
+  <div class="tut-box" style="text-align:center">
+    <h3>对局次数 <b id="stat-games" style="color:var(--gold2)">0</b></h3>
+    <h3>胜利 <b id="stat-wins" style="color:var(--green)">0</b></h3>
+    <h3>败北 <b id="stat-losses" style="color:var(--red)">0</b></h3>
+    <h3>历史最高分 <b id="stat-best" style="color:var(--gold2)">0</b></h3>
+  </div>
+  <button class="btn back" id="btn-back-stats">返回</button>
+</div>
+
+<!-- ================= 暂停 ================= -->
+<div class="panel" id="pause">
+  <div class="panel-title">暂停</div>
+  <div class="menu-col">
+    <button class="btn" id="btn-resume">继续游戏</button>
+    <button class="btn" id="btn-restart">重新开始</button>
+    <button class="btn back" id="btn-quit">返回主菜单</button>
+  </div>
+</div>
+
+<!-- ================= 结算 ================= -->
+<div class="panel" id="result">
+  <div class="panel-title">对局结算</div>
+  <div class="title" id="result-title" style="font-size:min(34px,6vw);letter-spacing:6px;margin-top:10px">—</div>
+  <div class="result-score" id="result-score">得分 0</div>
+  <div id="result-lines"></div>
+  <div class="menu-col">
+    <button class="btn" id="btn-again">再来一局</button>
+    <button class="btn back" id="btn-result-menu">返回主菜单</button>
+  </div>
+</div>
+
+<!-- ================= 触摸控件 ================= -->
+<div id="touch">
+  <div id="stickzone"></div>
+  <div id="stick">✥</div>
+  <button class="tbtn" id="btn-interact">交互</button>
+  <button class="tbtn" id="btn-skill">技能</button>
+  <button class="tbtn" id="btn-skill2">技能2</button>
+  <button class="tbtn" id="btn-crouch">蹲</button>
+  <button class="tbtn" id="btn-pause">⏸</button>
+</div>
+
+<script src="maps.js"></script>
+<script src="chars.js"></script>
+<script src="audio.js"></script>
+<script src="game.js"></script>
+<script src="ai.js"></script>
+<script src="ui.js"></script>
+<script>
+window.addEventListener('load', function () {
+  UI.start(new Game());
+  // 首次进入展示教程
+  try {
+    if (!localStorage.getItem('dawn-maze-seen-tut')) {
+      setTimeout(function () {
+        document.getElementById('tutorial').style.display = 'flex';
+        localStorage.setItem('dawn-maze-seen-tut', '1');
+      }, 600);
+    }
+  } catch (e) {}
+});
+</script>
+</body>
+</html>
