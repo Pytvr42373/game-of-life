@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<script>try{if(localStorage.getItem('gh-theme')==='arcade')document.documentElement.classList.add('pre-arcade')}catch(e){}</script>
+<style>html{background:#eef5f3}html.pre-arcade{background:#07111c}</style>
+<meta name="description" content="幸存者计划：六分钟机动生存，自动火力、敌潮构筑与最终裁定机 Boss 战。">
+<title>幸存者计划 · SURVIVOR PROTOCOL</title>
+<link rel="stylesheet" href="style.css">
+<script src="game.js" defer></script>
+</head>
+<body data-theme="4399">
+<canvas id="game" aria-label="幸存者计划战斗画面"></canvas>
+
+<a class="back-home" href="../action-games/index.html" aria-label="返回动作游戏频道">← 动作游戏</a>
+<button class="theme-switch" id="themeToggle" type="button" aria-label="切换主题" title="切换主题"></button>
+
+<section class="screen menu-screen show" id="menuScreen" aria-labelledby="gameTitle">
+  <div class="menu-shell">
+    <div class="protocol-mark" aria-hidden="true"><i></i><b></b><span></span></div>
+    <p class="eyebrow">SURVIVOR PROTOCOL / SP-01</p>
+    <h1 id="gameTitle">幸存者计划</h1>
+    <p class="theme-sub" id="themeSubtitle">清新训练模拟</p>
+    <p class="lead">六分钟。保持移动，重组火力，在裁定完成前击破零号机。</p>
+    <button class="primary-btn" id="startBtn" type="button">开始任务</button>
+    <div class="briefing" aria-label="操作说明">
+      <span><b>移动</b> WASD / 方向键</span>
+      <span><b>冲刺</b> Space / Shift</span>
+      <span><b>暂停</b> Esc / P</span>
+      <span><b>攻击</b> 自动锁定</span>
+    </div>
+    <div class="records" aria-label="历史记录">
+      <div><strong id="recordRuns">0</strong><span>出击</span></div>
+      <div><strong id="recordWins">0</strong><span>胜利</span></div>
+      <div><strong id="recordLevel">1</strong><span>最高等级</span></div>
+      <div><strong id="recordKills">0</strong><span>最高击杀</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="hud" id="hud" aria-label="战斗状态">
+  <div class="hud-left">
+    <span class="hud-label">机体完整度</span>
+    <div class="bar hp-bar"><i id="hpFill"></i></div>
+    <strong id="hpText">100 / 100</strong>
+  </div>
+  <div class="hud-time">
+    <span>协议剩余</span>
+    <strong id="timeText">06:00</strong>
+  </div>
+  <div class="hud-right">
+    <span>LV <b id="levelText">1</b></span>
+    <span>击破 <b id="killText">0</b></span>
+    <button id="pauseBtn" type="button" aria-label="暂停游戏">Ⅱ</button>
+  </div>
+  <div class="boss-hud" id="bossHud">
+    <div><span>零号裁定机</span><b id="bossPhase">校准阶段</b></div>
+    <div class="bar boss-bar"><i id="bossFill"></i></div>
+  </div>
+  <div class="xp-wrap">
+    <div class="bar xp-bar"><i id="xpFill"></i></div>
+    <span id="xpText">0 / 10</span>
+  </div>
+</section>
+
+<div class="combat-toast" id="combatToast" role="status" aria-live="polite"></div>
+
+<section class="screen overlay" id="upgradeScreen" aria-labelledby="upgradeTitle" aria-hidden="true">
+  <div class="overlay-box upgrade-box">
+    <p class="eyebrow">SELECT ONE MODULE</p>
+    <h2 id="upgradeTitle">协议升级</h2>
+    <p class="overlay-sub">战斗已冻结。选择一项后继续。</p>
+    <div class="upgrade-grid" id="upgradeGrid"></div>
+  </div>
+</section>
+
+<section class="screen overlay" id="pauseScreen" aria-labelledby="pauseTitle" aria-hidden="true">
+  <div class="overlay-box compact-box">
+    <p class="eyebrow">SYSTEM HOLD</p>
+    <h2 id="pauseTitle">任务暂停</h2>
+    <p class="overlay-sub" id="pauseReason">所有战斗计时均已冻结。</p>
+    <button class="primary-btn" id="resumeBtn" type="button">继续任务</button>
+    <button class="secondary-btn" id="restartBtn" type="button">重新开始</button>
+    <a class="secondary-btn link-btn" href="../action-games/index.html">返回动作频道</a>
+  </div>
+</section>
+
+<section class="screen overlay" id="resultScreen" aria-labelledby="resultTitle" aria-hidden="true">
+  <div class="overlay-box result-box">
+    <p class="eyebrow" id="resultCode">PROTOCOL COMPLETE</p>
+    <h2 id="resultTitle">任务完成</h2>
+    <p class="result-reason" id="resultReason"></p>
+    <div class="result-stats" id="resultStats"></div>
+    <div class="build-summary" id="buildSummary"></div>
+    <button class="primary-btn" id="againBtn" type="button">再次出击</button>
+    <a class="secondary-btn link-btn" href="../action-games/index.html">返回动作频道</a>
+  </div>
+</section>
+
+<div class="touch-controls" id="touchControls">
+  <div class="stick-zone" id="stickZone"><i id="stickKnob"></i></div>
+  <button class="dash-btn" id="dashBtn" type="button" aria-label="冲刺"><span id="dashText">冲刺</span></button>
+</div>
+</body>
+</html>

@@ -186,7 +186,7 @@ if (game.check) { game.pressCheck(); pump(10, '校准'); check('校准被处理'
 // 攻击
 game.hunter.x = game.player.x + 20; game.hunter.y = game.player.y;
 game.hunter.dir = Math.atan2(game.player.y - game.hunter.y, game.player.x - game.hunter.x);
-game.hunter.atkCd = 0;
+game.hunter.atkCd = 0; game.hunter.stunT = 0; game.hunter.carrying = null; game.hunter.ai.active = false;
 game.hunterAttack(game.hunter);
 pump(10, '受击');
 check('玩家受伤 hp<2 或护盾', game.player.hp < 2, 'hp=' + game.player.hp);
@@ -225,7 +225,35 @@ fireEl('huntersel-list', 'click');
 pump(10, '监管者对局');
 check('监管者对局 state=playing', game.state === 'playing');
 check('玩家为监管者', game.player && game.player.kind === 'hunter');
-check('监管者对局 10s loop 运行', pump(600, '监管者10s'));
+check('玩家监管者 AI 已关闭', game.hunter && game.hunter.isPlayer && !game.hunter.isAI && !game.hunter.ai.active);
+
+// 监管者键盘移动
+let hunterCell = null;
+for (let hy = 1; hy < game.rows - 1 && !hunterCell; hy++) {
+  for (let hx = 1; hx < game.cols - 2; hx++) {
+    const px = hx * game.ts + game.ts / 2, py = hy * game.ts + game.ts / 2;
+    if (!game.tileIsSolid(hx, hy) && !game.tileIsSolid(hx + 1, hy)) { hunterCell = { x:px, y:py }; break; }
+  }
+}
+check('找到监管者移动测试位置', !!hunterCell);
+game.hunter.x = hunterCell.x; game.hunter.y = hunterCell.y;
+const hunterX = game.hunter.x;
+keyDown('d'); pump(20, '监管者向右移动'); keyUp('d'); pump(1, '监管者停止移动');
+check('监管者响应玩家移动输入', game.hunter.x > hunterX, 'before=' + hunterX + ' after=' + game.hunter.x);
+
+// 空格攻击、E 交互
+const hunterTarget = game.survivors[0];
+hunterTarget.ai = null; hunterTarget.hp = 2; hunterTarget.alive = true; hunterTarget.escaped = false;
+hunterTarget.carriedBy = null; hunterTarget.chair = null;
+game.hunter.dir = 0; game.hunter.atkCd = 0;
+hunterTarget.x = game.hunter.x + 20; hunterTarget.y = game.hunter.y;
+keyDown(' '); pump(2, '监管者攻击'); keyUp(' '); pump(1, '监管者攻击松键');
+check('监管者空格攻击生效', hunterTarget.hp === 1, 'hp=' + hunterTarget.hp);
+hunterTarget.hp = 0; game.hunter.carrying = null; game.hunter.atkCd = 0;
+hunterTarget.x = game.hunter.x + 20; hunterTarget.y = game.hunter.y;
+keyDown('e'); pump(2, '监管者交互'); keyUp('e'); pump(1, '监管者交互松键');
+check('监管者 E 键牵制倒地者', game.hunter.carrying === hunterTarget);
+check('监管者对局 loop 继续运行', pump(60, '监管者继续运行'));
 
 // 监管者技能
 game.updateInput({ x:0, y:0, interact:false, skill:true, skill2:false, crouch:false, pause:false });

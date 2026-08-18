@@ -48,7 +48,8 @@
     this.result = null;
     this.fogSeed = Math.random() * 100;
     this.reveal = 0;              // 监管者全视倒计时
-    this.input = { x: 0, y: 0, interact: false, skill: false, skill2: false, crouch: false, pause: false };
+    this.input = { x: 0, y: 0, attack: false, interact: false, skill: false, skill2: false, crouch: false, pause: false };
+    this._attackQueued = false;
     this._interactQueued = false;
     this._skillQueued = false;
     this._skill2Queued = false;
@@ -95,6 +96,11 @@
       this._lastOpts = opts;
       this.playerIsHunter = !!opts.asHunter;
       this.reveal = 0;
+      this.input = { x: 0, y: 0, attack: false, interact: false, skill: false, skill2: false, crouch: false, pause: false };
+      this._attackQueued = false;
+      this._interactQueued = false;
+      this._skillQueued = false;
+      this._skill2Queued = false;
 
       var E = this.map.entities;
       var spawns = E.spawns.slice();
@@ -118,6 +124,8 @@
 
       var hchar = getHunter(opts.hunterId || 'hun_chase');
       this.hunter = this._makeHunter(hchar, hs.x, hs.y);
+      this.hunter.isPlayer = this.playerIsHunter;
+      this.hunter.isAI = !this.playerIsHunter;
       if (opts.asHunter) this.player = this.hunter;
 
       // AI 初始化
@@ -127,8 +135,7 @@
         s2.isAI = !s2.isPlayer;
       }
       this.hunter.ai = new HunterAI(this.hunter, this);
-      if (this.player && !this.player.isHunter) this.hunter.ai.active = true;
-      if (!this.playerIsHunter) this.hunter.ai.active = true;
+      this.hunter.ai.active = this.hunter.isAI;
 
       this.cam.x = this.player ? this.player.x : this.hunter.x;
       this.cam.y = this.player ? this.player.y : this.hunter.y;
@@ -378,7 +385,8 @@
     /* ---------- 玩家输入 ---------- */
     updateInput: function (inp) {
       var prev = this.input;
-      this.input = inp || { x: 0, y: 0, interact: false, skill: false, skill2: false, crouch: false, pause: false };
+      this.input = inp || { x: 0, y: 0, attack: false, interact: false, skill: false, skill2: false, crouch: false, pause: false };
+      if (this.input.attack && !prev.attack) this._attackQueued = true;
       if (this.input.interact && !prev.interact) this._interactQueued = true;
       if (this.input.skill && !prev.skill) this._skillQueued = true;
       if (this.input.skill2 && !prev.skill2) this._skill2Queued = true;
@@ -437,6 +445,10 @@
       }
 
       /* 玩家交互 / 技能事件 */
+      if (this._attackQueued) {
+        if (p && p.kind === 'hunter') this.hunterAttack(h);
+        this._attackQueued = false;
+      }
       if (this._interactQueued) {
         if (p) {
           if (p.kind === 'survivor') this.survivorInteract(p);
@@ -457,7 +469,7 @@
       }
 
       /* AI */
-      if (h.ai) h.ai.update(dt);
+      if (h.ai && h.isAI) h.ai.update(dt);
       for (var a = 0; a < this.survivors.length; a++) {
         if (this.survivors[a].ai) this.survivors[a].ai.update(dt);
       }

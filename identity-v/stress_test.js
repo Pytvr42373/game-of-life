@@ -41,6 +41,7 @@ function check(name,cond){ console.log((cond?'PASS  ':'FAIL  ')+name); cond?pass
 // ===== 场景1: 长时全AI对局(玩家旁观, 监管者AI+求生者AI自动跑) =====
 const g1 = new Game();
 g1.startMatch({ mapIdx:0, difficulty:'normal', asHunter:true, hunterId:'hun_chase', charId:'med' });
+g1.player=null;g1.playerIsHunter=false;g1.hunter.isPlayer=false;g1.hunter.isAI=true;g1.hunter.ai.active=true;
 const dt=1/60;
 let g1steps=0;
 for(let i=0;i<7200;i++){ // 2 分钟

@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>try{if(localStorage.getItem('gh-theme')==='arcade')document.documentElement.classList.add('pre-arcade')}catch(e){}</script>
+<style>
+html{background:#eef4f6}
+html.pre-arcade{background:#081120}
+</style>
+<meta name="description" content="动作游戏频道：进入战场。黎明迷局与幸存者计划均可直接游玩。">
+<title>动作游戏 · 进入战场</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+/* ============ 主题1 · 4399 清晨训练场（亮色） ============ */
+body[data-theme="4399"]{
+  --bg:#eef4f6; --bg2:#f7fbfc; --surface:#ffffff;
+  --line:#d5e2e8; --line-soft:#e6eef1;
+  --text:#24343e; --dim:#586b75;
+  --grass:#3f7d4e; --grass-deep:#2f6240; --grass-soft:#e7f0e8;
+  --sweep:rgba(63,125,78,.32);
+  --focus:#2f6240;
+  background:linear-gradient(180deg,#e9f1f4 0%,var(--bg) 34%,var(--bg2) 100%);
+  color:var(--text);
+}
+body[data-theme="4399"]::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.6;
+  background:
+    radial-gradient(ellipse 58% 42% at 14% 0%, rgba(152,190,205,.5), transparent 62%),
+    radial-gradient(ellipse 44% 34% at 97% 12%, rgba(122,164,140,.26), transparent 60%);
+}
+
+/* ============ 主题2 · arcade 未来机甲作战甲板（暗色） ============ */
+body[data-theme="arcade"]{
+  --bg:#081120; --bg2:#0c1a2e; --surface:#0e2036;
+  --line:#2b4a66; --line-soft:#1c3249;
+  --text:#dbe6f0; --dim:#7e93a6;
+  --cyan:#46d7e8; --orange:#ff8a3d; --hard:#050b14;
+  --sweep:rgba(70,215,232,.30);
+  --focus:#ff8a3d;
+  background:var(--bg); color:var(--text);
+}
+body[data-theme="arcade"]::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    linear-gradient(rgba(43,74,102,.16) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(43,74,102,.16) 1px,transparent 1px);
+  background-size:34px 34px;
+  -webkit-mask-image:radial-gradient(ellipse 92% 72% at 50% 0%, #000 26%, transparent 78%);
+  mask-image:radial-gradient(ellipse 92% 72% at 50% 0%, #000 26%, transparent 78%);
+}
+body[data-theme="arcade"]::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 72% 32% at 50% 0%, rgba(70,215,232,.10), transparent 72%);
+}
+
+body{font-family:'PingFang SC','Microsoft YaHei','Helvetica Neue',Arial,sans-serif;min-height:100vh;min-height:100dvh;line-height:1.6}
+
+/* ============ 返回主页 ============ */
+.back-home{
+  position:fixed;z-index:100;top:16px;left:16px;
+  padding:9px 16px;border-radius:999px;text-decoration:none;
+  font-size:13px;font-weight:700;color:var(--text);
+  background:rgba(255,255,255,.72);border:1px solid var(--line);
+  box-shadow:0 5px 18px rgba(36,52,62,.08);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  transition:transform .2s;
+}
+body[data-theme="arcade"] .back-home{
+  color:var(--text);background:rgba(8,17,32,.8);border-color:rgba(70,215,232,.3);
+  box-shadow:0 0 18px rgba(70,215,232,.08);
+}
+.back-home:hover{transform:translateY(-2px)}
+.back-home:active{transform:translateY(0)}
+
+/* ============ 主题切换器 ============ */
+.theme-switch{
+  position:fixed;z-index:100;right:16px;bottom:16px;
+  width:46px;height:46px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;
+  color:#3f7d4e;background:rgba(255,255,255,.85);border:1px solid rgba(47,98,64,.35);
+  box-shadow:0 3px 12px rgba(36,52,62,.16);
+  backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);
+  transition:transform .2s;
+}
+body[data-theme="arcade"] .theme-switch{
+  color:#46d7e8;background:rgba(8,17,32,.85);border:1px solid rgba(70,215,232,.4);
+  box-shadow:0 0 16px rgba(70,215,232,.18);
+}
+.theme-switch:hover{transform:scale(1.08)}
+.theme-switch:active{transform:scale(.95)}
+.theme-switch svg{width:23px;height:23px}
+
+a:focus-visible,.theme-switch:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+
+/* ============ 频道布局 ============ */
+.deck{position:relative;z-index:1;max-width:1160px;margin:0 auto;padding:88px 28px 68px}
+
+/* ===== 频道头部 ===== */
+.channel-head{
+  display:grid;grid-template-columns:minmax(0,1.55fr) minmax(260px,.75fr);
+  gap:clamp(34px,6vw,76px);align-items:end;margin-bottom:36px;
+}
+.head-copy{max-width:690px}
+.kicker{
+  display:inline-block;font-size:12px;font-weight:800;letter-spacing:4px;
+  color:var(--grass-deep);background:var(--grass-soft);border:1px solid var(--line);
+  padding:5px 14px;border-radius:999px;margin-bottom:17px;text-transform:uppercase;
+}
+body[data-theme="arcade"] .kicker{
+  font-family:'Consolas','Menlo',monospace;letter-spacing:3px;color:var(--cyan);
+  background:rgba(70,215,232,.08);border:1px solid rgba(70,215,232,.35);border-radius:0;
+}
+.channel-head h1{font-size:clamp(34px,5vw,50px);font-weight:900;letter-spacing:2px;color:var(--text);line-height:1.08}
+.channel-head h1 span{display:block;margin-top:8px;font-size:.58em;letter-spacing:7px;color:var(--grass)}
+body[data-theme="arcade"] .channel-head h1 span{color:var(--cyan);font-family:'Consolas','Menlo',monospace;letter-spacing:9px}
+.intro{margin-top:18px;max-width:600px;font-size:15px;color:var(--dim);line-height:1.8}
+.channel-summary{padding:4px 0 6px 22px;border-left:2px solid var(--grass)}
+body[data-theme="arcade"] .channel-summary{border-color:var(--cyan)}
+.summary-label{font-family:'Consolas','Menlo',monospace;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--dim)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.stat{
+  display:flex;flex-direction:column;gap:1px;padding-top:8px;border-top:1px solid var(--line);
+}
+.stat strong{font-size:22px;font-weight:900;color:var(--grass)}
+.stat i{font-style:normal;font-size:12px;color:var(--dim)}
+body[data-theme="arcade"] .stat strong{color:var(--cyan);font-family:'Consolas','Menlo',monospace}
+.summary-note{margin-top:13px;font-size:12px;color:var(--dim)}
+body[data-theme="arcade"] .summary-note{font-family:'Consolas','Menlo',monospace;letter-spacing:1px}
+
+/* ===== 任务选择板 ===== */
+.mission-board{padding-top:24px;border-top:1px solid var(--line-soft)}
+.board-head{margin-bottom:17px}
+.board-head h2{font-size:21px;font-weight:900;letter-spacing:2px;color:var(--text)}
+.board-head p{margin-top:3px;font-size:13px;color:var(--dim)}
+body[data-theme="arcade"] .board-head h2{font-family:'Consolas','Menlo',monospace;letter-spacing:3px}
+
+/* ===== 双任务档案布局 ===== */
+.mission-layout{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:22px;align-items:stretch;
+}
+
+/* ===== 任务卡通用 ===== */
+.mission{
+  position:relative;display:flex;flex-direction:column;color:inherit;text-decoration:none;
+  background:var(--surface);border:1px solid var(--line);border-radius:14px;
+  overflow:hidden;transition:transform .25s;
+}
+body[data-theme="arcade"] .mission{border-radius:0;box-shadow:5px 5px 0 var(--hard)}
+.mission-body{display:flex;flex:1;flex-direction:column;padding:22px 24px 24px}
+.mission-code{
+  font-family:'Consolas','Menlo',monospace;font-size:11px;letter-spacing:2px;
+  color:var(--dim);margin-bottom:8px;text-transform:uppercase;
+}
+body[data-theme="arcade"] .mission-code{color:var(--cyan)}
+.mission-body h2{font-size:24px;font-weight:900;color:var(--text);letter-spacing:1px}
+.mission-body .status{margin-top:10px}
+.desc{margin:12px 0 18px;font-size:14px;color:var(--dim);line-height:1.8;max-width:50ch}
+.teaser{margin-top:14px;font-size:12px;color:var(--dim);letter-spacing:1px}
+body[data-theme="arcade"] .teaser{font-family:'Consolas','Menlo',monospace;letter-spacing:2px}
+
+/* ===== 状态徽标 ===== */
+.status{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:5px 12px;border-radius:999px;
+  font-size:12px;font-weight:800;letter-spacing:1px;
+}
+.status-float{position:absolute;top:14px;left:14px;z-index:2}
+.status-live{background:var(--grass);color:#fff;border:1px solid rgba(255,255,255,.28)}
+.status-live::before{content:'';width:7px;height:7px;border-radius:50%;background:#fff}
+body[data-theme="arcade"] .status-live{
+  background:var(--orange);color:var(--hard);border-color:transparent;border-radius:0;
+  font-family:'Consolas','Menlo',monospace;letter-spacing:2px;
+}
+body[data-theme="arcade"] .status-live::before{background:var(--hard)}
+.status-design{background:var(--line-soft);color:var(--dim);border:1px solid var(--line)}
+body[data-theme="arcade"] .status-design{
+  border-radius:0;background:rgba(14,32,54,.7);border:1px solid var(--line);
+  font-family:'Consolas','Menlo',monospace;letter-spacing:2px;
+}
+
+/* ===== 主卡 · 黎明迷局（可游玩） ===== */
+.mission-play:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.mission-play:hover{transform:translateY(-4px)}
+body[data-theme="4399"] .mission-play:hover{border-color:var(--grass);box-shadow:0 12px 30px rgba(36,52,62,.10)}
+body[data-theme="arcade"] .mission-play:hover{border-color:rgba(70,215,232,.55)}
+.media{
+  position:relative;aspect-ratio:16/9;overflow:hidden;background:var(--bg2);
+  border-bottom:1px solid var(--line-soft);
+}
+.media img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+.mission-play:hover .media img{transform:scale(1.035)}
+.media-shade{
+  position:absolute;inset:0;z-index:1;
+  background:linear-gradient(180deg,rgba(6,12,20,.02) 38%,rgba(6,12,20,.5) 74%,rgba(6,12,20,.8) 100%);
+}
+.media-tag{
+  position:absolute;left:14px;bottom:12px;z-index:2;
+  font-family:'Consolas','Menlo',monospace;font-size:11px;letter-spacing:2px;
+  color:#fff;opacity:.92;
+}
+.genre{
+  display:inline-block;margin-top:10px;font-size:13px;font-weight:700;
+  color:var(--grass-deep);background:var(--grass-soft);border:1px solid var(--line);
+  padding:3px 12px;border-radius:999px;
+}
+body[data-theme="arcade"] .genre{
+  color:var(--cyan);background:rgba(70,215,232,.08);border:1px solid rgba(70,215,232,.35);border-radius:0;
+  font-family:'Consolas','Menlo',monospace;font-size:11px;letter-spacing:2px;
+}
+.specs{list-style:none;display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.specs li{
+  font-size:12px;font-weight:600;color:var(--dim);
+  border:1px solid var(--line-soft);padding:4px 12px;border-radius:999px;background:var(--bg2);
+}
+body[data-theme="arcade"] .specs li{
+  border-radius:0;font-family:'Consolas','Menlo',monospace;font-size:11px;letter-spacing:1px;
+  background:rgba(14,32,54,.6);
+}
+.cta{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  align-self:flex-start;margin-top:auto;padding:12px 26px;border-radius:10px;
+  background:var(--grass);color:#fff;font-size:15px;font-weight:800;letter-spacing:2px;
+  transition:transform .2s;
+}
+.cta::after{content:'→';font-weight:900;transition:transform .2s}
+.cta:hover{transform:translateY(-2px)}
+.cta:hover::after{transform:translateX(3px)}
+.cta:active{transform:translateY(0)}
+body[data-theme="arcade"] .cta{
+  border-radius:0;background:var(--orange);color:var(--hard);
+  font-family:'Consolas','Menlo',monospace;font-size:13px;letter-spacing:2px;
+  box-shadow:3px 3px 0 var(--hard);
+}
+body[data-theme="arcade"] .cta:hover{box-shadow:3px 3px 0 var(--hard),0 0 14px rgba(255,138,61,.45)}
+
+/* ===== 幸存者计划 ===== */
+.mission-survivor:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.mission-survivor:hover{transform:translateY(-4px)}
+body[data-theme="4399"] .mission-survivor:hover{border-color:var(--grass);box-shadow:0 12px 30px rgba(36,52,62,.10)}
+body[data-theme="arcade"] .mission-survivor:hover{border-color:rgba(70,215,232,.55)}
+.survivor-media{
+  position:relative;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;
+  background:var(--bg2);border-bottom:1px solid var(--line-soft);overflow:hidden;
+}
+body[data-theme="4399"] .survivor-media{
+  background:
+    linear-gradient(rgba(148,180,196,.16) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(148,180,196,.16) 1px,transparent 1px),var(--bg2);
+  background-size:22px 22px;
+}
+body[data-theme="arcade"] .survivor-media{
+  background:
+    linear-gradient(rgba(43,74,102,.14) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(43,74,102,.14) 1px,transparent 1px),var(--bg2);
+  background-size:22px 22px;
+}
+/* 雷达 / 包围圈概念示意（纯几何，非游戏截图） */
+.radar{
+  position:relative;width:min(42%,218px);aspect-ratio:1;border-radius:50%;
+  border:1px solid var(--line);background:radial-gradient(circle at 50% 50%,var(--bg2) 0%,var(--surface) 72%);
+}
+.radar-ring{position:absolute;border-radius:50%;border:1px solid var(--line)}
+.radar-ring.r1{inset:16%}
+.radar-ring.r2{inset:31%}
+.radar-ring.r3{inset:44%}
+.radar-cross{position:absolute;background:var(--line)}
+.radar-cross.c-h{left:6%;right:6%;top:50%;height:1px}
+.radar-cross.c-v{top:6%;bottom:6%;left:50%;width:1px}
+.radar-sweep{
+  position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(from 0deg,var(--sweep) 0deg,transparent 62deg);
+  animation:sweep 3.4s linear infinite;
+}
+@keyframes sweep{to{transform:rotate(360deg)}}
+.blip{
+  position:absolute;width:7px;height:7px;border-radius:50%;
+  left:calc(50% + var(--x));top:calc(50% + var(--y));
+  background:var(--grass);transform:translate(-50%,-50%);
+  animation:blipPulse 2.2s ease-in-out infinite;animation-delay:var(--d,0s);
+}
+body[data-theme="arcade"] .blip{background:var(--cyan)}
+@keyframes blipPulse{
+  0%,100%{opacity:.3;transform:translate(-50%,-50%) scale(1)}
+  50%{opacity:1;transform:translate(-50%,-50%) scale(1.4)}
+}
+.radar-core{
+  position:absolute;left:50%;top:50%;width:12px;height:12px;border-radius:50%;
+  transform:translate(-50%,-50%);background:var(--grass);
+}
+.radar-core::after{
+  content:'';position:absolute;inset:-7px;border-radius:50%;
+  border:1px solid var(--line);
+}
+body[data-theme="arcade"] .radar-core{background:var(--cyan)}
+
+/* ===== 页脚 ===== */
+.deck-foot{
+  margin-top:36px;padding-top:18px;padding-right:58px;border-top:1px solid var(--line-soft);
+  display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  font-size:12px;color:var(--dim);letter-spacing:1px;
+}
+body[data-theme="arcade"] .deck-foot{font-family:'Consolas','Menlo',monospace;letter-spacing:2px;border-top:1px solid var(--line)}
+
+/* ===== 页面入场动效 ===== */
+body.preload .channel-head,body.preload .mission{opacity:0;transform:translateY(16px)}
+body.preload .channel-head{transition:opacity .5s,transform .5s}
+body.preload .mission-play{transition:transform .25s,opacity .5s .08s}
+body.preload .mission-survivor{transition:transform .25s,opacity .5s .2s}
+body.ready .channel-head,body.ready .mission{opacity:1;transform:translateY(0)}
+
+/* ===== 尊重 prefers-reduced-motion ===== */
+@media (prefers-reduced-motion: reduce){
+  body,body.preload .channel-head,body.preload .mission{transition:none!important}
+  body.preload .channel-head,body.preload .mission{opacity:1;transform:none}
+  .mission,.mission img,.cta,.cta::after,.back-home,.theme-switch{transition:none!important}
+  .radar-sweep,.blip{animation:none!important}
+  .radar-sweep{opacity:.25}
+  .blip{opacity:.75}
+  .mission-play:hover,.mission-survivor:hover,.mission-play:hover .media img,.cta:hover,.cta:hover::after{transform:none}
+}
+
+/* ===== 窄屏单列 ===== */
+@media (max-width:899px){
+  .mission-layout{grid-template-columns:1fr}
+  .radar{width:min(38%,210px)}
+}
+@media (max-width:720px){
+  .deck{padding:82px 16px calc(82px + env(safe-area-inset-bottom))}
+  .channel-head{grid-template-columns:1fr;gap:24px;margin-bottom:28px}
+  .channel-summary{padding-left:16px}
+  .mission-board{padding-top:20px}
+  .mission-body{padding:18px 18px 20px}
+  .cta{width:100%;min-height:48px}
+  .channel-head h1 span{letter-spacing:5px}
+  .deck-foot{flex-direction:column;gap:6px}
+  .back-home{top:max(10px,env(safe-area-inset-top));left:max(10px,env(safe-area-inset-left));min-height:44px;padding:7px 14px;font-size:12px;display:flex;align-items:center}
+  .theme-switch{right:max(10px,env(safe-area-inset-right));bottom:max(10px,env(safe-area-inset-bottom))}
+}
+@media (max-width:420px){
+  .radar{width:min(54%,190px)}
+  .mission-code{font-size:10px;letter-spacing:1.5px}
+}
+</style>
+</head>
+<body data-theme="4399">
+
+<a class="back-home js-skip" href="../index.html">&#8592; 主页</a>
+<div class="theme-switch" id="themeToggle" role="button" tabindex="0" aria-label="切换主题" title="切换主题"></div>
+
+<main class="deck">
+  <header class="channel-head">
+    <div class="head-copy">
+      <p class="kicker">ACTION CHANNEL</p>
+      <h1>动作游戏<span>进入战场</span></h1>
+      <p class="intro">追逐、生存、临场构筑。这里没有回合等待，每一次选择都在实时战场中生效。</p>
+    </div>
+    <div class="channel-summary" aria-label="频道状态">
+      <p class="summary-label">CHANNEL STATUS / ONLINE</p>
+      <div class="stats">
+        <span class="stat"><strong>02</strong><i>行动档案</i></span>
+        <span class="stat"><strong>02</strong><i>已开放</i></span>
+      </div>
+      <p class="summary-note">键鼠与触屏均可出击</p>
+    </div>
+  </header>
+
+  <section class="mission-board" id="missions" aria-labelledby="missionHeading">
+    <div class="board-head">
+      <h2 id="missionHeading">选择任务</h2>
+      <p>两种战场，两套完全不同的生存规则。</p>
+    </div>
+    <div class="mission-layout">
+      <a class="mission mission-play js-skip" href="../identity-v/index.html" aria-label="进入黎明迷局：非对称追逃，双阵营，3 张地图，单机 AI">
+      <div class="media">
+        <img src="../identity-v/dawn-map-manor.png" alt="黎明迷局·庄园地图：哥特宅邸与庭院的平面示意图">
+        <span class="media-shade" aria-hidden="true"></span>
+        <span class="status status-live status-float">可游玩</span>
+        <span class="media-tag" aria-hidden="true">DAWN MAZE · MANOR MAP</span>
+      </div>
+      <div class="mission-body">
+        <p class="mission-code">MISSION-01 / DAWN MAZE</p>
+        <h2>黎明迷局</h2>
+        <p class="genre">非对称追逃</p>
+        <ul class="specs">
+          <li>双阵营</li>
+          <li>3 张地图</li>
+          <li>键鼠 / 触屏</li>
+        </ul>
+        <p class="desc">在庄园、教堂与医院的阴影中，猎手与猎物共享同一片黑暗。</p>
+        <span class="cta" aria-hidden="true">进入追逃</span>
+      </div>
+      </a>
+
+      <a class="mission mission-survivor js-skip" href="../survivor-protocol/index.html" aria-label="进入幸存者计划：六分钟敌潮生存、自动火力与局内构筑">
+      <div class="survivor-media">
+        <div class="radar" role="img" aria-label="幸存者计划概念示意：雷达环显示四周敌潮正在逼近中心据点">
+          <span class="radar-ring r1"></span>
+          <span class="radar-ring r2"></span>
+          <span class="radar-ring r3"></span>
+          <span class="radar-cross c-h"></span>
+          <span class="radar-cross c-v"></span>
+          <span class="radar-sweep" aria-hidden="true"></span>
+          <span class="blip" style="--x:18%;--y:-32%;--d:0s"></span>
+          <span class="blip" style="--x:38%;--y:4%;--d:.5s"></span>
+          <span class="blip" style="--x:-30%;--y:26%;--d:1s"></span>
+          <span class="blip" style="--x:-40%;--y:-12%;--d:1.5s"></span>
+          <span class="blip" style="--x:6%;--y:42%;--d:1.8s"></span>
+          <span class="blip" style="--x:-16%;--y:-38%;--d:.8s"></span>
+          <span class="radar-core" aria-hidden="true"></span>
+        </div>
+        <span class="status status-live status-float">新上线</span>
+        <span class="media-tag" aria-hidden="true">RADAR FEED · SIMULATION</span>
+      </div>
+      <div class="mission-body">
+        <p class="mission-code">MISSION-02 / SURVIVOR PROTOCOL</p>
+        <h2 id="survivorTitle">幸存者计划</h2>
+        <p class="genre">敌潮生存</p>
+        <ul class="specs">
+          <li>6 分钟</li>
+          <li>局内构筑</li>
+          <li>Boss 战</li>
+        </ul>
+        <p class="desc">保持移动，重组自动火力，在最终裁定完成前击破零号机。</p>
+        <span class="cta" aria-hidden="true">开始生存</span>
+      </div>
+      </a>
+    </div>
+  </section>
+
+  <footer class="deck-foot">
+    <span>纯前端 · 本地运行 · 无需登录</span>
+    <span>下一任务正在立项</span>
+  </footer>
+</main>
+
+<script>
+(function(){
+  'use strict';
+  var toggle = document.getElementById('themeToggle');
+
+  /* ===== 主题联动（与全站共享 localStorage gh-theme） ===== */
+  var saved = '4399';
+  try {
+    var stored = localStorage.getItem('gh-theme');
+    if (stored === '4399' || stored === 'arcade') saved = stored;
+  } catch (e) {}
+  document.body.dataset.theme = saved;
+
+  function iconSVG(theme){
+    if (theme === 'arcade'){
+      return '<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 2.5 7.5 4.3v8.4L12 19.5l-7.5-4.3V6.8z"/><path d="M8.5 9.2 12 7.3l3.5 1.9v4L12 15l-3.5-1.8z"/><path d="M3 8H1.8v3M21 8h1.2v3M8.5 21.5h7"/></svg>';
+    }
+    return '<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6.5" cy="6.5" r="2.5"/><path d="M3 14h10.5c2 0 2-3 0-3-1 0-1.7.5-2 1.2M3 18h14c2.3 0 2.3-3.5 0-3.5-1.1 0-1.9.5-2.3 1.3"/><path d="M16.5 4.5c2.8.2 4.2 1.6 4.5 4.5-2.9-.2-4.3-1.6-4.5-4.5Z"/></svg>';
+  }
+  function paintIcon(){
+    var target = document.body.dataset.theme === 'arcade' ? '4399' : 'arcade';
+    var label = target === 'arcade' ? '切换到未来机甲主题' : '切换到清新主题';
+    toggle.innerHTML = iconSVG(target);
+    toggle.setAttribute('aria-label', label);
+    toggle.title = label;
+  }
+  paintIcon();
+
+  function applyTheme(theme){
+    document.body.dataset.theme = theme;
+    try { localStorage.setItem('gh-theme', theme); } catch (e) {}
+    paintIcon();
+  }
+  toggle.addEventListener('click', function(){
+    applyTheme(document.body.dataset.theme === 'arcade' ? '4399' : 'arcade');
+  });
+  toggle.addEventListener('keydown', function(ev){
+    if (ev.key === 'Enter' || ev.key === ' '){
+      ev.preventDefault();
+      toggle.click();
+    }
+  });
+
+  /* ===== 离开频道页时标记，避免根主页重复开屏 ===== */
+  function setSkip(){
+    try { sessionStorage.setItem('skipSplash', '1'); } catch (e) {}
+  }
+  document.querySelectorAll('.js-skip').forEach(function(el){
+    el.addEventListener('click', setSkip);
+  });
+
+  /* ===== 页面入场（reduced-motion 时跳过） ===== */
+  var rm = matchMedia('(prefers-reduced-motion: reduce)');
+  if (!rm.matches){
+    document.body.classList.add('preload');
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){ document.body.classList.add('ready'); });
+    });
+    /* 入场完成后移除标记类，避免 .ready 的 transform 长期覆盖 hover 效果 */
+    setTimeout(function(){
+      document.body.classList.remove('preload', 'ready');
+    }, 900);
+  }
+})();
+</script>
+</body>
+</html>

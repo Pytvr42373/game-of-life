@@ -40,7 +40,7 @@ function fresh(mapIdx, opts) {
   g.startMatch({ mapIdx: mapIdx || 0, difficulty: opts.difficulty || 'normal', asHunter: !!opts.asHunter, charId: opts.charId || 'med', hunterId: opts.hunterId || 'hun_chase' });
   return g;
 }
-const NONE = { x: 0, y: 0, interact: false, skill: false, skill2: false, crouch: false, pause: false };
+const NONE = { x: 0, y: 0, attack: false, interact: false, skill: false, skill2: false, crouch: false, pause: false };
 function step(g, dt, inp) {
   const i = Object.assign({}, NONE, inp || {});
   g.updateInput(i);
@@ -472,11 +472,58 @@ test('监管者AI: 搬运中自动前往处刑架挂人', function () {
   assert.ok(!h.carrying || h.state === 'guard' || p.chair, 'AI应完成挂椅(可能中途被挣脱或上椅)');
 });
 
+test('监管者玩家: 关闭AI并按输入方向移动', function () {
+  const g = fresh(0, { asHunter: true });
+  const h = g.hunter;
+  assert.strictEqual(g.player, h, '玩家应指向监管者');
+  assert.strictEqual(h.isPlayer, true, '监管者应标记为玩家');
+  assert.strictEqual(h.isAI, false, '玩家监管者不应标记为AI');
+  assert.strictEqual(h.ai.active, false, '玩家监管者AI应关闭');
+
+  let cell = null;
+  outer:
+  for (let y = 1; y < g.rows - 1; y++) for (let x = 1; x < g.cols - 2; x++) {
+    const cx = x * g.ts + g.ts / 2, cy = y * g.ts + g.ts / 2;
+    if (passableAt(g, cx, cy) && passableAt(g, cx + g.ts, cy)) { cell = { x: cx, y: cy }; break outer; }
+  }
+  assert.ok(cell, '找不到可向右移动的开放格');
+  putAt(h, cell.x, cell.y);
+  const before = h.x;
+  for (let i = 0; i < 10; i++) step(g, 1 / 30, { x: 1 });
+  assert.ok(h.x > before, '监管者应按玩家输入向右移动');
+});
+
+test('监管者玩家: 攻击与交互输入互不混淆', function () {
+  const g = fresh(0, { asHunter: true });
+  const h = g.hunter;
+  const s = g.survivors[0];
+  s.ai = null;
+  putAt(s, h.x + 20, h.y);
+  h.dir = 0;
+  h.atkCd = 0;
+  step(g, 1 / 60, { attack: true });
+  assert.strictEqual(s.hp, 1, '攻击输入应命中近处求生者');
+  step(g, 1 / 60);
+
+  s.hp = 0;
+  h.carrying = null;
+  h.atkCd = 0;
+  putAt(s, h.x + 20, h.y);
+  step(g, 1 / 60, { interact: true });
+  assert.strictEqual(h.carrying, s, '交互输入应牵制倒地求生者');
+  assert.strictEqual(s.hp, 0, '交互输入不应触发攻击');
+});
+
 // ============================================================
 // 12. 全局模拟：AI 对 AI 完整对局不崩溃
 // ============================================================
 test('模拟: 扮演监管者 60s 全AI对局不崩溃', function () {
   const g = fresh(0, { asHunter: true, difficulty: 'normal' });
+  g.player = null;
+  g.playerIsHunter = false;
+  g.hunter.isPlayer = false;
+  g.hunter.isAI = true;
+  g.hunter.ai.active = true;
   for (let i = 0; i < 60 * 30; i++) {
     step(g, 1 / 30);
     if (g.state !== 'playing') break;

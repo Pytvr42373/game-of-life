@@ -16,7 +16,7 @@
   var fogBlobs = [];
   var prevState = null;
 
-  var events = { interact: false, skill: false, skill2: false, pause: false };
+  var events = { attack: false, interact: false, skill: false, skill2: false, pause: false };
 
   function $(id) { return document.getElementById(id); }
 
@@ -60,7 +60,12 @@
     window.addEventListener('keydown', function (e) {
       var k = e.key.toLowerCase();
       keys[k] = true;
-      if (k === ' ' || k === 'e' || k === 'enter') { events.interact = true; if (k === ' ') e.preventDefault(); }
+      if (k === ' ') {
+        if (G && G.state === 'playing' && G.playerIsHunter) events.attack = true;
+        else events.interact = true;
+        e.preventDefault();
+      }
+      if (k === 'e' || k === 'enter') events.interact = true;
       if (k === 'shift') { events.skill = true; }
       if (k === 'q') { events.skill2 = true; }
       if (k === 'p' || k === 'escape') { events.pause = true; }
@@ -133,7 +138,7 @@
   /* ================= 输入采集 ================= */
   function sampleInput() {
     if (G.state !== 'playing') {
-      return { x: 0, y: 0, interact: false, skill: false, skill2: false, crouch: false, pause: events.pause };
+      return { x: 0, y: 0, attack: false, interact: false, skill: false, skill2: false, crouch: false, pause: events.pause };
     }
     var x = 0, y = 0;
     if (keys['arrowright'] || keys.d) x += 1;
@@ -144,12 +149,14 @@
     var len = Math.sqrt(x * x + y * y);
     if (len > 1) { x /= len; y /= len; }
     var crouch = !!(keys.c || keys['control']) ;
+    var hunter = G.playerIsHunter;
     var inp = {
       x: x, y: y,
-      interact: events.interact || uiBtn.interact,
+      attack: events.attack || (hunter && uiBtn.interact),
+      interact: events.interact || (hunter ? uiBtn.crouch : uiBtn.interact),
       skill: events.skill || uiBtn.skill,
       skill2: events.skill2 || uiBtn.skill2,
-      crouch: crouch || uiBtn.crouch,
+      crouch: !hunter && (crouch || uiBtn.crouch),
       pause: events.pause
     };
     return inp;
@@ -204,6 +211,19 @@
     el.addEventListener('pointerup', function () { uiBtn[name] = false; });
     el.addEventListener('pointercancel', function () { uiBtn[name] = false; });
     el.addEventListener('pointerleave', function () { uiBtn[name] = false; });
+  }
+
+  function setTouchRole(asHunter) {
+    var primary = $('btn-interact');
+    var secondary = $('btn-crouch');
+    if (primary) {
+      primary.textContent = asHunter ? '攻击' : '交互';
+      if (primary.setAttribute) primary.setAttribute('aria-label', asHunter ? '攻击' : '交互');
+    }
+    if (secondary) {
+      secondary.textContent = asHunter ? '交互' : '蹲';
+      if (secondary.setAttribute) secondary.setAttribute('aria-label', asHunter ? '牵制、挂椅或破坏木板' : '蹲伏');
+    }
   }
 
   function bindButtons() {
@@ -490,7 +510,7 @@
     }
     if (G.state === 'playing' && prevState === 'paused') hideAllPanels();
     prevState = G.state;
-    events.interact = false; events.skill = false; events.skill2 = false; events.pause = false;
+    events.attack = false; events.interact = false; events.skill = false; events.skill2 = false; events.pause = false;
     uiBtn.interact = false; uiBtn.skill = false; uiBtn.skill2 = false;
 
     render();
@@ -1382,6 +1402,7 @@
       asHunter: false, charId: charId, hunterId: selectedHunter,
       mapIdx: selectedMap, difficulty: currentSave.settings.difficulty || 'normal'
     });
+    setTouchRole(false);
     hideAllPanels();
   }
 
@@ -1391,6 +1412,7 @@
       asHunter: true, charId: selectedSurvivor, hunterId: hunterId,
       mapIdx: selectedMap, difficulty: currentSave.settings.difficulty || 'normal'
     });
+    setTouchRole(true);
     hideAllPanels();
   }
 
@@ -1404,6 +1426,7 @@
   function restart() {
     var opts = G._lastOpts || {};
     G.startMatch(opts);
+    setTouchRole(!!opts.asHunter);
     hideAllPanels();
   }
 
