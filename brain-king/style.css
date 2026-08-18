@@ -46,10 +46,10 @@ button svg,.game-mark svg,.section-title svg,.top5-empty svg,.clock svg,.pause-b
 body[data-theme="arcade"] .back-home{color:var(--primary);border-width:2px;border-radius:5px;box-shadow:3px 3px 0 var(--hard)}
 .theme-switch{
   position:fixed;right:16px;bottom:16px;z-index:90;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  color:#7ff3ff;background:rgba(10,10,24,.82);border:1px solid rgba(61,225,255,.42);box-shadow:0 4px 14px rgba(0,0,0,.25);
+  color:#168a39;background:rgba(255,255,255,.92);border:1px solid rgba(34,197,94,.4);box-shadow:0 4px 14px rgba(0,0,0,.25);
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);cursor:pointer;user-select:none;transition:transform .15s;
 }
-body[data-theme="arcade"] .theme-switch{color:#168a39;background:rgba(255,255,255,.92);border-color:rgba(34,197,94,.4)}
+body[data-theme="arcade"] .theme-switch{color:#7ff3ff;background:rgba(10,10,24,.82);border-color:rgba(61,225,255,.42)}
 .theme-switch:hover{transform:scale(1.08)}
 .theme-switch:active{transform:scale(.94)}
 

@@ -492,6 +492,7 @@
         if (!subPanelVisible) showPanel('menu');
       }
     }
+    var stateAtFrameStart = G.state;
     if (G.state === 'playing') {
       var inp = sampleInput();
       G.updateInput(inp);
@@ -505,8 +506,12 @@
       // 不更新；暂停面板幂等显示（进入 paused 的当帧 prevState 已同步为 paused，故不能依赖 prevState 判断）
       showPanel('pause');
       if (events.pause) G.togglePause(); // 再次按 P/Esc 恢复对局，避免卡在暂停界面
-    } else if (G.state === 'over') {
-      if (prevState !== 'over') { UI.onMatchOver(); }
+    }
+    // 结算面板：任何方式进入 over（G.update 内部 checkWin→endMatch 触发，或外部直接调用）
+    // 都必须触发一次。注意 endMatch 在 G.update 内部就把 state 置为 over，此时 prevState 尚未同步，
+    // 因此不能只依赖 prevState 判断，需结合本帧开始时的 state 一并判定，确保不漏结算。
+    if (G.state === 'over' && (stateAtFrameStart !== 'over' || prevState !== 'over')) {
+      UI.onMatchOver();
     }
     if (G.state === 'playing' && prevState === 'paused') hideAllPanels();
     prevState = G.state;
@@ -1093,25 +1098,42 @@
   }
 
   /* ================= HUD ================= */
+  function roundRect(cx, x, y, w, h, r) {
+    cx.beginPath();
+    cx.moveTo(x + r, y);
+    cx.arcTo(x + w, y, x + w, y + h, r);
+    cx.arcTo(x + w, y + h, x, y + h, r);
+    cx.arcTo(x, y + h, x, y, r);
+    cx.arcTo(x, y, x + w, y, r);
+    cx.closePath();
+  }
+
   function drawHUD() {
     var p = G.player;
-    // 顶部信息条
-    ctx.fillStyle = 'rgba(8,8,16,0.5)';
-    ctx.fillRect(0, 0, cw, 34);
-    ctx.fillStyle = 'rgba(255,255,255,0.85)';
-    ctx.font = 'bold 12px serif';
+    // 顶部信息条（加高 + 高对比底 + 描边）
+    ctx.save();
+    ctx.fillStyle = 'rgba(10,10,22,0.88)';
+    ctx.fillRect(0, 0, cw, 46);
+    ctx.fillStyle = 'rgba(70,220,255,0.35)';
+    ctx.fillRect(0, 45, cw, 1);
+    ctx.shadowColor = 'rgba(0,0,0,0.95)';
+    ctx.shadowBlur = 5;
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 15px serif';
     ctx.textAlign = 'left';
-    ctx.fillText(G.map.name + ' · ' + DIFF[G.difficulty].name, 12, 22);
+    ctx.fillText(G.map.name + ' · ' + DIFF[G.difficulty].name, 14, 28);
 
     // 右上：剩余密码机 + 大门
     var remain = G.machinesRemaining();
     ctx.textAlign = 'right';
     ctx.fillStyle = '#ffd25a';
-    ctx.font = 'bold 13px serif';
-    ctx.fillText('密码机 ' + (G.machines.length - remain) + '/' + G.machines.length + ' 剩余 ' + remain, cw - 12, 22);
+    ctx.font = 'bold 16px serif';
+    ctx.fillText('密码机 ' + (G.machines.length - remain) + '/' + G.machines.length + ' 剩余 ' + remain, cw - 14, 28);
     var powered = G.gates[0] && G.gates[0].powered;
-    ctx.fillStyle = powered ? '#9ad8ff' : '#888';
-    ctx.fillText('大门:' + (powered ? '已通电' : '未通电'), cw - 12, 34);
+    ctx.fillStyle = powered ? '#9ad8ff' : '#b0b8c8';
+    ctx.font = 'bold 13px serif';
+    ctx.fillText('大门:' + (powered ? '已通电' : '未通电'), cw - 14, 42);
+    ctx.restore();
 
     // 小地图
     drawMinimap();
@@ -1129,103 +1151,150 @@
 
     // 蹲伏/隐身提示
     if (G.input && G.input.crouch) {
-      ctx.fillStyle = 'rgba(160,180,255,0.8)';
-      ctx.font = 'bold 11px serif';
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,0.95)';
+      ctx.shadowBlur = 6;
+      ctx.fillStyle = 'rgba(180,200,255,0.95)';
+      ctx.font = 'bold 14px serif';
       ctx.textAlign = 'center';
-      ctx.fillText('蹲伏 · 心跳降低', cw / 2, ch - 14);
+      ctx.fillText('蹲伏 · 心跳降低', cw / 2, ch - 16);
+      ctx.restore();
     }
   }
 
   function drawSurvivorHUD(s) {
-    // 左上：头像 + 血量
-    var ax = 14, ay = 44;
-    drawMiniPortrait(s.char, ax + 16, ay + 20, 16);
+    var ax = 14, ay = 52;
+    // 左侧信息底板（提高对比）
+    ctx.save();
+    ctx.fillStyle = 'rgba(8,8,18,0.72)';
+    roundRect(ctx, ax - 4, ay - 26, 210, 112, 8);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    // 头像 + 名字
+    drawMiniPortrait(s.char, ax + 20, ay - 4, 20);
+    ctx.shadowColor = 'rgba(0,0,0,0.95)';
+    ctx.shadowBlur = 4;
     ctx.fillStyle = '#fff';
-    ctx.font = 'bold 13px serif';
+    ctx.font = 'bold 16px serif';
     ctx.textAlign = 'left';
-    ctx.fillText(s.name, ax + 38, ay + 18);
-    ctx.fillStyle = '#aaa';
-    ctx.font = '10px serif';
-    ctx.fillText(s.title, ax + 38, ay + 31);
-    // 血量
+    ctx.fillText(s.name, ax + 46, ay - 10);
+    ctx.fillStyle = '#cfd6e0';
+    ctx.font = 'bold 11px serif';
+    ctx.fillText(s.title, ax + 46, ay + 6);
+    // 血量（更醒目）
     for (var i = 0; i < 2; i++) {
       ctx.beginPath();
-      ctx.arc(ax + 14 + i * 16, ay + 44, 6, 0, 6.283);
-      ctx.fillStyle = (s.hp > i) ? '#e04a4a' : 'rgba(255,255,255,0.15)';
+      ctx.arc(ax + 18 + i * 20, ay + 22, 8, 0, 6.283);
+      ctx.fillStyle = (s.hp > i) ? '#ff4a4a' : 'rgba(255,255,255,0.16)';
       ctx.fill();
-      ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = 'rgba(0,0,0,0.7)';
       ctx.stroke();
     }
-    if (s.hp === 0) { ctx.fillStyle = '#ff6a6a'; ctx.font = 'bold 11px serif'; ctx.fillText('倒地', ax + 38, ay + 52); }
-
-    // 技能
-    var cd = s.skillCd, max = s.char.active.cd;
-    var bw = 130;
-    ctx.fillStyle = 'rgba(0,0,0,0.55)';
-    ctx.fillRect(ax, ay + 56, bw, 12);
-    ctx.fillStyle = cd > 0 ? 'rgba(90,90,120,0.9)' : 'rgba(120,220,160,0.9)';
-    ctx.fillRect(ax, ay + 56, bw * (1 - cd / max), 12);
-    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-    ctx.strokeRect(ax, ay + 56, bw, 12);
     ctx.fillStyle = '#fff';
-    ctx.font = 'bold 9px serif';
+    ctx.font = 'bold 12px serif';
+    ctx.fillText('HP ' + Math.max(0, s.hp), ax + 48, ay + 26);
+    if (s.hp === 0) {
+      ctx.fillStyle = '#ff6a6a';
+      ctx.font = 'bold 15px serif';
+      ctx.fillText('倒地!', ax + 130, ay + 26);
+    }
+    // 技能（加大加高）
+    var cd = s.skillCd, max = s.char.active.cd;
+    var bw = 194;
+    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    ctx.fillRect(ax, ay + 38, bw, 20);
+    ctx.fillStyle = cd > 0 ? 'rgba(100,100,140,0.95)' : 'rgba(120,235,160,0.95)';
+    ctx.fillRect(ax, ay + 38, bw * (1 - cd / max), 20);
+    ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(ax, ay + 38, bw, 20);
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 13px serif';
     ctx.textAlign = 'center';
-    ctx.fillText(s.char.active.name + (cd > 0 ? ' ' + cd.toFixed(0) + 's' : ' 就绪'), ax + bw / 2, ay + 66);
+    ctx.fillText(s.char.active.name + (cd > 0 ? ' ' + Math.ceil(cd) + 's' : ' 就绪'), ax + bw / 2, ay + 53);
+    ctx.restore();
 
-    // 修机进度(左下)
+    // 修机进度(左下，加大加亮)
     if (s.decoding) {
       var m = s.decoding;
-      var bw2 = 200;
-      ctx.fillStyle = 'rgba(0,0,0,0.6)';
-      ctx.fillRect(cw / 2 - bw2 / 2, ch - 58, bw2, 16);
+      var bw2 = 260, bh2 = 22;
+      var bx = cw / 2 - bw2 / 2, by = ch - 72;
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,0.9)';
+      ctx.shadowBlur = 8;
+      ctx.fillStyle = 'rgba(8,8,18,0.8)';
+      ctx.fillRect(bx - 6, by - 4, bw2 + 12, bh2 + 26);
       ctx.fillStyle = '#ffd25a';
-      ctx.fillRect(cw / 2 - bw2 / 2, ch - 58, bw2 * (m.progress / m.max), 16);
-      ctx.strokeStyle = 'rgba(255,255,255,0.5)';
-      ctx.strokeRect(cw / 2 - bw2 / 2, ch - 58, bw2, 16);
+      ctx.fillRect(bx, by, bw2 * (m.progress / m.max), bh2);
+      ctx.fillStyle = 'rgba(255,255,255,0.15)';
+      ctx.fillRect(bx, by, bw2, bh2);
+      ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(bx, by, bw2, bh2);
       ctx.fillStyle = '#fff';
-      ctx.font = 'bold 11px serif';
+      ctx.font = 'bold 14px serif';
       ctx.textAlign = 'center';
-      ctx.fillText('破译中 ' + Math.floor(m.progress) + '% (按 交互 停止)', cw / 2, ch - 46);
+      ctx.fillText('破译中 ' + Math.floor(m.progress) + '% (按 交互 停止)', cw / 2, by + bh2 + 18);
+      ctx.restore();
     }
   }
 
   function drawHunterHUD(h) {
-    var ax = 14, ay = 44;
-    drawMiniPortraitH(h.char, ax + 16, ay + 20, 16);
-    ctx.fillStyle = '#ff9a9a';
-    ctx.font = 'bold 13px serif';
+    var ax = 14, ay = 52;
+    ctx.save();
+    ctx.fillStyle = 'rgba(8,8,18,0.72)';
+    roundRect(ctx, ax - 4, ay - 26, 210, 112, 8);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    drawMiniPortraitH(h.char, ax + 20, ay - 4, 20);
+    ctx.shadowColor = 'rgba(0,0,0,0.95)';
+    ctx.shadowBlur = 4;
+    ctx.fillStyle = '#ffb0b0';
+    ctx.font = 'bold 16px serif';
     ctx.textAlign = 'left';
-    ctx.fillText(h.name, ax + 38, ay + 18);
-    ctx.fillStyle = '#aaa';
-    ctx.font = '10px serif';
-    ctx.fillText(h.title, ax + 38, ay + 31);
-    // 技能1
+    ctx.fillText(h.name, ax + 46, ay - 10);
+    ctx.fillStyle = '#dfd0d8';
+    ctx.font = 'bold 11px serif';
+    ctx.fillText(h.title, ax + 46, ay + 6);
+    // 技能1（加大加高）
     var cd = h.skillCd, max = h.char.active.cd;
-    var bw = 130;
-    ctx.fillStyle = 'rgba(0,0,0,0.55)';
-    ctx.fillRect(ax, ay + 44, bw, 12);
-    ctx.fillStyle = cd > 0 ? 'rgba(90,90,120,0.9)' : 'rgba(255,140,140,0.9)';
-    ctx.fillRect(ax, ay + 44, bw * (1 - cd / max), 12);
+    var bw = 194;
+    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    ctx.fillRect(ax, ay + 18, bw, 20);
+    ctx.fillStyle = cd > 0 ? 'rgba(100,100,140,0.95)' : 'rgba(255,150,150,0.95)';
+    ctx.fillRect(ax, ay + 18, bw * (1 - cd / max), 20);
+    ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(ax, ay + 18, bw, 20);
     ctx.fillStyle = '#fff';
-    ctx.font = 'bold 9px serif';
+    ctx.font = 'bold 13px serif';
     ctx.textAlign = 'center';
-    ctx.fillText(h.char.active.name + (cd > 0 ? ' ' + cd.toFixed(0) + 's' : ' 就绪'), ax + bw / 2, ay + 54);
+    ctx.fillText(h.char.active.name + (cd > 0 ? ' ' + Math.ceil(cd) + 's' : ' 就绪'), ax + bw / 2, ay + 33);
     // 技能2
     if (h.char.active2) {
       var cd2 = h.skill2Cd, max2 = h.char.active2.cd;
-      ctx.fillStyle = 'rgba(0,0,0,0.55)';
-      ctx.fillRect(ax, ay + 60, bw, 12);
-      ctx.fillStyle = cd2 > 0 ? 'rgba(90,90,120,0.9)' : 'rgba(180,140,255,0.9)';
-      ctx.fillRect(ax, ay + 60, bw * (1 - cd2 / max2), 12);
+      ctx.fillStyle = 'rgba(0,0,0,0.7)';
+      ctx.fillRect(ax, ay + 42, bw, 20);
+      ctx.fillStyle = cd2 > 0 ? 'rgba(100,100,140,0.95)' : 'rgba(190,150,255,0.95)';
+      ctx.fillRect(ax, ay + 42, bw * (1 - cd2 / max2), 20);
+      ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+      ctx.strokeRect(ax, ay + 42, bw, 20);
       ctx.fillStyle = '#fff';
-      ctx.fillText(h.char.active2.name + (cd2 > 0 ? ' ' + cd2.toFixed(0) + 's' : ' 就绪'), ax + bw / 2, ay + 70);
+      ctx.fillText(h.char.active2.name + (cd2 > 0 ? ' ' + Math.ceil(cd2) + 's' : ' 就绪'), ax + bw / 2, ay + 57);
     }
     // 存活求生者
     var alive = 0;
     for (var i = 0; i < G.survivors.length; i++) if (G.survivors[i].alive || G.survivors[i].escaped) alive++;
     ctx.fillStyle = '#fff';
+    ctx.font = 'bold 13px serif';
     ctx.textAlign = 'left';
-    ctx.fillText('求生者剩余 ' + alive + '/3', ax, ay + 88);
+    ctx.fillText('求生者剩余 ' + alive + '/3', ax + 4, ay + 80);
+    ctx.restore();
   }
 
   function drawMiniPortrait(ch, x, y, r) {
@@ -1246,7 +1315,7 @@
   function drawMinimap() {
     var w = 140, h = Math.round(w * G.rows / G.cols);
     if (h > 120) { h = 120; w = Math.round(120 * G.cols / G.rows); }
-    var mx = cw - w - 12, my = 46;
+    var mx = cw - w - 12, my = 52;
     ctx.fillStyle = 'rgba(6,7,14,0.75)';
     ctx.fillRect(mx - 2, my - 2, w + 4, h + 4);
     var cw2 = w / G.cols, ch2 = h / G.rows;
@@ -1300,43 +1369,64 @@
     ctx.lineWidth = 2;
     var pr = (frame % 60) / 60;
     ctx.beginPath(); ctx.arc(cw / 2, ch / 2, 40 + pr * 160, 0, 6.283); ctx.stroke();
-    ctx.fillStyle = 'rgba(255,80,80,0.9)';
-    ctx.font = 'bold 12px serif';
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.95)';
+    ctx.shadowBlur = 6;
+    ctx.fillStyle = 'rgba(255,80,80,1)';
+    ctx.font = 'bold 17px serif';
     ctx.textAlign = 'center';
-    ctx.fillText('❤ 心跳 ' + rate, cw / 2, 40);
+    ctx.fillText('❤ 心跳 ' + rate, cw / 2, 60);
+    ctx.restore();
   }
 
   function drawSkillCheck() {
     var c = G.check;
-    var bw = 340, bh = 46;
+    var bw = 420, bh = 58;
     var bx = cw / 2 - bw / 2, by = ch / 2 - bh / 2;
-    ctx.fillStyle = 'rgba(6,7,14,0.85)';
-    ctx.fillRect(bx - 4, by - 4, bw + 8, bh + 8);
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.9)';
+    ctx.shadowBlur = 10;
+    ctx.fillStyle = 'rgba(6,7,14,0.92)';
+    roundRect(ctx, bx - 8, by - 8, bw + 16, bh + 44, 10);
+    ctx.fill();
     // 轨道
-    ctx.fillStyle = '#22222e';
+    ctx.fillStyle = '#1c1c2c';
     ctx.fillRect(bx, by, bw, bh);
     // 完美区
     var zc = bx + c.zoneC * bw, zw = c.zoneW * bw;
-    ctx.fillStyle = 'rgba(120,255,160,0.35)';
+    ctx.fillStyle = 'rgba(120,255,160,0.55)';
     ctx.fillRect(zc - zw, by, zw * 2, bh);
     // 好区
-    ctx.fillStyle = 'rgba(255,220,120,0.22)';
+    ctx.fillStyle = 'rgba(255,220,120,0.35)';
     ctx.fillRect(zc - zw - 0.16 * bw, by, (zw * 2 + 0.32 * bw), bh);
+    // 轨道描边
+    ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(bx, by, bw, bh);
     // 指针
     var pos = 0.5 + Math.sin((c.t / c.period) * Math.PI * 2) * 0.42;
     var nx = bx + pos * bw;
     ctx.fillStyle = '#ffffff';
-    ctx.fillRect(nx - 2, by - 6, 4, bh + 12);
+    ctx.fillRect(nx - 2, by - 8, 5, bh + 16);
     // 文本
     ctx.fillStyle = '#fff';
-    ctx.font = 'bold 13px serif';
+    ctx.font = 'bold 16px serif';
     ctx.textAlign = 'center';
-    ctx.fillText('校准! 按 交互(E/空格)', cw / 2, by + bh + 20);
+    ctx.fillText('校准! 按 交互(E/空格)', cw / 2, by + bh + 24);
+    ctx.restore();
   }
 
   function drawPauseDim() {
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
     ctx.fillRect(0, 0, cw, ch);
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.95)';
+    ctx.shadowBlur = 6;
+    ctx.fillStyle = 'rgba(255,255,255,0.95)';
+    ctx.font = 'bold 20px serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('已暂停', cw / 2, 70);
+    ctx.restore();
   }
 
   /* ================= 粒子/浮字 ================= */

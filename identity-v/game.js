@@ -15,9 +15,9 @@
   var DECODE_RATE = 14;         // 单人基础修机速率 /s
 
   var DIFF = {
-    easy:      { name: '休闲', hunterSpeed: 0.92, vision: 250, atkCdMul: 1.20, chaseGiveup: 6, guardTime: 6,  carrySlow: 0.74, struggle: 0.95, huntDecode: 0.0 },
-    normal:    { name: '普通', hunterSpeed: 0.96, vision: 270, atkCdMul: 1.00, chaseGiveup: 4, guardTime: 7,  carrySlow: 0.70, struggle: 0.70, huntDecode: 0.0 },
-    nightmare: { name: '噩梦', hunterSpeed: 1.08, vision: 345, atkCdMul: 0.82, chaseGiveup: 4, guardTime: 10, carrySlow: 0.66, struggle: 0.50, huntDecode: 0.0 }
+    easy:      { name: '休闲', hunterSpeed: 1.18, vision: 250, atkCdMul: 1.20, chaseGiveup: 6, guardTime: 6,  carrySlow: 0.74, struggle: 0.95, huntDecode: 0.0 },
+    normal:    { name: '普通', hunterSpeed: 1.26, vision: 270, atkCdMul: 1.00, chaseGiveup: 4, guardTime: 7,  carrySlow: 0.70, struggle: 0.70, huntDecode: 0.0 },
+    nightmare: { name: '噩梦', hunterSpeed: 1.34, vision: 345, atkCdMul: 0.82, chaseGiveup: 4, guardTime: 10, carrySlow: 0.66, struggle: 0.50, huntDecode: 0.0 }
   };
 
   /* ---------- 工具 ---------- */
@@ -1265,7 +1265,7 @@
         for (var i = 0; i < this.machines.length; i++) decodeTotal += Math.round(this.machines[i].progress);
         var decoded = 0;
         for (var j = 0; j < this.machines.length; j++) if (this.machines[j].decoded) decoded++;
-        var score = 300 + decoded * 400 + Math.round(decodeTotal / 10) * 3 + (p.escaped ? 1000 : 0) + Math.round(p.chaseT * 2) + p.rescueScore * 200 + p.healScore * 120;
+        var score = 300 + decoded * 400 + Math.round(decodeTotal / 10) * 3 + (p.escaped ? 1000 : 0) + Math.round((p.chaseT || 0) * 2) + (p.rescueScore || 0) * 200 + (p.healScore || 0) * 120;
         this.result.score = score;
         this.result.detail = {
           winner: winner, escaped: p.escaped, decoded: decoded,

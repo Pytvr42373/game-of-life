@@ -5,7 +5,7 @@
  * ============================================================ */
 'use strict';
 // 轻量 stub（不渲染，只驱动逻辑 + 完整流程）
-const CTX_METHODS=['beginPath','closePath','moveTo','lineTo','quadraticCurveTo','arc','ellipse','fill','stroke','fillText','drawImage','createLinearGradient','createRadialGradient','save','restore','translate','rotate','clearRect','fillRect','strokeRect'];
+const CTX_METHODS=['beginPath','closePath','moveTo','lineTo','quadraticCurveTo','arc','ellipse','fill','stroke','fillText','drawImage','createLinearGradient','createRadialGradient','save','restore','translate','rotate','clearRect','fillRect','strokeRect','arcTo'];
 function makeCtx(){const o={};for(const m of CTX_METHODS){o[m]=function(){return {addColorStop:function(){},width:10};};}return new Proxy(o,{get(t,p){if(p in t)return t[p];throw new TypeError('no '+String(p));},set(){return true;}});}
 function makeEl(id){return {id,style:{},listeners:{},children:[],innerHTML:'',value:'',checked:false,appendChild(c){this.children.push(c);return c;},addEventListener(ev,fn){(this.listeners[ev]=this.listeners[ev]||[]).push(fn);},getContext(){return makeCtx();},setPointerCapture(){}};}
 const els={};

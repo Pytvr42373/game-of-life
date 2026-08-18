@@ -171,22 +171,22 @@ body[data-theme="arcade"] .back-home {
   width: 46px;
   height: 46px;
   padding: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(34, 197, 94, 0.4);
   border-radius: 50%;
   place-items: center;
-  color: #7ff3ff;
-  background: rgba(10, 10, 24, 0.82);
-  box-shadow: 0 0 16px rgba(61, 225, 255, 0.23);
+  color: #16a34a;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 3px 14px rgba(34, 197, 94, 0.2);
   backdrop-filter: blur(8px);
   cursor: pointer;
   transition: transform 180ms ease, background 180ms ease;
 }
 
 body[data-theme="arcade"] .theme-switch {
-  color: #16a34a;
-  background: rgba(255, 255, 255, 0.92);
-  border-color: rgba(34, 197, 94, 0.4);
-  box-shadow: 0 3px 14px rgba(34, 197, 94, 0.2);
+  color: #7ff3ff;
+  background: rgba(10, 10, 24, 0.82);
+  border-color: rgba(61, 225, 255, 0.42);
+  box-shadow: 0 0 16px rgba(61, 225, 255, 0.23);
 }
 
 .theme-switch:hover {

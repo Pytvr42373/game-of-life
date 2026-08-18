@@ -8,7 +8,7 @@
 html{background:#eef4f6}
 html.pre-arcade{background:#081120}
 </style>
-<meta name="description" content="动作游戏频道：进入战场。黎明迷局与幸存者计划均可直接游玩。">
+<meta name="description" content="动作游戏频道：进入战场。黎明迷局、幸存者计划与打字对决均可直接游玩。">
 <title>动作游戏 · 进入战场</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -138,7 +138,7 @@ body[data-theme="arcade"] .board-head h2{font-family:'Consolas','Menlo',monospac
 
 /* ===== 双任务档案布局 ===== */
 .mission-layout{
-  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
   gap:22px;align-items:stretch;
 }
 
@@ -296,6 +296,33 @@ body[data-theme="arcade"] .blip{background:var(--cyan)}
 }
 body[data-theme="arcade"] .radar-core{background:var(--cyan)}
 
+/* ===== 打字对决 · TYPE DUEL ===== */
+.mission-duel:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.mission-duel:hover{transform:translateY(-4px)}
+body[data-theme="4399"] .mission-duel:hover{border-color:var(--grass);box-shadow:0 12px 30px rgba(36,52,62,.10)}
+body[data-theme="arcade"] .mission-duel:hover{border-color:rgba(70,215,232,.55)}
+.duel-media{
+  position:relative;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;
+  background:var(--bg2);border-bottom:1px solid var(--line-soft);overflow:hidden;
+}
+body[data-theme="4399"] .duel-media{
+  background:
+    linear-gradient(rgba(148,180,196,.16) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(148,180,196,.16) 1px,transparent 1px),var(--bg2);
+  background-size:22px 22px;
+}
+body[data-theme="arcade"] .duel-media{
+  background:
+    linear-gradient(rgba(43,74,102,.14) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(43,74,102,.14) 1px,transparent 1px),var(--bg2);
+  background-size:22px 22px;
+}
+.duel-art{
+  --accent:var(--grass);
+  width:min(86%,560px);display:block;
+}
+body[data-theme="arcade"] .duel-art{--accent:var(--cyan)}
+
 /* ===== 页脚 ===== */
 .deck-foot{
   margin-top:36px;padding-top:18px;padding-right:58px;border-top:1px solid var(--line-soft);
@@ -309,6 +336,7 @@ body.preload .channel-head,body.preload .mission{opacity:0;transform:translateY(
 body.preload .channel-head{transition:opacity .5s,transform .5s}
 body.preload .mission-play{transition:transform .25s,opacity .5s .08s}
 body.preload .mission-survivor{transition:transform .25s,opacity .5s .2s}
+body.preload .mission-duel{transition:transform .25s,opacity .5s .32s}
 body.ready .channel-head,body.ready .mission{opacity:1;transform:translateY(0)}
 
 /* ===== 尊重 prefers-reduced-motion ===== */
@@ -319,7 +347,12 @@ body.ready .channel-head,body.ready .mission{opacity:1;transform:translateY(0)}
   .radar-sweep,.blip{animation:none!important}
   .radar-sweep{opacity:.25}
   .blip{opacity:.75}
-  .mission-play:hover,.mission-survivor:hover,.mission-play:hover .media img,.cta:hover,.cta:hover::after{transform:none}
+  .mission-play:hover,.mission-survivor:hover,.mission-duel:hover,.mission-play:hover .media img,.cta:hover,.cta:hover::after{transform:none}
+}
+
+/* ===== 中屏双列（三卡时先降为两列） ===== */
+@media (max-width:1099px){
+  .mission-layout{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 
 /* ===== 窄屏单列 ===== */
@@ -360,8 +393,8 @@ body.ready .channel-head,body.ready .mission{opacity:1;transform:translateY(0)}
     <div class="channel-summary" aria-label="频道状态">
       <p class="summary-label">CHANNEL STATUS / ONLINE</p>
       <div class="stats">
-        <span class="stat"><strong>02</strong><i>行动档案</i></span>
-        <span class="stat"><strong>02</strong><i>已开放</i></span>
+        <span class="stat"><strong>03</strong><i>行动档案</i></span>
+        <span class="stat"><strong>03</strong><i>已开放</i></span>
       </div>
       <p class="summary-note">键鼠与触屏均可出击</p>
     </div>
@@ -370,7 +403,7 @@ body.ready .channel-head,body.ready .mission{opacity:1;transform:translateY(0)}
   <section class="mission-board" id="missions" aria-labelledby="missionHeading">
     <div class="board-head">
       <h2 id="missionHeading">选择任务</h2>
-      <p>两种战场，两套完全不同的生存规则。</p>
+      <p>三种战场，三套完全不同的对决规则。</p>
     </div>
     <div class="mission-layout">
       <a class="mission mission-play js-skip" href="../identity-v/index.html" aria-label="进入黎明迷局：非对称追逃，双阵营，3 张地图，单机 AI">
@@ -425,6 +458,56 @@ body.ready .channel-head,body.ready .mission{opacity:1;transform:translateY(0)}
         </ul>
         <p class="desc">保持移动，重组自动火力，在最终裁定完成前击破零号机。</p>
         <span class="cta" aria-hidden="true">开始生存</span>
+      </div>
+      </a>
+
+      <a class="mission mission-duel js-skip" href="../typeduel/index.html" aria-label="进入打字对决：打字射击，单词即敌人，打字即射击，闯关 / 冲刺 / 生存三模式">
+      <div class="duel-media">
+        <svg class="duel-art" viewBox="0 0 320 180" role="img" aria-label="打字对决概念示意：环形准星瞄准下落的单词数据包，底部键盘待命" preserveAspectRatio="xMidYMid meet">
+          <text x="76" y="52" font-family="Consolas,Menlo,monospace" font-size="14" font-weight="700" fill="var(--accent)" opacity=".92">BYTE</text>
+          <text x="238" y="44" font-family="Consolas,Menlo,monospace" font-size="11" font-weight="700" fill="var(--accent)" opacity=".55">SHELL</text>
+          <text x="100" y="112" font-family="Consolas,Menlo,monospace" font-size="12" font-weight="700" fill="var(--accent)" opacity=".38">NODE</text>
+          <text x="160" y="46" font-family="Consolas,Menlo,monospace" font-size="13" font-weight="700" fill="var(--dim)" text-anchor="middle" opacity=".9">HACK</text>
+          <line x1="143" y1="36" x2="177" y2="50" stroke="var(--focus)" stroke-width="1.6" stroke-linecap="round"/>
+          <line x1="143" y1="50" x2="177" y2="36" stroke="var(--focus)" stroke-width="1.6" stroke-linecap="round"/>
+          <circle cx="160" cy="86" r="30" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-dasharray="5 4" opacity=".85"/>
+          <circle cx="160" cy="86" r="3" fill="var(--accent)"/>
+          <path d="M160 46v10M160 116v10M120 86h10M190 86h10" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="m160 70 2.6 6.4 6.8 1.6-6.8 1.6-2.6 6.4-2.6-6.4-6.8-1.6 6.8-1.6z" fill="var(--focus)"/>
+          <text x="30" y="120" font-family="Consolas,Menlo,monospace" font-size="11" font-weight="700" fill="var(--accent)">&gt; TYPE_</text>
+          <g>
+            <rect x="76" y="126" width="168" height="34" rx="7" fill="var(--surface)" stroke="var(--line)" stroke-width="1.4"/>
+            <g fill="var(--line-soft)" stroke="var(--line)" stroke-width=".8">
+              <rect x="85" y="132" width="19" height="10" rx="2.5"/>
+              <rect x="108" y="132" width="19" height="10" rx="2.5"/>
+              <rect x="131" y="132" width="19" height="10" rx="2.5"/>
+              <rect x="154" y="132" width="19" height="10" rx="2.5"/>
+              <rect x="177" y="132" width="19" height="10" rx="2.5"/>
+              <rect x="200" y="132" width="19" height="10" rx="2.5"/>
+              <rect x="90" y="146" width="24" height="9" rx="2.5"/>
+              <rect x="118" y="146" width="24" height="9" rx="2.5"/>
+              <rect x="146" y="146" width="24" height="9" rx="2.5"/>
+              <rect x="174" y="146" width="24" height="9" rx="2.5"/>
+              <rect x="202" y="146" width="24" height="9" rx="2.5"/>
+            </g>
+            <rect x="131" y="132" width="19" height="10" rx="2.5" fill="var(--accent)" opacity=".9"/>
+            <rect x="154" y="132" width="19" height="10" rx="2.5" fill="var(--focus)" opacity=".9"/>
+          </g>
+        </svg>
+        <span class="status status-live status-float">新上线</span>
+        <span class="media-tag" aria-hidden="true">TYPE DUEL · TYPING SHOOTER</span>
+      </div>
+      <div class="mission-body">
+        <p class="mission-code">MISSION-03 / TYPE DUEL</p>
+        <h2 id="duelTitle">打字对决</h2>
+        <p class="genre">打字射击</p>
+        <ul class="specs">
+          <li>12 关</li>
+          <li>3 模式</li>
+          <li>键盘输入</li>
+        </ul>
+        <p class="desc">单词即敌人，打字即射击。逐字母击碎入侵的数据病毒，守护服务器核心。</p>
+        <span class="cta" aria-hidden="true">开始对决</span>
       </div>
       </a>
     </div>

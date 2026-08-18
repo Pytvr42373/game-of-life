@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>try{if(localStorage.getItem('gh-theme')==='arcade')document.documentElement.classList.add('pre-arcade')}catch(e){}</script>
+<style>html{background:#eef4f6}html.pre-arcade{background:#081120}</style>
+<meta name="description" content="打字对决 TYPE DUEL：数据病毒以单词形态入侵，逐字母输入击碎下落的数据包，守护服务器核心。经典闯关 / 限时冲刺 / 无尽生存。">
+<title>打字对决 · TYPE DUEL</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="4399">
+
+<a class="back-home" href="../action-games/index.html" aria-label="返回动作游戏频道">← 动作游戏</a>
+<button class="theme-switch" id="themeToggle" type="button" aria-label="切换主题" title="切换主题"></button>
+
+<!-- 加载过渡 -->
+<div class="loader" id="loader" aria-hidden="true">
+  <div class="load-ring"></div>
+  <div class="load-track"><i></i></div>
+  <span>LOADING</span>
+</div>
+
+<!-- ================= 主菜单 ================= -->
+<main class="menu" id="menuScreen" aria-label="主菜单">
+  <div class="menu-inner">
+    <header class="m-head">
+      <p class="kicker">DATA SURGE / TD-001 · TYPING SHOOTER</p>
+      <h1>打字对决<span>TYPE DUEL</span></h1>
+      <p class="tag">数据病毒以单词形态入侵网络网格 · 你是最后一道防线的终端操作员</p>
+    </header>
+
+    <section class="mode-select" aria-label="选择模式">
+      <button class="mode-card on" id="modeCampaign" type="button">
+        <i class="mc-ico">✦</i>
+        <strong>经典闯关</strong>
+        <em>CAMPAIGN</em>
+        <span>5 心 · 12 关 · Boss 战</span>
+      </button>
+      <button class="mode-card" id="modeSprint" type="button">
+        <i class="mc-ico">⚡</i>
+        <strong>限时冲刺</strong>
+        <em>SPRINT</em>
+        <span>60s · Top10 榜</span>
+      </button>
+      <button class="mode-card" id="modeSurvival" type="button">
+        <i class="mc-ico">☠</i>
+        <strong>无尽生存</strong>
+        <em>SURVIVAL</em>
+        <span>HP 衰减 · 连击回血</span>
+      </button>
+    </section>
+
+    <section class="m-config">
+      <div class="cfg-group" id="diffGroup">
+        <label>难度档</label>
+        <div class="seg">
+          <button id="diffNormal" type="button">普通</button>
+          <button id="diffHard" type="button">困难</button>
+          <button id="diffInferno" type="button">地狱</button>
+        </div>
+        <p class="hint">通关上一档 12 关解锁下一档</p>
+      </div>
+      <div class="cfg-group" id="sprintGroup" style="display:none">
+        <label>词长档</label>
+        <div class="seg">
+          <button id="sprintShort" type="button">短词</button>
+          <button id="sprintStandard" type="button">标准</button>
+          <button id="sprintLong" type="button">长词</button>
+        </div>
+        <p class="hint">越长越难，系数越高</p>
+      </div>
+    </section>
+
+    <p class="mode-desc" id="modeDesc">5 心起步 · 12 关主线 · 每 3 关词长升档 + Boss 战</p>
+
+    <button class="start-btn" id="startBtn" type="button">开始对决 <span>ENTER</span></button>
+
+    <section class="m-records" aria-label="战绩概览">
+      <div class="rec"><b id="menuBestWpm">0</b><span>最佳 WPM</span></div>
+      <div class="rec"><b id="menuGames">0</b><span>总局数</span></div>
+      <div class="rec"><b id="menuMaxCombo">0</b><span>最高连击</span></div>
+      <div class="rec"><b id="menuStage">第 1 关</b><span>闯关进度</span></div>
+    </section>
+
+    <section class="m-quick-lb" aria-label="限时冲榜预览">
+      <div class="lb-head"><span>限时冲榜 · TOP3</span><button id="lbBtn" type="button">完整榜单</button></div>
+      <div id="menuLbList" class="lb-mini"></div>
+    </section>
+
+    <nav class="m-nav" aria-label="功能入口">
+      <button id="statsBtn" type="button">统计档案</button>
+      <button id="settingsBtn" type="button">设置</button>
+      <span class="keys-hint">1/2/3 选模式 · ENTER 开始 · P 暂停 · M 静音</span>
+    </nav>
+  </div>
+</main>
+
+<!-- ================= 战斗界面（canvas 固定霓虹矩阵主题） ================= -->
+<div class="battle-stage" id="battleStage" aria-label="战斗界面">
+  <div class="hud" id="hud">
+    <div class="hud-l">
+      <div class="hud-stat"><span>WPM</span><b id="hudWpm">0</b></div>
+      <div class="hud-stat"><span>ACC</span><b id="hudAcc" class="hud-acc good">100%</b></div>
+      <div class="hud-stat"><span>COMBO</span><b id="hudCombo" class="hud-combo">×0</b></div>
+    </div>
+    <div class="hud-life">
+      <div class="hud-hearts" id="hudHearts"></div>
+      <div class="hud-hp" id="hudHpWrap" style="display:none">
+        <div class="bar"><i id="hpFill"></i></div>
+        <span id="hpText">100 / 100</span>
+      </div>
+    </div>
+    <div class="hud-word"><span id="hudWord">输入字母 · 锁定最近病毒</span></div>
+    <div class="hud-r">
+      <div class="hud-time"><b id="hudTime">00:00</b><span id="hudSub">WAVE 1 · STAGE 1</span></div>
+    </div>
+  </div>
+
+  <div class="arena-frame">
+    <canvas id="arena" width="960" height="640" aria-label="打字对决战场"></canvas>
+
+    <div class="boss-banner" id="bossBanner" role="alert">
+      <span class="bb-title" id="bossName">⚠ BOSS INCOMING</span>
+      <span class="bb-count" id="bossCountdown">3</span>
+      <span class="bb-sub" id="bossSub"></span>
+    </div>
+
+    <div class="boss-hud" id="bossHud"><div id="bossPips" class="boss-pips"></div></div>
+
+    <div class="combat-toast" id="combatToast" role="status" aria-live="polite"></div>
+
+    <div class="touch-gate" id="touchGate">
+      <div class="gate-box">
+        <h3>需要外接键盘</h3>
+        <p>《打字对决》依赖物理键盘实时输入，请连接键盘后刷新页面再战。</p>
+        <button id="touchGateClose" type="button">知道了</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 暂停 ================= -->
+<section class="modal pause-modal" id="pauseScreen" aria-hidden="true" aria-label="暂停">
+  <div class="modal-box pause-box">
+    <p class="eyebrow">SYSTEM HOLD</p>
+    <h2>战局暂停</h2>
+    <p class="overlay-sub">所有计时已冻结 · P / Esc 继续</p>
+    <button class="primary-btn" id="resumeBtn" type="button">继续对决</button>
+    <button class="ghost-btn" id="restartBtn" type="button">重新开始</button>
+    <button class="ghost-btn" id="pauseMenuBtn" type="button">返回菜单</button>
+  </div>
+</section>
+
+<!-- ================= 结算 ================= -->
+<section class="modal result-modal" id="resultScreen" aria-hidden="true" aria-label="结算">
+  <div class="modal-box result-box">
+    <p class="r-code" id="resultCode">CAMPAIGN · 普通 · 评级</p>
+    <h2 id="resultTitle">本局结束</h2>
+    <p class="r-reason" id="resultReason"></p>
+    <div class="r-extra" id="resultExtra"></div>
+    <div id="resultStats" class="r-stats"></div>
+    <div class="r-skills-label">防御协议触发</div>
+    <div class="r-skills" id="resultSkills"></div>
+    <div class="r-actions">
+      <button class="primary-btn" id="retryBtn" type="button">再来一局 <span>ENTER</span></button>
+      <button class="ghost-btn" id="resultMenuBtn" type="button">返回菜单</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 统计档案 ================= -->
+<section class="modal" id="statsScreen" aria-hidden="true" aria-label="统计档案">
+  <div class="modal-box stats-box">
+    <div class="modal-head"><h2>统计档案</h2><button class="close-btn" id="closeStats" type="button" aria-label="关闭">✕</button></div>
+    <div class="stats-grid">
+      <div><b id="stTotal">0</b><span>总局数</span></div>
+      <div><b id="stWpmC">0</b><span>最佳WPM·经典</span></div>
+      <div><b id="stWpmS">0</b><span>最佳WPM·限时</span></div>
+      <div><b id="stWpmU">0</b><span>最佳WPM·生存</span></div>
+      <div><b id="stAcc">100%</b><span>平均准确率</span></div>
+      <div><b id="stCombo">0</b><span>最高连击</span></div>
+      <div><b id="stScoreC">0</b><span>最佳分·经典</span></div>
+      <div><b id="stScoreS">0</b><span>最佳分·限时</span></div>
+      <div><b id="stScoreU">0</b><span>最佳分·生存</span></div>
+      <div class="span2"><b id="stSkill">-</b><span>防御协议使用（HEAL/BOMB/FREEZE/SLOW）</span></div>
+    </div>
+    <div class="trend"><canvas id="trendCanvas" width="520" height="120" aria-label="WPM 趋势图"></canvas></div>
+    <div class="hist-filter" role="group" aria-label="对局过滤">
+      <button class="on" data-filter="all" type="button">全部</button>
+      <button data-filter="campaign" type="button">经典</button>
+      <button data-filter="sprint" type="button">限时</button>
+      <button data-filter="survival" type="button">生存</button>
+    </div>
+    <div id="historyList" class="hist-list"></div>
+  </div>
+</section>
+
+<!-- ================= 限时 Top10 ================= -->
+<section class="modal" id="lbScreen" aria-hidden="true" aria-label="限时冲榜">
+  <div class="modal-box lb-box">
+    <div class="modal-head"><h2>限时冲刺 · Top10</h2><button class="close-btn" id="closeLb" type="button" aria-label="关闭">✕</button></div>
+    <div id="lbList" class="lb-list"></div>
+  </div>
+</section>
+
+<!-- ================= 设置 ================= -->
+<section class="modal" id="settingsScreen" aria-hidden="true" aria-label="设置">
+  <div class="modal-box settings-box">
+    <div class="modal-head"><h2>设置</h2><button class="close-btn" id="closeSettings" type="button" aria-label="关闭">✕</button></div>
+    <button class="toggle-row" id="setSound" type="button"><span>程序化音效</span><i class="knob"><em></em></i></button>
+    <button class="toggle-row" id="setBgm" type="button"><span>背景音乐</span><i class="knob"><em></em></i></button>
+    <button class="toggle-row" id="setShake" type="button"><span>屏幕震动</span><i class="knob"><em></em></i></button>
+    <button class="toggle-row" id="setReduced" type="button"><span>减少特效</span><i class="knob"><em></em></i></button>
+    <p class="settings-note">BGM 由本地音频文件驱动（assets/audio/），缺失时自动静音。</p>
+  </div>
+</section>
+
+<script src="words.js"></script>
+<script src="stats.js"></script>
+<script src="audio.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+# BGM 渲染中间产物（可再生，不入库）
+*.mid
+*.wav
+*.pyc
+__pycache__/
+# light-game-bgm 技能脚本副本（技能本体在 .skills，不入库）
+hall_reverb_loop.py
+midi_helpers.py
+verify_loop.py

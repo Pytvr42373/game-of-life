@@ -143,11 +143,11 @@ body[data-theme="arcade"] .back-home {
   width: 46px;
   height: 46px;
   place-items: center;
-  border: 1px solid rgba(61, 225, 255, 0.4);
+  border: 1px solid rgba(34, 197, 94, 0.35);
   border-radius: 50%;
-  color: #78f1eb;
-  background: rgba(10, 16, 28, 0.82);
-  box-shadow: 0 0 16px rgba(61, 225, 255, 0.2);
+  color: #168d60;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 3px 16px rgba(0, 0, 0, 0.35);
   cursor: pointer;
   user-select: none;
   backdrop-filter: blur(9px);
@@ -156,10 +156,10 @@ body[data-theme="arcade"] .back-home {
 }
 
 body[data-theme="arcade"] .theme-switch {
-  color: #168d60;
-  border-color: rgba(34, 197, 94, 0.35);
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 3px 16px rgba(0, 0, 0, 0.35);
+  color: #78f1eb;
+  border-color: rgba(61, 225, 255, 0.4);
+  background: rgba(10, 16, 28, 0.82);
+  box-shadow: 0 0 16px rgba(61, 225, 255, 0.2);
 }
 
 .theme-switch:hover { transform: scale(1.08); }

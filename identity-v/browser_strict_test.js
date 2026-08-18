@@ -266,6 +266,31 @@ game.endMatch('hunter_win');
 pump(3, '监管者结算');
 check('监管者结算面板', els['result'] && els['result'].style.display === 'flex');
 
+// 回归：对局在 update 内部经 checkWin→endMatch 结束（真实玩法路径），必须弹出结算面板
+// 此前 endMatch 在 G.update 内部把 state 置为 over 后，当帧末尾 prevState 被同步为 over，
+// 下一帧 prevState!=='over' 判定为假导致 UI.onMatchOver 永远不触发 → 无结算界面。
+{
+  const g3 = new Game();
+  UI.start(g3);
+  pump(3, '回归:主菜单');
+  g3.startMatch({ mapIdx: 0, difficulty: 'normal', asHunter: false, charId: 'run', hunterId: 'hun_chase' });
+  pump(5, '回归:开始求生者对局');
+  // 让所有求生者（含玩家）死亡 → 下一次 update 内部 checkWin 判定监管者胜 → endMatch
+  for (const s of g3.survivors) { s.alive = false; s.hp = -1; s.escaped = false; }
+  g3.update(1 / 60); // 该帧内触发 endMatch，state 变为 over
+  check('回归:update内结束 state=over', g3.state === 'over', 'state=' + g3.state);
+  pump(3, '回归:结算渲染');
+  check('回归:结算面板显示(update内结束)', els['result'] && els['result'].style.display === 'flex');
+  check('回归:结算标题已设置', els['result-title'] && els['result-title'].textContent !== '—',
+        els['result-title'] ? els['result-title'].textContent : 'null');
+  check('回归:结算得分已设置', els['result-score'] && /\d+/.test(els['result-score'].textContent || ''),
+        els['result-score'] ? els['result-score'].textContent : 'null');
+  // 再来一局按钮可返回 playing
+  fireEl('btn-again', 'click');
+  pump(3, '回归:再来一局');
+  check('回归:再来一局 state=playing', g3.state === 'playing', 'state=' + g3.state);
+}
+
 // 触摸流程
 Object.defineProperty(globalThis, 'navigator', { value: { maxTouchPoints: 5 }, configurable: true });
 const game2 = new Game();

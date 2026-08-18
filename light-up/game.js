@@ -899,7 +899,7 @@
 
   function iconSvg(showArcadeDestination) {
     if (showArcadeDestination) {
-      return '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 9.3 13.7L12 12l8.4-5.4A10 10 0 0 0 12 2Z"/><circle cx="13" cy="6.7" r="1.2" fill="#111"/></svg>';
+      return '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 9.3 13.7L12 12l8.4-5.4A10 10 0 0 0 12 2Z"/><circle cx="13" cy="6.7" r="1.2" fill="#ffffff"/></svg>';
     }
     return '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V10m0 3-4-4m4 1 4-4m-4 11-4 4m4-4 4 4"/><path d="M7.2 13.2a4 4 0 0 1-1.5-7.7A5.7 5.7 0 0 1 16.5 5a4 4 0 0 1 .4 7.9"/><path d="M4 21h16"/></svg>';
   }
