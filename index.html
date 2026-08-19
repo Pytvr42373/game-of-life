@@ -282,6 +282,9 @@ body[data-theme="arcade"] .card .ico-2048 svg{filter:drop-shadow(0 0 8px rgba(61
 .card .ico-duel{display:flex;align-items:center;justify-content:center;margin-bottom:12px}
 .card .ico-duel svg{filter:drop-shadow(0 0 6px rgba(58,168,255,.45))}
 body[data-theme="arcade"] .card .ico-duel svg{filter:drop-shadow(0 0 8px rgba(61,225,255,.6)) drop-shadow(0 0 16px rgba(255,45,120,.35))}
+.card .ico-actions{display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.card .ico-actions svg{filter:drop-shadow(0 0 6px rgba(255,45,120,.5))}
+body[data-theme="arcade"] .card .ico-actions svg{filter:drop-shadow(0 0 8px rgba(61,225,255,.65)) drop-shadow(0 0 16px rgba(255,45,120,.4))}
 body[data-theme="4399"] .card:hover .ico{transform:scale(1.15) rotate(-6deg)}
 body[data-theme="4399"] .card .name{font-size:18px;font-weight:800;color:var(--text);margin-bottom:8px}
 body[data-theme="4399"] .card .tag{font-size:12px;color:var(--green);background:var(--tag-bg);border:1px solid var(--line);display:inline-block;padding:3px 12px;border-radius:999px;font-weight:600}
@@ -839,7 +842,6 @@ body[data-theme="arcade"] .card-avatar .ico{filter:drop-shadow(0 0 18px rgba(160
     <div class="portal-ask-btns">
       <button type="button" class="portal-ask-btn retreat" id="portalRetreat">我撤退。</button>
       <button type="button" class="portal-ask-btn bold" id="portalBrave">我不怕！</button>
-      <button type="button" class="portal-ask-btn newgame" id="portalNewGame">前往黎明迷局 🎮</button>
     </div>
   </div>
 </div>
@@ -982,13 +984,15 @@ body[data-theme="arcade"] .card-avatar .ico{filter:drop-shadow(0 0 18px rgba(160
 <div class="vmodal" id="vmodal" role="dialog" aria-modal="true" aria-labelledby="vmodalTitle" aria-hidden="true" inert>
   <div class="vmodal-box">
     <button type="button" class="vmodal-close" id="vmodalClose" aria-label="关闭">&#10005;</button>
-    <div class="vmodal-title" id="vmodalTitle">我们打败了<span class="vw-qs">巫师</span>。<br>这次来了一位<span class="vw-qs">大师</span>。</div>
-    <div class="vmodal-ver">v3.0.0</div>
+    <div class="vmodal-title" id="vmodalTitle">动作频道新作登场：<br><span class="vw-qs">打字对决 TYPE DUEL</span></div>
+    <div class="vmodal-ver">v3.1.0</div>
     <ul class="vmodal-log">
-      <li>洞口的<b>神秘</b>深处，藏着一份来自大师的邀请……</li>
+      <li>新增《打字对决 <b>TYPE DUEL</b>》：动作频道第三款 · <b>打字射击</b> · 三模式 + BGM！</li>
+      <li><b>动作频道</b>新增打字对决，<b>去体验！</b></li>
+      <li>洞口深处的<b>神秘</b>大师，仍在等待你的到来……</li>
     </ul>
-    <div class="vmodal-cta">想知道大师带来了什么？</div>
-    <button type="button" class="vmodal-btn" id="vmodalOk">去见大师</button>
+    <div class="vmodal-cta">动作频道三款新游，等你来战！</div>
+    <button type="button" class="vmodal-btn" id="vmodalOk">进入动作频道</button>
   </div>
 </div>
 
@@ -1005,12 +1009,12 @@ body[data-theme="arcade"] .card-avatar .ico{filter:drop-shadow(0 0 18px rgba(160
           </svg></div><div class="title">好玩<em>小游戏</em></div></div>
     <p class="sub">专注好玩 · 每天都有新发现</p>
     <nav class="nav" aria-label="游戏分类">
-      <button type="button" class="on" data-filter="全部" aria-pressed="true" aria-controls="gameGrid">全部</button>
+      <button type="button" data-filter="全部" aria-pressed="false" aria-controls="gameGrid">全部</button>
       <button type="button" data-filter="益智" aria-pressed="false" aria-controls="gameGrid">益智</button>
       <button type="button" data-filter="逻辑" aria-pressed="false" aria-controls="gameGrid">逻辑</button>
       <button type="button" data-filter="反应" aria-pressed="false" aria-controls="gameGrid">反应</button>
       <button type="button" data-filter="经典" aria-pressed="false" aria-controls="gameGrid">经典</button>
-      <button type="button" data-filter="上新" aria-pressed="false" aria-controls="gameGrid">上新</button>
+      <button type="button" class="on" data-filter="上新" aria-pressed="true" aria-controls="gameGrid">上新</button>
       <button type="button" data-filter="神秘" aria-pressed="false" aria-controls="gameGrid">神秘</button>
     </nav>
   </header>
@@ -1021,12 +1025,12 @@ body[data-theme="arcade"] .card-avatar .ico{filter:drop-shadow(0 0 18px rgba(160
     <h1 class="title"><span class="c">小</span>游<span class="y">戏</span>合<span class="c">集</span></h1>
     <p class="sub">— 选择你的游戏 —</p>
     <nav class="nav" aria-label="GAME CATEGORIES">
-      <button type="button" class="on" data-filter="全部" aria-pressed="true" aria-controls="gameGrid">全部</button>
+      <button type="button" data-filter="全部" aria-pressed="false" aria-controls="gameGrid">全部</button>
       <button type="button" data-filter="益智" aria-pressed="false" aria-controls="gameGrid">益智</button>
       <button type="button" data-filter="逻辑" aria-pressed="false" aria-controls="gameGrid">逻辑</button>
       <button type="button" data-filter="反应" aria-pressed="false" aria-controls="gameGrid">反应</button>
       <button type="button" data-filter="经典" aria-pressed="false" aria-controls="gameGrid">经典</button>
-      <button type="button" data-filter="上新" aria-pressed="false" aria-controls="gameGrid">上新</button>
+      <button type="button" class="on" data-filter="上新" aria-pressed="true" aria-controls="gameGrid">上新</button>
       <button type="button" data-filter="神秘" aria-pressed="false" aria-controls="gameGrid">神秘</button>
     </nav>
   </header>
@@ -1252,31 +1256,31 @@ body[data-theme="arcade"] .card-avatar .ico{filter:drop-shadow(0 0 18px rgba(160
       <div class="name">2048</div>
       <div class="tag">益智 · 数字</div>
     </a>
-    <!-- 打字对决 TYPE DUEL（打字射击 · 动作频道） -->
-    <a class="card" href="typeduel/index.html" data-delay=".72s" data-categories="反应 上新" onclick="go(this.href,event)">
+    <!-- 动作频道上新 · 打字对决 / 黎明迷局 / 幸存者计划 -->
+    <a class="card card-actions" href="action-games/index.html" data-delay=".72s" data-categories="上新" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
-      <span class="ico ico-duel" aria-hidden="true">
+      <span class="ico ico-actions" aria-hidden="true">
         <svg viewBox="0 0 48 48" width="46" height="46" fill="none">
-          <rect x="4" y="26" width="40" height="16" rx="4" fill="#24343e"/>
+          <rect x="2" y="2" width="44" height="44" rx="9" fill="#102735"/>
+          <path d="M24 6.5 39.5 15v18L24 41.5 8.5 33V15z" stroke="#62d4df" stroke-width="1.5" opacity=".9"/>
+          <circle cx="24" cy="24" r="10" stroke="#62d4df" stroke-width="1.5" stroke-dasharray="3 3"/>
+          <path d="M24 14v5M24 29v5M14 24h5M29 24h5" stroke="#62d4df" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="24" cy="24" r="2.4" fill="#ff2d78"/>
+          <rect x="9" y="30" width="30" height="9" rx="2.5" fill="#24343e"/>
           <g fill="#e7f0e8">
-            <rect x="8" y="30" width="6" height="4" rx="1"/>
-            <rect x="16" y="30" width="6" height="4" rx="1"/>
-            <rect x="24" y="30" width="6" height="4" rx="1"/>
-            <rect x="32" y="30" width="6" height="4" rx="1"/>
-            <rect x="8" y="36" width="10" height="3.5" rx="1"/>
-            <rect x="20" y="36" width="10" height="3.5" rx="1"/>
-            <rect x="32" y="36" width="6" height="3.5" rx="1"/>
+            <rect x="12" y="32.5" width="4" height="2.6" rx=".9"/>
+            <rect x="18" y="32.5" width="4" height="2.6" rx=".9"/>
+            <rect x="24" y="32.5" width="4" height="2.6" rx=".9"/>
+            <rect x="30" y="32.5" width="5" height="2.6" rx=".9"/>
+            <rect x="12" y="36.6" width="8" height="2.4" rx=".9"/>
+            <rect x="22" y="36.6" width="8" height="2.4" rx=".9"/>
+            <rect x="32" y="36.6" width="5" height="2.4" rx=".9"/>
           </g>
-          <rect x="24" y="30" width="6" height="4" rx="1" fill="#3ddc97"/>
-          <rect x="20" y="4" width="8" height="10" rx="2" fill="#ff8a3d"/>
-          <text x="24" y="12" font-family="Arial,sans-serif" font-size="8" font-weight="bold" fill="#fff" text-anchor="middle">A</text>
-          <path d="M14 13l-4-5M34 13l4-5" stroke="#3aa8ff" stroke-width="2" stroke-linecap="round"/>
-          <path d="M10 20l2 2-2 2-2-2z" fill="#ffd166"/>
-          <path d="M38 20l2 2-2 2-2-2z" fill="#3de1ff"/>
+          <rect x="22" y="8" width="4" height="6" rx="1.5" fill="#ff8a3d"/>
         </svg>
       </span>
-      <div class="name">打字对决</div>
-      <div class="tag">反应 · 打字</div>
+      <div class="name">动作频道上新</div>
+      <div class="tag">打字对决 · 黎明迷局 · 幸存者计划</div>
     </a>
     <!-- ===== 神秘游戏（不在"全部"显示，点"神秘"标签查看） ===== -->
     <!-- 神秘的入口（传送门） -->
@@ -1523,12 +1527,9 @@ function handleVersionKeydown(event){
 }
 if(versionClose)versionClose.addEventListener('click',hideVersionModal);
 if(versionOk)versionOk.addEventListener('click',function(){
-  // v3.0.0 → 去见大师 → 跳转到「神秘」标签页（降世神通彩蛋入口所在分类）
+  // v3.1.0 → 进入动作频道（打字对决 / 黎明迷局 / 幸存者计划）
   hideVersionModal();
-  filterGames('神秘');
-  const hdr=document.body.dataset.theme==='arcade'?'.harcade':'.h4399';
-  const mb=document.querySelector(hdr+' .nav button[data-filter="神秘"]');
-  if(mb) mb.scrollIntoView({behavior:'smooth',block:'center'});
+  go('action-games/index.html');
 });
 if(versionModal){
   versionModal.addEventListener('keydown',handleVersionKeydown);
@@ -1610,8 +1611,8 @@ function filterGames(category){
   });
 }
 filterButtons.forEach(button=>button.addEventListener('click',()=>filterGames(button.dataset.filter)));
-// 初始应用筛选：默认"全部"，隐藏神秘游戏
-filterGames('全部');
+// 初始应用筛选：默认"上新"，展示近期新游戏
+filterGames('上新');
 
 /* ===== bottle 预取：悬停/触摸预热 + 空闲预取主页 ===== */
 const prefetched=new Set();
@@ -1854,13 +1855,13 @@ const PORTAL_LINES=[
   '你误入了{{神秘的洞口}}？',
   '你想获得{{什么游戏}}？',
   '洞会吞噬{{你的好奇心}}！',
-  '洞口里面有{{神秘的巫师}}！',
+  '洞穴深处，{{神秘的巫师已经退去}}……',
   '你还不死心吗？'
 ];
-const PORTAL_FINAL='那么，你将见识到最神秘的<kw>巫师</kw>和他最<ev>邪恶</ev>的作品！';
+const PORTAL_FINAL='那么，你将见识到<kw>洞的另一头</kw>——那簇<ev>新作的气息</ev>！';
 const PORTAL_WARN='<b class="portal-warning">⚠ 睁大你的眼睛</b>';
 const PORTAL_WARN_BADGE='<div class="portal-warnbadge"><span class="wb-txt">WARNING</span><span class="wb-ico">!</span></div>';
-const PORTAL_LAST='我们即将看到这个<kw>巫师</kw>。';
+const PORTAL_LAST='我们即将看清洞口那边的<kw>新作</kw>。';
 const PORTAL_URL='https://space.bilibili.com/254463269';
 let portalTimers=[];
 let portalAskShown=false;
@@ -2068,7 +2069,7 @@ function portalBrave(){
   if(l1){ l1.innerHTML=PORTAL_WARN_BADGE; l1.classList.add('show'); }
   setTimeout(function(){
     if(l1){ l1.innerHTML=''; l1.classList.remove('show'); }
-    // 串行打字机：慢速逐字打出三句（巫师/邪恶 → 睁大眼睛 → 巫师）
+    // 串行打字机：慢速逐字打出三句（洞的另一头 → 睁大眼睛 → 新作）
     typeLine(l1, portalKw(PORTAL_FINAL), function(){
       setTimeout(function(){
         typeLine(l2, PORTAL_WARN, function(){
@@ -2094,12 +2095,6 @@ document.addEventListener('keydown',function(e){
 document.getElementById('portalSkip').addEventListener('click',function(){ showPortalAsk(); });
 document.getElementById('portalRetreat').addEventListener('click',portalRetreat);
 document.getElementById('portalBrave').addEventListener('click',portalBrave);
-document.getElementById('portalNewGame').addEventListener('click',function(){
-  // 黑洞"吐"出新作：前往黎明迷局
-  portalStopDanger();
-  hidePortalAll();
-  go('identity-v/index.html');
-});
 
 
 

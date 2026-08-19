@@ -165,6 +165,31 @@ t('短/标准/长 档系数 1.0/1.2/1.4 且词长档正确', function () {
   assert.deepStrictEqual(TD.sprintTier('long').tiers, [3, 4]);
 });
 
+console.log('== 模式解锁（任务2：初始仅经典闯关，通关阶梯解锁） ==');
+t('campaign 始终解锁 / sprint 通关第4关 / survival 通关第8关', function () {
+  assert.strictEqual(TD.isModeUnlocked('campaign', {}), true);
+  assert.strictEqual(TD.isModeUnlocked('sprint', { stage: { normal: 1 } }), false);
+  assert.strictEqual(TD.isModeUnlocked('sprint', { stage: { normal: 4 } }), false);
+  assert.strictEqual(TD.isModeUnlocked('sprint', { stage: { normal: 5 } }), true);
+  assert.strictEqual(TD.isModeUnlocked('survival', { stage: { normal: 8 } }), false);
+  assert.strictEqual(TD.isModeUnlocked('survival', { stage: { normal: 9 } }), true);
+  assert.strictEqual(TD.isModeUnlocked('survival', { stage: { normal: 12 } }), true);
+});
+t('解锁阶梯阈值：sprint=5 / survival=9 / campaign=1', function () {
+  assert.strictEqual(TD.modeUnlockStage('campaign'), 1);
+  assert.strictEqual(TD.modeUnlockStage('sprint'), 5);
+  assert.strictEqual(TD.modeUnlockStage('survival'), 9);
+});
+t('跨难度取经典最高进度判定解锁', function () {
+  assert.strictEqual(TD.isModeUnlocked('sprint', { stage: { normal: 2, hard: 5, inferno: 1 } }), true);
+  assert.strictEqual(TD.isModeUnlocked('survival', { stage: { normal: 1, hard: 1, inferno: 9 } }), true);
+  assert.strictEqual(TD.isModeUnlocked('sprint', { stage: { normal: 1, hard: 4, inferno: 1 } }), false);
+});
+t('无进度（默认 1 关）时 sprint/survival 均锁定', function () {
+  assert.strictEqual(TD.isModeUnlocked('sprint', undefined), false);
+  assert.strictEqual(TD.isModeUnlocked('survival', undefined), false);
+});
+
 console.log('== 统计逻辑（§6.2） ==');
 t('WPM：5 字符=1 词', function () {
   assert(near(Logic.wpm(25, 60), 5));

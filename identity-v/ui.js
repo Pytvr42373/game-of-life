@@ -705,9 +705,10 @@
 
   function drawWall(sx, sy, ts, x, y) {
     var h = hash2(x, y);
+    // 砖墙：暖褐色调 + 更亮明度，与深紫黑地板形成明显区分（明度/色相双拉开）
     var g = ctx.createLinearGradient(sx, sy, sx, sy + ts);
-    g.addColorStop(0, '#232238');
-    g.addColorStop(1, '#16142a');
+    g.addColorStop(0, '#5b4c3d');
+    g.addColorStop(1, '#332a20');
     ctx.fillStyle = g;
     ctx.fillRect(sx, sy, ts, ts);
     // 砖纹理
@@ -720,9 +721,16 @@
     ctx.moveTo(sx + 1, sy + half); ctx.lineTo(sx + half - (h > 0.5 ? 0 : half), sy + half);
     ctx.moveTo(sx + half, sy + half); ctx.lineTo(sx + ts - 1, sy + half);
     ctx.stroke();
+    // 砖缝暖色微高亮（增强立体感，与地板进一步拉开）
+    ctx.strokeStyle = 'rgba(255,230,180,0.10)';
+    ctx.beginPath();
+    ctx.moveTo(sx + half + 1, sy + 1); ctx.lineTo(sx + half + 1, sy + ts - 1);
+    ctx.moveTo(sx + 1, sy + half + 1); ctx.lineTo(sx + half - (h > 0.5 ? 0 : half), sy + half + 1);
+    ctx.moveTo(sx + half + 1, sy + half + 1); ctx.lineTo(sx + ts - 1, sy + half + 1);
+    ctx.stroke();
     // 顶部高光(月光)
     if (h > 0.7) {
-      ctx.fillStyle = 'rgba(140,160,230,0.10)';
+      ctx.fillStyle = 'rgba(180,195,245,0.18)';
       ctx.fillRect(sx, sy, ts, 3);
     }
   }

@@ -43,3 +43,6 @@ credentials*
 *.keystore
 id_rsa
 id_ed25519
+
+# 调试临时脚本，不入库
+.td_debug/

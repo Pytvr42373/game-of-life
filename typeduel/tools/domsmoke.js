@@ -28,7 +28,7 @@ const IDS = ['themeToggle','loader','menuScreen','modeCampaign','modeSprint','mo
   'pauseScreen','resumeBtn','restartBtn','pauseMenuBtn','resultScreen','resultTitle','resultCode',
   'resultReason','resultExtra','resultStats','resultSkills','retryBtn','resultMenuBtn','statsScreen',
   'closeStats','trendCanvas','historyList','lbScreen','closeLb','lbList','settingsScreen',
-  'closeSettings','setSound','setBgm','setShake','setReduced','history-filter'];
+  'closeSettings','setSound','setBgm','setShake','setReduced','history-filter','menuToast'];
 
 function makeEl(id) {
   var el = {
@@ -56,6 +56,16 @@ function makeEl(id) {
     appendChild: function (c) { el.children.push(c); return c; },
     getContext: function () { return ctx2d(); },
     querySelectorAll: function () { return []; },
+    querySelector: function (sel) {
+      if (!sel || sel[0] === '#') return null;
+      for (var ci = 0; ci < el.children.length; ci++) {
+        var ch = el.children[ci];
+        if (sel.indexOf('.') === 0 && (ch._cls || {})[sel.slice(1)]) return ch;
+        if (sel === 'span' && ch.id && /Desc$/.test(ch.id || '')) return ch;
+        if (sel === 'span' && ch.id && ch.id.indexOf('mode') === 0) return ch;
+      }
+      return null;
+    },
     focus: function () {}, blur: function () {}
   };
   return el;
@@ -89,6 +99,9 @@ function fire(ev, obj) {
 }
 
 const store = {};
+/* 任务2 预置：默认视作已通关全部模式（保证既有 sprint/survival 集成用例可直接开局）；
+ * 新玩家的“锁定”行为由末尾新增的解锁自测用例单独验证（覆写 store）。 */
+store['typeduel.progress.v1'] = JSON.stringify({ unlockedDifficulty: 'inferno', stage: { normal: 9, hard: 9, inferno: 9 } });
 const localStorageStub = {
   getItem: function (k) { return Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null; },
   setItem: function (k, v) { store[k] = String(v); },
@@ -322,6 +335,49 @@ t('localStorage 键名写入正确（§6.3/§8.4）', function () {
   assert(hist.length >= 1 && hist[hist.length - 1].rating >= 0 && hist[hist.length - 1].grade, '历史条目字段缺失');
   var st = JSON.parse(store['typeduel.stats.v1']);
   assert(st.totalGames >= 1 && st.skillUse.heal >= 1, '聚合统计字段缺失');
+});
+
+console.log('== 模式解锁（任务2） ==');
+t('新玩家默认锁定 sprint/survival，点击锁定卡不进入并提示', function () {
+  store['typeduel.progress.v1'] = JSON.stringify({ unlockedDifficulty: 'normal', stage: { normal: 1, hard: 1, inferno: 1 } });
+  game.mode = 'campaign'; game.state = 'MENU'; game.updateModeUI();
+  assert(elements.modeSprint.classList.contains('locked'), 'sprint 应显示锁定');
+  assert(elements.modeSurvival.classList.contains('locked'), 'survival 应显示锁定');
+  /* 点击锁定卡：不切换模式 + 菜单提示 */
+  (elements.modeSprint._listeners.click || []).forEach(function (fn) { fn({}); });
+  assert(game.mode === 'campaign', '锁定 sprint 点击不应切换');
+  assert(elements.menuToast._text.indexOf('第 4 关') >= 0, 'sprint 提示缺失: ' + elements.menuToast._text);
+  (elements.modeSurvival._listeners.click || []).forEach(function (fn) { fn({}); });
+  assert(game.mode === 'campaign', '锁定 survival 点击不应切换');
+  assert(elements.menuToast._text.indexOf('第 8 关') >= 0, 'survival 提示缺失: ' + elements.menuToast._text);
+});
+t('键盘 2/3 选择锁定模式 → 提示且不切换', function () {
+  store['typeduel.progress.v1'] = JSON.stringify({ unlockedDifficulty: 'normal', stage: { normal: 1, hard: 1, inferno: 1 } });
+  game.mode = 'campaign'; game.state = 'MENU'; game.updateModeUI();
+  fire('keydown', { key: '2', preventDefault: function () {} });
+  assert(game.mode === 'campaign', '按 2 不应切换');
+  fire('keydown', { key: '3', preventDefault: function () {} });
+  assert(game.mode === 'campaign', '按 3 不应切换');
+});
+t('通关第4关解锁 sprint / 第8关解锁 survival，点击可正常进入', function () {
+  store['typeduel.progress.v1'] = JSON.stringify({ unlockedDifficulty: 'normal', stage: { normal: 5, hard: 1, inferno: 1 } });
+  game.mode = 'campaign'; game.updateModeUI();
+  assert(!elements.modeSprint.classList.contains('locked'), '通关4关后 sprint 应解锁');
+  assert(elements.modeSurvival.classList.contains('locked'), '第8关未达 survival 仍应锁定');
+  (elements.modeSprint._listeners.click || []).forEach(function (fn) { fn({}); });
+  assert(game.mode === 'sprint', '解锁后点击 sprint 应进入');
+  store['typeduel.progress.v1'] = JSON.stringify({ unlockedDifficulty: 'normal', stage: { normal: 9, hard: 1, inferno: 1 } });
+  game.mode = 'campaign'; game.updateModeUI();
+  assert(!elements.modeSurvival.classList.contains('locked'), '通关8关后 survival 应解锁');
+  (elements.modeSurvival._listeners.click || []).forEach(function (fn) { fn({}); });
+  assert(game.mode === 'survival', '解锁后点击 survival 应进入');
+});
+t('模式锁定防呆：start() 对锁定模式强制回退经典闯关', function () {
+  store['typeduel.progress.v1'] = JSON.stringify({ unlockedDifficulty: 'normal', stage: { normal: 1, hard: 1, inferno: 1 } });
+  game.mode = 'sprint'; game.state = 'MENU'; game.start();
+  assert(game.mode === 'campaign', '锁定 sprint 不应开局，应回退 campaign');
+  game.mode = 'survival'; game.state = 'MENU'; game.start();
+  assert(game.mode === 'campaign', '锁定 survival 不应开局，应回退 campaign');
 });
 
 console.log('\n结果：' + pass + ' 通过 / ' + fail + ' 失败');

@@ -94,6 +94,19 @@
       return { A: [5, 6], B: [6, 7], C: [7, 8], D: [8, 10] }[letter] || [5, 6];
     }
 
+    /* 模式解锁（任务2）：初始仅开放「经典闯关」；通关经典第 4 关解锁「限时冲刺」、
+     * 通关第 8 关解锁「无尽生存」。基于经典闯关跨难度最高关卡进度推导（stage 记录为
+     * 下一关，通关第 N 关 → stage = N+1，故阈值 = N+1）。 */
+    var MODE_UNLOCK_STAGE = { campaign: 1, sprint: 5, survival: 9 };
+    function modeUnlockStage(mode) { return MODE_UNLOCK_STAGE[mode] || 1; }
+    function isModeUnlocked(mode, prog) {
+      if (mode === 'campaign') return true;
+      var p = prog || {};
+      var stage = p.stage || {};
+      var maxStage = Math.max(stage.normal || 1, stage.hard || 1, stage.inferno || 1);
+      return maxStage >= modeUnlockStage(mode);
+    }
+
     return {
       LEVELS: LEVELS, DIFFS: DIFFS, SPRINT_TIERS: SPRINT_TIERS,
       clamp: clamp, comboMult: comboMult, scoreWord: scoreWord,
@@ -103,7 +116,8 @@
       survivalSpawnMs: survivalSpawnMs, survivalTiers: survivalTiers,
       survivalBreachDmg: survivalBreachDmg,
       levelConfig: levelConfig, difficulty: difficulty, sprintTier: sprintTier,
-      enemySpeed: enemySpeed, nextDifficulty: nextDifficulty, bossSegLen: bossSegLen
+      enemySpeed: enemySpeed, nextDifficulty: nextDifficulty, bossSegLen: bossSegLen,
+      modeUnlockStage: modeUnlockStage, isModeUnlocked: isModeUnlocked
     };
   })();
 
@@ -216,8 +230,20 @@
       var on = function (id, fn) { var n = el(id); if (n) n.addEventListener('click', fn); };
 
       on('modeCampaign', function () { self.mode = 'campaign'; self.updateModeUI(); });
-      on('modeSprint', function () { self.mode = 'sprint'; self.updateModeUI(); });
-      on('modeSurvival', function () { self.mode = 'survival'; self.updateModeUI(); });
+      on('modeSprint', function () {
+        if (!C.isModeUnlocked('sprint', STATS.getProgress())) {
+          self.showMenuToast('🔒 通关经典第 4 关解锁「限时冲刺」');
+          return;
+        }
+        self.mode = 'sprint'; self.updateModeUI();
+      });
+      on('modeSurvival', function () {
+        if (!C.isModeUnlocked('survival', STATS.getProgress())) {
+          self.showMenuToast('🔒 通关经典第 8 关解锁「无尽生存」');
+          return;
+        }
+        self.mode = 'survival'; self.updateModeUI();
+      });
 
       on('diffNormal', function () { self.difficulty = 'normal'; self.updateModeUI(); });
       on('diffHard', function () { self.difficulty = 'hard'; self.updateModeUI(); });
@@ -277,6 +303,24 @@
     Game.prototype.updateModeUI = function () {
       var m = this.mode;
       var set = function (id, on) { var n = el(id); if (n) n.classList.toggle('on', on); };
+
+      /* 模式解锁（任务2）：初始仅「经典闯关」；通关第 4 关解锁「限时冲刺」、第 8 关解锁「无尽生存」 */
+      var prog = STATS.getProgress();
+      var MODE_DESC = { sprint: '60s · Top10 榜', survival: 'HP 衰减 · 连击回血' };
+      var lockMode = function (mode, id, needStage) {
+        var locked = !C.isModeUnlocked(mode, prog);
+        var card = el(id);
+        if (card) {
+          card.classList.toggle('locked', locked);
+          var span = card.querySelector ? card.querySelector('span') : null;
+          if (span) span.textContent = locked ? '🔒 通关第 ' + (needStage - 1) + ' 关解锁' : MODE_DESC[mode];
+        }
+      };
+      lockMode('sprint', 'modeSprint', 5);
+      lockMode('survival', 'modeSurvival', 9);
+      /* 当前所选模式若被锁定 → 回退经典闯关 */
+      if (m !== 'campaign' && !C.isModeUnlocked(m, prog)) { m = 'campaign'; this.mode = 'campaign'; }
+
       set('modeCampaign', m === 'campaign');
       set('modeSprint', m === 'sprint');
       set('modeSurvival', m === 'survival');
@@ -286,7 +330,6 @@
       if (sprintGroup) sprintGroup.style.display = m === 'sprint' ? '' : 'none';
 
       /* 难度解锁状态 */
-      var prog = STATS.getProgress();
       var unlocked = prog.unlockedDifficulty || 'normal';
       var lockedHard = unlocked !== 'hard' && unlocked !== 'inferno';
       var lockedInferno = unlocked !== 'inferno';
@@ -334,6 +377,8 @@
            (this.difficulty === 'inferno' && unlocked !== 'inferno'))) {
         this.difficulty = 'normal';
       }
+      /* 模式解锁防呆：锁定模式不允许开局（正常由 UI 拦截，这里兜底） */
+      if (this.mode !== 'campaign' && !C.isModeUnlocked(this.mode, prog)) this.mode = 'campaign';
       this.updateModeUI();
 
       this.state = 'PLAYING';
@@ -403,7 +448,8 @@
       this.tier = conf.tier;
       this.quota = 8 + stage;
       this.spawned = 0;
-      this.spawnAcc = 0;
+      /* 修复（任务1）：开局立即出首怪，避免进入战场后约 2.4s 空场被误判为“没有怪物” */
+      this.spawnAcc = this.spawnMs;
       this.boss = null;
       this.bossPhase = '';
     };
@@ -1247,7 +1293,12 @@
         if (k === '1' || k === '2' || k === '3') {
           if (self.state === 'MENU') {
             var map = { '1': 'campaign', '2': 'sprint', '3': 'survival' };
-            self.mode = map[k];
+            var want = map[k];
+            if (want !== 'campaign' && !C.isModeUnlocked(want, STATS.getProgress())) {
+              self.showMenuToast(want === 'sprint' ? '🔒 通关经典第 4 关解锁「限时冲刺」' : '🔒 通关经典第 8 关解锁「无尽生存」');
+              return;
+            }
+            self.mode = want;
             self.updateModeUI();
             return;
           }
@@ -1295,6 +1346,16 @@
       t.classList.add('show');
       clearTimeout(this._toastT);
       this._toastT = setTimeout(function () { t.classList.remove('show'); }, 900);
+    };
+
+    /* 菜单内提示（战斗舞台未显示时 combatToast 不可见，菜单锁定提示走这里） */
+    Game.prototype.showMenuToast = function (text) {
+      var t = el('menuToast');
+      if (!t) return;
+      t.textContent = text;
+      t.classList.add('show');
+      clearTimeout(this._menuToastT);
+      this._menuToastT = setTimeout(function () { t.classList.remove('show'); }, 1600);
     };
 
     /* ================= canvas 渲染（霓虹矩阵固定主题 §7.1） ================= */
