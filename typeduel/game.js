@@ -173,6 +173,16 @@
       this.running = false;
       this.audioUnlocked = false;
       this.keysLocked = false; /* 防止平台组合键触发 */
+      /* 菜单显示期间主循环已经开始，首帧渲染也需要完整的空战场状态。 */
+      this.enemies = [];
+      this.bullets = [];
+      this.particles = [];
+      this.floaters = [];
+      this.boss = null;
+      this.combo = 0;
+      this.shakeT = 0;
+      this.defenseFlash = 0;
+      this.critical = false;
 
       this.themeEl = el('themeToggle');
       this.initTheme();

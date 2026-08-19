@@ -150,10 +150,17 @@ t('全局对象与游戏实例', function () {
   assert(global.window.WORDS && global.window.TDCORE && global.window.TypeDuelStats && global.window.TypeDuelAudio);
   assert(game && game.state === 'MENU');
 });
-t('渲染帧可执行（render 不抛错）', function () {
+t('菜单首帧可渲染且主循环继续排帧', function () {
+  runFrame(16);
+  assert(game.state === 'MENU');
+  assert(rafCb, '菜单首帧后未继续排帧');
+});
+t('开局首帧推进计时并立即刷出首怪', function () {
   game.mode = 'campaign'; game.start();
-  runFrame(16); runFrame(16);
+  runFrame(16);
   assert(game.state === 'PLAYING');
+  assert(game.elapsed > 0, '开局后时间未推进');
+  assert(game.enemies.length === 1 && game.spawned === 1, '开局首帧未刷出首怪');
 });
 
 console.log('== 经典玩法链 ==');
