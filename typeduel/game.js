@@ -108,7 +108,7 @@
     }
 
     return {
-      LEVELS: LEVELS, DIFFS: DIFFS, SPRINT_TIERS: SPRINT_TIERS,
+      LEVELS: LEVELS, DIFFS: DIFFS, SPRINT_TIERS: SPRINT_TIERS, DIFF_ORDER: DIFF_ORDER,
       clamp: clamp, comboMult: comboMult, scoreWord: scoreWord,
       SHIELD_BREAK_BONUS: SHIELD_BREAK_BONUS,
       bossSegmentScore: bossSegmentScore, bossKillBonus: bossKillBonus,
@@ -459,14 +459,18 @@
         var t = C.sprintTier(this.sprintTier);
         this.beatMs = t.beat; this.spawnMs = t.spawn; this.cap = t.cap;
         this.tier = pick(t.tiers);
-        this.quota = Infinity; this.spawned = 0; this.spawnAcc = 0;
+        this.quota = Infinity; this.spawned = 0;
+        /* 开局立即刷出首怪（与经典一致），避免进入战场 1.5s 空场被误判“没有怪物” */
+        this.spawnAcc = this.spawnMs;
         this.phase = 'ARCADE';
         this.hearts = 5; this.maxHearts = 5;
         this.hp = 100; this.maxHp = 100;
       } else { /* survival */
         this.beatMs = 750; this.spawnMs = 2000; this.cap = 8;
         this.tier = 1;
-        this.quota = Infinity; this.spawned = 0; this.spawnAcc = 0;
+        this.quota = Infinity; this.spawned = 0;
+        /* 开局立即刷出首怪 */
+        this.spawnAcc = this.spawnMs;
         this.phase = 'ARCADE';
         this.hearts = 5; this.maxHearts = 5;
         this.hp = 100; this.maxHp = 100;
@@ -544,6 +548,8 @@
     Game.prototype.updateSpawn = function (dt) {
       var g = this;
       if (g.freezeTimer > 0 || g.phase === 'BOSS_WAIT' || g.phase === 'BOSS') return;
+      /* 生存模式：刷怪间隔随时间收紧（§4.3：2000→1700→1400→1200ms） */
+      if (g.mode === 'survival') g.spawnMs = C.survivalSpawnMs(g.elapsed);
       var cap = g.cap;
       var count = g.enemies.length;
       if (count >= cap) return;
@@ -581,7 +587,7 @@
         speedBase: C.enemySpeed(type),
         errorBoost: 0,
         progress: 0,
-        spawnT: 0.2,
+        spawnT: 0.15,
         shakeT: 0,
         errorFlashT: 0,
         lastErrorChar: '',
@@ -1227,6 +1233,16 @@
         skillsUsed: g.skillsUsed,
         win: !!g.win
       };
+      /* 难度解锁（原逻辑只读不写，困难/地狱永远锁死）：通关当前难度 12 关 → 解锁下一档，只升不降 */
+      if (g.mode === 'campaign' && g.win) {
+        var prog = STATS.getProgress();
+        var cur = prog.unlockedDifficulty || 'normal';
+        var nd = C.nextDifficulty(g.difficulty);
+        if (nd && C.DIFF_ORDER.indexOf(nd) > C.DIFF_ORDER.indexOf(cur)) {
+          prog.unlockedDifficulty = nd;
+          STATS.saveProgress(prog);
+        }
+      }
       var rec = STATS.record(result);
       AUDIO.playBgm('result');
       STATS.showResult(result, rec, {
@@ -1442,9 +1458,9 @@
         var x = colX(e.col);
         var y = g.enemyY(e);
         if (e.spawnT > 0) {
-          var s = 1 - (e.spawnT / 0.2) * 0.6;
+          var s = 1 - (e.spawnT / 0.15) * 0.6;
           ctx.save();
-          ctx.globalAlpha = 1 - (e.spawnT / 0.2) * 0.7;
+          ctx.globalAlpha = Math.max(0.55, 1 - (e.spawnT / 0.15) * 0.45);
           ctx.translate(x, y);
           ctx.scale(s, s);
           ctx.translate(-x, -y);
