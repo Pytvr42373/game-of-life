@@ -76,21 +76,21 @@ body[data-theme="arcade"] .back-home{
 
 /* ============ 主题切换器 ============ */
 .theme-switch{
-  position:fixed;z-index:100;right:16px;bottom:16px;
-  width:46px;height:46px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;
-  color:#3f7d4e;background:rgba(255,255,255,.85);border:1px solid rgba(47,98,64,.35);
-  box-shadow:0 3px 12px rgba(36,52,62,.16);
-  backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);
-  transition:transform .2s;
+  position:fixed;z-index:95;right:16px;bottom:16px;padding:0;
+  width:clamp(46px,5.5vmin,54px);height:clamp(46px,5.5vmin,54px);border-radius:50%;
+  display:grid;place-items:center;cursor:pointer;user-select:none;
+  color:#2f806e;background:rgba(251,254,253,.94);border:1px solid #75a99b;
+  box-shadow:0 5px 18px rgba(33,88,77,.16);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  transition:transform .18s;
 }
 body[data-theme="arcade"] .theme-switch{
-  color:#46d7e8;background:rgba(8,17,32,.85);border:1px solid rgba(70,215,232,.4);
-  box-shadow:0 0 16px rgba(70,215,232,.18);
+  color:#46d7e8;background:rgba(9,22,34,.94);border-color:#4bc7d6;
+  box-shadow:0 5px 18px rgba(0,0,0,.45);
 }
-.theme-switch:hover{transform:scale(1.08)}
+.theme-switch:hover{transform:scale(1.07)}
 .theme-switch:active{transform:scale(.95)}
-.theme-switch svg{width:23px;height:23px}
+.theme-switch svg{width:clamp(23px,2.7vmin,27px);height:clamp(23px,2.7vmin,27px)}
 
 a:focus-visible,.theme-switch:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
 
@@ -381,7 +381,7 @@ body.ready .channel-head,body.ready .mission{opacity:1;transform:translateY(0)}
 <body data-theme="4399">
 
 <a class="back-home js-skip" href="../index.html">&#8592; 主页</a>
-<div class="theme-switch" id="themeToggle" role="button" tabindex="0" aria-label="切换主题" title="切换主题"></div>
+<button class="theme-switch" id="themeToggle" type="button" aria-label="切换主题" title="切换主题"></button>
 
 <main class="deck">
   <header class="channel-head">
@@ -555,13 +555,6 @@ body.ready .channel-head,body.ready .mission{opacity:1;transform:translateY(0)}
   toggle.addEventListener('click', function(){
     applyTheme(document.body.dataset.theme === 'arcade' ? '4399' : 'arcade');
   });
-  toggle.addEventListener('keydown', function(ev){
-    if (ev.key === 'Enter' || ev.key === ' '){
-      ev.preventDefault();
-      toggle.click();
-    }
-  });
-
   /* ===== 离开频道页时标记，避免根主页重复开屏 ===== */
   function setSkip(){
     try { sessionStorage.setItem('skipSplash', '1'); } catch (e) {}

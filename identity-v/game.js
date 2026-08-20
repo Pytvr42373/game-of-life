@@ -7,12 +7,14 @@
   'use strict';
 
   /* ---------- 常量 ---------- */
-  var TILE = 42;
+  var TILE_SIZE = 42;
+  var TILE_TYPE = global.TILE;
   var BASE_SPEED = 142;         // 求生者基准移速 px/s
   var RANGE = 46;               // 交互距离
   var MACHINES_NEEDED = 3;      // 需破译的密码机数量
   var CHAIR_TOTAL = 66;         // 处刑倒计时秒
   var DECODE_RATE = 14;         // 单人基础修机速率 /s
+  var PALLET_BREAK_TIME = 1.8;  // 监管者破坏倒板所需时间
 
   var DIFF = {
     easy:      { name: '休闲', hunterSpeed: 1.18, vision: 250, atkCdMul: 1.20, chaseGiveup: 6, guardTime: 6,  carrySlow: 0.74, struggle: 0.95, huntDecode: 0.0 },
@@ -33,7 +35,7 @@
     this.difficulty = 'normal';
     this.map = null;
     this.grid = null;
-    this.ts = TILE;
+    this.ts = TILE_SIZE;
     this.cols = 0; this.rows = 0;
     this.machines = []; this.chairs = []; this.gates = []; this.pallets = []; this.windows = [];
     this.survivors = [];
@@ -48,11 +50,12 @@
     this.result = null;
     this.fogSeed = Math.random() * 100;
     this.reveal = 0;              // 监管者全视倒计时
-    this.input = { x: 0, y: 0, attack: false, interact: false, skill: false, skill2: false, crouch: false, pause: false };
+    this.input = { x: 0, y: 0, attack: false, interact: false, skill: false, skill2: false, crouch: false, pause: false, selfHeal: false };
     this._attackQueued = false;
     this._interactQueued = false;
     this._skillQueued = false;
     this._skill2Queued = false;
+    this._selfHealQueued = false;
     this.heartRate = 0;
     this._tick = 0;
     this._matchId = 0;
@@ -96,11 +99,12 @@
       this._lastOpts = opts;
       this.playerIsHunter = !!opts.asHunter;
       this.reveal = 0;
-      this.input = { x: 0, y: 0, attack: false, interact: false, skill: false, skill2: false, crouch: false, pause: false };
+      this.input = { x: 0, y: 0, attack: false, interact: false, skill: false, skill2: false, crouch: false, pause: false, selfHeal: false };
       this._attackQueued = false;
       this._interactQueued = false;
       this._skillQueued = false;
       this._skill2Queued = false;
+      this._selfHealQueued = false;
 
       var E = this.map.entities;
       var spawns = E.spawns.slice();
@@ -150,6 +154,7 @@
         x: x, y: y, r: 13, dir: 0,
         hp: 2, alive: true, escaped: false,
         shield: 0, invisible: 0, sprintT: 0, decodeBoostT: 0, ironwallT: 0,
+        hitBoostT: 0,
         skillCd: 0, skillOn: 0, skillActive: false,
         decoding: null,
         carriedBy: null, carryStruggle: 0,
@@ -174,6 +179,8 @@
         x: x, y: y, r: 15, dir: 0,
         attacking: 0, atkT: 0, atkCd: 0,
         carrying: null, carryDropCd: 0,
+        breakingPallet: null, breakT: 0,
+        vaultT: 0, wipeT: 0,
         stunT: 0, hurtFlash: 0, dashT: 0, dashDir: 0, chaseBoostT: 0,
         skillCd: 0, skill2Cd: 0,
         state: 'patrol', target: null, lastSeen: null, lostT: 0, guardT: 0,
@@ -189,7 +196,7 @@
     /* ---------- 网格辅助 ---------- */
     tileAt: function (px, py) {
       var tx = Math.floor(px / this.ts), ty = Math.floor(py / this.ts);
-      if (tx < 0 || ty < 0 || tx >= this.cols || ty >= this.rows) return TILE.WALL;
+      if (tx < 0 || ty < 0 || tx >= this.cols || ty >= this.rows) return TILE_TYPE.WALL;
       return this.grid[ty][tx];
     },
     tileIsSolid: function (tx, ty) {
@@ -198,9 +205,9 @@
     },
     tileIsDownPallet: function (tx, ty) {
       if (tx < 0 || ty < 0 || tx >= this.cols || ty >= this.rows) return false;
-      if (this.grid[ty][tx] === TILE.PAL) {
+      if (this.grid[ty][tx] === TILE_TYPE.PAL) {
         for (var i = 0; i < this.pallets.length; i++) {
-          if (this.pallets[i].tx === tx && this.pallets[i].ty === ty && this.pallets[i].down) return true;
+          if (this.pallets[i].tx === tx && this.pallets[i].ty === ty && this.pallets[i].down && !this.pallets[i].destroyed) return true;
         }
       }
       return false;
@@ -219,6 +226,7 @@
     /* ---------- 移动 ---------- */
     moveEntity: function (ent, dt) {
       if (ent.vaultT > 0 || ent.stunT > 0) return;
+      if (ent.kind === 'hunter' && (ent.breakingPallet || ent.wipeT > 0)) return;
       var sp = ent.kind === 'survivor' ? this.survivorSpeed(ent) : this.hunterSpeed();
       if (ent.carriedBy) return; // 被牵制无法移动
 
@@ -244,45 +252,83 @@
     },
 
     _tryVault: function (ent) {
-      // 若即将踏入窗户格，触发翻窗
+      // 若即将踏入窗户格或倒板格，触发翻越
       var ts = this.ts;
       var mvx = ent.moveX, mvy = ent.moveY;
+      if (mvx === 0 && mvy === 0) return false;
       var aheadX = ent.x + Math.sign(mvx) * (ent.r + this.ts * 0.55);
       var aheadY = ent.y + Math.sign(mvy) * (ent.r + this.ts * 0.55);
-      if (mvx === 0 && mvy === 0) return false;
       var checkX = Math.abs(mvx) >= Math.abs(mvy) ? aheadX : ent.x;
       var checkY = Math.abs(mvy) > Math.abs(mvx) ? aheadY : ent.y;
       var tx = Math.floor(checkX / ts), ty = Math.floor(checkY / ts);
       if (tx < 0 || ty < 0 || tx >= this.cols || ty >= this.rows) return false;
-      if (this.grid[ty][tx] !== TILE.WIN) return false;
+
+      var isWin = this.grid[ty][tx] === TILE_TYPE.WIN;
+      var isPal = this.tileIsDownPallet(tx, ty);
+      if (!isWin && !isPal) return false;
+
+      // 监管者不能翻倒板，只能破坏
+      if (ent.kind === 'hunter' && isPal) return false;
 
       var dirX = Math.sign(mvx) || 0, dirY = Math.sign(mvy) || 0;
-      // 朝移动方向的窗户对面
+      var dur;
+      if (ent.kind === 'survivor') {
+        dur = 0.45 / (ent.stats ? ent.stats.vault : 1);
+      } else {
+        dur = (ent.char && ent.char.stats && ent.char.stats.vault) ? ent.char.stats.vault : 0.8;
+      }
+      // 朝移动方向的对面
       if (Math.abs(mvx) >= Math.abs(mvy)) {
         var ntx = tx + dirX;
         if (ntx < 0 || ntx >= this.cols || this.tileIsSolid(ntx, ty) || this.tileIsDownPallet(ntx, ty)) return false;
-        var dur = ent.kind === 'survivor' ? (0.45 / (ent.stats ? ent.stats.vault : 1)) : 0.8;
         ent.x = ntx * ts + ts / 2;
         ent.y = ty * ts + ts / 2;
         ent.vaultT = dur;
+        this._cleanPathAfterVault(ent, tx, ty, dirX, 0);
         return true;
       } else {
         var nty = ty + dirY;
         if (nty < 0 || nty >= this.rows || this.tileIsSolid(tx, nty) || this.tileIsDownPallet(tx, nty)) return false;
-        var dur2 = ent.kind === 'survivor' ? (0.45 / (ent.stats ? ent.stats.vault : 1)) : 0.8;
         ent.x = tx * ts + ts / 2;
         ent.y = nty * ts + ts / 2;
-        ent.vaultT = dur2;
+        ent.vaultT = dur;
+        this._cleanPathAfterVault(ent, tx, ty, 0, dirY);
         return true;
       }
+    },
+
+    /* 翻越后清理路径：移除已跨过的障碍中心节点及实体所在侧(来的方向)的路点，
+       避免 AI 翻回去或在障碍前往返 */
+    _cleanPathAfterVault: function (ent, tx, ty, dirX, dirY) {
+      if (!ent.path || !ent.path.length) return;
+      var ts = this.ts;
+      var keep = [];
+      for (var i = 0; i < ent.path.length; i++) {
+        var w = ent.path[i];
+        var wx = Math.floor(w.x / ts), wy = Math.floor(w.y / ts);
+        // 障碍中心节点：移除
+        if (wx === tx && wy === ty) continue;
+        // 实体已翻到 +dir 侧，移除来的方向(-dir)侧的路点
+        if (dirX !== 0) {
+          if (dirX > 0 && wx <= tx) continue; // 向右翻，移除左侧(含障碍列)
+          if (dirX < 0 && wx >= tx) continue; // 向左翻，移除右侧
+        } else if (dirY !== 0) {
+          if (dirY > 0 && wy <= ty) continue; // 向下翻，移除上方
+          if (dirY < 0 && wy >= ty) continue; // 向上翻，移除下方
+        }
+        keep.push(w);
+      }
+      ent.path = keep;
+      if (ent.pathIdx >= ent.path.length) ent.pathIdx = 0;
     },
 
     survivorSpeed: function (s) {
       var diff = DIFF[this.difficulty];
       var sp = BASE_SPEED * s.stats.speed;
-      if (s.hp === 1) sp *= 0.85;
+      // hp===1 与 hp===2 基础移速完全一致
       if (s.hp === 0) sp *= 0.35;
       if (s.sprintT > 0) sp *= 1.65;
+      if (s.hitBoostT > 0) sp *= 1.3;
       return sp;
     },
 
@@ -294,26 +340,46 @@
       if (h.carrying) sp *= diff.carrySlow;
       if (h.chaseBoostT > 0) sp *= 1.15;
       if (h.stunT > 0) sp = 0;
+      if (h.breakingPallet) sp = 0;
+      if (h.wipeT > 0) sp = 0;
       return sp;
     },
 
     /* ---------- BFS 寻路 ---------- */
-    pathTo: function (sx, sy, gx, gy, allowWin) {
+    pathTo: function (sx, sy, gx, gy, opts) {
+      // opts: 兼容旧布尔 allowWin；或对象 { win, pal } / { allowWin, allowPallet }
+      // win: 允许把窗户作为可翻越路径(监管者/求生者均可)
+      // pal: 允许把已放倒板作为可翻越路径(仅求生者)
+      var allowWin = false, allowPallet = false;
+      if (opts && typeof opts === 'object') {
+        allowWin = !!(opts.win || opts.allowWin);
+        allowPallet = !!(opts.pal || opts.allowPallet);
+      } else {
+        allowWin = !!opts;
+      }
       var ts = this.ts;
       var stx = clamp(Math.floor(sx / ts), 0, this.cols - 1);
       var sty = clamp(Math.floor(sy / ts), 0, this.rows - 1);
       var gtx = clamp(Math.floor(gx / ts), 0, this.cols - 1);
       var gty = clamp(Math.floor(gy / ts), 0, this.rows - 1);
-      if (this.tileIsSolid(gtx, gty) || this.tileIsDownPallet(gtx, gty)) {
+      var self = this;
+      // 该格是否可通行(墙永远不可；窗/倒板按选项)
+      function passable(tx, ty) {
+        if (tx < 0 || ty < 0 || tx >= self.cols || ty >= self.rows) return false;
+        var t = self.grid[ty][tx];
+        if (t === TILE_TYPE.WALL) return false;
+        if (t === TILE_TYPE.WIN) return allowWin;
+        if (self.tileIsDownPallet(tx, ty)) return allowPallet;
+        return true;
+      }
+      if (!passable(gtx, gty)) {
         // 找邻近可行走格
         var found = null;
         outer:
         for (var rr = 1; rr < 6; rr++) {
           for (var oy = -rr; oy <= rr; oy++) for (var ox = -rr; ox <= rr; ox++) {
             var nx = gtx + ox, ny = gty + oy;
-            if (nx < 0 || ny < 0 || nx >= this.cols || ny >= this.rows) continue;
-            if (this.tileIsSolid(nx, ny) || this.tileIsDownPallet(nx, ny)) continue;
-            found = [nx, ny]; break outer;
+            if (passable(nx, ny)) { found = [nx, ny]; break outer; }
           }
         }
         if (!found) return [];
@@ -332,8 +398,7 @@
         if (cur[0] === gtx && cur[1] === gty) { foundEnd = cur; break; }
         for (var i = 0; i < 4; i++) {
           var nx2 = cur[0] + dirs[i][0], ny2 = cur[1] + dirs[i][1];
-          if (nx2 < 0 || ny2 < 0 || nx2 >= this.cols || ny2 >= this.rows) continue;
-          if (this.tileIsSolid(nx2, ny2) || this.tileIsDownPallet(nx2, ny2)) continue;
+          if (!passable(nx2, ny2)) continue;
           var k2 = key(nx2, ny2);
           if (prev[k2] === undefined) { prev[k2] = cur; queue.push([nx2, ny2]); }
         }
@@ -354,7 +419,7 @@
         var t = i / steps;
         var px = lerp(x1, x2, t), py = lerp(y1, y2, t);
         var c = this.tileAt(px, py);
-        if (c === TILE.WALL || c === TILE.WIN) return false;
+        if (c === TILE_TYPE.WALL || c === TILE_TYPE.WIN) return false;
         if (this.tileIsDownPallet(Math.floor(px / this.ts), Math.floor(py / this.ts))) return false;
       }
       return true;
@@ -385,11 +450,12 @@
     /* ---------- 玩家输入 ---------- */
     updateInput: function (inp) {
       var prev = this.input;
-      this.input = inp || { x: 0, y: 0, attack: false, interact: false, skill: false, skill2: false, crouch: false, pause: false };
+      this.input = inp || { x: 0, y: 0, attack: false, interact: false, skill: false, skill2: false, crouch: false, pause: false, selfHeal: false };
       if (this.input.attack && !prev.attack) this._attackQueued = true;
       if (this.input.interact && !prev.interact) this._interactQueued = true;
       if (this.input.skill && !prev.skill) this._skillQueued = true;
       if (this.input.skill2 && !prev.skill2) this._skill2Queued = true;
+      if (this.input.selfHeal && !prev.selfHeal) this._selfHealQueued = true;
       if (this.input.pause && !prev.pause && this.state === 'playing') this.state = 'paused';
     },
 
@@ -410,10 +476,13 @@
       if (h.stunT > 0) h.stunT -= dt;
       if (h.dashT > 0) h.dashT -= dt;
       if (h.chaseBoostT > 0) h.chaseBoostT -= dt;
+      if (h.vaultT > 0) h.vaultT -= dt;
+      if (h.wipeT > 0) h.wipeT -= dt;
       if (h.skillCd > 0) h.skillCd -= dt;
       if (h.skill2Cd > 0) h.skill2Cd -= dt;
       if (this.reveal > 0) this.reveal -= dt;
       if (h.carrying) h.carryDropCd = (h.carryDropCd || 0) - dt;
+      this.updatePalletBreak(dt);
 
       for (var i = 0; i < this.survivors.length; i++) {
         var s = this.survivors[i];
@@ -427,6 +496,7 @@
         if (s.sprintT > 0) s.sprintT -= dt;
         if (s.decodeBoostT > 0) s.decodeBoostT -= dt;
         if (s.ironwallT > 0) s.ironwallT -= dt;
+        if (s.hitBoostT > 0) s.hitBoostT -= dt;
         s.moveX = 0; s.moveY = 0;
         if (s.escaped) { s.moveX = 0; s.moveY = 0; }
       }
@@ -466,6 +536,10 @@
       if (this._skill2Queued) {
         if (p && p.kind === 'hunter') this.useHunterSkill(h, 2);
         this._skill2Queued = false;
+      }
+      if (this._selfHealQueued) {
+        if (p && p.kind === 'survivor') this.selfHeal(p);
+        this._selfHealQueued = false;
       }
 
       /* AI */
@@ -533,13 +607,17 @@
       if (!m || m.decoded) return false;
       if (m.occupiedBy && m.occupiedBy !== s.id) return false;
       if (s.hp === 0 || s.carriedBy || s.chair || s.escaped || !s.alive) return false;
+      // 开始破译必须距机器 <=64px
+      if (dist(s.x, s.y, m.x, m.y) > 64) return false;
       return true;
     },
 
     toggleDecode: function (s) {
       var m = this.nearestMachine(s.x, s.y, true);
-      if (!m || dist(s.x, s.y, m.x, m.y) > RANGE + 18) { this.stopDecode(s); return; }
+      if (!m) { this.stopDecode(s); return; }
       if (s.decoding === m) { this.stopDecode(s); return; }
+      // 内部必须调用 canDecode，而非依赖调用点
+      if (!this.canDecode(s, m)) { this.stopDecode(s); return; }
       this.stopDecode(s);
       s.decoding = m;
       m.occupiedBy = s.id;
@@ -583,6 +661,8 @@
           var sv = this.survivors[s];
           if (!sv.alive || sv.escaped) continue;
           if (sv.decoding === m && !sv.carriedBy && !sv.chair && sv.hp > 0) {
+            // 持续破译时距机器 >72px 立即停止(轻微滞回)
+            if (dist(sv.x, sv.y, m.x, m.y) > 72) { this.stopDecode(sv); continue; }
             if (this.check && this.check.decoder === sv) continue; // 校准中暂停
             var rate = DECODE_RATE * sv.stats.decode * (sv.decodeBoostT > 0 ? 2 : 1);
             if (sv.char.id === 'eng' && sv.hp === 1) rate *= 0.75;
@@ -595,6 +675,11 @@
           if (m.progress >= m.max) {
             m.decoded = true;
             m.occupiedBy = null;
+            m.decoders = 0;
+            // 机器完成后清掉所有指向它的 survivor.decoding
+            for (var c = 0; c < this.survivors.length; c++) {
+              if (this.survivors[c].decoding === m) this.survivors[c].decoding = null;
+            }
             this.spawnParticle(m.x, m.y, 'spark', 40);
             if (AudioSys && AudioSys.machineDone) AudioSys.machineDone();
             this.addFloater(m.x, m.y - 20, '破译完成!', '#ffe29a');
@@ -687,12 +772,12 @@
 
     /* ---------- 攻击 / 战斗 ---------- */
     hunterAttack: function (h) {
-      if (h.atkCd > 0 || h.stunT > 0 || h.carrying) return false;
+      if (h.atkCd > 0 || h.stunT > 0 || h.carrying || h.breakingPallet || h.wipeT > 0 || h.vaultT > 0) return false;
       h.atkCd = h.char.stats.atkCd * DIFF[this.difficulty].atkCdMul;
       h.attacking = 0.35;
       h.atkT = 0.12;
       if (AudioSys.hit) AudioSys.hit();
-      var hitAny = false;
+      // 一次攻击最多命中一个有效目标
       for (var i = 0; i < this.survivors.length; i++) {
         var s = this.survivors[i];
         if (!s.alive || s.escaped) continue;
@@ -702,16 +787,21 @@
         if (d > h.char.stats.atkRange + s.r) continue;
         var ang = angDiff(h.dir, Math.atan2(s.y - h.y, s.x - h.x));
         if (ang > 1.0) continue;
-        this.applyDamage(s, h);
-        hitAny = true;
-        if (h.char.id === 'hun_chase') h.chaseBoostT = 2;
+        var hit = this.applyDamage(s, h);
+        if (hit) {
+          if (h.char.id === 'hun_chase') h.chaseBoostT = 2;
+          h.wipeT = 1; // 命中后擦刀 1s
+          return true;
+        }
       }
-      return hitAny;
+      return false;
     },
 
     applyDamage: function (s, h) {
-      if (!s.alive || s.escaped) return;
-      if (s.carriedBy) return;
+      if (!s.alive || s.escaped) return false;
+      if (s.carriedBy) return false;
+      // 已倒地者不再重复计分/触发擦刀
+      if (s.hp <= 0) return false;
       // 护盾
       if (s.shield > 0) {
         s.shield = 0;
@@ -719,7 +809,7 @@
         if (AudioSys.shield) AudioSys.shield();
         this.addFloater(s.x, s.y - 24, '护盾格挡!', '#9ad8ff');
         this.spawnParticle(s.x, s.y, 'shield', 14);
-        return;
+        return false;
       }
       // 铁壁减伤(守护者被动)
       var dmg = h.dashT > 0 ? 2 : 1;
@@ -727,7 +817,7 @@
         s.ironwallT = 0;
         this.addFloater(s.x, s.y - 24, '铁壁减伤!', '#c8d8ff');
         if (AudioSys.shield) AudioSys.shield();
-        return;
+        return false;
       }
       if (s.char.id === 'gua') s.ironwallT = 1.5;
 
@@ -738,16 +828,21 @@
       this.stopDecode(s);
       if (s.hp <= 0) {
         s.hp = 0;
+        s.invisible = 0;
+        s.channel = null;
         this.addFloater(s.x, s.y - 26, '倒地!', '#ff5050');
         if (AudioSys.downed) AudioSys.downed();
         this.spawnParticle(s.x, s.y, 'blood', 24);
         h.scoreHit++;
       } else {
+        // 真正受到攻击伤害且仍未倒地：获得受击加速
+        s.hitBoostT = 2;
         if (AudioSys.hurt) AudioSys.hurt();
         this.addFloater(s.x, s.y - 24, '受伤!', '#ff9a6a');
         this.spawnParticle(s.x, s.y, 'blood', 14);
         h.scoreHit++;
       }
+      return true;
     },
 
     /* ---------- 求生者交互 ---------- */
@@ -756,11 +851,6 @@
       if (this.check && this.check.decoder === s) { this.pressCheck(); return; }
       if (s.carriedBy) { /* 被牵制时挣扎由系统处理 */ return; }
       if (s.chair) { /* 处刑中，按下挣扎 */ return; }
-      if (s.hp === 0) {
-        // 倒地自疗
-        this.startChannel(s, { type: 'heal_self_down', progress: 0, dur: 8 / s.stats.selfHeal });
-        return;
-      }
       if (s.decoding) { this.stopDecode(s); return; }
 
       // 救人(处刑架)
@@ -772,8 +862,9 @@
       // 治疗倒地/受伤队友
       var ally = this.nearestHealableAlly(s);
       if (ally) {
-        var dur = ally.hp === 0 ? 4 / s.stats.heal : 2.5 / s.stats.heal;
-        this.startChannel(s, { type: 'heal_other', target: ally, progress: 0, dur: dur });
+        var downed = ally.hp === 0;
+        var dur = downed ? 4 / s.stats.heal : 2.5 / s.stats.heal;
+        this.startChannel(s, { type: downed ? 'revive' : 'heal_other', target: ally, progress: 0, dur: dur });
         return;
       }
       // 修机
@@ -793,11 +884,14 @@
         this.dropPallet(s);
         return;
       }
-      // 受伤自疗
-      if (s.hp === 1) {
-        this.startChannel(s, { type: 'heal_self', progress: 0, dur: 6 / s.stats.selfHeal });
-        return;
-      }
+    },
+
+    /* 独立自愈动作：仅倒地时可用 */
+    selfHeal: function (s) {
+      if (s.hp !== 0) return;                 // 仅倒地可自愈
+      if (s.carriedBy || s.chair || !s.alive || s.escaped) return;
+      if (s.channel) return;
+      this.startChannel(s, { type: 'heal_self_down', progress: 0, dur: 8 / s.stats.selfHeal });
     },
 
     startChannel: function (s, ch) {
@@ -828,7 +922,7 @@
       var tx = Math.floor(s.x / this.ts), ty = Math.floor(s.y / this.ts);
       for (var i = 0; i < this.pallets.length; i++) {
         var p = this.pallets[i];
-        if (p.tx === tx && p.ty === ty && !p.down) return p;
+        if (p.tx === tx && p.ty === ty && !p.used && !p.down && !p.destroyed && this.grid[ty][tx] === TILE_TYPE.PAL) return p;
       }
       return null;
     },
@@ -836,18 +930,79 @@
     dropPallet: function (s) {
       var p = this.standingOnPallet(s);
       if (!p) return;
+      p.used = true;
       p.down = true;
       p.breakT = 0;
+      p.breakDur = PALLET_BREAK_TIME;
       if (AudioSys.palletDrop) AudioSys.palletDrop();
       this.cam.shake = 0.18;
       this.spawnParticle(p.x, p.y, 'dust', 20);
-      // 若监管者在板下则眩晕
+      // 放下瞬间把放板者安全放到板格一侧，把板下/重叠的监管者推到另一侧
+      var ts = this.ts;
+      var axis = p.axis === 'vertical' ? 'vertical' : 'horizontal';
+      // 放板者：放到板格一侧(horizontal→上下, vertical→左右)
+      var sSide = this._palletSide(s, p, axis);
+      if (sSide) { s.x = sSide.x; s.y = sSide.y; }
+      // 监管者：若与板重叠，推到另一侧
       var h = this.hunter;
-      if (h && dist(h.x, h.y, p.x, p.y) < 34) {
+      if (h && this._overlapsPallet(h, p)) {
+        var hSide = this._palletSide(h, p, axis, true);
+        if (hSide) { h.x = hSide.x; h.y = hSide.y; }
         h.stunT = 1.6;
         if (AudioSys.stun) AudioSys.stun();
         this.addFloater(p.x, p.y - 20, '板子砸晕!', '#ffd94a');
       }
+    },
+
+    /* 计算实体应被放置的板侧位置；opposite 表示放到与当前所在侧相反的一侧 */
+    _palletSide: function (ent, p, axis, opposite) {
+      var ts = this.ts;
+      var cx = p.tx * ts + ts / 2, cy = p.ty * ts + ts / 2;
+      var candidates;
+      if (axis === 'vertical') {
+        // 跨上下，翻越方向为左右
+        candidates = [
+          { x: cx - ts, y: cy, dx: -1, dy: 0 },
+          { x: cx + ts, y: cy, dx: 1, dy: 0 }
+        ];
+      } else {
+        // 跨左右，翻越方向为上下
+        candidates = [
+          { x: cx, y: cy - ts, dx: 0, dy: -1 },
+          { x: cx, y: cy + ts, dx: 0, dy: 1 }
+        ];
+      }
+      // 选择可行走的一侧
+      var walkable = [];
+      for (var i = 0; i < candidates.length; i++) {
+        var c = candidates[i];
+        var tx = Math.floor(c.x / ts), ty = Math.floor(c.y / ts);
+        if (tx < 0 || ty < 0 || tx >= this.cols || ty >= this.rows) continue;
+        if (this.tileIsSolid(tx, ty) || this.tileIsDownPallet(tx, ty)) continue;
+        walkable.push(c);
+      }
+      if (!walkable.length) return null;
+      if (walkable.length === 1) return walkable[0];
+      // 两个都可行：默认放当前所在侧，opposite 则放另一侧
+      var curSide = this._whichSide(ent, p, axis);
+      for (var j = 0; j < walkable.length; j++) {
+        var w = walkable[j];
+        var side = (axis === 'vertical') ? (w.dx > 0 ? 1 : -1) : (w.dy > 0 ? 1 : -1);
+        if (opposite) { if (side !== curSide) return w; }
+        else { if (side === curSide) return w; }
+      }
+      return walkable[0];
+    },
+
+    _whichSide: function (ent, p, axis) {
+      if (axis === 'vertical') return ent.x >= p.x ? 1 : -1;
+      return ent.y >= p.y ? 1 : -1;
+    },
+
+    _overlapsPallet: function (ent, p) {
+      var ts = this.ts;
+      var px = p.tx * ts + ts / 2, py = p.ty * ts + ts / 2;
+      return dist(ent.x, ent.y, px, py) < 34;
     },
 
     nearestGate: function (s) {
@@ -870,9 +1025,23 @@
         if (s.carriedBy || s.chair || s.vaultT > 0 || s.hurtFlash > 0 || (ch.type === 'rescue' && !(ch.target && ch.target.occupant && dist(s.x, s.y, ch.target.x, ch.target.y) <= RANGE + 26))) {
           s.channel = null; continue;
         }
-        if (ch.type.indexOf('heal_other') === 0) {
+        if (ch.type === 'revive') {
+          var downed = ch.target;
+          if (!downed || !downed.alive || downed.escaped || downed.hp !== 0 || downed.carriedBy || downed.chair || s.hp <= 0 || dist(s.x, s.y, downed.x, downed.y) > RANGE + 26) { s.channel = null; continue; }
+          ch.progress += dt;
+          if (s.char.id === 'med') ch.progress += dt * 0.6;
+          if (ch.progress >= ch.dur) {
+            downed.hp = 1;
+            downed.hurtFlash = 0;
+            downed.channel = null;
+            this.addFloater(downed.x, downed.y - 24, '扶起成功!', '#7dffb0');
+            if (AudioSys.rescue) AudioSys.rescue();
+            s.channel = null;
+            s.rescueScore = (s.rescueScore || 0) + 1;
+          }
+        } else if (ch.type === 'heal_other') {
           var ally = ch.target;
-          if (!ally || !ally.alive || ally.escaped || ally.hp >= 2 || dist(s.x, s.y, ally.x, ally.y) > RANGE + 26) { s.channel = null; continue; }
+          if (!ally || !ally.alive || ally.escaped || ally.hp !== 1 || ally.carriedBy || ally.chair || s.hp <= 0 || dist(s.x, s.y, ally.x, ally.y) > RANGE + 26) { s.channel = null; continue; }
           ch.progress += dt;
           if (s.char.id === 'med') ch.progress += dt * 0.6;
           if (ch.progress >= ch.dur) {
@@ -886,7 +1055,7 @@
         } else if (ch.type === 'heal_self' || ch.type === 'heal_self_down') {
           if (s.hp >= (ch.type === 'heal_self' ? 2 : 1)) { s.channel = null; continue; }
           ch.progress += dt;
-          if (s.char.id === 'med') ch.progress += dt * 0.6;
+          // 自愈通道 dur 已按 stats.selfHeal 缩短，不再叠加医生加成
           if (ch.progress >= ch.dur) {
             if (ch.type === 'heal_self') { s.hp = 2; }
             else { s.hp = 1; }
@@ -1046,7 +1215,7 @@
     },
 
     useHunterSkill: function (h, slot) {
-      if (h.stunT > 0) return;
+      if (h.stunT > 0 || h.breakingPallet || h.wipeT > 0 || h.vaultT > 0) return;
       var ch = h.char;
       if (slot === 1) {
         var ac = ch.active;
@@ -1079,7 +1248,7 @@
 
     /* ---------- 监管者交互 ---------- */
     hunterInteract: function (h) {
-      if (h.stunT > 0) return;
+      if (h.stunT > 0 || h.breakingPallet || h.wipeT > 0 || h.vaultT > 0) return;
       if (h.carrying) {
         // 放下/上椅
         var chair = this.nearChair(h);
@@ -1126,7 +1295,7 @@
       var best = null, bd = RANGE + 10;
       for (var i = 0; i < this.pallets.length; i++) {
         var p = this.pallets[i];
-        if (!p.down) continue;
+        if (!p.down || p.destroyed) continue;
         var d = dist(h.x, h.y, p.x, p.y);
         if (d < bd) { bd = d; best = p; }
       }
@@ -1134,14 +1303,52 @@
     },
 
     breakPallet: function (h, p) {
+      if (!h || !p || !p.down || p.destroyed || h.carrying || h.stunT > 0 || h.breakingPallet || h.wipeT > 0 || h.vaultT > 0) return false;
+      // 开始破坏前若监管者与板重叠，先移动到合法相邻侧
+      if (this._overlapsPallet(h, p)) {
+        var side = this._palletSide(h, p, p.axis === 'vertical' ? 'vertical' : 'horizontal');
+        if (side) { h.x = side.x; h.y = side.y; }
+      }
+      h.breakingPallet = p;
+      h.breakT = 0;
+      h.moveX = 0;
+      h.moveY = 0;
+      p.breakT = 0;
+      p.breakDur = PALLET_BREAK_TIME;
+      this.addFloater(p.x, p.y - 22, '破坏木板...', '#ffcf80');
+      return true;
+    },
+
+    updatePalletBreak: function (dt) {
+      var h = this.hunter;
+      if (!h || !h.breakingPallet) return;
+      var p = h.breakingPallet;
+      h.moveX = 0;
+      h.moveY = 0;
+      h.attacking = 0;
+      h.atkT = 0;
+      if (!p.down || p.destroyed || h.carrying || dist(h.x, h.y, p.x, p.y) > RANGE + 24) {
+        p.breakT = 0;
+        h.breakingPallet = null;
+        h.breakT = 0;
+        return;
+      }
+      if (h.stunT > 0) return;
+      h.breakT += dt;
+      p.breakT = h.breakT;
+      if (h.breakT < (p.breakDur || PALLET_BREAK_TIME)) return;
       p.down = false;
-      // 将格变为地板
+      p.destroyed = true;
+      p.breakT = p.breakDur || PALLET_BREAK_TIME;
       var tx = p.tx, ty = p.ty;
-      if (tx >= 0 && ty >= 0 && tx < this.cols && ty < this.rows) this.grid[ty][tx] = TILE.FLOOR;
+      if (tx >= 0 && ty >= 0 && tx < this.cols && ty < this.rows) this.grid[ty][tx] = TILE_TYPE.FLOOR;
       if (AudioSys.palletBreak) AudioSys.palletBreak();
       this.cam.shake = 0.2;
       this.spawnParticle(p.x, p.y, 'dust', 26);
-      h.atkCd = Math.max(h.atkCd, 0.6);
+      this.addFloater(p.x, p.y - 22, '木板已破坏', '#ff9a6a');
+      h.breakingPallet = null;
+      h.breakT = 0;
+      h.atkCd = Math.max(h.atkCd, 0.45);
     },
 
     placeOnChair: function (h, chair) {
@@ -1302,10 +1509,10 @@
   global.MACHINES_NEEDED = MACHINES_NEEDED;
   global.GAME_HELPERS = {
     clamp: clamp, lerp: lerp, dist: dist, normAng: normAng, angDiff: angDiff,
-    tileSolid: tileSolid, TILE: TILE, RANGE: RANGE
+    tileSolid: tileSolid, TILE: TILE_SIZE, RANGE: RANGE
   };
 
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { Game: Game, DIFF: DIFF, BASE_SPEED: BASE_SPEED, MACHINES_NEEDED: MACHINES_NEEDED, GAME_HELPERS: GAME_HELPERS, TILE: TILE, RANGE: RANGE };
+    module.exports = { Game: Game, DIFF: DIFF, BASE_SPEED: BASE_SPEED, MACHINES_NEEDED: MACHINES_NEEDED, GAME_HELPERS: GAME_HELPERS, TILE: TILE_SIZE, RANGE: RANGE };
   }
 })(typeof window !== 'undefined' ? window : globalThis);

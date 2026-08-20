@@ -16,7 +16,7 @@
   var fogBlobs = [];
   var prevState = null;
 
-  var events = { attack: false, interact: false, skill: false, skill2: false, pause: false };
+  var events = { attack: false, interact: false, skill: false, skill2: false, pause: false, selfHeal: false };
 
   function $(id) { return document.getElementById(id); }
 
@@ -62,6 +62,7 @@
       keys[k] = true;
       if (k === ' ') {
         if (G && G.state === 'playing' && G.playerIsHunter) events.attack = true;
+        else if (G && G.state === 'playing' && G.player && G.player.kind === 'survivor' && G.player.hp === 0) events.selfHeal = true;
         else events.interact = true;
         e.preventDefault();
       }
@@ -103,7 +104,14 @@
 
   function resize() {
     cw = window.innerWidth; ch = window.innerHeight;
-    if (canvas) { canvas.width = cw; canvas.height = ch; }
+    var dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    if (canvas) {
+      canvas.width = Math.round(cw * dpr);
+      canvas.height = Math.round(ch * dpr);
+      canvas.style.width = cw + 'px';
+      canvas.style.height = ch + 'px';
+    }
+    try { if (ctx && ctx.setTransform) ctx.setTransform(dpr, 0, 0, dpr, 0, 0); } catch (e) {}
   }
 
   /* ================= 存档 ================= */
@@ -157,6 +165,7 @@
       skill: events.skill || uiBtn.skill,
       skill2: events.skill2 || uiBtn.skill2,
       crouch: !hunter && (crouch || uiBtn.crouch),
+      selfHeal: events.selfHeal || (!hunter && G.player && G.player.hp === 0 && uiBtn.interact),
       pause: events.pause
     };
     return inp;
@@ -515,7 +524,7 @@
     }
     if (G.state === 'playing' && prevState === 'paused') hideAllPanels();
     prevState = G.state;
-    events.attack = false; events.interact = false; events.skill = false; events.skill2 = false; events.pause = false;
+    events.attack = false; events.interact = false; events.skill = false; events.skill2 = false; events.pause = false; events.selfHeal = false;
     uiBtn.interact = false; uiBtn.skill = false; uiBtn.skill2 = false;
 
     render();
@@ -586,7 +595,7 @@
   /* ================= 雾 ================= */
   function drawFog(inMenu) {
     if (reducedMotion) return;
-    var baseA = inMenu ? 0.032 : 0.02;
+    var baseA = inMenu ? 0.032 : 0.012;
     for (var i = 0; i < fogBlobs.length; i++) {
       var b = fogBlobs[i];
       var x = (b.x * (cw + 400) - 200 + frame * b.spd * 60) % (cw + 400) - 200;
@@ -681,9 +690,17 @@
     ctx.fillStyle = base;
     ctx.fillRect(sx, sy, ts, ts);
     // 石砖缝
-    ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+    ctx.strokeStyle = 'rgba(0,0,0,0.45)';
     ctx.lineWidth = 1;
     ctx.strokeRect(sx + 0.5, sy + 0.5, ts - 1, ts - 1);
+    // 临墙地面冷光描边，增强地图轮廓清晰度
+    if (G.grid) {
+      ctx.fillStyle = 'rgba(170,190,255,0.10)';
+      if (y > 0 && G.grid[y - 1][x] === '#') ctx.fillRect(sx, sy, ts, 2);
+      if (y < G.rows - 1 && G.grid[y + 1][x] === '#') ctx.fillRect(sx, sy + ts - 2, ts, 2);
+      if (x > 0 && G.grid[y][x - 1] === '#') ctx.fillRect(sx, sy, 2, ts);
+      if (x < G.cols - 1 && G.grid[y][x + 1] === '#') ctx.fillRect(sx + ts - 2, sy, 2, ts);
+    }
     // 装饰：蜡烛/碎石/苔藓
     if (h > 0.93 && x % 3 !== 0 && y % 2 !== 0) drawCandle(sx + ts / 2, sy + ts / 2, h);
     else if (h > 0.8 && h <= 0.86) {
@@ -730,7 +747,7 @@
     ctx.stroke();
     // 顶部高光(月光)
     if (h > 0.7) {
-      ctx.fillStyle = 'rgba(180,195,245,0.18)';
+      ctx.fillStyle = 'rgba(190,205,250,0.26)';
       ctx.fillRect(sx, sy, ts, 3);
     }
   }
@@ -739,7 +756,7 @@
     var sx = w.x - ox - ts / 2, sy = w.y - oy - ts / 2;
     ctx.fillStyle = '#0a0a18';
     ctx.fillRect(sx + 4, sy + 4, ts - 8, ts - 8);
-    ctx.strokeStyle = '#3a3850';
+    ctx.strokeStyle = '#4a4870';
     ctx.lineWidth = 3;
     ctx.strokeRect(sx + 4, sy + 4, ts - 8, ts - 8);
     ctx.beginPath();
@@ -747,29 +764,50 @@
     ctx.moveTo(sx + 4, sy + ts / 2); ctx.lineTo(sx + ts - 4, sy + ts / 2);
     ctx.stroke();
     // 月光透入
-    ctx.fillStyle = 'rgba(160,190,255,0.18)';
+    ctx.fillStyle = 'rgba(160,190,255,0.26)';
     ctx.fillRect(sx + 6, sy + 6, ts - 12, ts - 12);
+    ctx.strokeStyle = 'rgba(160,190,255,0.35)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(sx + 2.5, sy + 2.5, ts - 5, ts - 5);
   }
 
   function drawPallet(p, ox, oy, ts) {
+    if (p.destroyed) return;
     var sx = p.x - ox, sy = p.y - oy;
+    ctx.save();
+    ctx.translate(sx, sy);
+    if (p.axis === 'vertical') ctx.rotate(Math.PI / 2);
     if (p.down) {
       ctx.fillStyle = '#4a3520';
-      ctx.fillRect(sx - 18, sy - 14, 36, 28);
+      ctx.fillRect(-18, -14, 36, 28);
       ctx.fillStyle = '#6a4a28';
-      ctx.fillRect(sx - 18, sy - 12, 36, 4);
-      ctx.fillRect(sx - 18, sy + 8, 36, 4);
+      ctx.fillRect(-18, -12, 36, 4);
+      ctx.fillRect(-18, 8, 36, 4);
       ctx.strokeStyle = '#2a1c0e';
       ctx.lineWidth = 1;
-      for (var i = 0; i < 5; i++) { ctx.beginPath(); ctx.moveTo(sx - 14 + i * 8, sy - 12); ctx.lineTo(sx - 14 + i * 8, sy + 12); ctx.stroke(); }
+      for (var i = 0; i < 5; i++) { ctx.beginPath(); ctx.moveTo(-14 + i * 8, -12); ctx.lineTo(-14 + i * 8, 12); ctx.stroke(); }
+      ctx.strokeStyle = 'rgba(255,190,120,0.5)';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(-18.5, -14.5, 37, 29);
+      if (p.breakT > 0) {
+        var pct = Math.min(1, p.breakT / Math.max(0.01, p.breakDur || 1.8));
+        ctx.fillStyle = 'rgba(0,0,0,0.75)';
+        ctx.fillRect(-19, -21, 38, 5);
+        ctx.fillStyle = '#ff9a6a';
+        ctx.fillRect(-18, -20, 36 * pct, 3);
+      }
     } else {
       ctx.fillStyle = 'rgba(60,45,30,0.55)';
-      ctx.fillRect(sx - 16, sy - 4, 32, 8);
+      ctx.fillRect(-16, -4, 32, 8);
       ctx.fillStyle = '#6a4a28';
-      ctx.fillRect(sx - 16, sy - 2, 32, 4);
+      ctx.fillRect(-16, -2, 32, 4);
       ctx.strokeStyle = '#3a2818';
-      for (var j = 0; j < 4; j++) { ctx.beginPath(); ctx.moveTo(sx - 13 + j * 8, sy - 2); ctx.lineTo(sx - 13 + j * 8, sy + 2); ctx.stroke(); }
+      for (var j = 0; j < 4; j++) { ctx.beginPath(); ctx.moveTo(-13 + j * 8, -2); ctx.lineTo(-13 + j * 8, 2); ctx.stroke(); }
+      ctx.strokeStyle = 'rgba(255,210,140,0.45)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(-16.5, -4.5, 33, 9);
     }
+    ctx.restore();
   }
 
   function drawMachine(m, ox, oy) {
@@ -782,6 +820,9 @@
     ctx.fillRect(sx - 14, sy - 18, 28, 26);
     ctx.fillStyle = '#454a62';
     ctx.fillRect(sx - 10, sy - 14, 20, 6);
+    ctx.strokeStyle = m.decoded ? 'rgba(120,255,160,0.4)' : 'rgba(255,210,120,0.45)';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(sx - 14.5, sy - 18.5, 29, 27);
     // 顶部灯
     var glow = 0.5 + 0.5 * Math.sin(frame * 0.08 + m.x);
     ctx.fillStyle = m.decoded ? 'rgba(120,255,160,0.8)' : 'rgba(255,200,90,' + (0.6 + glow * 0.4).toFixed(2) + ')';
@@ -873,19 +914,15 @@
     var st = s.char.style;
     var r = 13;
     ctx.save();
-    if (s.invisible > 0) ctx.globalAlpha = 0.25;
+    if (s.invisible > 0 && s.hp > 0) ctx.globalAlpha = 0.25;
 
     // 阴影
     ctx.fillStyle = 'rgba(0,0,0,0.35)';
     ctx.beginPath(); ctx.ellipse(sx, sy + 9, r * 0.85, r * 0.32, 0, 0, 6.283); ctx.fill();
 
     // 倒地：横躺
-    if (s.hp === 0) {
-      ctx.rotate(Math.PI / 2);
-      ctx.translate(0, 0);
-    }
-
     ctx.translate(sx, sy);
+    if (s.hp === 0) ctx.rotate(Math.PI / 2);
     if (s.chair) { drawPortraitAt(ctx, st, s, r * 0.9, true); }
     else {
       drawPortraitAt(ctx, st, s, r, false);
@@ -1093,14 +1130,14 @@
   function drawLighting() {
     // 冷蓝月光(左上)
     var g = ctx.createRadialGradient(cw * 0.2, ch * 0.1, 10, cw * 0.2, ch * 0.1, cw * 0.7);
-    g.addColorStop(0, 'rgba(130,160,240,0.08)');
+    g.addColorStop(0, 'rgba(130,160,240,0.05)');
     g.addColorStop(1, 'rgba(130,160,240,0)');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, cw, ch);
     // 暗角
     var v = ctx.createRadialGradient(cw / 2, ch / 2, Math.min(cw, ch) * 0.35, cw / 2, ch / 2, Math.max(cw, ch) * 0.75);
     v.addColorStop(0, 'rgba(0,0,0,0)');
-    v.addColorStop(1, 'rgba(0,0,10,0.34)');
+    v.addColorStop(1, 'rgba(0,0,10,0.22)');
     ctx.fillStyle = v;
     ctx.fillRect(0, 0, cw, ch);
   }
@@ -1151,6 +1188,8 @@
       else drawHunterHUD(p);
     }
 
+    drawPrompt();
+
     // 心跳
     if (G.heartRate > 0) drawHeartbeat();
 
@@ -1168,6 +1207,64 @@
       ctx.fillText('蹲伏 · 心跳降低', cw / 2, ch - 16);
       ctx.restore();
     }
+  }
+
+  function dist2(ax, ay, bx, by) { var dx = ax - bx, dy = ay - by; return Math.sqrt(dx * dx + dy * dy); }
+
+  /* 底部即时操作提示：按当前可用动作显示，减少记忆负担 */
+  function drawPrompt() {
+    var p = G.player;
+    if (!p || G.state !== 'playing') return;
+    var txt = null;
+    if (p.kind === 'survivor') {
+      if (p.hp === 0 && !p.channel) txt = '空格 自愈';
+      else if (p.hp > 0 && !p.decoding && G.standingOnPallet(p)) txt = 'E 放下木板';
+      else if (!p.decoding && !p.channel) {
+        var m = G.nearestMachine(p.x, p.y, true);
+        if (m && dist2(p.x, p.y, m.x, m.y) <= 64 && (m.occupiedBy === null || m.occupiedBy === p.id)) txt = 'E 破译密码机';
+        else {
+          var chair = G.nearChairWithOccupant(p);
+          if (chair && chair.occupant !== p) txt = 'E 救援队友';
+          else {
+            var ally = G.nearestHealableAlly(p);
+            if (ally) txt = ally.hp === 0 ? 'E 扶起队友' : 'E 治疗队友';
+            else {
+              var gate = G.nearestGate(p);
+              if (gate && gate.powered && !gate.open && dist2(p.x, p.y, gate.x, gate.y) <= 64) txt = 'E 开启大门';
+            }
+          }
+        }
+      }
+    } else {
+      if (p.wipeT > 0) txt = '擦刀…';
+      else if (p.vaultT > 0) txt = '翻越中…';
+      else if (p.breakingPallet) txt = '破坏木板…';
+      else if (p.carrying) txt = G.nearChair(p) ? 'E 挂上处刑架' : 'E 放下';
+      else {
+        var downed = null;
+        for (var i = 0; i < G.survivors.length; i++) {
+          var s = G.survivors[i];
+          if (s.alive && !s.escaped && s.hp === 0 && !s.carriedBy && !s.chair && dist2(p.x, p.y, s.x, s.y) <= 60) { downed = s; break; }
+        }
+        if (downed) txt = 'E 牵制';
+        else if (G.nearDownPallet(p)) txt = 'E 破坏木板';
+      }
+    }
+    if (!txt) return;
+    ctx.save();
+    ctx.font = 'bold 14px serif';
+    var bw = txt.length * 15 + 26;
+    var bx = cw / 2 - bw / 2, by = ch - 118;
+    ctx.fillStyle = 'rgba(8,8,18,0.82)';
+    roundRect(ctx, bx, by, bw, 26, 6);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = '#ffe9b0';
+    ctx.textAlign = 'center';
+    ctx.fillText(txt, cw / 2, by + 18);
+    ctx.restore();
   }
 
   function drawSurvivorHUD(s) {
@@ -1209,6 +1306,11 @@
       ctx.font = 'bold 15px serif';
       ctx.fillText('倒地!', ax + 130, ay + 26);
     }
+    if (s.hitBoostT > 0) {
+      ctx.fillStyle = '#ffb06a';
+      ctx.font = 'bold 12px serif';
+      ctx.fillText('受击加速', ax + 130, ay + 26);
+    }
     // 技能（加大加高）
     var cd = s.skillCd, max = s.char.active.cd;
     var bw = 194;
@@ -1247,6 +1349,27 @@
       ctx.textAlign = 'center';
       ctx.fillText('破译中 ' + Math.floor(m.progress) + '% (按 交互 停止)', cw / 2, by + bh2 + 18);
       ctx.restore();
+    } else if (s.channel) {
+      var labels = { revive: '正在扶起队友', rescue: '正在救援', heal_other: '正在治疗队友', heal_self: '正在自疗', heal_self_down: '正在自救', gate: '正在开启大门' };
+      var label = labels[s.channel.type];
+      if (label) {
+        var progress = Math.min(1, s.channel.progress / Math.max(0.01, s.channel.dur));
+        var cbw = 260, cbh = 20;
+        var cbx = cw / 2 - cbw / 2, cby = ch - 70;
+        ctx.save();
+        ctx.fillStyle = 'rgba(8,8,18,0.86)';
+        ctx.fillRect(cbx - 6, cby - 4, cbw + 12, cbh + 28);
+        ctx.fillStyle = '#7dffb0';
+        ctx.fillRect(cbx, cby, cbw * progress, cbh);
+        ctx.strokeStyle = 'rgba(255,255,255,0.65)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(cbx, cby, cbw, cbh);
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 14px serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(label + ' ' + Math.floor(progress * 100) + '%', cw / 2, cby + cbh + 19);
+        ctx.restore();
+      }
     }
   }
 
@@ -1269,6 +1392,13 @@
     ctx.fillStyle = '#dfd0d8';
     ctx.font = 'bold 11px serif';
     ctx.fillText(h.title, ax + 46, ay + 6);
+    if (h.wipeT > 0) {
+      ctx.fillStyle = '#ffb0b0';
+      ctx.font = 'bold 12px serif';
+      ctx.textAlign = 'right';
+      ctx.fillText('擦刀中…', ax + 202, ay - 10);
+      ctx.textAlign = 'left';
+    }
     // 技能1（加大加高）
     var cd = h.skillCd, max = h.char.active.cd;
     var bw = 194;
@@ -1303,6 +1433,26 @@
     ctx.textAlign = 'left';
     ctx.fillText('求生者剩余 ' + alive + '/3', ax + 4, ay + 80);
     ctx.restore();
+
+    if (h.breakingPallet) {
+      var p = h.breakingPallet;
+      var progress = Math.min(1, h.breakT / Math.max(0.01, p.breakDur || 1.8));
+      var bw2 = 260, bh2 = 20;
+      var bx = cw / 2 - bw2 / 2, by = ch - 70;
+      ctx.save();
+      ctx.fillStyle = 'rgba(8,8,18,0.86)';
+      ctx.fillRect(bx - 6, by - 4, bw2 + 12, bh2 + 28);
+      ctx.fillStyle = '#ff9a6a';
+      ctx.fillRect(bx, by, bw2 * progress, bh2);
+      ctx.strokeStyle = 'rgba(255,255,255,0.65)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(bx, by, bw2, bh2);
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 14px serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('正在破坏木板 ' + Math.floor(progress * 100) + '%', cw / 2, by + bh2 + 19);
+      ctx.restore();
+    }
   }
 
   function drawMiniPortrait(ch, x, y, r) {
@@ -1324,8 +1474,11 @@
     var w = 140, h = Math.round(w * G.rows / G.cols);
     if (h > 120) { h = 120; w = Math.round(120 * G.cols / G.rows); }
     var mx = cw - w - 12, my = 52;
-    ctx.fillStyle = 'rgba(6,7,14,0.75)';
+    ctx.fillStyle = 'rgba(6,7,14,0.85)';
     ctx.fillRect(mx - 2, my - 2, w + 4, h + 4);
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(mx - 2.5, my - 2.5, w + 5, h + 5);
     var cw2 = w / G.cols, ch2 = h / G.rows;
     for (var y = 0; y < G.rows; y++) {
       for (var x = 0; x < G.cols; x++) {
@@ -1354,7 +1507,7 @@
     // 求生者
     for (var s = 0; s < G.survivors.length; s++) {
       var sv = G.survivors[s];
-      if (!sv.alive || sv.escaped || sv.invisible > 0) continue;
+      if (!sv.alive || sv.escaped || (sv.invisible > 0 && sv.hp > 0)) continue;
       ctx.fillStyle = sv.isPlayer ? '#ffffff' : '#6ab4ff';
       ctx.beginPath(); ctx.arc(mx + sv.x / G.ts * cw2, my + sv.y / G.ts * ch2, 2.5, 0, 6.283); ctx.fill();
     }

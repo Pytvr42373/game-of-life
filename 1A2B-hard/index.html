@@ -118,8 +118,8 @@ body[data-theme="arcade"] .theme-switch{background:rgba(10,10,24,.75);border:1px
 body[data-theme="4399"] .h4399{display:block}
 .h4399{display:none;text-align:center;margin-bottom:10px}
 .h4399 .topbar{display:flex;align-items:center;gap:7px;justify-content:center;margin-bottom:2px}
-.h4399 .logo{width:28px;height:28px;border-radius:0;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 3px 8px rgba(56,153,4,.25)}
-.h4399 .title{font-size:1.3rem;font-weight:900;color:var(--green);letter-spacing:.5px;text-shadow:0 1px 0 rgba(56,153,4,.12);display:inline}
+.h4399 .logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 3px 10px rgba(56,153,4,.3),inset 0 1px 0 rgba(255,255,255,.4)}
+.h4399 .title{font-size:1.3rem;font-weight:900;color:var(--green);letter-spacing:.5px;text-shadow:0 1px 0 rgba(255,255,255,.8),0 3px 8px rgba(56,153,4,.18);display:inline}
 .h4399 .title em{font-style:normal;color:var(--orange)}
 .h4399 .hard-badge{display:inline-block;margin-left:7px;padding:2px 8px;border-radius:6px;
   font-size:.68rem;font-weight:900;letter-spacing:1px;color:#fff;
@@ -178,7 +178,7 @@ body[data-theme="arcade"] .new-btn.ghost{background:var(--key-bg);border:3px sol
   position:fixed;right:14px;top:50%;transform:translateY(-50%);
   z-index:98;display:flex;flex-direction:column;gap:8px;
 }
-body[data-theme="4399"] .hud .chip{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 12px;color:var(--dim)}
+body[data-theme="4399"] .hud .chip{background:rgba(255,255,255,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:999px;padding:4px 12px;color:var(--dim);box-shadow:var(--shadow-sm)}
 body[data-theme="4399"] .hud .chip b{color:var(--green2)}
 body[data-theme="arcade"] .hud .chip{background:var(--surface);border:2px solid var(--line);box-shadow:3px 3px 0 var(--hard);padding:4px 12px;color:var(--dim);font-family:'Press Start 2P',monospace;font-size:9px}
 body[data-theme="arcade"] .hud .chip b{color:var(--green);text-shadow:0 0 8px var(--green)}
@@ -190,18 +190,19 @@ body[data-theme="arcade"] .hud .chip b{color:var(--green);text-shadow:0 0 8px va
 :root{--cell-size:min(calc((100vw - 176px)/6),50px);--cell-font:calc(var(--cell-size)*0.46)}
 .cell{width:var(--cell-size);height:var(--cell-size);display:flex;align-items:center;justify-content:center;font-size:var(--cell-font);font-weight:800;
   border-radius:8px;transition:transform .1s}
-body[data-theme="4399"] .cell{background:var(--cell-empty);border:2px solid var(--cell-border);color:var(--text)}
+body[data-theme="4399"] .cell{background:var(--cell-empty);border:2px solid var(--cell-border);color:var(--text);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 2px 6px rgba(36,64,29,.07)}
 body[data-theme="arcade"] .cell{background:var(--cell-empty);border:3px solid var(--cell-border);color:var(--text);box-shadow:3px 3px 0 var(--hard)}
 .cell.filled{animation:pop .15s ease}
 @keyframes pop{50%{transform:scale(1.12)}}
 .cell.current{border-color:var(--green)}
+body[data-theme="4399"] .cell.current{box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 0 0 3px rgba(56,153,4,.12),0 0 12px rgba(56,153,4,.16)}
 
 /* 反馈徽标：只显示 几A几B 总数，不给逐格提示 */
 .fb-badge{min-width:76px;height:var(--cell-size);flex:none;display:flex;align-items:center;justify-content:center;
   font-weight:800;font-size:calc(var(--cell-size)*0.4);letter-spacing:1px;border-radius:10px;color:var(--dim)}
 .fb-badge .a{color:var(--green);font-weight:900}
 .fb-badge .b{color:#e2a400;font-weight:900}
-body[data-theme="4399"] .fb-badge{background:var(--surface);border:2px solid var(--line);box-shadow:var(--shadow-sm)}
+body[data-theme="4399"] .fb-badge{background:var(--surface);border:2px solid var(--line);box-shadow:var(--shadow-sm),inset 0 1px 0 rgba(255,255,255,.9)}
 body[data-theme="arcade"] .fb-badge{background:var(--key-bg);border:3px solid var(--line);box-shadow:3px 3px 0 var(--hard);color:#9a9ac4;font-family:'Press Start 2P',monospace;font-size:calc(var(--cell-size)*0.34)}
 body[data-theme="arcade"] .fb-badge .a{color:var(--green);text-shadow:0 0 8px var(--green)}
 body[data-theme="arcade"] .fb-badge .b{color:var(--yellow);text-shadow:0 0 8px var(--yellow)}
@@ -221,6 +222,7 @@ body[data-theme="arcade"] .fb-badge.win{box-shadow:3px 3px 0 var(--hard),0 0 16p
 .rules .ab.a{background:var(--green)}
 .rules .ab.b{background:#e2a400}
 body[data-theme="arcade"] .rules .r{background:var(--key-bg);border:2px solid var(--line);box-shadow:2px 2px 0 var(--hard);font-family:'Press Start 2P',monospace;font-size:11px}
+body[data-theme="4399"] .rules .r{background:rgba(255,255,255,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:var(--shadow-sm)}
 body[data-theme="arcade"] .rules .ab.a{background:var(--green);color:#000;text-shadow:none;box-shadow:2px 2px 0 var(--hard),0 0 8px var(--green)}
 body[data-theme="arcade"] .rules .ab.b{background:var(--yellow);color:#000;text-shadow:none;box-shadow:2px 2px 0 var(--hard),0 0 8px var(--yellow)}
 body[data-theme="arcade"] .rule-modal .ab.a{background:var(--green);color:#000;text-shadow:none;box-shadow:2px 2px 0 var(--hard),0 0 8px var(--green)}
@@ -230,9 +232,9 @@ body[data-theme="arcade"] .rule-modal .ab.b{background:var(--yellow);color:#000;
 .kb{position:fixed;left:0;right:0;bottom:0;z-index:40;width:100%;padding:4px 10px max(8px, env(safe-area-inset-bottom));
   display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(2,1fr);gap:3px;max-width:420px;margin:0 auto}
 .key{min-height:38px;border-radius:8px;font-size:14px;font-weight:800;cursor:pointer;transition:.12s;touch-action:manipulation;height:100%}
-body[data-theme="4399"] .key{background:var(--key-bg);border:2px solid var(--key-border);color:var(--key-text)}
-body[data-theme="4399"] .key:hover{background:var(--surface2,#eef5e8);border-color:var(--green);transform:translateY(-1px)}
-body[data-theme="4399"] .key:active{transform:translateY(1px)}
+body[data-theme="4399"] .key{background:var(--key-bg);border:2px solid var(--key-border);color:var(--key-text);box-shadow:0 2px 0 var(--key-border)}
+body[data-theme="4399"] .key:hover{background:var(--surface2,#eef5e8);border-color:var(--green);transform:translateY(-1px);box-shadow:0 3px 0 var(--key-border)}
+body[data-theme="4399"] .key:active{transform:translateY(1px);box-shadow:0 1px 0 var(--key-border)}
 body[data-theme="arcade"] .key{background:var(--key-bg);border:3px solid var(--line);color:var(--key-text);box-shadow:3px 3px 0 var(--hard)}
 body[data-theme="arcade"] .key:hover{background:#2e2e58;border-color:var(--cyan);transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--hard)}
 body[data-theme="arcade"] .key:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--hard)}
@@ -268,9 +270,51 @@ body[data-theme="arcade"] .rule-example .ex-title{color:var(--green);text-shadow
 body[data-theme="arcade"] .rule-example .ex-fb .a{color:var(--green);text-shadow:0 0 8px var(--green)}
 body[data-theme="arcade"] .rule-example .ex-fb .b{color:var(--yellow);text-shadow:0 0 8px var(--yellow)}
 
+/* ============ 4399 世界树 · 环境装饰（树影/叶脉微风/萤火虫） ============ */
+.decor-tree{position:fixed;right:-34px;top:-16px;z-index:0;pointer-events:none;opacity:.1;display:none}
+body[data-theme="4399"] .decor-tree{display:block}
+.decor-tree svg{display:block}
+.leaf-layer{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.world-leaf{--leaf-face:#6fa647;--leaf-edge:#3f6e31;--leaf-vein:#315f2a;--leaf-light:rgba(245,255,226,.8);position:fixed;width:var(--leaf-size,18px);aspect-ratio:14/19;opacity:0;pointer-events:none;color:var(--leaf-face);transform-origin:50% 82%}
+.world-leaf.leaf--sage{--leaf-face:#88aa68;--leaf-edge:#527542;--leaf-vein:#46693b}
+.world-leaf.leaf--amber{--leaf-face:#aaa052;--leaf-edge:#706c38;--leaf-vein:#625f32;--leaf-light:rgba(255,248,201,.72)}
+.world-leaf svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 2px 1px rgba(31,69,27,.18))}
+.world-leaf .leaf-shape{fill:currentColor;stroke:var(--leaf-edge);stroke-width:1;vector-effect:non-scaling-stroke}
+.world-leaf .leaf-glint{fill:none;stroke:var(--leaf-light);stroke-width:1.15;stroke-linecap:round;opacity:.72;vector-effect:non-scaling-stroke}
+.world-leaf .leaf-vein{fill:none;stroke:var(--leaf-vein);stroke-width:.9;stroke-linecap:round;stroke-linejoin:round;opacity:.72;vector-effect:non-scaling-stroke}
+body[data-theme="4399"] .leaf-layer .world-leaf{animation:leafDrift 16s cubic-bezier(.42,0,.58,1) infinite}
+@keyframes leafDrift{
+  0%{opacity:0;transform:translate3d(0,-8px,0) rotate(var(--r0,-12deg)) scale(var(--leaf-scale,.9))}
+  9%{opacity:.58}
+  27%{transform:translate3d(var(--x1,-24px),var(--y1,18vh),0) rotate(var(--r1,42deg)) scale(var(--leaf-scale,.9))}
+  52%{transform:translate3d(var(--x2,-8px),var(--y2,44vh),0) rotate(var(--r2,-18deg)) scale(var(--leaf-scale,.9))}
+  78%{opacity:.48;transform:translate3d(var(--x3,-72px),var(--y3,72vh),0) rotate(var(--r3,78deg)) scale(var(--leaf-scale,.9))}
+  100%{opacity:0;transform:translate3d(var(--x4,-110px),var(--y4,108vh),0) rotate(var(--r4,150deg)) scale(var(--leaf-scale,.9))}
+}
+body[data-theme="4399"] .world-leaf.leaf-lift{z-index:26;animation:leafLift 1.2s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes leafLift{
+  0%{opacity:0;transform:translate3d(0,7px,0) rotate(var(--r0,-18deg)) scale(.5)}
+  18%{opacity:.86}
+  48%{opacity:.74;transform:translate3d(var(--x1,8px),var(--y1,-28px),0) rotate(var(--r1,25deg)) scale(.78)}
+  100%{opacity:0;transform:translate3d(var(--x2,28px),var(--y2,-82px),0) rotate(var(--r2,72deg)) scale(.96)}
+}
+.firefly-layer{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;display:none}
+body[data-theme="4399"] .firefly-layer{display:block}
+.firefly-layer i{position:absolute;bottom:-14px;width:6px;height:6px;border-radius:50%;opacity:0;
+  background:radial-gradient(circle,rgba(220,255,130,.95) 0%,rgba(190,255,90,.4) 45%,rgba(190,255,90,0) 72%);
+  box-shadow:0 0 10px 3px rgba(190,255,90,.35);
+  animation:fireflyUp linear infinite}
+@keyframes fireflyUp{
+  0%{opacity:0;transform:translate3d(0,0,0) scale(.6)}
+  10%{opacity:.9}
+  70%{opacity:.55}
+  100%{opacity:0;transform:translate3d(var(--fx,20px),calc(-1*var(--fh,80vh)),0) scale(1)}
+}
+
 /* 统计卡片 */
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
 .stat-box{text-align:center;padding:14px 6px;border-radius:var(--radius);background:var(--surface);border:2px solid var(--line);box-shadow:var(--shadow-sm);transition:transform .18s}
+body[data-theme="4399"] .stat-box{box-shadow:var(--shadow-sm),inset 0 1px 0 rgba(255,255,255,.9)}
 .stat-box:hover{transform:translateY(-2px)}
 .stat-box .num{font-size:22px;font-weight:900;color:var(--green);margin-bottom:4px;font-family:'ZCOOL KuaiLe',sans-serif;line-height:1}
 .stat-box .lbl{font-size:11px;color:var(--dim);letter-spacing:1px}
@@ -587,6 +631,9 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
 
     renderRow(currentRow);
 
+    // 4399：A 反馈唤起少量叶片
+    if (fb.A) setTimeout(function(){ burstLeaves(fb.A); }, 250);
+
     current = [];
     currentRow++;
     updateHud();
@@ -716,6 +763,112 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
     updateHud();
   }
 
+  /* ================= 4399 世界树 · 环境装饰（树影/叶脉微风/萤火虫） ================= */
+  var treeEl=null, leafLayer=null, fireflyLayer=null;
+  function reducedMotion(){ try{ return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){ return false; } }
+  function treeSVG(){
+    return '<svg viewBox="0 0 200 240" width="300" height="360" aria-hidden="true">'
+      +'<path d="M92 224c-10 8-24 10-34 7M108 224c10 8 24 10 34 7M100 224c0 7 1 11 0 16" stroke="#7a5230" stroke-width="6" stroke-linecap="round" fill="none"/>'
+      +'<path d="M91 224 C88 172 93 152 100 126 C107 152 112 172 109 224 Z" fill="#7a5230"/>'
+      +'<circle cx="100" cy="62" r="47" fill="#57a832"/>'
+      +'<circle cx="60" cy="92" r="35" fill="#57a832"/>'
+      +'<circle cx="140" cy="92" r="35" fill="#57a832"/>'
+      +'<circle cx="80" cy="122" r="31" fill="#5cb43c"/>'
+      +'<circle cx="120" cy="122" r="31" fill="#5cb43c"/>'
+      +'<circle cx="100" cy="44" r="31" fill="#4f9c2e"/>'
+      +'</svg>';
+  }
+  function startTree(){
+    if (treeEl) return;
+    treeEl=document.createElement('div');
+    treeEl.className='decor-tree';
+    treeEl.innerHTML=treeSVG();
+    document.body.appendChild(treeEl);
+  }
+  function stopTree(){ if (treeEl){ if (treeEl.parentNode) treeEl.parentNode.removeChild(treeEl); treeEl=null; } }
+  function leafSVG(){
+    return '<svg viewBox="0 0 28 38" aria-hidden="true"><path class="leaf-shape" d="M14.4 2.5c6.4 2.6 11 8.2 10.4 14.8-.8 8-7.1 14.2-17.6 16.8 1-6.3-3.1-10.1-3-16.3.1-6.9 4.1-12.2 10.2-15.3Z"/><path class="leaf-glint" d="M13.3 6.2c-3.9 2.9-5.8 7-5.7 11.6"/><path class="leaf-vein" d="M7.1 35.6c3.8-8 6.4-15.6 7.7-28.2M11.7 24.6l-4.3-4M13.1 19.2l5.4-4.4M10.1 29.7l-2.7-2.4"/></svg>';
+  }
+  function createLeaf(extraClass){
+    var l=document.createElement('span');
+    var tone=Math.random()<.18?'leaf--amber':(Math.random()<.42?'leaf--sage':'leaf--fern');
+    l.className='world-leaf '+tone+(extraClass?' '+extraClass:'');
+    l.innerHTML=leafSVG();
+    return l;
+  }
+  function startLeaves(){
+    if (leafLayer||reducedMotion()) return;
+    leafLayer=document.createElement('div');
+    leafLayer.className='leaf-layer';
+    var vh=Math.max(window.innerHeight||0,560);
+    for (var i=0;i<4;i++){
+      var l=createLeaf('');
+      var duration=14+Math.random()*7;
+      var tilt=-35+Math.random()*70;
+      l.style.right=(8+Math.random()*210).toFixed(0)+'px';
+      l.style.top=(36+Math.random()*96)+'px';
+      l.style.animationDelay=(-Math.random()*duration).toFixed(2)+'s';
+      l.style.animationDuration=duration.toFixed(2)+'s';
+      l.style.setProperty('--leaf-size',(14+Math.random()*8).toFixed(1)+'px');
+      l.style.setProperty('--leaf-scale',(0.76+Math.random()*.34).toFixed(2));
+      l.style.setProperty('--x1',(-15-Math.random()*30).toFixed(0)+'px');
+      l.style.setProperty('--x2',(10-Math.random()*55).toFixed(0)+'px');
+      l.style.setProperty('--x3',(-28-Math.random()*88).toFixed(0)+'px');
+      l.style.setProperty('--x4',(-72-Math.random()*125).toFixed(0)+'px');
+      l.style.setProperty('--y1',(vh*(.16+Math.random()*.06)).toFixed(0)+'px');
+      l.style.setProperty('--y2',(vh*(.39+Math.random()*.08)).toFixed(0)+'px');
+      l.style.setProperty('--y3',(vh*(.66+Math.random()*.08)).toFixed(0)+'px');
+      l.style.setProperty('--y4',(vh*(1.02+Math.random()*.12)).toFixed(0)+'px');
+      l.style.setProperty('--r0',tilt.toFixed(0)+'deg');
+      l.style.setProperty('--r1',(tilt+40+Math.random()*50).toFixed(0)+'deg');
+      l.style.setProperty('--r2',(tilt-30-Math.random()*45).toFixed(0)+'deg');
+      l.style.setProperty('--r3',(tilt+60+Math.random()*70).toFixed(0)+'deg');
+      l.style.setProperty('--r4',(tilt+125+Math.random()*90).toFixed(0)+'deg');
+      leafLayer.appendChild(l);
+    }
+    document.body.appendChild(leafLayer);
+  }
+  function stopLeaves(){ if (leafLayer){ if (leafLayer.parentNode) leafLayer.parentNode.removeChild(leafLayer); leafLayer=null; } }
+  function startFireflies(){
+    if (fireflyLayer||reducedMotion()) return;
+    fireflyLayer=document.createElement('div');
+    fireflyLayer.className='firefly-layer';
+    for (var i=0;i<8;i++){
+      var f=document.createElement('i');
+      f.style.left=(2+Math.random()*96)+'%';
+      f.style.animationDuration=(9+Math.random()*9).toFixed(2)+'s';
+      f.style.animationDelay=(Math.random()*10).toFixed(2)+'s';
+      f.style.setProperty('--fx',(-60+Math.random()*120)+'px');
+      f.style.setProperty('--fh',(55+Math.random()*40)+'vh');
+      fireflyLayer.appendChild(f);
+    }
+    document.body.appendChild(fireflyLayer);
+  }
+  function stopFireflies(){ if (fireflyLayer){ if (fireflyLayer.parentNode) fireflyLayer.parentNode.removeChild(fireflyLayer); fireflyLayer=null; } }
+  function burstLeaves(count){
+    if (document.body.dataset.theme!=='4399'||!count||reducedMotion()) return;
+    var b=boardEl.getBoundingClientRect();
+    var total=Math.min(7,Math.max(2,count+1));
+    for (var i=0;i<total;i++){
+      var l=createLeaf('leaf-lift');
+      var tilt=-28+Math.random()*56;
+      l.style.left=(b.left+b.width*(.14+Math.random()*.72))+'px';
+      l.style.top=(b.top+b.height*(.38+Math.random()*.42))+'px';
+      l.style.animationDelay=(i*.045).toFixed(2)+'s';
+      l.style.animationDuration=(1+Math.random()*.38).toFixed(2)+'s';
+      l.style.setProperty('--leaf-size',(13+Math.random()*6).toFixed(1)+'px');
+      l.style.setProperty('--r0',tilt.toFixed(0)+'deg');
+      l.style.setProperty('--r1',(tilt-24+Math.random()*48).toFixed(0)+'deg');
+      l.style.setProperty('--r2',(tilt-75+Math.random()*150).toFixed(0)+'deg');
+      l.style.setProperty('--x1',(-14+Math.random()*28).toFixed(0)+'px');
+      l.style.setProperty('--y1',(-24-Math.random()*16).toFixed(0)+'px');
+      l.style.setProperty('--x2',(-42+Math.random()*84).toFixed(0)+'px');
+      l.style.setProperty('--y2',(-70-Math.random()*38).toFixed(0)+'px');
+      document.body.appendChild(l);
+      (function(el){ setTimeout(function(){ if (el.parentNode) el.parentNode.removeChild(el); },1700); })(l);
+    }
+  }
+
   /* ================= 主题切换（单个日/夜图标 + 加载动画） ================= */
   var toggle = document.getElementById('themeToggle');
   var loader = document.getElementById('loader');
@@ -731,6 +884,8 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
     document.body.dataset.theme = t;
     toggle.innerHTML = iconSVG(t!=='arcade');
     try { localStorage.setItem('gh-theme', t); } catch(e){}
+    if (t==='4399'){ startTree(); startLeaves(); startFireflies(); }
+    else { stopTree(); stopLeaves(); stopFireflies(); }
   }
   toggle.addEventListener('click', function(){
     var next = document.body.dataset.theme==='arcade' ? '4399' : 'arcade';

@@ -33,7 +33,7 @@ function parseMap(def) {
       if (c === TILE.MACH) E.machines.push({ x: px, y: py, tx: x, ty: y, progress: 0, max: 100, decoded: false, occupiedBy: null, ghost: 0, decoders: 0 });
       else if (c === TILE.CHAIR) E.chairs.push({ x: px, y: py, tx: x, ty: y, occupant: null, timer: 0, total: 55, broken: false });
       else if (c === TILE.GATE) E.gates.push({ x: px, y: py, tx: x, ty: y, progress: 0, powered: false, open: false, leverBy: null });
-      else if (c === TILE.PAL) E.pallets.push({ x: px, y: py, tx: x, ty: y, down: false, breakT: 0, stun: 0 });
+      else if (c === TILE.PAL) E.pallets.push({ x: px, y: py, tx: x, ty: y, down: false, used: false, destroyed: false, breakT: 0, breakDur: 1.8, axis: 'horizontal', stun: 0 });
       else if (c === TILE.WIN) E.windows.push({ x: px, y: py, tx: x, ty: y, cd: 0 });
       else if (c === TILE.SPAWN_S) E.spawns.push({ x: px, y: py });
       else if (c === TILE.SPAWN_H) E.hunterSpawn = { x: px, y: py };
@@ -41,6 +41,9 @@ function parseMap(def) {
   }
   for (var yy = 0; yy < rows.length; yy++) {
     while (grid[yy].length < cols) grid[yy].push(TILE.WALL);
+  }
+  for (var pi = 0; pi < E.pallets.length; pi++) {
+    E.pallets[pi].axis = palletChokepointAxis(grid, E.pallets[pi].tx, E.pallets[pi].ty) || 'horizontal';
   }
   return {
     name: def.name, en: def.en, desc: def.desc, vibe: def.vibe || {},
@@ -60,19 +63,19 @@ var MAP_CHAPEL = {
     "#......#.......#......#......#",
     "#...M..#....M..#......#..M...#",
     "#......#.......H......#......#",
-    "#............................#",
+    "#......P..............P......#",
     "#......#.......#......#......#",
     "#......#.......#......#......#",
     "#.R....#...R...#....R.#......#",
-    "########.###.###.##.###.######",
-    "#......#.P.....P......#......#",
+    "########P###.###.##.###P######",
+    "#......#..............#......#",
     "#......W...##..#..##..W......#",
-    "#....P.#...##..#..##..#.P....#",
+    "#......#...##..#..##..#......#",
     "#......#.......#......#......#",
     "##R.####.##R####.##.###.###R##",
     "#.G....#.......#......#....G.#",
-    "#............................#",
-    "#.##...#.P.....P......#..##..#",
+    "#......P..............P......#",
+    "#.##...#..............#..##..#",
     "#.##S..#.......#......#.S##..#",
     "#......#.......#......#......#",
     "#......#.....S.#......#......#",
@@ -92,20 +95,20 @@ var MAP_MANOR = {
     "#........#..##..H.....#........#",
     "#...M....#..##M.......#....M...#",
     "#........#............#........#",
-    "#..............................#",
+    "#........P............P........#",
     "#........#............#..##....#",
     "#.R......#....R.......#..##.R..#",
     "#........#............#........#",
-    "#....P...#............#...P....#",
-    "##########.##.####.####.###.####",
-    "#........#.P........P.#........#",
+    "#........#............#........#",
+    "##########P##.####.####P###.####",
+    "#........#............#........#",
     "#...##...W............W........#",
     "#...##...#............#........#",
     "#........#............#........#",
     "#####.####.##.####.####.########",
     "#........#............#........#",
-    "#..............................#",
-    "#.G......#.P........P.#...##.G.#",
+    "#........P............P........#",
+    "#.G......#............#...##.G.#",
     "#.....M..#......##....#...##...#",
     "#...S....#......##....#.....S..#",
     "#........#....S.......#........#",
@@ -124,20 +127,20 @@ var MAP_ASYLUM = {
     "#.......#......#......#.......#",
     "#..M....#...M..#......#....M..#",
     "#.......#......H......#.......#",
-    "#.............................#",
+    "#.......P.............P.......#",
     "#.......#......#......#.......#",
     "#.......W......#......W.......#",
     "#.......#......#......#.......#",
     "#.R.....#...R..#......#...R...#",
-    "#########.##.###.##.###.#######",
-    "#.......#.P....#....P.#.......#",
+    "#########P##.###.##.###P#######",
+    "#.......#......#......#.......#",
     "#.......#..##..#..##..#.......#",
-    "#....P..#..##..#..##..#..P....#",
+    "#.......#..##..#..##..#.......#",
     "#.G.....#......#......#.....G.#",
     "#####.###.######.##.###.#######",
     "#.......#......#......#.......#",
-    "#.............................#",
-    "#..##...#.P....#....P.#...##..#",
+    "#.......P.............P.......#",
+    "#..##...#......#......#...##..#",
     "#..##...#......#......#...##..#",
     "#..S....#......#......#....S..#",
     "#.......#......S......#.......#",
@@ -179,6 +182,17 @@ function mapConnectivity(map) {
   return { reachable: reachable, total: total, ok: reachable === total };
 }
 
+function palletChokepointAxis(grid, tx, ty) {
+  function solid(x, y) {
+    return y < 0 || x < 0 || y >= grid.length || x >= grid[y].length || tileSolid(grid[y][x]);
+  }
+  var openUp = !solid(tx, ty - 1), openDown = !solid(tx, ty + 1);
+  var openLeft = !solid(tx - 1, ty), openRight = !solid(tx + 1, ty);
+  if (solid(tx - 1, ty) && solid(tx + 1, ty) && openUp && openDown) return 'horizontal';
+  if (solid(tx, ty - 1) && solid(tx, ty + 1) && openLeft && openRight) return 'vertical';
+  return null;
+}
+
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { TILE: TILE, tileSolid: tileSolid, parseMap: parseMap, MAPS: MAPS, mapConnectivity: mapConnectivity };
+  module.exports = { TILE: TILE, tileSolid: tileSolid, parseMap: parseMap, MAPS: MAPS, mapConnectivity: mapConnectivity, palletChokepointAxis: palletChokepointAxis };
 }

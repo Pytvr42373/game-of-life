@@ -166,6 +166,16 @@ keyUp('w'); keyUp('d');
 // 15 秒对局
 check('对局 15s loop 仍在运行', pump(900, '对局15s'));
 
+// 隔离模拟期间的随机战况，避免干扰后续定向检查（擦刀/倒地/牵制等）
+game.hunter.ai.active = false;
+game.hunter.wipeT = 0; game.hunter.stunT = 0;
+if (game.hunter.carrying) { game.hunter.carrying.carriedBy = null; game.hunter.carrying = null; }
+game.player.hp = 2; game.player.channel = null; game.player.chair = null; game.player.carriedBy = null;
+for (const s of game.survivors) if (s !== game.player) { s.ai = null; s.hp = 2; s.x = 9999; s.y = 9999; s.channel = null; s.decoding = null; }
+game.player.decoding = null; game.player.channel = null;
+for (const m of game.machines) { m.occupiedBy = null; m.decoders = 0; }
+game.machines[0].decoded = false;
+
 // 修机：选一台未被 AI 占用且未解码的机器
 let m0 = null;
 for (let mi = 0; mi < game.machines.length; mi++) {
@@ -187,6 +197,7 @@ if (game.check) { game.pressCheck(); pump(10, '校准'); check('校准被处理'
 game.hunter.x = game.player.x + 20; game.hunter.y = game.player.y;
 game.hunter.dir = Math.atan2(game.player.y - game.hunter.y, game.player.x - game.hunter.x);
 game.hunter.atkCd = 0; game.hunter.stunT = 0; game.hunter.carrying = null; game.hunter.ai.active = false;
+game.hunter.wipeT = 0;
 game.hunterAttack(game.hunter);
 pump(10, '受击');
 check('玩家受伤 hp<2 或护盾', game.player.hp < 2, 'hp=' + game.player.hp);
@@ -249,7 +260,7 @@ game.hunter.dir = 0; game.hunter.atkCd = 0;
 hunterTarget.x = game.hunter.x + 20; hunterTarget.y = game.hunter.y;
 keyDown(' '); pump(2, '监管者攻击'); keyUp(' '); pump(1, '监管者攻击松键');
 check('监管者空格攻击生效', hunterTarget.hp === 1, 'hp=' + hunterTarget.hp);
-hunterTarget.hp = 0; game.hunter.carrying = null; game.hunter.atkCd = 0;
+hunterTarget.hp = 0; game.hunter.carrying = null; game.hunter.atkCd = 0; game.hunter.wipeT = 0;
 hunterTarget.x = game.hunter.x + 20; hunterTarget.y = game.hunter.y;
 keyDown('e'); pump(2, '监管者交互'); keyUp('e'); pump(1, '监管者交互松键');
 check('监管者 E 键牵制倒地者', game.hunter.carrying === hunterTarget);

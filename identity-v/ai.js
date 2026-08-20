@@ -23,6 +23,9 @@
     var game = this.game;
     var diff = (global.DIFF || {})[game.difficulty] || { chaseGiveup: 5, guardTime: 8 };
     if (h.stunT > 0) { h.moveX = 0; h.moveY = 0; return; }
+    if (h.breakingPallet) { h.moveX = 0; h.moveY = 0; return; }
+    if (h.wipeT > 0) { h.moveX = 0; h.moveY = 0; return; } // 擦刀期间原地不动
+    if (h.vaultT > 0) { h.moveX = 0; h.moveY = 0; return; } // 翻窗期间不动
     if (h.dashT > 0) { h.moveX = Math.cos(h.dashDir); h.moveY = Math.sin(h.dashDir); return; }
 
     /* 搬运中：找最近的空椅子 */
@@ -163,7 +166,7 @@
       for (var k = 0; k < g.gates.length; k++) candidates.push(g.gates[k]);
       var c = candidates[Math.floor(Math.random() * candidates.length)];
       if (c) {
-        h.path = g.pathTo(h.x, h.y, c.x, c.y);
+        h.path = g.pathTo(h.x, h.y, c.x, c.y, { win: true });
         h.pathIdx = 0;
       }
     }
@@ -177,25 +180,69 @@
   HunterAI.prototype.tryBreakPallet = function () {
     var g = this.game, h = this.h;
     var pal = g.nearDownPallet(h);
-    if (pal) g.breakPallet(h, pal);
+    if (pal) return g.breakPallet(h, pal);
+    return false;
+  };
+
+  HunterAI.prototype.nearestDownPallet = function () {
+    var g = this.game, h = this.h, best = null, bd = 1e9;
+    for (var i = 0; i < g.pallets.length; i++) {
+      var p = g.pallets[i];
+      if (!p.down || p.destroyed) continue;
+      var d = dist(h.x, h.y, p.x, p.y);
+      if (d < bd) { bd = d; best = p; }
+    }
+    return best;
+  };
+
+  HunterAI.prototype.pathToPallet = function (p) {
+    var g = this.game, ts = g.ts;
+    var dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+    var best = [];
+    for (var i = 0; i < dirs.length; i++) {
+      var tx = p.tx + dirs[i][0], ty = p.ty + dirs[i][1];
+      if (g.tileIsSolid(tx, ty) || g.tileIsDownPallet(tx, ty)) continue;
+      var path = g.pathTo(this.h.x, this.h.y, tx * ts + ts / 2, ty * ts + ts / 2);
+      if (path.length && (!best.length || path.length < best.length)) best = path;
+    }
+    return best;
   };
 
   HunterAI.prototype.moveToward = function (h, tx, ty, dt) {
     this.repathT -= dt;
     if (!h.path || h.path.length === 0 || this.repathT <= 0) {
       this.repathT = 0.45;
-      h.path = this.game.pathTo(h.x, h.y, tx, ty);
+      h.path = this.game.pathTo(h.x, h.y, tx, ty, { win: true });
       h.pathIdx = 0;
+      if (!h.path.length) {
+        var pallet = this.nearestDownPallet();
+        if (pallet) h.path = this.pathToPallet(pallet);
+      }
     }
     this.followPath(h, dt);
     // 若路径到头且还没到目标，重新寻路
     if (h.path && h.path.length === 0 && dist(h.x, h.y, tx, ty) > 30) {
-      h.path = this.game.pathTo(h.x, h.y, tx, ty);
+      h.path = this.game.pathTo(h.x, h.y, tx, ty, { win: true });
+      if (!h.path.length) {
+        var block = this.nearestDownPallet();
+        if (block) h.path = this.pathToPallet(block);
+      }
     }
   };
 
   HunterAI.prototype.followPath = function (h, dt) {
     if (!h.path || h.path.length === 0) { h.moveX = 0; h.moveY = 0; return; }
+    // 翻越落地后：跳过已跨过的窗/倒板节点，避免回头再翻
+    if (h.vaultT > 0) {
+      var g = this.game;
+      while (h.path.length) {
+        var w0 = h.path[0];
+        var wx = Math.floor(w0.x / g.ts), wy = Math.floor(w0.y / g.ts);
+        if (g.tileAt(w0.x, w0.y) === global.TILE.WIN || g.tileIsDownPallet(wx, wy)) h.path.shift();
+        else break;
+      }
+      if (!h.path.length) { h.moveX = 0; h.moveY = 0; return; }
+    }
     var w = h.path[0];
     if (dist(h.x, h.y, w.x, w.y) < 12) { h.path.shift(); if (!h.path.length) { h.moveX = 0; h.moveY = 0; return; } w = h.path[0]; }
     var dx = w.x - h.x, dy = w.y - h.y;
@@ -216,6 +263,11 @@
     var game = this.game;
     if (!s.alive || s.escaped) { s.moveX = 0; s.moveY = 0; return; }
     if (s.carriedBy || s.chair) { s.moveX = 0; s.moveY = 0; return; }
+
+    if (s.channel && (s.channel.type === 'rescue' || s.channel.type === 'revive')) {
+      s.moveX = 0; s.moveY = 0;
+      return;
+    }
 
     var h = game.hunter;
     var d = dist(s.x, s.y, h.x, h.y);
@@ -258,13 +310,6 @@
     var rescueTarget = this.findRescueTarget(s);
     if (rescueTarget && d < 620 && s.dangerT <= 0) {
       this.goToAction(s, rescueTarget, dt);
-      return;
-    }
-
-    /* 治疗 */
-    if (s.hp === 1 && d > 340) {
-      if (!s.channel) game.startChannel(s, { type: 'heal_self', progress: 0, dur: 6 / s.stats.selfHeal });
-      s.moveX = 0; s.moveY = 0;
       return;
     }
 
@@ -354,8 +399,9 @@
           this.game.startChannel(s, { type: 'rescue', target: t.target, progress: 0, dur: 1.8 });
         }
       } else if (t.kind === 'down') {
-        if (t.target.hp === 0 && (!s.channel || s.channel.type.indexOf('heal_other') !== 0)) {
-          this.game.startChannel(s, { type: 'heal_other', target: t.target, progress: 0, dur: 4 / s.stats.heal });
+        if (t.target.hp === 0 && (!s.channel || s.channel.type !== 'revive')) {
+          this.game.startChannel(s, { type: 'revive', target: t.target, progress: 0, dur: 4 / s.stats.heal });
+          s.moveX = 0; s.moveY = 0;
         }
       }
     }
@@ -365,13 +411,24 @@
     this.repathT -= dt;
     if (!s.path || s.path.length === 0 || this.repathT <= 0) {
       this.repathT = 0.8;
-      s.path = this.game.pathTo(s.x, s.y, tx, ty);
+      s.path = this.game.pathTo(s.x, s.y, tx, ty, { win: true, pal: true });
     }
     this.followPath(s);
   };
 
   SurvivorAI.prototype.followPath = function (s) {
     if (!s.path || s.path.length === 0) { s.moveX = 0; s.moveY = 0; return; }
+    // 翻越落地后：跳过已跨过的窗/倒板节点，避免回头再翻
+    if (s.vaultT > 0) {
+      var g = this.game;
+      while (s.path.length) {
+        var w0 = s.path[0];
+        var wx = Math.floor(w0.x / g.ts), wy = Math.floor(w0.y / g.ts);
+        if (g.tileAt(w0.x, w0.y) === global.TILE.WIN || g.tileIsDownPallet(wx, wy)) s.path.shift();
+        else break;
+      }
+      if (!s.path.length) { s.moveX = 0; s.moveY = 0; return; }
+    }
     var w = s.path[0];
     if (dist(s.x, s.y, w.x, w.y) < 10) { s.path.shift(); if (!s.path.length) { s.moveX = 0; s.moveY = 0; return; } w = s.path[0]; }
     var dx = w.x - s.x, dy = w.y - s.y;
@@ -388,7 +445,7 @@
         var ang = (i / 12) * Math.PI * 2 + Math.random() * 0.6;
         var tx = s.x + Math.cos(ang) * 260;
         var ty = s.y + Math.sin(ang) * 260;
-        var path = this.game.pathTo(s.x, s.y, tx, ty);
+        var path = this.game.pathTo(s.x, s.y, tx, ty, { win: true, pal: true });
         if (!path || path.length < 3) continue;
         var end = path[path.length - 1];
         var score = dist(end.x, end.y, h.x, h.y) - path.length * 7;

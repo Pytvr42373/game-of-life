@@ -18,6 +18,8 @@ button{color:inherit}
 
 .back-home{position:fixed;top:14px;left:14px;z-index:90;text-decoration:none;font-size:clamp(13px,1.7vmin,16px);font-weight:800;color:var(--text);padding:10px 17px;border:1px solid var(--line);border-radius:999px;background:var(--panel);backdrop-filter:blur(10px);box-shadow:0 5px 18px var(--shadow);transition:transform .18s}
 .back-home:hover{transform:translateY(-2px)}
+body.playing .back-home{display:none}
+body.playing .theme-switch{display:none}
 .theme-switch{position:fixed;right:16px;bottom:16px;z-index:95;width:clamp(46px,5.5vmin,54px);height:clamp(46px,5.5vmin,54px);border-radius:50%;border:1px solid var(--line-strong);background:var(--panel);color:var(--accent);display:grid;place-items:center;cursor:pointer;box-shadow:0 5px 18px var(--shadow);backdrop-filter:blur(10px);transition:transform .18s}
 .theme-switch:hover{transform:scale(1.07)}
 .theme-switch:active{transform:scale(.95)}
@@ -84,7 +86,7 @@ body[data-theme="4399"] .overlay-box{border-radius:18px}
 .touch-controls{display:none;position:fixed;inset:0;z-index:20;pointer-events:none;touch-action:none}.stick-zone{position:absolute;left:22px;bottom:42px;width:112px;height:112px;border-radius:50%;border:1px solid var(--line-strong);background:rgba(20,45,50,.16);pointer-events:auto}.stick-zone::before{content:'';position:absolute;inset:20px;border:1px dashed var(--line-strong);border-radius:50%}.stick-zone i{position:absolute;left:50%;top:50%;width:44px;height:44px;border-radius:50%;background:var(--accent);opacity:.72;transform:translate(-50%,-50%)}
 .dash-btn{position:absolute;right:24px;bottom:58px;width:68px;height:68px;border-radius:50%;border:2px solid var(--warn);background:var(--panel);color:var(--warn);font-size:12px;font-weight:900;pointer-events:auto}.dash-btn.cooling{opacity:.55}
 
-@media (pointer:coarse){body.playing .touch-controls{display:block}.theme-switch{bottom:146px}.back-home{display:none}}
+@media (pointer:coarse){body.playing .touch-controls{display:block}.theme-switch{bottom:146px}}
 @media (max-width:700px){
   .screen{padding:64px 12px 18px}.menu-shell{padding:24px 16px 20px}.protocol-mark{width:58px;height:58px}.lead{font-size:13px;margin:14px auto 18px}.briefing{grid-template-columns:repeat(2,1fr);margin:18px 0 14px}.records strong{font-size:17px}
   .hud{padding:8px}.hud-left,.hud-time,.hud-right{top:8px}.hud-left{left:8px;width:138px;padding:7px}.hud-time{min-width:86px;padding:6px}.hud-time strong{font-size:17px}.hud-time span{letter-spacing:1px}.hud-right{right:8px;padding:5px;gap:7px}.hud-right span{display:none}.boss-hud{top:57px}.xp-wrap{left:8px;right:8px;bottom:6px}

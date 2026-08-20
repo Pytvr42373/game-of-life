@@ -216,19 +216,19 @@
         });
       }
     };
-    Game.prototype.themeIcon = function (arcade) {
-      if (arcade) {
-        return '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M12 12 L21 6 A10 10 0 1 0 21 18 Z"/><circle cx="13.5" cy="7.5" r="1.1" fill="#ffffff"/></svg>';
+    Game.prototype.themeIcon = function (target) {
+      if (target === 'arcade') {
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 2.5 7.5 4.3v8.4L12 19.5l-7.5-4.3V6.8z"/><path d="M8.5 9.2 12 7.3l3.5 1.9v4L12 15l-3.5-1.8z"/><path d="M3 8H1.8v3M21 8h1.2v3M8.5 21.5h7"/></svg>';
       }
-      return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3C9.8 3 8 4.8 8 7c0 .6.1 1.2.4 1.7C6.5 9.4 5.2 11 5.2 13c0 2.2 1.8 4 4 4h5.6c2.2 0 4-1.8 4-4 0-2-1.3-3.6-3.2-4.3.3-.5.4-1.1.4-1.7 0-2.2-1.8-4-4-4z"/><path d="M12 17v4"/><path d="M12 21l-3 2M12 21l3 2"/></svg>';
+      return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6.5" cy="6.5" r="2.5"/><path d="M3 14h10.5c2 0 2-3 0-3-1 0-1.7.5-2 1.2M3 18h14c2.3 0 2.3-3.5 0-3.5-1.1 0-1.9.5-2.3 1.3"/><path d="M16.5 4.5c2.8.2 4.2 1.6 4.5 4.5-2.9-.2-4.3-1.6-4.5-4.5Z"/></svg>';
     };
     Game.prototype.applyTheme = function (theme, persist) {
       this.doc.body.dataset.theme = theme;
       if (persist !== false) { try { localStorage.setItem('gh-theme', theme); } catch (e) {} }
       if (this.themeEl) {
         var target = theme === 'arcade' ? '4399' : 'arcade';
-        this.themeEl.innerHTML = this.themeIcon(target === 'arcade');
-        var label = target === 'arcade' ? '切换到街机主题' : '切换到清新主题';
+        this.themeEl.innerHTML = this.themeIcon(target);
+        var label = target === 'arcade' ? '切换到未来机甲主题' : '切换到清新主题';
         this.themeEl.setAttribute('aria-label', label);
         this.themeEl.title = label;
       }

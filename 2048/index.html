@@ -46,6 +46,7 @@ body[data-theme="4399"]::before{
 }
 .back-home{position:fixed;left:16px;top:16px;z-index:30;display:inline-block;padding:9px 16px;border-radius:999px;text-decoration:none;font-size:13px;font-weight:700;color:var(--text);background:var(--surface);border:1px solid var(--line);transition:transform .2s,box-shadow .2s}
 .back-home:hover{color:var(--orange);transform:translateY(-2px)}
+body[data-theme="4399"] .back-home{background:rgba(255,255,255,.68);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 3px 12px rgba(56,153,4,.14)}
 body[data-theme="arcade"] .back-home{font-family:'Press Start 2P',monospace;font-size:9px;padding:10px 14px;border-radius:0;border:2px solid var(--cyan);box-shadow:3px 3px 0 var(--hard),0 0 12px rgba(61,225,255,.25);color:var(--cyan)}
 body[data-theme="arcade"] .back-home:hover{color:#fff;background:var(--cyan);box-shadow:3px 3px 0 var(--hard),0 0 22px rgba(61,225,255,.6)}
 .theme-switch{position:fixed;right:16px;bottom:16px;z-index:50;width:46px;height:46px;padding:0;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#16a34a;background:rgba(255,255,255,.92);border:1px solid rgba(34,197,94,.4);box-shadow:0 3px 14px rgba(34,197,94,.2);backdrop-filter:blur(8px);transition:transform 180ms ease,background 180ms ease}
@@ -54,15 +55,20 @@ body[data-theme="arcade"] .theme-switch{color:#7ff3ff;background:rgba(10,10,24,.
 .wrap{position:relative;z-index:1;max-width:520px;width:100%;padding:70px 16px 90px;display:flex;flex-direction:column;align-items:center}
 .topbar{width:100%;display:flex;justify-content:center;margin-bottom:4px}
 .badge{font-size:11px;font-weight:700;color:var(--dim);letter-spacing:3px}
+body[data-theme="4399"] .badge{background:rgba(255,255,255,.65);border:1px solid rgba(88,137,67,.25);border-radius:999px;padding:4px 14px;color:var(--green2);backdrop-filter:blur(6px);letter-spacing:2px}
 body[data-theme="arcade"] .badge{font-family:'Press Start 2P',monospace;font-size:8px;letter-spacing:2px;color:var(--pink);text-shadow:0 0 8px rgba(255,45,120,.5)}
 h1.title{font-size:40px;font-weight:900;color:var(--text);margin:4px 0 6px;letter-spacing:2px}
-body[data-theme="4399"] h1.title{color:var(--green);text-shadow:0 3px 0 rgba(56,153,4,.14)}
+body[data-theme="4399"] h1.title{
+  background:linear-gradient(135deg,#2c7c05 0%,#54a02a 55%,#fb6400 125%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 2px 0 rgba(56,153,4,.16));
+}
 body[data-theme="arcade"] h1.title{font-family:'Press Start 2P',monospace;font-size:28px;color:var(--yellow);letter-spacing:2px;text-shadow:0 0 16px var(--yellow),3px 3px 0 var(--hard),0 0 34px rgba(255,225,77,.5)}
 .sub{font-size:12px;color:var(--dim);letter-spacing:1px;margin-bottom:16px}
 body[data-theme="arcade"] .sub{font-family:'Press Start 2P',monospace;font-size:8px;color:var(--cyan);text-shadow:0 0 8px rgba(61,225,255,.4)}
 .hud{width:100%;display:flex;justify-content:center;gap:12px;margin-bottom:14px}
 .hud .card{flex:1;max-width:130px;text-align:center;background:var(--panel);border:1px solid var(--panel-line);border-radius:10px;padding:10px 8px;backdrop-filter:blur(6px)}
-body[data-theme="4399"] .hud .card{box-shadow:0 6px 18px rgba(56,153,4,.08)}
+body[data-theme="4399"] .hud .card{box-shadow:0 6px 18px rgba(56,153,4,.08),inset 0 1px 0 rgba(255,255,255,.9)}
 body[data-theme="arcade"] .hud .card{border-radius:0;border:2px solid var(--line);box-shadow:3px 3px 0 var(--hard),inset 0 0 18px rgba(61,225,255,.05)}
 .hud .label{font-size:10px;font-weight:700;color:var(--dim);letter-spacing:2px;margin-bottom:4px}
 body[data-theme="arcade"] .hud .label{font-family:'Press Start 2P',monospace;font-size:7px}
@@ -91,28 +97,47 @@ body[data-theme="arcade"] .tile{border-radius:0;border:2px solid rgba(0,0,0,.35)
   92%{opacity:.88;filter:brightness(.94)}
 }
 body[data-theme="arcade"] .tile{animation:ledFlicker 7s infinite}
-/* ===== 4399 世界树 · 树叶/树枝特效 ===== */
-.leaf-layer{position:fixed;inset:0;z-index:3;pointer-events:none;overflow:hidden}
-body[data-theme="4399"] .leaf-layer .leaf{
-  position:absolute;top:-36px;opacity:0;width:16px;height:20px;
-  background:radial-gradient(circle at 30% 28%,#a9e06e,#54a02a 62%,#3d7d1d);
-  border-radius:70% 18% 70% 24%;box-shadow:0 2px 4px rgba(31,74,23,.18);
-  animation:leafFall linear infinite;
+/* ===== 4399 世界树 · 叶脉微风 ===== */
+.leaf-layer{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.world-leaf{--leaf-face:#6fa647;--leaf-edge:#3f6e31;--leaf-vein:#315f2a;--leaf-light:rgba(245,255,226,.8);position:fixed;width:var(--leaf-size,18px);aspect-ratio:14/19;opacity:0;pointer-events:none;color:var(--leaf-face);transform-origin:50% 82%}
+.world-leaf.leaf--sage{--leaf-face:#88aa68;--leaf-edge:#527542;--leaf-vein:#46693b}
+.world-leaf.leaf--amber{--leaf-face:#aaa052;--leaf-edge:#706c38;--leaf-vein:#625f32;--leaf-light:rgba(255,248,201,.72)}
+.world-leaf svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 2px 1px rgba(31,69,27,.18))}
+.world-leaf .leaf-shape{fill:currentColor;stroke:var(--leaf-edge);stroke-width:1;vector-effect:non-scaling-stroke}
+.world-leaf .leaf-glint{fill:none;stroke:var(--leaf-light);stroke-width:1.15;stroke-linecap:round;opacity:.72;vector-effect:non-scaling-stroke}
+.world-leaf .leaf-vein{fill:none;stroke:var(--leaf-vein);stroke-width:.9;stroke-linecap:round;stroke-linejoin:round;opacity:.72;vector-effect:non-scaling-stroke}
+body[data-theme="4399"] .leaf-layer .world-leaf{animation:leafDrift 16s cubic-bezier(.42,0,.58,1) infinite}
+@keyframes leafDrift{
+  0%{opacity:0;transform:translate3d(0,-8px,0) rotate(var(--r0,-12deg)) scale(var(--leaf-scale,.9))}
+  9%{opacity:.58}
+  27%{transform:translate3d(var(--x1,-24px),var(--y1,18vh),0) rotate(var(--r1,42deg)) scale(var(--leaf-scale,.9))}
+  52%{transform:translate3d(var(--x2,-8px),var(--y2,44vh),0) rotate(var(--r2,-18deg)) scale(var(--leaf-scale,.9))}
+  78%{opacity:.48;transform:translate3d(var(--x3,-72px),var(--y3,72vh),0) rotate(var(--r3,78deg)) scale(var(--leaf-scale,.9))}
+  100%{opacity:0;transform:translate3d(var(--x4,-110px),var(--y4,108vh),0) rotate(var(--r4,150deg)) scale(var(--leaf-scale,.9))}
 }
-@keyframes leafFall{
-  0%{opacity:0;transform:translate3d(0,0,0) rotate(0deg) scale(1)}
-  8%{opacity:.6}
-  90%{opacity:.5}
-  100%{opacity:0;transform:translate3d(var(--drift,20px),var(--fall,100vh),0) rotate(250deg)}
+body[data-theme="4399"] .world-leaf.leaf-lift{z-index:26;animation:leafLift 1.2s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes leafLift{
+  0%{opacity:0;transform:translate3d(0,7px,0) rotate(var(--r0,-18deg)) scale(.5)}
+  18%{opacity:.86}
+  48%{opacity:.74;transform:translate3d(var(--x1,8px),var(--y1,-28px),0) rotate(var(--r1,25deg)) scale(.78)}
+  100%{opacity:0;transform:translate3d(var(--x2,28px),var(--y2,-82px),0) rotate(var(--r2,72deg)) scale(.96)}
 }
-.leaf.burst{position:fixed;z-index:26;top:0;left:0;width:15px;height:18px;opacity:0;
-  background:radial-gradient(circle at 30% 28%,#a9e06e,#54a02a 62%,#3d7d1d);
-  border-radius:70% 18% 70% 24%;pointer-events:none;box-shadow:0 2px 4px rgba(31,74,23,.2);
-  animation:leafBurst ease-out forwards}
-@keyframes leafBurst{
-  0%{opacity:0;transform:translate(0,0) scale(.4) rotate(0deg)}
-  18%{opacity:.95}
-  100%{opacity:0;transform:translate(var(--drift,30px),var(--fall,40px)) scale(1.15) rotate(200deg)}
+
+/* ===== 4399 世界树 · 环境装饰（树影 + 萤火虫） ===== */
+.decor-tree{position:fixed;right:-34px;top:-16px;z-index:0;pointer-events:none;opacity:.1;display:none}
+body[data-theme="4399"] .decor-tree{display:block}
+.decor-tree svg{display:block}
+.firefly-layer{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;display:none}
+body[data-theme="4399"] .firefly-layer{display:block}
+.firefly-layer i{position:absolute;bottom:-14px;width:6px;height:6px;border-radius:50%;opacity:0;
+  background:radial-gradient(circle,rgba(220,255,130,.95) 0%,rgba(190,255,90,.4) 45%,rgba(190,255,90,0) 72%);
+  box-shadow:0 0 10px 3px rgba(190,255,90,.35);
+  animation:fireflyUp linear infinite}
+@keyframes fireflyUp{
+  0%{opacity:0;transform:translate3d(0,0,0) scale(.6)}
+  10%{opacity:.9}
+  70%{opacity:.55}
+  100%{opacity:0;transform:translate3d(var(--fx,20px),calc(-1*var(--fh,80vh)),0) scale(1)}
 }
 
 /* 4399 配色 */
@@ -153,7 +178,7 @@ body[data-theme="arcade"] .btn:active{transform:translate(3px,3px);box-shadow:1p
 body[data-theme="arcade"] .controls{font-size:11px}
 .controls b{color:var(--text)}
 body[data-theme="arcade"] .controls b{color:var(--cyan);text-shadow:0 0 6px rgba(61,225,255,.5)}
-/* ============ 虚拟方向键（吃豆人风格） ============ */
+/* ============ 虚拟方向键（双主题） ============ */
 .dpad{position:fixed;left:16px;top:66%;transform:translateY(-50%);z-index:45;display:grid;grid-template-columns:repeat(3,40px);grid-template-rows:repeat(3,40px);gap:4px;padding:11px;touch-action:none;user-select:none;-webkit-user-select:none}
 /* 街机烤漆控制台 */
 body[data-theme="arcade"] .dpad{
@@ -172,31 +197,19 @@ body[data-theme="arcade"] .dpad button{width:40px;height:40px;color:#fff8df;back
 body[data-theme="arcade"] .dpad button:hover{color:#fff;filter:brightness(1.1);box-shadow:0 5px 0 #580729,0 9px 12px rgba(3,25,58,.54),inset 0 2px 2px rgba(255,255,255,.5),inset 0 -4px 5px rgba(80,0,33,.3);transform:translateY(-1px)}
 body[data-theme="arcade"] .dpad button:active{color:#fff;filter:brightness(.96);transform:translateY(4px);box-shadow:0 1px 0 #580729,0 2px 4px rgba(3,25,58,.45),inset 0 3px 6px rgba(80,0,33,.35)}
 body[data-theme="arcade"] .dpad .dpad-center{width:30px;height:30px;align-self:center;justify-self:center;border:3px solid #d9e6ed;border-radius:50%;background:radial-gradient(circle at 34% 27%,#fff8bd 0 7%,#ffe14d 9% 38%,#e99a20 58%,#8b480f 78%,#4d2a0a 100%);box-shadow:0 3px 0 #6d380b,0 5px 7px rgba(3,25,58,.38),inset 0 2px 2px rgba(255,255,255,.48)}
-/* 4399 清新绿玻璃 */
-/* 4399 世界树主题：木制写实摇杆（参考 Skeuomorphism 木纹实现：暖棕底+水平木纹+光照渐变+深度阴影） */
-body[data-theme="4399"] .dpad{background:
-  repeating-linear-gradient(92deg,rgba(80,44,12,.14) 0 2px,rgba(255,214,150,.06) 2px 5px,rgba(80,44,12,.1) 5px 9px),
-  repeating-linear-gradient(88deg,rgba(60,30,8,.18) 0 1px,transparent 1px 12px),
-  linear-gradient(150deg,#b0763a,#8a5527 45%,#6f3f1e);
-  border:2px solid #5d3517;border-radius:14px;
-  box-shadow:0 10px 26px rgba(60,30,8,.45),inset 0 2px 3px rgba(255,220,160,.4),inset 0 -3px 6px rgba(40,18,4,.4);
-  backdrop-filter:none}
-body[data-theme="4399"] .dpad::before{content:'';position:absolute;inset:4px;border-radius:10px;pointer-events:none;
-  background:repeating-linear-gradient(180deg,rgba(255,230,180,.08) 0 1px,transparent 1px 6px);
-  box-shadow:inset 0 1px 1px rgba(255,240,200,.35)}
-body[data-theme="4399"] .dpad button{width:40px;height:40px;color:#4a2a10;font-weight:900;
-  background:
-    repeating-linear-gradient(92deg,rgba(90,50,14,.12) 0 2px,rgba(255,200,130,.08) 2px 5px),
-    linear-gradient(150deg,#d0924f,#a4652e 60%,#8a5020);
-  border:2px solid #6b3a17;border-radius:11px;
-  box-shadow:0 3px 0 #5a2f12,0 6px 10px rgba(50,22,6,.4),inset 0 1px 2px rgba(255,225,170,.55),inset 0 -2px 3px rgba(50,22,6,.4);
-  text-shadow:0 1px 0 rgba(255,220,160,.5)}
-body[data-theme="4399"] .dpad button:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 4px 0 #5a2f12,0 7px 12px rgba(50,22,6,.42),inset 0 1px 2px rgba(255,225,170,.55),inset 0 -2px 3px rgba(50,22,6,.4)}
-body[data-theme="4399"] .dpad button:active{transform:translateY(3px);filter:brightness(.92);box-shadow:0 1px 0 #5a2f12,inset 0 2px 5px rgba(30,12,3,.55)}
-body[data-theme="4399"] .dpad .dpad-center{background:
-  radial-gradient(circle at 32% 30%,#8a5a2c,#5d3517 70%);
-  border:2px solid #4a2a10;border-radius:50%;
-  box-shadow:inset 0 2px 4px rgba(30,12,3,.5),inset 0 -1px 2px rgba(255,220,160,.35)}
+/* 4399 世界树主题：年轮木章与苔玉方向键 */
+body[data-theme="4399"] .dpad{isolation:isolate;background:
+  radial-gradient(circle at 30% 22%,rgba(255,255,255,.62),transparent 25%),
+  repeating-radial-gradient(circle at 52% 49%,transparent 0 15px,rgba(93,67,32,.08) 16px 17px),
+  linear-gradient(145deg,#eadbad 0%,#cfad70 54%,#ab7a40 100%);
+  border:2px solid #8b673b;border-radius:50%;
+  box-shadow:0 5px 0 #73502c,0 13px 28px rgba(61,48,27,.26),inset 0 2px 1px rgba(255,250,220,.72),inset 0 -3px 5px rgba(86,54,24,.22)}
+body[data-theme="4399"] .dpad::before{content:'';position:absolute;inset:7px;border:1px solid rgba(82,70,39,.32);border-radius:50%;pointer-events:none;background:radial-gradient(circle,transparent 0 48px,rgba(80,68,37,.12) 49px 50px,transparent 51px);box-shadow:inset 0 1px 0 rgba(255,249,214,.55)}
+body[data-theme="4399"] .dpad::after{content:'';position:absolute;inset:5px;border-radius:50%;pointer-events:none;opacity:.65;background:radial-gradient(circle at 50% 3px,#617d45 0 1.5px,transparent 2px),radial-gradient(circle at calc(100% - 3px) 50%,#617d45 0 1.5px,transparent 2px),radial-gradient(circle at 50% calc(100% - 3px),#617d45 0 1.5px,transparent 2px),radial-gradient(circle at 3px 50%,#617d45 0 1.5px,transparent 2px)}
+body[data-theme="4399"] .dpad button{position:relative;z-index:1;width:40px;height:40px;color:#31572a;font-weight:900;background:radial-gradient(circle at 31% 23%,rgba(255,255,255,.9) 0 7%,transparent 8%),linear-gradient(145deg,#edf6e5 0%,#c7ddb5 58%,#91b277 100%);border:1px solid #6f9257;border-radius:50%;box-shadow:0 3px 0 #647d4f,0 6px 10px rgba(52,75,40,.21),inset 0 1px 1px rgba(255,255,255,.84),inset 0 -2px 3px rgba(64,99,49,.17);text-shadow:0 1px 0 rgba(255,255,255,.68)}
+body[data-theme="4399"] .dpad button:hover{transform:translateY(-1px);background:radial-gradient(circle at 31% 23%,#fff 0 8%,transparent 9%),linear-gradient(145deg,#f4faed 0%,#d3e7c2 58%,#9dbc85 100%);box-shadow:0 4px 0 #647d4f,0 8px 13px rgba(52,75,40,.24),inset 0 1px 1px rgba(255,255,255,.9)}
+body[data-theme="4399"] .dpad button:active{transform:translateY(3px);box-shadow:0 1px 0 #647d4f,0 2px 4px rgba(52,75,40,.18),inset 0 2px 4px rgba(58,88,46,.2)}
+body[data-theme="4399"] .dpad .dpad-center{position:relative;z-index:2;width:34px;height:34px;align-self:center;justify-self:center;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 34% 27%,#5f8748,#31582d 72%);border:2px solid #dfcf9d;border-radius:50%;box-shadow:0 2px 0 #76603d,0 4px 8px rgba(52,53,29,.22),inset 0 1px 1px rgba(255,255,255,.28)}
 .dpad button{display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer;transition:transform .1s ease}
 .dpad button[data-dir="0"]{grid-column:2;grid-row:1}
 .dpad button[data-dir="1"]{grid-column:1;grid-row:2}
@@ -205,7 +218,9 @@ body[data-theme="4399"] .dpad .dpad-center{background:
 .dpad button[data-dir="2"]{grid-column:2;grid-row:3}
 .dpad svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
 body[data-theme="arcade"] .dpad svg{filter:drop-shadow(0 1px 0 rgba(84,5,39,.7))}
-body[data-theme="4399"] .dpad svg{filter:drop-shadow(0 1px 0 rgba(255,220,160,.5))}
+body[data-theme="4399"] .dpad button svg{filter:drop-shadow(0 1px 0 rgba(255,255,255,.65))}
+.dpad .dpad-tree{display:none}
+body[data-theme="4399"] .dpad .dpad-tree{display:block;width:21px;height:21px;stroke:#f1e7bd;stroke-width:1.55;filter:drop-shadow(0 1px 0 rgba(23,55,25,.45))}
 .dpad button:focus-visible{outline:2px solid var(--focus,var(--cyan));outline-offset:2px}
 .modal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.62);backdrop-filter:blur(3px)}
 .modal.show{display:flex}
@@ -244,7 +259,7 @@ body[data-theme="arcade"] .modal p{font-family:'Press Start 2P',monospace;font-s
   <div class="dpad" role="group" aria-label="移动方向">
     <button type="button" data-dir="0" aria-label="向上移动"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 15 7-7 7 7"/></svg></button>
     <button type="button" data-dir="1" aria-label="向左移动"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button>
-    <span class="dpad-center" aria-hidden="true"></span>
+    <span class="dpad-center" aria-hidden="true"><svg class="dpad-tree" viewBox="0 0 24 24"><path d="M12 20V9M12 12C8.5 12 6 9.8 6 6.4c3.5-.2 6 1.7 6 5.1M12 13c3.5 0 6-2.2 6-5.6-3.5-.2-6 1.7-6 5.1M12 20l-4 2m4-2 4 2m-4-2v3"/></svg></span>
     <button type="button" data-dir="3" aria-label="向右移动"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
     <button type="button" data-dir="2" aria-label="向下移动"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 9 7 7 7-7"/></svg></button>
   </div>
@@ -365,8 +380,8 @@ function move(dir){
   for(var m=0;m<mergedIds.length;m++){
     if(tileEls[mergedIds[m]]) tileEls[mergedIds[m]].classList.add('tile-merged');
   }
-  // 4399：合并时飘落绿叶
-  if(mergedIds.length) burstLeaves(mergedIds.length*2+1);
+  // 4399：合并时以少量叶片回应
+  if(mergedIds.length) burstLeaves(mergedIds.length);
 
   /* ---- 动画阶段二：滑动结束后移除被合并块并生成新块 ---- */
   setTimeout(function(){
@@ -473,20 +488,67 @@ function showModal(){ modal.classList.add('show'); modal.hidden=false; }
 function hideModal(){ modal.classList.remove('show'); modal.hidden=true; }
 function newGame(){ resetGrid(); tiles=[]; score=0; over=false; won=false; scoreEl.textContent='0'; hideModal(); spawn(); spawn(); syncAll(true); }
 
-/* ===================== 4399 世界树 · 树叶粒子 ===================== */
+/* ===================== 4399 世界树 · 环境装饰（树影/叶脉微风/萤火虫） ===================== */
+function reducedMotion(){ try{ return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){ return false; } }
+var treeEl=null, fireflyLayer=null;
+function treeSVG(){
+  return '<svg viewBox="0 0 200 240" width="300" height="360" aria-hidden="true">'
+    +'<path d="M92 224c-10 8-24 10-34 7M108 224c10 8 24 10 34 7M100 224c0 7 1 11 0 16" stroke="#7a5230" stroke-width="6" stroke-linecap="round" fill="none"/>'
+    +'<path d="M91 224 C88 172 93 152 100 126 C107 152 112 172 109 224 Z" fill="#7a5230"/>'
+    +'<circle cx="100" cy="62" r="47" fill="#57a832"/>'
+    +'<circle cx="60" cy="92" r="35" fill="#57a832"/>'
+    +'<circle cx="140" cy="92" r="35" fill="#57a832"/>'
+    +'<circle cx="80" cy="122" r="31" fill="#5cb43c"/>'
+    +'<circle cx="120" cy="122" r="31" fill="#5cb43c"/>'
+    +'<circle cx="100" cy="44" r="31" fill="#4f9c2e"/>'
+    +'</svg>';
+}
+function startTree(){
+  if(treeEl) return;
+  treeEl=document.createElement('div');
+  treeEl.className='decor-tree';
+  treeEl.innerHTML=treeSVG();
+  document.body.appendChild(treeEl);
+}
+function stopTree(){ if(treeEl){ if(treeEl.parentNode) treeEl.parentNode.removeChild(treeEl); treeEl=null; } }
+function leafSVG(){
+  return '<svg viewBox="0 0 28 38" aria-hidden="true"><path class="leaf-shape" d="M14.4 2.5c6.4 2.6 11 8.2 10.4 14.8-.8 8-7.1 14.2-17.6 16.8 1-6.3-3.1-10.1-3-16.3.1-6.9 4.1-12.2 10.2-15.3Z"/><path class="leaf-glint" d="M13.3 6.2c-3.9 2.9-5.8 7-5.7 11.6"/><path class="leaf-vein" d="M7.1 35.6c3.8-8 6.4-15.6 7.7-28.2M11.7 24.6l-4.3-4M13.1 19.2l5.4-4.4M10.1 29.7l-2.7-2.4"/></svg>';
+}
+function createLeaf(extraClass){
+  var l=document.createElement('span');
+  var tone=Math.random()<.18?'leaf--amber':(Math.random()<.42?'leaf--sage':'leaf--fern');
+  l.className='world-leaf '+tone+(extraClass?' '+extraClass:'');
+  l.innerHTML=leafSVG();
+  return l;
+}
 function startLeaves(){
-  if(leafLayer) return;
+  if(leafLayer||reducedMotion()) return;
   leafLayer=document.createElement('div');
   leafLayer.className='leaf-layer';
-  for(var i=0;i<9;i++){
-    var l=document.createElement('div');
-    l.className='leaf';
-    l.style.left=(Math.random()*100)+'%';
-    l.style.animationDelay=(Math.random()*9).toFixed(2)+'s';
-    l.style.animationDuration=(7+Math.random()*6).toFixed(2)+'s';
-    l.style.setProperty('--drift',(-40+Math.random()*80)+'px');
-    l.style.setProperty('--fall',(70+Math.random()*50)+'vh');
-    l.style.transform='scale('+(0.7+Math.random()*0.7).toFixed(2)+')';
+  var vh=Math.max(window.innerHeight||0,560);
+  for(var i=0;i<4;i++){
+    var l=createLeaf('');
+    var duration=14+Math.random()*7;
+    var tilt=-35+Math.random()*70;
+    l.style.right=(8+Math.random()*210).toFixed(0)+'px';
+    l.style.top=(36+Math.random()*96)+'px';
+    l.style.animationDelay=(-Math.random()*duration).toFixed(2)+'s';
+    l.style.animationDuration=duration.toFixed(2)+'s';
+    l.style.setProperty('--leaf-size',(14+Math.random()*8).toFixed(1)+'px');
+    l.style.setProperty('--leaf-scale',(0.76+Math.random()*0.34).toFixed(2));
+    l.style.setProperty('--x1',(-15-Math.random()*30).toFixed(0)+'px');
+    l.style.setProperty('--x2',(10-Math.random()*55).toFixed(0)+'px');
+    l.style.setProperty('--x3',(-28-Math.random()*88).toFixed(0)+'px');
+    l.style.setProperty('--x4',(-72-Math.random()*125).toFixed(0)+'px');
+    l.style.setProperty('--y1',(vh*(.16+Math.random()*.06)).toFixed(0)+'px');
+    l.style.setProperty('--y2',(vh*(.39+Math.random()*.08)).toFixed(0)+'px');
+    l.style.setProperty('--y3',(vh*(.66+Math.random()*.08)).toFixed(0)+'px');
+    l.style.setProperty('--y4',(vh*(1.02+Math.random()*.12)).toFixed(0)+'px');
+    l.style.setProperty('--r0',tilt.toFixed(0)+'deg');
+    l.style.setProperty('--r1',(tilt+40+Math.random()*50).toFixed(0)+'deg');
+    l.style.setProperty('--r2',(tilt-30-Math.random()*45).toFixed(0)+'deg');
+    l.style.setProperty('--r3',(tilt+60+Math.random()*70).toFixed(0)+'deg');
+    l.style.setProperty('--r4',(tilt+125+Math.random()*90).toFixed(0)+'deg');
     leafLayer.appendChild(l);
   }
   document.body.appendChild(leafLayer);
@@ -494,19 +556,43 @@ function startLeaves(){
 function stopLeaves(){
   if(leafLayer){ if(leafLayer.parentNode) leafLayer.parentNode.removeChild(leafLayer); leafLayer=null; }
 }
-function burstLeaves(count){
-  if(document.body.getAttribute('data-theme')!=='4399'||!count) return;
-  var b=board.getBoundingClientRect();
-  for(var i=0;i<count;i++){
-    var l=document.createElement('div');
-    l.className='leaf burst';
-    l.style.left=(b.left+Math.random()*b.width)+'px';
-    l.style.top=(b.top+Math.random()*b.height*0.6)+'px';
-    l.style.setProperty('--drift',(-45+Math.random()*90)+'px');
-    l.style.setProperty('--fall',(20+Math.random()*45)+'px');
-    l.style.animationDuration=(0.9+Math.random()*0.9).toFixed(2)+'s';
+function startFireflies(){
+  if(fireflyLayer||reducedMotion()) return;
+  fireflyLayer=document.createElement('div');
+  fireflyLayer.className='firefly-layer';
+  for(var i=0;i<8;i++){
+    var f=document.createElement('i');
+    f.style.left=(2+Math.random()*96)+'%';
+    f.style.animationDuration=(9+Math.random()*9).toFixed(2)+'s';
+    f.style.animationDelay=(Math.random()*10).toFixed(2)+'s';
+    f.style.setProperty('--fx',(-60+Math.random()*120)+'px');
+    f.style.setProperty('--fh',(55+Math.random()*40)+'vh');
+    fireflyLayer.appendChild(f);
+  }
+  document.body.appendChild(fireflyLayer);
+}
+function stopFireflies(){ if(fireflyLayer){ if(fireflyLayer.parentNode) fireflyLayer.parentNode.removeChild(fireflyLayer); fireflyLayer=null; } }
+function burstLeaves(count,sourceEl){
+  if(document.body.getAttribute('data-theme')!=='4399'||!count||reducedMotion()) return;
+  var b=(sourceEl||board).getBoundingClientRect();
+  var total=Math.min(7,Math.max(2,Math.ceil(count*1.2)));
+  for(var i=0;i<total;i++){
+    var l=createLeaf('leaf-lift');
+    var tilt=-28+Math.random()*56;
+    l.style.left=(b.left+b.width*(.14+Math.random()*.72))+'px';
+    l.style.top=(b.top+b.height*(.38+Math.random()*.42))+'px';
+    l.style.animationDelay=(i*.045).toFixed(2)+'s';
+    l.style.animationDuration=(1+Math.random()*.38).toFixed(2)+'s';
+    l.style.setProperty('--leaf-size',(13+Math.random()*6).toFixed(1)+'px');
+    l.style.setProperty('--r0',tilt.toFixed(0)+'deg');
+    l.style.setProperty('--r1',(tilt-24+Math.random()*48).toFixed(0)+'deg');
+    l.style.setProperty('--r2',(tilt-75+Math.random()*150).toFixed(0)+'deg');
+    l.style.setProperty('--x1',(-14+Math.random()*28).toFixed(0)+'px');
+    l.style.setProperty('--y1',(-24-Math.random()*16).toFixed(0)+'px');
+    l.style.setProperty('--x2',(-42+Math.random()*84).toFixed(0)+'px');
+    l.style.setProperty('--y2',(-70-Math.random()*38).toFixed(0)+'px');
     document.body.appendChild(l);
-    (function(el){ setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); },2000); })(l);
+    (function(el){ setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); },1700); })(l);
   }
 }
 
@@ -543,7 +629,8 @@ function applyTheme(t){
   document.documentElement.setAttribute('data-theme',t);
   try{localStorage.setItem('gh-theme',t);}catch(e){}
   themeToggle.innerHTML=iconSVG(t==='arcade');
-  if(t==='4399') startLeaves(); else stopLeaves();
+  if(t==='4399'){ startTree(); startLeaves(); startFireflies(); }
+  else { stopTree(); stopLeaves(); stopFireflies(); }
   syncAll(false);
 }
 var initTheme=(function(){ try{return document.documentElement.getAttribute('data-theme')||'4399';}catch(e){return '4399';} })();
