@@ -99,11 +99,11 @@ section('命运格 · 六种效果');
   ok(s.demon.pos === 6, '效果4 恶魔自身+1 → 6');
   ok(s.player.pos === 1 && s.mate.pos === 1, '效果4 恶魔不带动玩家/队友');
 
-  // 效果5 再掷一次：连续直到掷出非5
+  // 效果5 重掷：终止命运链，交由上层重掷前进骰（此次掷 = 前进骰结果）
   s = E.newGame(); s.player.pos = 3;
   ev = E.stepActor(s, 'player', 2, seqDice([5, 5, 6]));
-  ok(s.player.shield === 1 && s.player.pos === 5, '效果5 再掷连锁 [5,5,6] → 最终获得1护盾');
-  ok(count(ev, 'reroll') === 2, '效果5 产生2次 reroll 事件');
+  ok(s.player.pos === 5, '效果5 重掷：停在命运格5，交由上层重掷【前进骰】');
+  ok(count(ev, 'reroll') === 1, '效果5 仅产生 1 次 reroll 事件（不再连锁转盘）');
 
   // 效果6 获得护盾
   s = E.newGame(); s.player.pos = 3;

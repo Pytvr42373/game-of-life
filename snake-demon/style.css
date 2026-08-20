@@ -210,6 +210,10 @@ body::after {
 .rule-card p { margin: 0; font-size: 13.5px; color: var(--muted); line-height: 1.65; }
 .rule-card.danger::before { background: linear-gradient(180deg, var(--danger), transparent); }
 .rule-card.danger h3 { color: var(--d-hi); }
+/* 规则卡关键信息强调（不同颜色区分） */
+.rule-card .accent { color: var(--accent-hi); }
+.rule-card .gold { color: var(--gold); }
+.rule-card .danger-c { color: var(--d-hi); }
 
 .start-btn {
   display: block; margin: 0 auto; padding: 17px 38px; min-height: 62px;
@@ -302,7 +306,7 @@ body::after {
   background: radial-gradient(ellipse at 50% 50%, var(--glow), rgba(0,0,0,.28) 55%, transparent 75%);
   filter: blur(14px); opacity: .55; pointer-events: none;
 }
-.board { position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 6; }
+.board { position: absolute; left: 4px; top: 6px; right: 4px; bottom: 22px; z-index: 6; }
 
 /* ================= 棋子（2D 站立于格面） ================= */
 .piece {
@@ -463,17 +467,31 @@ body::after {
 }
 .fw-lbl {
   position: absolute; transform: translate(-50%,-50%);
-  color: #fff; font-weight: 900; font-size: 13.5px; white-space: nowrap;
-  text-shadow: 0 1px 3px rgba(0,0,0,.85), 0 0 6px rgba(0,0,0,.5);
-  pointer-events: none;
+  font-weight: 900; font-size: 18px; white-space: nowrap; pointer-events: none;
+  padding: 3px 6px; border-radius: 8px;
+  color: #fff;
+  text-shadow: 0 1px 0 #000, 0 0 3px #000, 0 0 8px rgba(0,0,0,.6);
+  background: rgba(0,0,0,.42);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.35), 0 2px 6px rgba(0,0,0,.5);
+}
+.fw-lbl::before {
+  content: ''; position: absolute; left: -1px; top: 50%; transform: translateY(-50%);
+  width: 5px; height: 5px; border-radius: 50%;
+  background: #fff; box-shadow: 0 0 6px #fff;
 }
 .fw-result {
-  position: absolute; left: 50%; bottom: -70px; transform: translateX(-50%) scale(.5);
-  white-space: nowrap; font-size: 25px; font-weight: 900; letter-spacing: 1px;
-  color: #fff; text-shadow: 0 0 20px rgba(245,197,24,.95), 0 2px 6px rgba(0,0,0,.85);
-  opacity: 0; pointer-events: none; transition: opacity .25s, transform .35s cubic-bezier(.2,1.5,.4,1);
+  position: absolute; left: 50%; bottom: -72px; transform: translateX(-50%) scale(.4);
+  white-space: nowrap; font-size: 30px; font-weight: 900; letter-spacing: 1px;
+  color: #fff; 
+  text-shadow: 0 0 6px #7c2d12, 0 0 18px rgba(245,197,24,.95), 0 2px 8px rgba(0,0,0,.9);
+  opacity: 0; pointer-events: none; z-index: 6;
+  background: linear-gradient(180deg, rgba(90,20,4,.85), rgba(30,6,0,.9));
+  border: 2px solid #f5c518; border-radius: 14px; padding: 8px 22px;
+  box-shadow: 0 0 0 3px rgba(0,0,0,.5), 0 8px 30px rgba(0,0,0,.7);
+  transition: opacity .25s, transform .35s cubic-bezier(.2,1.5,.4,1);
 }
-.fw-result.show { opacity: 1; transform: translateX(-50%) scale(1); }
+.fw-result.show { opacity: 1; transform: translateX(-50%) scale(1); animation: fwResultPop .5s cubic-bezier(.2,1.4,.4,1); }
+@keyframes fwResultPop { 0% { transform: translateX(-50%) scale(.7) rotate(-4deg); } 100% { transform: translateX(-50%) scale(1) rotate(0); } }
 @keyframes fwFadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* 特效层 */
@@ -548,12 +566,16 @@ body::after {
   .ac-pos, .ac-shield { font-size: 11.5px; }
   .ac-status { font-size: 9.5px; right: 4px; top: 4px; }
   .hud-chip { padding: 5px 10px; font-size: 12px; }
-  .hud-chip b { font-size: 17px; }
   .piece-body svg { animation-duration: 2.2s; }
-  .dice-label { font-size: 12.5px; }
-  .fw-lbl { font-size: 11px; }
+  .dice-label { font-size: 13px; }
+  .fw-lbl { font-size: 14px; padding: 2px 5px; border-radius: 6px; }
   .fw-hub { width: 62px; height: 62px; font-size: 14px; }
-  .fw-result { font-size: 21px; bottom: -60px; }
+  .fw-result { font-size: 24px; bottom: -62px; padding: 6px 18px; }
+}
+@media (max-height: 460px) {
+  .fw-frame { width: min(56vw, 210px); }
+  .fw-result { font-size: 20px; bottom: -54px; padding: 5px 14px; }
+  .fw-lbl { font-size: 13px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; transition-duration: .001s !important; }

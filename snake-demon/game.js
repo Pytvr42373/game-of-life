@@ -30,8 +30,8 @@
     demon: { name: '恶魔', role: '角魔', color: 'demon' }
   };
   var FATE_NAMES = {
-    1: '😈 后退 2 格', 2: '😈 暂停下回合', 3: '😈 失去 1 枚护盾',
-    4: '😇 队友羁绊 +1', 5: '😇 再掷一次', 6: '😇 获得 1 枚护盾'
+    1: '😈 后退 2 格', 2: '😈 暂停下回合', 3: '😈 后退 1 格（护盾可抵消）',
+    4: '😇 队友羁绊 +1', 5: '🎲 重掷前进骰子', 6: '😇 获得 1 枚护盾'
   };
   var ACTOR_IDS = ['player', 'mate', 'demon'];
 
@@ -172,7 +172,6 @@
   var boardRenderer = null;
   var cellCache = {};
   function buildBoard() {
-    board.innerHTML = '';
     cellCache = {};
     if (!window.SnakeBoard || !boardCanvas) return;
     // 主题配色
@@ -363,7 +362,7 @@
       if (cubes[i]) setCubeInstant(cubes[i], vals[i]);
     }
   }
-  var FATE_WHEEL_LABELS = ['后退2', '暂停', '失盾', '羁绊+1', '再掷', '得盾'];
+  var FATE_WHEEL_LABELS = ['后退2', '暂停', '退1格', '羁绊+1', '重掷', '得盾'];
   var fateOverlay = null, fateWheelEl = null, fateResultEl = null;
   function fateOverlayInit() {
     fateOverlay = $('fateOverlay');
@@ -372,7 +371,7 @@
     if (!fateWheelEl) return;
     var R = 50;
     for (var i = 0; i < 6; i++) {
-      var ang = 30 + i * 60;
+      var ang = 300 + i * 60;
       var rad = ang * Math.PI / 180;
       var lbl = make('div', 'fw-lbl');
       lbl.textContent = FATE_WHEEL_LABELS[i];
@@ -402,7 +401,7 @@
           fateResultEl.classList.remove('show');
           fateOverlay.classList.remove('show');
           res();
-        }, 1000);
+        }, 2000);
       }, 1400);
     });
   }
@@ -467,14 +466,13 @@
       var min = null;
       ['player', 'mate'].forEach(function (a) {
         if (S[a].alive) {
-          var dd = d.pos - S[a].pos;
-          if (min === null || dd < min) min = dd;
+          var gap = S[a].pos - d.pos; // 幸存者领先恶魔的格数（被击杀者不参与）
+          if (min === null || gap < min) min = gap;
         }
       });
       if (min !== null) {
         dist = Math.max(0, min);
-        if (dist <= 6) level = 2;
-        else if (dist <= 12) level = 1;
+        if (dist <= 1) level = 2; // 恶魔紧贴身后（1 格内）→ 高危特效；脱离即无特效
       }
     }
     A.setTension(level);
@@ -719,7 +717,7 @@
         say('❓ 落在命运格 ' + e.cell + '，命运之骰：<b>' + e.roll + '</b>（' + fateName(e.roll) + '）');
         await showFateWheel(e.roll);
       } else if (e.type === 'reroll') {
-        say('✨ 再掷一次！');
+        say('🎲 重掷前进骰子！');
         if (A.sfx.shield) A.sfx.shield();
         await sleep(430);
       } else if (e.type === 'gainShield') {
@@ -793,55 +791,61 @@
   async function performActorTurn(actor) {
     if (S.winner) return finish();
     setTurn(actor);
-    if (actor === 'player') {
-      if (!S.player.alive || S.player.paused) {
-        var ev0 = E.stepActor(S, 'player', 0, Math.random);
-        await playEvents(ev0);
-        await sleep(320);
-        return performActorTurn('mate');
-      }
-      enableRoll();
-      A.unlock();
-      await waitRoll();
-      disableRoll();
-      var p1 = E.d6(), p2 = E.d6();
-      await animateDice([p1, p2], '你的回合 · 双骰', { actor: 'player', sound: true });
-      var evs = E.stepActor(S, 'player', E.diceMove(p1, p2, 'player'), Math.random);
-      await playEvents(evs);
-      await sleep(330);
-      if (S.winner) return finish();
-      return performActorTurn('mate');
-    }
-    if (actor === 'mate') {
-      await sleep(520);
-      if (!S.mate.alive || S.mate.paused) {
-        var evm = E.stepActor(S, 'mate', 0, Math.random);
-        await playEvents(evm);
+    /* 该角色的掷骰循环：抽到「重掷」时重掷前进骰，直到不再触发 */
+    var reroll = true;
+    while (reroll && !S.winner) {
+      reroll = false;
+      if (actor === 'player') {
+        if (!S.player.alive || S.player.paused) {
+          var ev0 = E.stepActor(S, 'player', 0, Math.random);
+          await playEvents(ev0);
+          await sleep(320);
+          break;
+        }
+        enableRoll();
+        A.unlock();
+        await waitRoll();
+        disableRoll();
+        var p1 = E.d6(), p2 = E.d6();
+        await animateDice([p1, p2], '你的回合 · 双骰', { actor: 'player', sound: true });
+        var evs = E.stepActor(S, 'player', E.diceMove(p1, p2, 'player'), Math.random);
+        reroll = evs.some(function (e) { return e.type === 'reroll'; });
+        await playEvents(evs);
+        await sleep(330);
+      } else if (actor === 'mate') {
+        if (!S.mate.alive || S.mate.paused) {
+          var evm = E.stepActor(S, 'mate', 0, Math.random);
+          await playEvents(evm);
+          await sleep(300);
+          break;
+        }
+        await sleep(520);
+        var m1 = E.d6(), m2 = E.d6();
+        await animateDice([m1, m2], '队友回合 · 双骰', { actor: 'mate', sound: true });
+        var evsM = E.stepActor(S, 'mate', E.diceMove(m1, m2, 'mate'), Math.random);
+        reroll = evsM.some(function (e) { return e.type === 'reroll'; });
+        await playEvents(evsM);
         await sleep(300);
-        if (S.winner) return finish();
-        return performActorTurn('demon');
+      } else {
+        /* demon */
+        if (S.round >= 3) {
+          await sleep(560);
+          var d1 = E.d6(), d2 = E.d6();
+          await animateDice([d1, d2], '恶魔回合 · 双骰', { actor: 'demon', sound: true });
+          var evsD = E.stepActor(S, 'demon', E.diceMove(d1, d2, 'demon'), Math.random);
+          reroll = evsD.some(function (e) { return e.type === 'reroll'; });
+          await playEvents(evsD);
+        } else {
+          var evd0 = E.stepActor(S, 'demon', 0, Math.random);
+          await playEvents(evd0);
+        }
+        await sleep(360);
       }
-      var m1 = E.d6(), m2 = E.d6();
-      await animateDice([m1, m2], '队友回合 · 双骰', { actor: 'mate', sound: true });
-      var evsM = E.stepActor(S, 'mate', E.diceMove(m1, m2, 'mate'), Math.random);
-      await playEvents(evsM);
-      await sleep(300);
       if (S.winner) return finish();
-      return performActorTurn('demon');
     }
-    /* demon */
-    await sleep(560);
-    if (S.round < 3) {
-      var evd0 = E.stepActor(S, 'demon', 0, Math.random);
-      await playEvents(evd0);
-    } else {
-      var d1 = E.d6(), d2 = E.d6();
-      await animateDice([d1, d2], '恶魔回合 · 双骰', { actor: 'demon', sound: true });
-      var evsD = E.stepActor(S, 'demon', E.diceMove(d1, d2, 'demon'), Math.random);
-      await playEvents(evsD);
-    }
-    await sleep(360);
     if (S.winner) return finish();
+    if (actor === 'player') return performActorTurn('mate');
+    if (actor === 'mate') return performActorTurn('demon');
     S.round += 1;
     updateRound();
     return performActorTurn('player');

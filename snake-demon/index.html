@@ -34,23 +34,23 @@
 
     <!-- 核心规则横幅：骰子之差 + 恶魔规则一眼可见 -->
     <div class="rule-banner" role="note">
-      <div class="rb-item"><i>🎲</i><div><b>步数 = 两骰之差</b><span>|a−b| · 同点差 0 则原地</span></div></div>
-      <div class="rb-item demon"><i>👹</i><div><b>恶魔同骰 +2</b><span>差 0 → 额外前进 2 格</span></div></div>
-      <div class="rb-item"><i>⏳</i><div><b>恶魔晚 2 回合</b><span>前 2 回合沉睡待机</span></div></div>
+      <div class="rb-item"><i>🎲</i><div><b>步数 = 两骰之差</b><span>|a−b| · 同点原地</span></div></div>
+      <div class="rb-item demon"><i>👹</i><div><b>恶魔同骰 +2</b><span>差 0 前进 2 格</span></div></div>
+      <div class="rb-item"><i>⏳</i><div><b>晚 2 回合</b><span>恶魔沉睡待机</span></div></div>
     </div>
     </header>
 
     <section class="legend" aria-label="角色图例">
       <div class="leg leg-player"><div class="leg-svg" id="legPlayer"></div><div class="leg-txt"><b>你 · 剑士</b><span>青色 · 双骰 · |差|</span></div></div>
       <div class="leg leg-mate"><div class="leg-svg" id="legMate"></div><div class="leg-txt"><b>队友 · 法师</b><span>绿色 · 双骰 · |差|</span></div></div>
-      <div class="leg leg-demon"><div class="leg-svg" id="legDemon"></div><div class="leg-txt"><b>恶魔 · 角魔</b><span>红色 · 双骰 · 同骰+2 · 晚2回合</span></div></div>
+      <div class="leg leg-demon"><div class="leg-svg" id="legDemon"></div><div class="leg-txt"><b>恶魔 · 角魔</b><span>红色 · 同骰+2 · 晚2回合</span></div></div>
     </section>
 
     <section class="rules" aria-label="规则说明">
-      <div class="rule-card highlight"><h3>🎲 移动</h3><p>全员每回合掷 2 颗骰，步数 = 两骰之差 |a−b|（同点差 0 则原地；恶魔同点额外前进 2 格）。恶魔晚 2 回合出发。到达 48 必须恰好，超出原地不动。</p></div>
-      <div class="rule-card"><h3>❓ 命运格 ×6</h3><p>落在 5/10/15/25/35/44 触发命运转盘：1 后退2 · 2 暂停 · 3 失盾 · 4 羁绊双双+1 · 5 再掷 · 6 得盾。</p></div>
-      <div class="rule-card"><h3>🛡 护盾</h3><p>护盾可完全免疫一次「后退/暂停」等负面；护盾可累计。你或队友任一到达 48 即人类胜利。</p></div>
-      <div class="rule-card danger"><h3>👹 抓捕</h3><p>恶魔移动后若位置 ≥ 你或队友，该角色立即被撕碎！两人全灭则恶魔胜，幸存者仍可继续冲线。</p></div>
+      <div class="rule-card highlight"><h3>🎲 移动</h3><p><b class="accent">步数 = 两骰之差</b>（同点原地；<b class="danger-c">恶魔同点 +2</b>）。恶魔晚 2 回合出发。<b class="accent">到 48 必须恰好</b>。</p></div>
+      <div class="rule-card"><h3>❓ 命运格</h3><p>落在 <b class="gold">5/10/15/25/35/44</b> 转盘定命运：<b>1 退2</b> · <b>2 暂停</b> · <b>3 退1</b> · <b>4 羁绊</b> · <b>5 重掷</b> · <b>6 得盾</b>。</p></div>
+      <div class="rule-card"><h3>🛡 护盾</h3><p>可完全免疫一次 <b class="danger-c">后退/暂停</b>；可累计。<b class="accent">任一到达 48 即胜</b>。</p></div>
+      <div class="rule-card danger"><h3>👹 抓捕</h3><p>恶魔移动后 <b class="danger-c">位置 ≥ 你或队友</b> 即撕碎。两人全灭恶魔胜，幸存者继续冲线。</p></div>
     </section>
 
     <button class="start-btn" id="startBtn" type="button">踏入棋盘 <span>START</span></button>
