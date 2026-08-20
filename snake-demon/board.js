@@ -22,10 +22,10 @@
     var geo = null;
 
     function layout() {
-      W = canvas ? canvas.clientWidth : (opts.width || 640);
+      W = (canvas && canvas.clientWidth > 0) ? canvas.clientWidth : (opts.width || 640);
       var padX = 6, padY = 6, gap = 3;
       var cw = (W - padX * 2 - gap * (cols - 1)) / cols;
-      var ch = Math.round(cw * 0.72); // 略扁的格子，接近正方形
+      var ch = Math.max(18, Math.round(cw * 1.05)); // 接近正方形的格子，4行棋盘清晰可见
       var totalH = padY * 2 + rows * ch + gap * (rows - 1);
       geo = { padX: padX, padY: padY, gap: gap, cw: cw, ch: ch, totalH: totalH };
       H = totalH;
@@ -34,7 +34,7 @@
         canvas.width = Math.round(W * dpr);
         canvas.height = Math.round(H * dpr);
         canvas.style.height = H + 'px';
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       }
     }
 
@@ -125,7 +125,7 @@
 
       // 序号
       ctx.fillStyle = isFate ? 'rgba(20,12,2,.9)' : (isStart || isEnd ? '#0b140d' : palette.text);
-      ctx.font = 'bold ' + Math.max(8, Math.round(cw * 0.22)) + 'px sans-serif';
+      ctx.font = 'bold ' + Math.max(9, Math.round(cw * 0.26)) + 'px sans-serif';
       ctx.textAlign = 'left';
       ctx.textBaseline = 'top';
       ctx.fillText(String(pos), x + 3, y + 3);
@@ -140,7 +140,7 @@
         ctx.fillText(mark, x + cw / 2, y + ch / 2);
       } else {
         // 蛇形方向箭头
-        ctx.font = Math.round(cw * 0.26) + 'px sans-serif';
+        ctx.font = Math.round(cw * 0.3) + 'px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillStyle = 'rgba(255,255,255,.4)';

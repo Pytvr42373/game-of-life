@@ -2,7 +2,7 @@
  * game.js —— 《恶魔追逐·队友模式》主逻辑：界面 + 回合编排 + 动画 + 特效
  * 依赖：engine.js（规则引擎）、audio.js（WebAudio BGM/音效）
  * 回合：玩家掷骰(交互) → 队友自动 → 恶魔自动(晚2回合) → 恶魔抓捕检查
- * 视觉：CSS 3D 2.5D 阶梯棋盘 + SVG 建模棋子 + CSS3D 骰子立方体
+ * 视觉：Canvas 2D 平面棋盘 + SVG 建模棋子 + CSS3D 骰子立方体
  *       + Canvas 粒子特效（抓捕爆炸 / 胜利礼花 / 护盾火花）
  * ===================================================================== */
 (function () {
@@ -337,18 +337,27 @@
       setTimeout(res, (opts.dur || 750) + vals.length * 90 + 60);
     });
   }
+  function diceText(actor, vals, roll) {
+    var txt = actorName(actor) + ' 掷出 ' + vals.join(' / ');
+    if (typeof roll === 'number' && vals.length === 2) {
+      var diff = Math.abs(vals[0] - vals[1]);
+      if (diff === 0 && actor === 'demon') txt += ' · 同骰差0 → 前进 2 格（恶魔加成）';
+      else txt += ' · 差 ' + diff + ' → 前进 ' + roll + ' 格';
+    }
+    return txt;
+  }
   function showDiceInstant(actor) {
     var vals = lastDice[actor];
     if (!vals) return;
     ensureCubes(vals.length, false);
-    diceLabel.textContent = actorName(actor) + ' 掷出 ' + vals.join(' + ');
+    diceLabel.textContent = diceText(actor, vals);
     vals.forEach(function (v, i) { setCubeInstant(i === 0 ? cube1 : cube2, v); });
   }
   /* 轻量更新：复用已渲染的骰子，避免动画后重建造成闪烁 */
-  function updateDiceDisplay(actor) {
+  function updateDiceDisplay(actor, roll) {
     var vals = lastDice[actor];
     if (!vals) return;
-    diceLabel.textContent = actorName(actor) + ' 掷出 ' + vals.join(' + ');
+    diceLabel.textContent = diceText(actor, vals, roll);
     var cubes = diceCubes.children;
     for (var i = 0; i < vals.length; i++) {
       if (cubes[i]) setCubeInstant(cubes[i], vals[i]);
@@ -632,9 +641,10 @@
       var e = evs[i];
       if (e.type === 'round') { continue; }
       if (e.type === 'roll') {
-        updateDiceDisplay(e.actor);
         var dv = lastDice[e.actor] || [e.roll];
-        say(actorName(e.actor) + ' 掷出 <b>' + dv.join(' / ') + '</b>，前进 ' + e.roll + ' 格');
+        updateDiceDisplay(e.actor, e.roll);
+        var xtra = (dv.length === 2 && Math.abs(dv[0] - dv[1]) === 0 && e.actor === 'demon' && e.roll > 0) ? '（同骰加成 +2）' : '';
+        say(actorName(e.actor) + ' 掷出 <b>' + dv.join(' / ') + '</b>，前进 <b>' + e.roll + '</b> 格' + xtra);
       } else if (e.type === 'move') {
         await animateMove(e.actor, e.from, e.to, e.cause);
         say(moveMsg(e));
@@ -707,6 +717,7 @@
     updateActors();
     updateDanger();
     show('battle');
+    resizeBoard(); // battleScreen 显示后再布局棋盘，避免初始化时(display:none)塌成一条线
     disableRoll();
     $('victoryPillar').classList.remove('on');
     A.startMusic();
