@@ -2,7 +2,7 @@
  * engine.js —— 《恶魔追逐·队友模式》蛇梯棋变体 纯规则引擎（无 DOM 依赖）
  * 浏览器 + Node 双环境可用。核心规则：
  *   · 48 格 4×12 蛇形棋盘；命运格 5/10/15/25/35/44
- *   · 玩家/队友掷 1d6，恶魔掷 2d6（晚 2 回合出发）
+ *   · 全员双骰：前进 = |骰1 - 骰2|；恶魔同骰(差0) → 前进 2 格（晚 2 回合出发）
  *   · 到达 48 必须恰好，超出则原地不动
  *   · 命运格 6 种效果 + 连锁触发 + 护盾免疫负面
  *   · 恶魔每轮移动后立即检查抓捕（位置 >= 即追上）
@@ -50,6 +50,13 @@
     }
 
     function d6(rng) { return 1 + Math.floor((rng || Math.random)() * 6); }
+
+    /* 双骰前进规则：前进 = |骰1 - 骰2|；恶魔同骰(差0) → 前进 2 格 */
+    function diceMove(d1, d2, actor) {
+      var diff = Math.abs(d1 - d2);
+      if (diff === 0 && actor === 'demon') return 2;
+      return diff;
+    }
 
     function cloneState(s) {
       return {
@@ -176,9 +183,9 @@
      */
     function stepRound(state, rolls, rng) {
       var ev = [{ type: 'round', round: state.round }];
-      var p = rolls && typeof rolls.player === 'number' ? rolls.player : d6(rng);
-      var m = rolls && typeof rolls.mate === 'number' ? rolls.mate : d6(rng);
-      var d = rolls && typeof rolls.demon === 'number' ? rolls.demon : (d6(rng) + d6(rng));
+      var p = rolls && typeof rolls.player === 'number' ? rolls.player : diceMove(d6(rng), d6(rng), 'player');
+      var m = rolls && typeof rolls.mate === 'number' ? rolls.mate : diceMove(d6(rng), d6(rng), 'mate');
+      var d = rolls && typeof rolls.demon === 'number' ? rolls.demon : diceMove(d6(rng), d6(rng), 'demon');
       ev = ev.concat(stepActor(state, 'player', p, rng));
       if (!state.winner) ev = ev.concat(stepActor(state, 'mate', m, rng));
       if (!state.winner) ev = ev.concat(stepActor(state, 'demon', d, rng));
@@ -195,6 +202,7 @@
       moveOnce: moveOnce,
       newGame: newGame,
       d6: d6,
+      diceMove: diceMove,
       cloneState: cloneState,
       resolveFate: resolveFate,
       captureCheck: captureCheck,

@@ -542,27 +542,21 @@
     if (!boardRenderer) return;
     var prev = cellCache[pos];
     if (!prev) return;
-    // 重绘时给目标格叠金色闪光（draw 后叠加高亮）
     var c = boardRenderer.cellCenter(pos);
     var ctx = boardCanvas.getContext('2d');
     var t = 0, step = 4;
     var timer = setInterval(function () {
       t += step;
       var a = 0.5 + 0.5 * Math.sin(t / 60);
-      var x = c.x, y = c.y - c.h * 0.5, w = c.w, h = c.h;
+      var x = c.x - c.w / 2, y = c.y - c.h / 2, w = c.w, h = c.h;
       ctx.save();
       ctx.globalAlpha = a;
       ctx.strokeStyle = '#fff';
       ctx.lineWidth = 3;
       ctx.shadowColor = 'rgba(255,255,255,.9)';
       ctx.shadowBlur = 12;
-      var dx = c.dx || (boardRenderer.width * 0.085 * 0.8);
       ctx.beginPath();
-      ctx.moveTo(x - w / 2, y);
-      ctx.lineTo(x + w / 2, y);
-      ctx.lineTo(x + w / 2 + dx, y + h);
-      ctx.lineTo(x - w / 2 + dx, y + h);
-      ctx.closePath();
+      ctx.rect(x - 1, y - 1, w + 2, h + 2);
       ctx.stroke();
       ctx.restore();
       if (t > 800) { clearInterval(timer); }
@@ -639,7 +633,8 @@
       if (e.type === 'round') { continue; }
       if (e.type === 'roll') {
         updateDiceDisplay(e.actor);
-        say(actorName(e.actor) + ' 掷出 <b>' + e.roll + '</b>');
+        var dv = lastDice[e.actor] || [e.roll];
+        say(actorName(e.actor) + ' 掷出 <b>' + dv.join(' / ') + '</b>，前进 ' + e.roll + ' 格');
       } else if (e.type === 'move') {
         await animateMove(e.actor, e.from, e.to, e.cause);
         say(moveMsg(e));
@@ -734,9 +729,9 @@
       A.unlock();
       await waitRoll();
       disableRoll();
-      var roll = E.d6();
-      await animateDice([roll], '你的回合 · 掷骰', { actor: 'player', sound: true });
-      var evs = E.stepActor(S, 'player', roll, Math.random);
+      var p1 = E.d6(), p2 = E.d6();
+      await animateDice([p1, p2], '你的回合 · 双骰', { actor: 'player', sound: true });
+      var evs = E.stepActor(S, 'player', E.diceMove(p1, p2, 'player'), Math.random);
       await playEvents(evs);
       await sleep(330);
       if (S.winner) return finish();
@@ -751,9 +746,9 @@
         if (S.winner) return finish();
         return performActorTurn('demon');
       }
-      var mr = E.d6();
-      await animateDice([mr], '队友回合 · 掷骰', { actor: 'mate', sound: true });
-      var evsM = E.stepActor(S, 'mate', mr, Math.random);
+      var m1 = E.d6(), m2 = E.d6();
+      await animateDice([m1, m2], '队友回合 · 双骰', { actor: 'mate', sound: true });
+      var evsM = E.stepActor(S, 'mate', E.diceMove(m1, m2, 'mate'), Math.random);
       await playEvents(evsM);
       await sleep(300);
       if (S.winner) return finish();
@@ -766,8 +761,8 @@
       await playEvents(evd0);
     } else {
       var d1 = E.d6(), d2 = E.d6();
-      await animateDice([d1, d2], '恶魔回合 · 2d6', { actor: 'demon', sound: true });
-      var evsD = E.stepActor(S, 'demon', d1 + d2, Math.random);
+      await animateDice([d1, d2], '恶魔回合 · 双骰', { actor: 'demon', sound: true });
+      var evsD = E.stepActor(S, 'demon', E.diceMove(d1, d2, 'demon'), Math.random);
       await playEvents(evsD);
     }
     await sleep(360);

@@ -38,7 +38,19 @@ function seqInfDie(v) {
 function find(evs, type) { return evs.filter(function (e) { return e.type === type; }); }
 function count(evs, type) { return find(evs, type).length; }
 
-/* ============ 一、移动 ============ */
+/* ============ 一、双骰差前进规则 ============ */
+section('双骰差前进规则');
+ok(E.diceMove(5, 2, 'player') === 3, '人类：|5-2|=3');
+ok(E.diceMove(6, 1, 'mate') === 5, '队友：|6-1|=5');
+ok(E.diceMove(3, 3, 'player') === 0, '人类同骰：|3-3|=0 → 原地不动');
+ok(E.diceMove(3, 3, 'demon') === 2, '恶魔同骰加成：差0 → 前进2格');
+ok(E.diceMove(1, 1, 'demon') === 2, '恶魔同骰(1,1) → 前进2');
+ok(E.diceMove(6, 6, 'demon') === 2, '恶魔同骰(6,6) → 前进2');
+ok(E.diceMove(4, 6, 'demon') === 2, '恶魔不同骰：|4-6|=2');
+ok(E.diceMove(2, 2, 'mate') === 0, '队友同骰：0 → 原地不动');
+ok(typeof E.diceMove === 'function', 'diceMove 已导出');
+
+/* ============ 二、移动 ============ */
 section('移动规则');
 ok(E.moveOnce(10, 4) === 14, '正常前进：10+4=14');
 ok(E.moveOnce(42, 6) === 48, '恰好到达：42+6=48');
@@ -366,6 +378,17 @@ section('整轮推进与随机整局');
   }
   ok(mapped === 48, 'boot：棋盘 48 格行列映射正确（' + mapped + '/48）');
   ok(b.cellCenter(1).row === 0 && b.cellCenter(48).row === 3, 'boot：起点第1行 / 终点第4行');
+  // 棋子精确落格：48 格棋子中心均在对应格子矩形内
+  var allIn = true;
+  for (var pp = 1; pp <= 48; pp++) {
+    var cp = b.cellCenter(pp);
+    var pwp = Math.max(22, cp.w * 0.7);
+    var php = Math.round(pwp * 1.6);
+    var lx = cp.x - pwp / 2, ty = cp.y + cp.h / 2 - php + 6;
+    var pxx = lx + pwp / 2, pyy = ty + php / 2;
+    if (!(pxx >= cp.x - cp.w / 2 && pxx <= cp.x + cp.w / 2 && pyy >= cp.y - cp.h / 2 && pyy <= cp.y + cp.h / 2)) allIn = false;
+  }
+  ok(allIn, 'boot：48 格棋子精确落格验证');
   var dice = gEl('diceCubes');
   ok(dice.children.length >= 1, 'boot：骰子立方体已初始化');
   ok(gEl('startScreen').classList.contains('hidden') === false, 'boot：默认显示开始界面');
