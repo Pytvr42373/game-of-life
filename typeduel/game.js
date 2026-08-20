@@ -30,6 +30,9 @@
 
     /* —— 难度档（§4.1） —— */
     var DIFFS = {
+      /* 简单档（简单版本）：速度 0.5 倍，默认可选，不参与 hard/inferno 解锁链。
+       * 打错整词重打为全局规则（§2.2③/⑤），由 handleKey 统一处理，不再按难度区分。 */
+      easy:    { scoreMult: 1.0, speedAdd: 0.00, beatMult: 1.0, hearts: 6, speedMult: 0.5 },
       normal:  { scoreMult: 1.0, speedAdd: 0.00, beatMult: 1.0, hearts: 5 },
       hard:    { scoreMult: 1.3, speedAdd: 0.15, beatMult: 0.9, hearts: 4 },
       inferno: { scoreMult: 1.6, speedAdd: 0.30, beatMult: 0.8, hearts: 3 }
@@ -255,6 +258,7 @@
         self.mode = 'survival'; self.updateModeUI();
       });
 
+      on('diffEasy', function () { self.difficulty = 'easy'; self.updateModeUI(); });
       on('diffNormal', function () { self.difficulty = 'normal'; self.updateModeUI(); });
       on('diffHard', function () { self.difficulty = 'hard'; self.updateModeUI(); });
       on('diffInferno', function () { self.difficulty = 'inferno'; self.updateModeUI(); });
@@ -350,6 +354,7 @@
       if (lockedInferno && this.difficulty === 'inferno') this.difficulty = lockedHard ? 'normal' : 'hard';
 
       var d = this.difficulty;
+      set('diffEasy', d === 'easy');
       set('diffNormal', d === 'normal'); set('diffHard', d === 'hard'); set('diffInferno', d === 'inferno');
       var t = this.sprintTier;
       set('sprintShort', t === 'short'); set('sprintStandard', t === 'standard'); set('sprintLong', t === 'long');
@@ -662,6 +667,9 @@
       var slowFactor = g.slowTimer > 0 ? 0.5 : 1;
       var frozen = g.freezeTimer > 0;
       var toRemove = [];
+      /* 简单档：速度 0.5 倍 */
+      var diffCfg = g.mode === 'campaign' ? C.difficulty(g.difficulty) : null;
+      var speedMult = (diffCfg && diffCfg.speedMult) || 1;
       g.enemies.forEach(function (e) {
         if (e.spawnT > 0) { e.spawnT = Math.max(0, e.spawnT - dt); }
         if (e.shakeT > 0) e.shakeT = Math.max(0, e.shakeT - dt);
@@ -681,7 +689,7 @@
             e.word = e.word.slice(0, e.progress) + rest.join('');
           }
         }
-        var speed = e.speedBase * (1 + e.errorBoost) * slowFactor;
+        var speed = e.speedBase * (1 + e.errorBoost) * slowFactor * speedMult;
         var rowsPerSec = (1 / beatSec) * speed;
         e.rowT += rowsPerSec * dt;
         while (e.rowT >= 1) {
@@ -732,31 +740,57 @@
       return !!e && (this.enemies.indexOf(e) >= 0 || e === this.boss);
     };
 
-    /* ---------------- 输入：逐字母判定（§2.2③/⑤） ---------------- */
+    /* ---------------- 输入：共享前缀多词同步推进（§2.2③/⑤ 改版） ----------------
+     * 不再强制锁定「下落最前」的单一词：每次按键推进所有「下一字母匹配」的词，
+     * 共享前缀的词一起变绿一起走；target 跟随其中最近者（HUD 显示第一个）。
+     * 进度不独立：完成击杀某词后，其余未完成词从头打；打错（无任何词匹配）整词重打。 */
     Game.prototype.handleKey = function (ch) {
       var g = this;
-      var tgt = g.target;
-      if (tgt && g.isLive(tgt) && tgt.progress < this.currentWord(tgt).length) {
-        this.advanceTarget(tgt, ch);
-        return;
-      }
-      /* 锁定最近敌人/ Boss（前缀匹配，行号最大者） */
-      var cand = null, bestRow = -1, bestCol = COLS;
       var pool = g.enemies.slice();
       if (g.boss) pool.push(g.boss);
+      var matched = [];
       pool.forEach(function (e) {
-        if (e === tgt) return;
         var w = g.currentWord(e);
-        if (w[0].toLowerCase() !== ch) return;
-        var r = e.row + e.rowT;
-        if (r > bestRow || (r === bestRow && e.col < bestCol)) {
-          bestRow = r; bestCol = e.col; cand = e;
+        if (e.progress < w.length && w[e.progress].toLowerCase() === ch) matched.push(e);
+      });
+      if (matched.length > 0) {
+        var best = null, bestRow = -1, killedAny = false;
+        matched.forEach(function (e) {
+          var wlen = g.currentWord(e).length;
+          var isPlain = e.type !== 'boss' && !(e.type === 'shield' && !e.shieldBroken);
+          g.advanceTarget(e, ch);
+          if (isPlain && e.progress >= wlen) killedAny = true;
+          var r = e.row + e.rowT;
+          if (r > bestRow || (r === bestRow && e.col < (best ? best.col : COLS))) {
+            bestRow = r; best = e;
+          }
+        });
+        g.target = (best && g.isLive(best)) ? best : null;
+        /* 进度不独立：击杀了某个词后，场上其他「未完成但有进度」的词全部从头打 */
+        if (killedAny) {
+          g.enemies.forEach(function (e2) {
+            var w2 = g.currentWord(e2);
+            if (e2.progress > 0 && e2.progress < w2.length) e2.progress = 0;
+          });
         }
+        return;
+      }
+      /* 无词匹配 → 打错：该词整词重新打（全局规则，每个词都适用） */
+      var tgt = g.target;
+      if (g.isLive(tgt) && tgt.progress < this.currentWord(tgt).length) {
+        this.onError(tgt, ch);
+        if (tgt.progress > 0) tgt.progress = 0;
+        return;
+      }
+      var cand = null, br = -1;
+      g.enemies.forEach(function (e) {
+        var r = e.row + e.rowT;
+        if (r > br || (r === br && e.col < (cand ? cand.col : COLS))) { br = r; cand = e; }
       });
       if (cand) {
-        cand.progress = 0;
         g.target = cand;
-        this.advanceTarget(cand, ch);
+        this.onError(cand, ch);
+        if (cand.progress > 0) cand.progress = 0;
       }
     };
 
@@ -790,6 +824,7 @@
       e.lastErrorChar = ch;
       g.lastError = { char: ch, t: 0.2 };
       AUDIO.keyMiss();
+      /* 打错整词重打：由 handleKey 在调用处统一将 progress 归零（全局规则） */
     };
 
     Game.prototype.currentWord = function (e) {
@@ -1093,7 +1128,7 @@
       g.stage++;
       /* 保存进度（§6.3） */
       var prog = STATS.getProgress();
-      prog.stage = prog.stage || { normal: 1, hard: 1, inferno: 1 };
+      prog.stage = prog.stage || { easy: 1, normal: 1, hard: 1, inferno: 1 };
       prog.stage[g.difficulty] = Math.max(prog.stage[g.difficulty] || 1, Math.min(g.stage, 12));
       STATS.saveProgress(prog);
       this.setupStage(g.stage);
@@ -1479,18 +1514,24 @@
         var w = e.type === 'shield' && !e.shieldBroken ? e.outerWord : e.word;
         var prog = e.progress;
         var isTarget = g.target === e;
-        /* 锁定高亮（§7.1） */
+        /* 共享前缀活跃词（有进度、非 target）：一起变绿（§7.1） */
+        var isActive = prog > 0 && !isTarget;
+        /* 锁定/活跃高亮 */
         if (isTarget) {
           ctx.save();
           ctx.shadowColor = NEON.lock;
           ctx.shadowBlur = 16;
+        } else if (isActive) {
+          ctx.save();
+          ctx.shadowColor = NEON.ok;
+          ctx.shadowBlur = 10;
         }
         /* 容器 */
         var rw = Math.max(86, 18 + w.length * 13);
         var rh = 44;
         var rx = x - rw / 2, ry = y - rh / 2;
         ctx.fillStyle = 'rgba(4,12,26,.55)';
-        ctx.strokeStyle = color;
+        ctx.strokeStyle = isActive ? NEON.ok : color;
         ctx.lineWidth = isTarget ? 2 : 1.5;
         ctx.beginPath();
         if (e.type === 'shield' && !e.shieldBroken) {
@@ -1503,7 +1544,7 @@
           ctx.rect(rx, ry, rw, rh);
           ctx.stroke();
         }
-        if (isTarget) ctx.restore();
+        if (isTarget || isActive) ctx.restore();
         /* 类型标记 */
         var mark = '';
         if (e.type === 'quick') mark = '»';

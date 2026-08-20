@@ -56,11 +56,12 @@
       <div class="cfg-group" id="diffGroup">
         <label>难度档</label>
         <div class="seg">
+          <button id="diffEasy" type="button">简单</button>
           <button id="diffNormal" type="button">普通</button>
           <button id="diffHard" type="button">困难</button>
           <button id="diffInferno" type="button">地狱</button>
         </div>
-        <p class="hint">通关上一档 12 关解锁下一档</p>
+        <p class="hint">简单档默认开放（0.5 倍速）· 通关上一档 12 关解锁下一档</p>
       </div>
       <div class="cfg-group" id="sprintGroup" style="display:none">
         <label>词长档</label>
@@ -112,7 +113,7 @@
         <span id="hpText">100 / 100</span>
       </div>
     </div>
-    <div class="hud-word"><span id="hudWord">输入字母 · 锁定最近病毒</span></div>
+    <div class="hud-word"><span id="hudWord">输入字母 · 匹配词首（同前缀一起变绿）</span></div>
     <div class="hud-r">
       <div class="hud-time"><b id="hudTime">00:00</b><span id="hudSub">WAVE 1 · STAGE 1</span></div>
     </div>

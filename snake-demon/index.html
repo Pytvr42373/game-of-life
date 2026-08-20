@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<script>try{if(localStorage.getItem('gh-theme')==='arcade')document.documentElement.classList.add('pre-arcade')}catch(e){}</script>
+<style>html{background:#08110d}html.pre-arcade{background:#050a14}</style>
+<meta name="description" content="恶魔追逐 · 蛇梯棋变体·队友模式：你与队友一路掷骰冲线，身后恶魔步步紧逼，命运格改写命运，护盾与羁绊是你唯一的依仗。">
+<title>恶魔追逐 · 蛇梯棋变体</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="4399">
+
+<a class="back-home" href="../action-games/index.html" aria-label="返回动作游戏频道">← 动作游戏</a>
+<button class="theme-switch" id="themeToggle" type="button" aria-label="切换主题" title="切换主题"></button>
+<div class="corner-settings">
+  <button class="icon-btn" id="musicBtn" type="button" aria-label="音乐开关" title="音乐开关">♪</button>
+  <button class="icon-btn" id="soundBtn" type="button" aria-label="音效开关" title="音效开关">♪</button>
+</div>
+
+<div class="loader" id="loader" aria-hidden="true">
+  <div class="load-ring"></div>
+  <div class="load-track"><i></i></div>
+  <span>LOADING</span>
+</div>
+
+<!-- ================= 开始界面 ================= -->
+<main class="screen screen-start" id="startScreen">
+  <div class="start-inner">
+    <header class="s-head">
+      <p class="kicker">SNAKE & LADDER VARIANT · TEAM RUN</p>
+      <h1>恶魔追逐<span>DEMON PURSUIT</span></h1>
+      <p class="tag">48 格蛇形棋盘 · 队友模式 · 命运格改写命运 · 护盾与羁绊是你最后的依仗</p>
+    </header>
+
+    <section class="legend" aria-label="角色图例">
+      <div class="leg leg-player"><div class="leg-svg" id="legPlayer"></div><div class="leg-txt"><b>你 · 剑士</b><span>青色 · 1d6</span></div></div>
+      <div class="leg leg-mate"><div class="leg-svg" id="legMate"></div><div class="leg-txt"><b>队友 · 法师</b><span>绿色 · 1d6</span></div></div>
+      <div class="leg leg-demon"><div class="leg-svg" id="legDemon"></div><div class="leg-txt"><b>恶魔 · 角魔</b><span>红色 · 2d6 · 晚2回合</span></div></div>
+    </section>
+
+    <section class="rules" aria-label="规则说明">
+      <div class="rule-card"><h3>🎲 移动</h3><p>你与队友每回合掷 1d6；恶魔掷 2d6，晚 2 回合出发。到达 48 必须恰好，超出则原地不动。</p></div>
+      <div class="rule-card"><h3>❓ 命运格 ×6</h3><p>落在 5/10/15/25/35/44 立即再掷 1d6：1 后退2 · 2 暂停 · 3 失盾 · 4 羁绊双双+1 · 5 再掷 · 6 得盾。</p></div>
+      <div class="rule-card"><h3>🛡 护盾</h3><p>护盾可完全免疫一次「后退/暂停」等负面；护盾可累计。你或队友任一到达 48 即人类胜利。</p></div>
+      <div class="rule-card danger"><h3>👹 抓捕</h3><p>恶魔移动后若位置 ≥ 你或队友，该角色立即被撕碎！两人全灭则恶魔胜，幸存者仍可继续冲线。</p></div>
+    </section>
+
+    <button class="start-btn" id="startBtn" type="button">踏入棋盘 <span>START</span></button>
+    <p class="start-hint">主题 / 音乐 / 音效开关在右上角 · 手机可直接点击大按钮掷骰</p>
+  </div>
+</main>
+
+<!-- ================= 对战界面 ================= -->
+<main class="screen screen-battle hidden" id="battleScreen">
+  <header class="hud-bar">
+    <div class="hud-chip"><i>回合</i><b id="hudRound">1</b></div>
+    <div class="hud-turn" id="hudTurn">你的回合</div>
+    <div class="hud-chip" id="hudDanger"><i>恶魔距离</i><b id="hudDist">--</b><em>格</em></div>
+  </header>
+
+  <section class="actor-row" id="actorRow">
+    <div class="actor-card player" id="card-player">
+      <div class="ac-ico" id="acIco-player"></div>
+      <div class="ac-info"><b>你 · 剑士</b><span class="ac-pos" id="acPos-player">1 格</span><span class="ac-shield" id="acShield-player">🛡0</span></div>
+      <span class="ac-status" id="acStatus-player">存活</span>
+    </div>
+    <div class="actor-card mate" id="card-mate">
+      <div class="ac-ico" id="acIco-mate"></div>
+      <div class="ac-info"><b>队友 · 法师</b><span class="ac-pos" id="acPos-mate">1 格</span><span class="ac-shield" id="acShield-mate">🛡0</span></div>
+      <span class="ac-status" id="acStatus-mate">存活</span>
+    </div>
+    <div class="actor-card demon" id="card-demon">
+      <div class="ac-ico" id="acIco-demon"></div>
+      <div class="ac-info"><b>恶魔 · 角魔</b><span class="ac-pos" id="acPos-demon">待机</span><span class="ac-shield" id="acShield-demon">—</span></div>
+      <span class="ac-status" id="acStatus-demon">沉睡</span>
+    </div>
+  </section>
+
+  <section class="board-stage">
+    <div class="board-ground"></div>
+    <div class="stage" id="stage">
+      <div class="board" id="board"></div>
+    </div>
+  </section>
+
+  <section class="dice-panel">
+    <div class="dice-label" id="diceLabel">等待开始…</div>
+    <div class="dice-cubes" id="diceCubes"></div>
+  </section>
+
+  <button class="roll-btn" id="rollBtn" type="button" disabled><span class="rb-die">🎲</span><span>掷骰</span></button>
+
+  <section class="log-feed" id="logFeed" aria-live="polite"></section>
+
+  <div class="toast" id="toast"></div>
+  <div class="red-flash" id="redFlash"></div>
+  <div class="danger-vignette" id="dangerVignette"></div>
+  <canvas class="fx-canvas" id="fxCanvas"></canvas>
+  <div class="victory-pillar" id="victoryPillar"></div>
+</main>
+
+<!-- ================= 结算界面 ================= -->
+<main class="screen screen-result hidden" id="resultScreen">
+  <div class="result-inner" id="resultInner">
+    <p class="r-kicker" id="rKicker">VICTORY</p>
+    <h2 id="rTitle">人类胜利</h2>
+    <p class="r-reason" id="rReason"></p>
+    <div class="r-stats" id="rStats"></div>
+    <div class="r-btns">
+      <button class="start-btn" id="againBtn" type="button">再来一局 <span>AGAIN</span></button>
+      <button class="ghost-btn" id="resultHomeBtn" type="button">返回频道</button>
+    </div>
+  </div>
+</main>
+
+<script src="engine.js"></script>
+<script src="audio.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

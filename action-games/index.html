@@ -322,6 +322,17 @@ body[data-theme="arcade"] .duel-media{
   width:min(86%,560px);display:block;
 }
 body[data-theme="arcade"] .duel-art{--accent:var(--cyan)}
+/* ===== 恶魔追逐 · 蛇梯棋变体卡 ===== */
+.mission-demon:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.mission-demon:hover{transform:translateY(-4px)}
+body[data-theme="4399"] .mission-demon:hover{border-color:var(--grass);box-shadow:0 12px 30px rgba(36,52,62,.10)}
+body[data-theme="arcade"] .mission-demon:hover{border-color:rgba(70,215,232,.55)}
+.demon-media{
+  position:relative;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;
+  background:var(--bg2);border-bottom:1px solid var(--line-soft);overflow:hidden;
+}
+.demon-art{width:min(88%,580px);display:block}
+
 
 /* ===== 页脚 ===== */
 .deck-foot{
@@ -337,6 +348,7 @@ body.preload .channel-head{transition:opacity .5s,transform .5s}
 body.preload .mission-play{transition:transform .25s,opacity .5s .08s}
 body.preload .mission-survivor{transition:transform .25s,opacity .5s .2s}
 body.preload .mission-duel{transition:transform .25s,opacity .5s .32s}
+body.preload .mission-demon{transition:transform .25s,opacity .5s .44s}
 body.ready .channel-head,body.ready .mission{opacity:1;transform:translateY(0)}
 
 /* ===== 尊重 prefers-reduced-motion ===== */
@@ -347,7 +359,7 @@ body.ready .channel-head,body.ready .mission{opacity:1;transform:translateY(0)}
   .radar-sweep,.blip{animation:none!important}
   .radar-sweep{opacity:.25}
   .blip{opacity:.75}
-  .mission-play:hover,.mission-survivor:hover,.mission-duel:hover,.mission-play:hover .media img,.cta:hover,.cta:hover::after{transform:none}
+  .mission-play:hover,.mission-survivor:hover,.mission-duel:hover,.mission-demon:hover,.mission-play:hover .media img,.cta:hover,.cta:hover::after{transform:none}
 }
 
 /* ===== 中屏双列（三卡时先降为两列） ===== */
@@ -393,8 +405,8 @@ body.ready .channel-head,body.ready .mission{opacity:1;transform:translateY(0)}
     <div class="channel-summary" aria-label="频道状态">
       <p class="summary-label">CHANNEL STATUS / ONLINE</p>
       <div class="stats">
-        <span class="stat"><strong>03</strong><i>行动档案</i></span>
-        <span class="stat"><strong>03</strong><i>已开放</i></span>
+        <span class="stat"><strong>04</strong><i>行动档案</i></span>
+        <span class="stat"><strong>04</strong><i>已开放</i></span>
       </div>
       <p class="summary-note">键鼠与触屏均可出击</p>
     </div>
@@ -403,7 +415,7 @@ body.ready .channel-head,body.ready .mission{opacity:1;transform:translateY(0)}
   <section class="mission-board" id="missions" aria-labelledby="missionHeading">
     <div class="board-head">
       <h2 id="missionHeading">选择任务</h2>
-      <p>三种战场，三套完全不同的对决规则。</p>
+      <p>四种战场，四套完全不同的对决规则。</p>
     </div>
     <div class="mission-layout">
       <a class="mission mission-play js-skip" href="../identity-v/index.html" aria-label="进入黎明迷局：非对称追逃，双阵营，3 张地图，单机 AI">
@@ -510,12 +522,33 @@ body.ready .channel-head,body.ready .mission{opacity:1;transform:translateY(0)}
         <span class="cta" aria-hidden="true">开始对决</span>
       </div>
       </a>
+      <a class="mission mission-demon js-skip" href="../snake-demon/index.html" aria-label="进入恶魔追逐：蛇梯棋变体，你与队友掷骰冲线，恶魔步步紧逼，命运格改写命运，护盾与羁绊是最后的依仗">
+      <div class="demon-media">
+        <svg class="demon-art" viewBox="0 0 320 180" role="img" aria-label="恶魔追逐概念示意：2.5D 阶梯棋盘上，青色剑士与绿色法师掷骰冲线，红色角魔自远方步步逼近" preserveAspectRatio="xMidYMid meet">
+<defs><linearGradient id="dg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7f1d1d" stop-opacity=".5"/><stop offset="1" stop-color="#23080d" stop-opacity=".95"/></linearGradient><linearGradient id="dgold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fde68a"/><stop offset="1" stop-color="#d97706"/></linearGradient><radialGradient id="dglow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ef4444" stop-opacity=".5"/><stop offset="1" stop-color="#ef4444" stop-opacity="0"/></radialGradient></defs><rect width="320" height="180" fill="url(#dg)"/><circle cx="252" cy="22" r="42" fill="url(#dglow)"/><rect x="74.0" y="8.0" width="14.4" height="10.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="88.4" y="8.0" width="14.4" height="10.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="102.8" y="8.0" width="14.4" height="10.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="117.2" y="8.0" width="14.4" height="10.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="131.6" y="8.0" width="14.4" height="10.4" fill="url(#dgold)" stroke="#f59e0b" stroke-width="1" rx="1.5"/><text x="138.8" y="17.2" font-size="7" text-anchor="middle" fill="#1a0b02" font-weight="900">?</text><rect x="146.0" y="8.0" width="14.4" height="10.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="160.4" y="8.0" width="14.4" height="10.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="174.8" y="8.0" width="14.4" height="10.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="189.2" y="8.0" width="14.4" height="10.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="203.6" y="8.0" width="14.4" height="10.4" fill="url(#dgold)" stroke="#f59e0b" stroke-width="1" rx="1.5"/><text x="210.8" y="17.2" font-size="7" text-anchor="middle" fill="#1a0b02" font-weight="900">?</text><rect x="218.0" y="8.0" width="14.4" height="10.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="232.4" y="8.0" width="14.4" height="10.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="70.0" y="40.0" width="15.8" height="11.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="85.8" y="40.0" width="15.8" height="11.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="101.6" y="40.0" width="15.8" height="11.4" fill="url(#dgold)" stroke="#f59e0b" stroke-width="1" rx="1.5"/><text x="109.5" y="49.7" font-size="7" text-anchor="middle" fill="#1a0b02" font-weight="900">?</text><rect x="117.4" y="40.0" width="15.8" height="11.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="133.2" y="40.0" width="15.8" height="11.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="149.0" y="40.0" width="15.8" height="11.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="164.8" y="40.0" width="15.8" height="11.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="180.6" y="40.0" width="15.8" height="11.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="196.4" y="40.0" width="15.8" height="11.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="212.2" y="40.0" width="15.8" height="11.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="228.0" y="40.0" width="15.8" height="11.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="243.8" y="40.0" width="15.8" height="11.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="65.0" y="72.0" width="17.1" height="12.3" fill="url(#dgold)" stroke="#f59e0b" stroke-width="1" rx="1.5"/><text x="73.5" y="82.2" font-size="7" text-anchor="middle" fill="#1a0b02" font-weight="900">?</text><rect x="82.1" y="72.0" width="17.1" height="12.3" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="99.2" y="72.0" width="17.1" height="12.3" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="116.3" y="72.0" width="17.1" height="12.3" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="133.4" y="72.0" width="17.1" height="12.3" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="150.5" y="72.0" width="17.1" height="12.3" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="167.6" y="72.0" width="17.1" height="12.3" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="184.7" y="72.0" width="17.1" height="12.3" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="201.8" y="72.0" width="17.1" height="12.3" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="218.9" y="72.0" width="17.1" height="12.3" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="236.0" y="72.0" width="17.1" height="12.3" fill="url(#dgold)" stroke="#f59e0b" stroke-width="1" rx="1.5"/><text x="244.6" y="82.2" font-size="7" text-anchor="middle" fill="#1a0b02" font-weight="900">?</text><rect x="253.1" y="72.0" width="17.1" height="12.3" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="52.0" y="104.0" width="18.0" height="13.0" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="70.0" y="104.0" width="18.0" height="13.0" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="88.0" y="104.0" width="18.0" height="13.0" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="106.0" y="104.0" width="18.0" height="13.0" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="124.0" y="104.0" width="18.0" height="13.0" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="142.0" y="104.0" width="18.0" height="13.0" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="160.0" y="104.0" width="18.0" height="13.0" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="178.0" y="104.0" width="18.0" height="13.0" fill="url(#dgold)" stroke="#f59e0b" stroke-width="1" rx="1.5"/><text x="187.0" y="114.5" font-size="8" text-anchor="middle" fill="#1a0b02" font-weight="900">?</text><rect x="196.0" y="104.0" width="18.0" height="13.0" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="214.0" y="104.0" width="18.0" height="13.0" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="232.0" y="104.0" width="18.0" height="13.0" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="250.0" y="104.0" width="18.0" height="13.0" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><path d="M 146.0 13.0 L 164.8 46.0 L 150.5 78.0 L 160.0 110.0" fill="none" stroke="rgba(253,230,138,.5)" stroke-width="1.4" stroke-dasharray="3 3"/><g transform="translate(60,116)"><circle r="7" fill="#22d3ee" stroke="#0e7490" stroke-width="1.4"/><path d="M0 4 L-5 13 L5 13 Z" fill="#22d3ee" stroke="#0e7490" stroke-width="1"/><line x1="6" y1="-2" x2="12" y2="4" stroke="#e0f2fe" stroke-width="2" stroke-linecap="round"/></g><g transform="translate(86,116)"><circle r="7" fill="#4ade80" stroke="#15803d" stroke-width="1.4"/><path d="M0 4 L-5 13 L5 13 Z" fill="#4ade80" stroke="#15803d" stroke-width="1"/><line x1="-6" y1="-6" x2="-11" y2="-12" stroke="#bbf7d0" stroke-width="1.6" stroke-linecap="round"/><circle cx="-11" cy="-13" r="2" fill="#fde68a"/></g><g transform="translate(240,20)"><path d="M-9 -4 L-6 -13 L-2 -6 L0 -15 L2 -6 L6 -13 L9 -4 Z" fill="#dc2626" stroke="#7f1d1d" stroke-width="1.2"/><circle r="8" fill="#dc2626" stroke="#7f1d1d" stroke-width="1.4"/><circle cx="-3" cy="0" r="1.6" fill="#fecaca"/><circle cx="3" cy="0" r="1.6" fill="#fecaca"/><path d="M-4 5 Q0 9 4 5" fill="none" stroke="#7f1d1d" stroke-width="1.2"/></g><path d="M252 46 Q220 70 196 92" fill="none" stroke="rgba(239,68,68,.6)" stroke-width="2.4" stroke-dasharray="6 5"/><path d="M196 92 l-7 -2 4 7z" fill="rgba(239,68,68,.85)"/><text x="60" y="142" font-size="8" fill="rgba(220,238,245,.7)" text-anchor="middle">1</text><text x="228" y="142" font-size="8" fill="rgba(220,238,245,.7)" text-anchor="middle">48</text><path d="M224 128 l8 6 -8 6 z" fill="#fde68a" opacity=".9"/>
+        </svg>
+        <span class="status status-live status-float">新上线</span>
+        <span class="media-tag" aria-hidden="true">DEMON PURSUIT · TEAM RUN</span>
+      </div>
+      <div class="mission-body">
+        <p class="mission-code">MISSION-04 / DEMON PURSUIT</p>
+        <h2 id="demonTitle">恶魔追逐</h2>
+        <p class="genre">蛇梯棋变体</p>
+        <ul class="specs">
+          <li>48 格</li>
+          <li>队友模式</li>
+          <li>2.5D 阶梯</li>
+        </ul>
+        <p class="desc">你与队友掷骰冲线，恶魔以双骰步步紧逼。命运格改写命运，护盾与羁绊是最后的依仗。</p>
+        <span class="cta" aria-hidden="true">开始冲线</span>
+      </div>
+      </a>
     </div>
   </section>
 
   <footer class="deck-foot">
     <span>纯前端 · 本地运行 · 无需登录</span>
-    <span>下一任务正在立项</span>
+    <span>恶魔追逐 · 新上线</span>
   </footer>
 </main>
 

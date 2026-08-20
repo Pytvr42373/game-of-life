@@ -387,5 +387,79 @@ t('模式锁定防呆：start() 对锁定模式强制回退经典闯关', functi
   assert(game.mode === 'campaign', '锁定 survival 不应开局，应回退 campaign');
 });
 
+
+/* ================= 共享前缀多词同步推进（§2.2③/⑤ 改版） ================= */
+console.log('== 共享前缀多词同步推进 ==');
+function mkw(w, col, row) {
+  return { id: 'p' + Math.random(), type: 'common', col: col || 0, row: row || 0, rowT: 0,
+    speedBase: 1, errorBoost: 0, progress: 0, spawnT: 0, shakeT: 0, errorFlashT: 0,
+    lastErrorChar: '', shieldBroken: false, outerWord: '', word: w };
+}
+t('两个同前缀词同步推进：打 h/e/l 都一起走', function () {
+  game.enemies = []; game.target = null;
+  var a = mkw('hello', 0, 0), b = mkw('help', 2, 0);
+  game.enemies.push(a); game.enemies.push(b);
+  game.handleKey('h'); assert(a.progress === 1 && b.progress === 1, 'h 后 a=' + a.progress + ' b=' + b.progress);
+  game.handleKey('e'); assert(a.progress === 2 && b.progress === 2, 'e 后 a=' + a.progress + ' b=' + b.progress);
+  game.handleKey('l'); assert(a.progress === 3 && b.progress === 3, 'l 后 a=' + a.progress + ' b=' + b.progress);
+  assert(game.target === a || game.target === b, 'target 应跟随最近者');
+});
+t('进度不独立：完成 helo 后 help（未完成同前缀词）从头打', function () {
+  game.enemies = []; game.target = null; game.kills = 0; game.score = 0; game.combo = 0; game.correctKeys = 0;
+  var a = mkw('helo', 0, 0), b = mkw('help', 2, 0);
+  game.enemies.push(a); game.enemies.push(b);
+  'helo'.split('').forEach(function (c) { game.handleKey(c); });
+  assert(a.progress === 4, 'helo 应完成=' + a.progress);
+  assert(b.progress === 0, 'help 应被重置为 0，实际 ' + b.progress);
+  runFrame(20); runFrame(20); runFrame(20); runFrame(20); runFrame(20);
+  assert(game.enemies.indexOf(a) === -1, 'helo 应已击杀移除');
+  assert(game.enemies.indexOf(b) >= 0, 'help 应保留');
+  assert(game.kills === 1, 'kills=1');
+});
+t('重置后可重新打：help 从头打到完成', function () {
+  game.enemies = []; game.target = null; game.kills = 0; game.combo = 0; game.correctKeys = 0;
+  var a = mkw('helo', 0, 0), b = mkw('help', 2, 0);
+  game.enemies.push(a); game.enemies.push(b);
+  'helo'.split('').forEach(function (c) { game.handleKey(c); });   /* helo 击杀，help 重置 0 */
+  runFrame(20); runFrame(20); runFrame(20); runFrame(20); runFrame(20);
+  assert(game.enemies.indexOf(a) === -1 && game.enemies.indexOf(b) >= 0, 'helo 死 help 活');
+  'help'.split('').forEach(function (c) { game.handleKey(c); });   /* help 从头打到完成 */
+  assert(b.progress === 4, 'help 应重新打到完成，实际 ' + b.progress);
+  runFrame(20); runFrame(20); runFrame(20); runFrame(20); runFrame(20);
+  assert(game.enemies.indexOf(b) === -1, 'help 应击杀');
+  assert(game.kills === 2, 'kills=2');
+});
+t('不同前缀词互不干扰：打 w 只推进 world 不碰 hello', function () {
+  game.enemies = []; game.target = null;
+  var a = mkw('hello', 0, 0), b = mkw('world', 2, 0);
+  game.enemies.push(a); game.enemies.push(b);
+  game.handleKey('h'); game.handleKey('w');
+  assert(a.progress === 1 && b.progress === 1, 'a=' + a.progress + ' b=' + b.progress);
+});
+t('无匹配键 → 报错 + 该词整词重打（全局规则）', function () {
+  game.enemies = []; game.target = null; game.score = 100; game.errorKeys = 0;
+  var a = mkw('hello', 0, 0), b = mkw('help', 2, 0);
+  game.enemies.push(a); game.enemies.push(b);
+  game.handleKey('h'); game.handleKey('z');   /* z 无匹配 → target(hello) 打错重置 */
+  assert(game.errorKeys === 1, '应记 1 次错误');
+  assert(game.score === 95, '应扣 5 分');
+  assert(a.progress === 0 && b.progress === 1, 'hello 应整词重打，help 保持：a=' + a.progress + ' b=' + b.progress);
+});
+t('打错整词重打适用于所有难度（普通难度同样重置）', function () {
+  game.enemies = []; game.target = null; game.errorKeys = 0; game.difficulty = 'normal';
+  var a = mkw('dog', 0, 0);
+  game.enemies.push(a);
+  game.handleKey('d'); game.handleKey('o'); assert(a.progress === 2);
+  game.handleKey('x');   /* 打错 */
+  assert(a.progress === 0, '普通难度打错也应整词重打，实际 ' + a.progress);
+});
+t('打错一词后其余词可继续推进', function () {
+  game.enemies = []; game.target = null; game.errorKeys = 0;
+  var a = mkw('hello', 0, 0), b = mkw('help', 2, 0);
+  game.enemies.push(a); game.enemies.push(b);
+  game.handleKey('h'); game.handleKey('e'); game.handleKey('l'); game.handleKey('l');
+  assert(a.progress === 4 && b.progress === 3, '打 l 只推进 hello: a=' + a.progress + ' b=' + b.progress);
+});
+
 console.log('\n结果：' + pass + ' 通过 / ' + fail + ' 失败');
 process.exit(fail > 0 ? 1 : 0);
