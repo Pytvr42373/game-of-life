@@ -14,7 +14,7 @@
     var fateCells = opts.fateCells || [5, 10, 15, 25, 35, 44];
     var start = opts.start || 1;
     var end = opts.end || 48;
-    var palette = opts.palette || { row: ['#16301f', '#1b3a26', '#204430', '#26523a'], edge: '#3f7d4e', fate: '#f5c518', start: '#22c55e', end: '#f5c518', text: '#e7f7ee' };
+    var palette = opts.palette || { row: ['#0d3625', '#144630', '#1b573c', '#226a47'], edge: '#4ade80', fate: '#f5c518', start: '#22c55e', end: '#f5c518', text: '#e9f9ef' };
 
     // 2D 网格参数
     var W = 0, H = 0;
@@ -23,11 +23,11 @@
 
     function layout() {
       W = (canvas && canvas.clientWidth > 0) ? canvas.clientWidth : (opts.width || 640);
-      var padX = 6, padY = 6, gap = 3;
-      var cw = (W - padX * 2 - gap * (cols - 1)) / cols;
-      var ch = Math.max(18, Math.round(cw * 1.05)); // 接近正方形的格子，4行棋盘清晰可见
-      var totalH = padY * 2 + rows * ch + gap * (rows - 1);
-      geo = { padX: padX, padY: padY, gap: gap, cw: cw, ch: ch, totalH: totalH };
+      var padX = 8, padY = 14, gapX = 3, gapY = 20; // gapY 行间距加大，为头尾梯子留白
+      var cw = (W - padX * 2 - gapX * (cols - 1)) / cols;
+      var ch = Math.max(20, Math.round(cw * 1.0));
+      var totalH = padY * 2 + rows * ch + gapY * (rows - 1);
+      geo = { padX: padX, padY: padY, gapX: gapX, gapY: gapY, cw: cw, ch: ch, totalH: totalH };
       H = totalH;
       if (canvas) {
         var dpr = Math.min(2, global.devicePixelRatio || 1);
@@ -54,8 +54,8 @@
     function cellCenter(pos) {
       var rc = posToRC(pos);
       var g = geo;
-      var x = g.padX + rc.col * (g.cw + g.gap) + g.cw / 2;
-      var y = g.padY + rc.row * (g.ch + g.gap) + g.ch / 2;
+      var x = g.padX + rc.col * (g.cw + g.gapX) + g.cw / 2;
+      var y = g.padY + rc.row * (g.ch + g.gapY) + g.ch / 2;
       return { x: x, y: y, w: g.cw, h: g.ch, row: rc.row, col: rc.col, scale: 1 };
     }
 
@@ -78,11 +78,41 @@
       for (var r = 0; r < rows; r++) {
         for (var c = 0; c < cols; c++) {
           var pos = rcToPos(r, c);
-          var cx = g.padX + c * (g.cw + g.gap);
-          var cy = g.padY + r * (g.ch + g.gap);
+          var cx = g.padX + c * (g.cw + g.gapX);
+          var cy = g.padY + r * (g.ch + g.gapY);
           drawCell(cx, cy, pos);
         }
       }
+      // 头尾梯子：连接每行行尾与下一行行首（蛇形拐角）
+      for (var lr = 0; lr < rows - 1; lr++) drawLadder(lr);
+    }
+
+    // 行间梯子：两竖杆 + 横档，金色发光，连接行尾与下行行首
+    function drawLadder(row) {
+      var g = geo;
+      var lastCol = (row % 2 === 0) ? cols - 1 : 0;
+      var x = g.padX + lastCol * (g.cw + g.gapX) + g.cw / 2;
+      var yTop = g.padY + row * (g.ch + g.gapY) + g.ch;
+      var yBot = g.padY + (row + 1) * (g.ch + g.gapY);
+      var w = Math.max(14, g.cw * 0.42);
+      ctx.save();
+      ctx.lineCap = 'round';
+      ctx.shadowColor = 'rgba(245,197,24,.7)';
+      ctx.shadowBlur = 6;
+      ctx.strokeStyle = 'rgba(245,197,24,.78)';
+      ctx.lineWidth = Math.max(2.5, g.cw * 0.08);
+      ctx.beginPath();
+      ctx.moveTo(x - w / 2, yTop); ctx.lineTo(x - w / 2, yBot);
+      ctx.moveTo(x + w / 2, yTop); ctx.lineTo(x + w / 2, yBot);
+      ctx.stroke();
+      ctx.lineWidth = Math.max(2, g.cw * 0.06);
+      for (var i = 1; i < 3; i++) {
+        var ry = yTop + (yBot - yTop) * i / 3;
+        ctx.beginPath();
+        ctx.moveTo(x - w / 2, ry); ctx.lineTo(x + w / 2, ry);
+        ctx.stroke();
+      }
+      ctx.restore();
     }
 
     function drawCell(x, y, pos) {

@@ -31,6 +31,13 @@
       <p class="kicker">SNAKE & LADDER VARIANT · TEAM RUN</p>
       <h1>恶魔追逐<span>DEMON PURSUIT</span></h1>
       <p class="tag">48 格蛇形棋盘 · 全员双骰 · 步数=两骰之差 · 命运格改写命运 · 护盾与羁绊是你最后的依仗</p>
+
+    <!-- 核心规则横幅：骰子之差 + 恶魔规则一眼可见 -->
+    <div class="rule-banner" role="note">
+      <div class="rb-item"><i>🎲</i><div><b>步数 = 两骰之差</b><span>|a−b| · 同点差 0 则原地</span></div></div>
+      <div class="rb-item demon"><i>👹</i><div><b>恶魔同骰 +2</b><span>差 0 → 额外前进 2 格</span></div></div>
+      <div class="rb-item"><i>⏳</i><div><b>恶魔晚 2 回合</b><span>前 2 回合沉睡待机</span></div></div>
+    </div>
     </header>
 
     <section class="legend" aria-label="角色图例">
@@ -40,8 +47,8 @@
     </section>
 
     <section class="rules" aria-label="规则说明">
-      <div class="rule-card"><h3>🎲 移动</h3><p>全员每回合掷 2 颗骰，步数 = 两骰之差 |a−b|（同点差 0 则原地；恶魔同点额外前进 2 格）。恶魔晚 2 回合出发。到达 48 必须恰好，超出原地不动。</p></div>
-      <div class="rule-card"><h3>❓ 命运格 ×6</h3><p>落在 5/10/15/25/35/44 立即再掷 1d6：1 后退2 · 2 暂停 · 3 失盾 · 4 羁绊双双+1 · 5 再掷 · 6 得盾。</p></div>
+      <div class="rule-card highlight"><h3>🎲 移动</h3><p>全员每回合掷 2 颗骰，步数 = 两骰之差 |a−b|（同点差 0 则原地；恶魔同点额外前进 2 格）。恶魔晚 2 回合出发。到达 48 必须恰好，超出原地不动。</p></div>
+      <div class="rule-card"><h3>❓ 命运格 ×6</h3><p>落在 5/10/15/25/35/44 触发命运转盘：1 后退2 · 2 暂停 · 3 失盾 · 4 羁绊双双+1 · 5 再掷 · 6 得盾。</p></div>
       <div class="rule-card"><h3>🛡 护盾</h3><p>护盾可完全免疫一次「后退/暂停」等负面；护盾可累计。你或队友任一到达 48 即人类胜利。</p></div>
       <div class="rule-card danger"><h3>👹 抓捕</h3><p>恶魔移动后若位置 ≥ 你或队友，该角色立即被撕碎！两人全灭则恶魔胜，幸存者仍可继续冲线。</p></div>
     </section>
@@ -92,8 +99,21 @@
 
   <button class="roll-btn" id="rollBtn" type="button" disabled><span class="rb-die">🎲</span><span>掷骰</span></button>
 
-  <section class="log-feed" id="logFeed" aria-live="polite"></section>
+  <section class="log-wrap" id="logWrap">
+    <button class="log-toggle" id="logToggle" type="button" aria-expanded="false">
+      <span class="lt-dot"></span>📜 战报 <b id="logToggleLabel">展开</b>
+    </button>
+    <div class="log-feed" id="logFeed" aria-live="polite"></div>
+  </section>
 
+  <div class="fate-overlay" id="fateOverlay" aria-hidden="true">
+    <div class="fw-frame">
+      <div class="fw-wheel" id="fateWheel"></div>
+      <div class="fw-pointer"></div>
+      <div class="fw-hub">命运</div>
+      <div class="fw-result" id="fateResult"></div>
+    </div>
+  </div>
   <div class="toast" id="toast"></div>
   <div class="red-flash" id="redFlash"></div>
   <div class="danger-vignette" id="dangerVignette"></div>

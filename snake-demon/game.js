@@ -182,11 +182,11 @@
       fateCells: E.FATE_CELLS,
       start: 1, end: E.BOARD_SIZE,
       palette: arcade ? {
-        row: ['#0b1d30', '#0e2438', '#112b44', '#15334f'], edge: '#7ff3ff',
-        fate: '#f5c518', start: '#22d3ee', end: '#f5c518', text: '#e3f8ff'
+        row: ['#111c4a', '#18285e', '#203571', '#294386'], edge: '#7ff3ff',
+        fate: '#f5c518', start: '#22d3ee', end: '#f5c518', text: '#e6f7ff'
       } : {
-        row: ['#16301f', '#1b3a26', '#204430', '#26523a'], edge: '#3f7d4e',
-        fate: '#f5c518', start: '#22c55e', end: '#f5c518', text: '#e7f7ee'
+        row: ['#0d3625', '#144630', '#1b573c', '#226a47'], edge: '#4ade80',
+        fate: '#f5c518', start: '#22c55e', end: '#f5c518', text: '#e9f9ef'
       }
     });
     boardRenderer.layout();
@@ -363,6 +363,49 @@
       if (cubes[i]) setCubeInstant(cubes[i], vals[i]);
     }
   }
+  var FATE_WHEEL_LABELS = ['后退2', '暂停', '失盾', '羁绊+1', '再掷', '得盾'];
+  var fateOverlay = null, fateWheelEl = null, fateResultEl = null;
+  function fateOverlayInit() {
+    fateOverlay = $('fateOverlay');
+    fateWheelEl = $('fateWheel');
+    fateResultEl = $('fateResult');
+    if (!fateWheelEl) return;
+    var R = 50;
+    for (var i = 0; i < 6; i++) {
+      var ang = 30 + i * 60;
+      var rad = ang * Math.PI / 180;
+      var lbl = make('div', 'fw-lbl');
+      lbl.textContent = FATE_WHEEL_LABELS[i];
+      lbl.style.left = 'calc(50% + ' + (Math.cos(rad) * R) + '%)';
+      lbl.style.top = 'calc(50% + ' + (Math.sin(rad) * R) + '%)';
+      fateWheelEl.appendChild(lbl);
+    }
+  }
+  function showFateWheel(roll) {
+    return new Promise(function (res) {
+      if (!fateOverlay || !fateWheelEl) { res(); return; }
+      var seg = 60;
+      var target = 360 * 4 + (360 - ((roll - 1) * seg + 30));
+      fateWheelEl.style.transition = 'none';
+      fateWheelEl.style.transform = 'rotate(0deg)';
+      fateResultEl.textContent = '';
+      fateResultEl.classList.remove('show');
+      fateOverlay.classList.add('show');
+      void fateWheelEl.offsetWidth;
+      fateWheelEl.style.transition = 'transform 1.35s cubic-bezier(.18,.82,.26,1)';
+      fateWheelEl.style.transform = 'rotate(' + target + 'deg)';
+      if (A.sfx.fate) A.sfx.fate();
+      setTimeout(function () {
+        fateResultEl.textContent = FATE_NAMES[roll] || ('命运 ' + roll);
+        fateResultEl.classList.add('show');
+        setTimeout(function () {
+          fateResultEl.classList.remove('show');
+          fateOverlay.classList.remove('show');
+          res();
+        }, 1000);
+      }, 1400);
+    });
+  }
   function showFateDice(val) {
     ensureCubes(1, true);
     diceLabel.textContent = '命运之骰 ❓';
@@ -461,6 +504,16 @@
     toastTimer = setTimeout(function () { toastEl.className = 'toast'; }, 1600);
   }
   function clearLog() { logFeed.innerHTML = ''; }
+  var logToggle = $('logToggle');
+  var logWrap = $('logWrap');
+  var logOpen = false;
+  function toggleLog(open) {
+    logOpen = (typeof open === 'boolean') ? open : !logOpen;
+    if (logWrap) logWrap.classList.toggle('open', logOpen);
+    var lb = $('logToggleLabel');
+    if (lb) lb.textContent = logOpen ? '收起' : '展开';
+  }
+  if (logToggle) logToggle.addEventListener('click', function () { toggleLog(); });
 
   /* ---------------- Canvas 粒子特效 ---------------- */
   var fx = { c: null, x: null, parts: [], raf: 0 };
@@ -548,29 +601,42 @@
     r.classList.add('flash');
   }
   function fateFlash(pos) {
-    if (!boardRenderer) return;
-    var prev = cellCache[pos];
-    if (!prev) return;
+    if (!boardRenderer || !boardCanvas) return;
     var c = boardRenderer.cellCenter(pos);
     var ctx = boardCanvas.getContext('2d');
-    var t = 0, step = 4;
-    var timer = setInterval(function () {
-      t += step;
-      var a = 0.5 + 0.5 * Math.sin(t / 60);
+    var DUR = 1000, t0 = null;
+    function rr(x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
+    function frame(ts) {
+      if (t0 === null) t0 = ts;
+      var p = Math.min(1, (ts - t0) / DUR);
+      boardRenderer.draw();
+      if (p >= 1) return;
+      var a = 1 - p;
       var x = c.x - c.w / 2, y = c.y - c.h / 2, w = c.w, h = c.h;
       ctx.save();
+      ctx.globalAlpha = a * 0.55;
+      ctx.fillStyle = '#f5c518';
+      rr(x, y, w, h, 6);
+      ctx.fill();
       ctx.globalAlpha = a;
       ctx.strokeStyle = '#fff';
       ctx.lineWidth = 3;
       ctx.shadowColor = 'rgba(255,255,255,.9)';
-      ctx.shadowBlur = 12;
-      ctx.beginPath();
-      ctx.rect(x - 1, y - 1, w + 2, h + 2);
+      ctx.shadowBlur = 14;
+      rr(x - 1, y - 1, w + 2, h + 2, 7);
       ctx.stroke();
       ctx.restore();
-      if (t > 800) { clearInterval(timer); }
-    }, 40);
-    setTimeout(function () { clearInterval(timer); }, 1000);
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
   }
   function shieldFX(actor, kind) {
     var card = $('card-' + actor);
@@ -650,10 +716,8 @@
         say(moveMsg(e));
       } else if (e.type === 'fate') {
         fateFlash(e.cell);
-        showFateDice(e.roll);
-        if (A.sfx.fate) A.sfx.fate();
         say('❓ 落在命运格 ' + e.cell + '，命运之骰：<b>' + e.roll + '</b>（' + fateName(e.roll) + '）');
-        await sleep(640);
+        await showFateWheel(e.roll);
       } else if (e.type === 'reroll') {
         say('✨ 再掷一次！');
         if (A.sfx.shield) A.sfx.shield();
@@ -721,8 +785,8 @@
     disableRoll();
     $('victoryPillar').classList.remove('on');
     A.startMusic();
-    toast('🔥 恶魔已苏醒，快跑！', 'info-toast');
-    say('第 1 回合开始：你与队友先手，恶魔晚 2 回合出发。');
+    toast('🎲 全员双骰 · 步数 = 两骰之差 |a−b|；恶魔同骰差0 → 前进 2 格', 'info-toast');
+    say('第 1 回合开始：你与队友先手，恶魔晚 2 回合出发。双骰规则：步数 = 两骰之差 |a−b|。');
     performActorTurn('player');
   }
 
@@ -821,6 +885,7 @@
   /* ---------------- 初始化 ---------------- */
   function init() {
     A.init();
+    fateOverlayInit();
     applyTheme((function () { try { return localStorage.getItem('gh-theme') === 'arcade' ? 'arcade' : '4399'; } catch (e) { return '4399'; } })(), false);
     paintAudioBtns();
     buildBoard();
