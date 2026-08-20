@@ -352,13 +352,20 @@ section('整轮推进与随机整局');
   global.SnakeEngine = bootEngine;
 
   var audio = require('../audio.js');
+  var boardLib = require('../board.js');
   var game = require('../game.js');
 
-  var board = gEl('board');
-  var rows = board.children.filter(function (r) { return r.children.length === 12; });
-  ok(rows.length === 4, 'boot：棋盘构建 4 行');
-  var rowSizes = rows.map(function (r) { return r.children.length; });
-  ok(rowSizes.join(',') === '12,12,12,12', 'boot：每行 12 格 → 48 格');
+  // 棋盘改为 Canvas 等距渲染：验证 SnakeBoard 挂载 + 几何正确（48 格映射）
+  ok(typeof global.SnakeBoard === 'object' && typeof global.SnakeBoard.createBoard === 'function', 'boot：SnakeBoard 渲染模块已挂载');
+  var b = global.SnakeBoard.createBoard({ width: 640 });
+  b.layout();
+  var mapped = 0;
+  for (var p = 1; p <= 48; p++) {
+    var rc = b.posToRC(p);
+    if (b.rcToPos(rc.row, rc.col) === p) mapped++;
+  }
+  ok(mapped === 48, 'boot：棋盘 48 格行列映射正确（' + mapped + '/48）');
+  ok(b.cellCenter(1).row === 0 && b.cellCenter(48).row === 3, 'boot：起点第1行 / 终点第4行');
   var dice = gEl('diceCubes');
   ok(dice.children.length >= 1, 'boot：骰子立方体已初始化');
   ok(gEl('startScreen').classList.contains('hidden') === false, 'boot：默认显示开始界面');

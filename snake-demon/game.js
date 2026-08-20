@@ -58,6 +58,12 @@
     document.body.dataset.theme = t;
     if (persist !== false) { try { localStorage.setItem('gh-theme', t); } catch (e) {} }
     paintIcon();
+    // 棋盘配色随主题重建
+    if (typeof buildBoard === 'function' && boardRenderer) {
+      var S_ = (typeof S !== 'undefined' && S) ? S : null;
+      buildBoard();
+      if (S_) { resetPieces(); ACTOR_IDS.forEach(function (a) { if (pieceEls[a]) placePiece(a, S_[a].pos, false); }); }
+    }
   }
   themeToggle.addEventListener('click', function () {
     var next = document.body.dataset.theme === 'arcade' ? '4399' : 'arcade';
@@ -160,45 +166,54 @@
       '<ellipse cx="36" cy="90" rx="21" ry="5" fill="#ef4444" opacity=".45"/></svg>';
   }
 
-  /* ---------------- 棋盘构建 ---------------- */
+  /* ---------------- 棋盘构建（Canvas 等距阶梯渲染） ---------------- */
   var board = $('board');
+  var boardCanvas = $('boardCanvas');
+  var boardRenderer = null;
   var cellCache = {};
   function buildBoard() {
     board.innerHTML = '';
     cellCache = {};
-    for (var r = 0; r < 4; r++) {
-      var row = make('div', 'row row-' + r);
-      for (var c = 0; c < 12; c++) {
-        var pos = E.colRowToPos(r, c);
-        var cell = make('div', 'cell');
-        cell.dataset.pos = pos;
-        var arrow = (r % 2 === 0) ? '→' : '←';
-        if (E.isFate(pos)) {
-          cell.classList.add('fate');
-          cell.innerHTML = '<span class="num">' + pos + '</span><span class="fk">❓</span>';
-        } else if (c === 11) {
-          cell.innerHTML = '<span class="num">' + pos + '</span><span class="turn">↙</span>';
-        } else {
-          cell.innerHTML = '<span class="num">' + pos + '</span><span class="arrow">' + arrow + '</span>';
-        }
-        if (pos === 1) { cell.classList.add('start'); cell.innerHTML = '<span class="num">' + pos + '</span><span class="mark">起</span>'; }
-        if (pos === 48) { cell.classList.add('end'); cell.innerHTML = '<span class="num">48</span><span class="mark">终</span>'; }
-        row.appendChild(cell);
-        cellCache[pos] = cell;
+    if (!window.SnakeBoard || !boardCanvas) return;
+    // 主题配色
+    var arcade = document.body.dataset.theme === 'arcade';
+    boardRenderer = window.SnakeBoard.createBoard({
+      canvas: boardCanvas,
+      fateCells: E.FATE_CELLS,
+      start: 1, end: E.BOARD_SIZE,
+      palette: arcade ? {
+        row: ['#0b1d30', '#0e2438', '#112b44', '#15334f'], edge: '#7ff3ff',
+        fate: '#f5c518', start: '#22d3ee', end: '#f5c518', text: '#e3f8ff'
+      } : {
+        row: ['#16301f', '#1b3a26', '#204430', '#26523a'], edge: '#3f7d4e',
+        fate: '#f5c518', start: '#22c55e', end: '#f5c518', text: '#e7f7ee'
       }
-      board.appendChild(row);
+    });
+    boardRenderer.layout();
+    boardRenderer.draw();
+    // 建立格中心缓存
+    for (var pos = 1; pos <= E.BOARD_SIZE; pos++) {
+      cellCache[pos] = boardRenderer.cellCenter(pos);
     }
   }
   function cellPos(pos) {
     var c = cellCache[pos];
-    if (!c) return { x: 0, y: 0, w: 40, h: 28 };
-    // 单元格 offsetParent 是所在行（行是 positioned），需累加行相对棋盘的偏移
-    var op = c.offsetParent;
-    var bx = c.offsetLeft, by = c.offsetTop;
-    if (op) { bx += op.offsetLeft || 0; by += op.offsetTop || 0; }
-    return { x: bx, y: by, w: c.offsetWidth, h: c.offsetHeight };
+    if (!c) return { x: 0, y: 0, w: 40, h: 28, row: 0, col: 0, scale: 0.78 };
+    return { x: c.x, y: c.y, w: c.w, h: c.h, row: c.row, col: c.col, scale: c.scale };
   }
-  function cellAt(pos) { return cellCache[pos]; }
+  function cellAt(pos) {
+    // 兼容旧调用：返回格中心（命运闪烁用 highlight 方法处理）
+    return cellCache[pos] ? { pos: pos } : null;
+  }
+  function resizeBoard() {
+    if (!boardRenderer) return;
+    boardRenderer.layout();
+    boardRenderer.draw();
+    resetPieces();
+    ACTOR_IDS.forEach(function (a) {
+      if (pieceEls[a]) placePiece(a, S[a].pos, false);
+    });
+  }
 
   /* ---------------- 棋子 ---------------- */
   var pieceEls = {};
@@ -206,8 +221,8 @@
   function createPieces() {
     ACTOR_IDS.forEach(function (a) {
       var cp = cellPos(1);
-      var pw = Math.max(30, cp.w * 0.74);
-      var ph = Math.round(pw * 1.85);
+      var pw = Math.max(26, cp.w * 0.7);
+      var ph = Math.round(pw * 1.6);
       var wrap = make('div', 'piece piece-' + a);
       wrap.id = 'piece-' + a;
       var body = make('div', 'piece-body');
@@ -217,8 +232,9 @@
       wrap.appendChild(shadow);
       wrap.style.width = pw + 'px';
       wrap.style.height = ph + 'px';
-      wrap.style.left = (cp.x + cp.w / 2 - pw / 2) + 'px';
-      wrap.style.top = (cp.y) + 'px';
+      // 棋子底部站在格子顶面中心
+      wrap.style.left = (cp.x - pw / 2) + 'px';
+      wrap.style.top = (cp.y + cp.h / 2 - ph + 6) + 'px';
       board.appendChild(wrap);
       pieceEls[a] = wrap;
       pieceSizes[a] = { pw: pw, ph: ph };
@@ -229,8 +245,17 @@
     if (!p) return;
     var cp = cellPos(pos);
     var sz = pieceSizes[actor];
-    p.style.left = (cp.x + cp.w / 2 - sz.pw / 2) + 'px';
-    p.style.top = (cp.y) + 'px';
+    // 近大远小：随行缩放棋子
+    var s = cp.scale;
+    var pw = Math.max(22, cp.w * 0.7);
+    var ph = Math.round(pw * 1.6);
+    if (Math.abs(pw - sz.pw) > 1) {
+      sz.pw = pw; sz.ph = ph;
+      p.style.width = pw + 'px';
+      p.style.height = ph + 'px';
+    }
+    p.style.left = (cp.x - sz.pw / 2) + 'px';
+    p.style.top = (cp.y + cp.h / 2 - sz.ph + 6) + 'px';
     if (hop) {
       p.classList.remove('hop');
       void p.offsetWidth;
@@ -514,12 +539,35 @@
     r.classList.add('flash');
   }
   function fateFlash(pos) {
-    var c = cellAt(pos);
-    if (!c) return;
-    c.classList.remove('active');
-    void c.offsetWidth;
-    c.classList.add('active');
-    setTimeout(function () { c.classList.remove('active'); }, 900);
+    if (!boardRenderer) return;
+    var prev = cellCache[pos];
+    if (!prev) return;
+    // 重绘时给目标格叠金色闪光（draw 后叠加高亮）
+    var c = boardRenderer.cellCenter(pos);
+    var ctx = boardCanvas.getContext('2d');
+    var t = 0, step = 4;
+    var timer = setInterval(function () {
+      t += step;
+      var a = 0.5 + 0.5 * Math.sin(t / 60);
+      var x = c.x, y = c.y - c.h * 0.5, w = c.w, h = c.h;
+      ctx.save();
+      ctx.globalAlpha = a;
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 3;
+      ctx.shadowColor = 'rgba(255,255,255,.9)';
+      ctx.shadowBlur = 12;
+      var dx = c.dx || (boardRenderer.width * 0.085 * 0.8);
+      ctx.beginPath();
+      ctx.moveTo(x - w / 2, y);
+      ctx.lineTo(x + w / 2, y);
+      ctx.lineTo(x + w / 2 + dx, y + h);
+      ctx.lineTo(x - w / 2 + dx, y + h);
+      ctx.closePath();
+      ctx.stroke();
+      ctx.restore();
+      if (t > 800) { clearInterval(timer); }
+    }, 40);
+    setTimeout(function () { clearInterval(timer); }, 1000);
   }
   function shieldFX(actor, kind) {
     var card = $('card-' + actor);
@@ -771,6 +819,7 @@
     paintAudioBtns();
     buildBoard();
     createPieces();
+    window.addEventListener('resize', resizeBoard);
     ensureCubes(1, false);
     fxInit();
     // 开始界面图例棋子 + 对局 HUD 头像
