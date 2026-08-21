@@ -148,7 +148,7 @@ check('返回主菜单', els['menu'] && els['menu'].style.display === 'flex');
 fireEl('btn-start', 'click');
 pump(2, '角色选择');
 check('角色选择面板显示(不被菜单兜底拉回)', els['charsel'] && els['charsel'].style.display === 'flex', 'charsel=' + (els['charsel'] ? els['charsel'].style.display : '?') + ' menu=' + (els['menu'] ? els['menu'].style.display : '?'));
-check('角色卡片已构建(6个)', els['charsel-list'] && els['charsel-list'].children.length === 6, 'children=' + (els['charsel-list'] ? els['charsel-list'].children.length : 0));
+check('角色卡片已构建(8个)', els['charsel-list'] && els['charsel-list'].children.length === 8, 'children=' + (els['charsel-list'] ? els['charsel-list'].children.length : 0));
 
 // 点击第一张卡 → 开始对局
 fireEl('charsel-list', 'click');

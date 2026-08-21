@@ -57,6 +57,24 @@ var SURVIVORS = [
     passive: { name: '幽影', desc: '心跳感知范围 -35%，更难被监管者发现' },
     active: { name: '遁形', type: 'invisible', cd: 35, duration: 8, desc: '隐身 8 秒，监管者无法锁定；蹲伏状态下延长至 11 秒' },
     style: { cloak: '#2e2e4a', trim: '#9aa8c8', hair: '#c0c8d8', skin: '#f0d6c0', hat: 'hood', accent: '#aab6e8' }
+  },
+  {
+    id: 'quo', name: '伊芙琳', title: '星语占卜师',
+    bg: '雾夜塔罗师，能占卜命运，却总在迷雾里看见自己沦为星辰的祭品。',
+    color: '#b8c8f8',
+    stats: { speed: 1.04, decode: 1.00, heal: 0.90, selfHeal: 0.90, vault: 1.10 },
+    passive: { name: '星见之眼', desc: '危机感知范围 +30%，更早察觉监管者逼近' },
+    active: { name: '命运闪回', type: 'warp', cd: 26, duration: 0, desc: '朝移动方向闪现 150px 脱离险境（不可穿墙）' },
+    style: { cloak: '#4a4a7a', trim: '#c0a8f0', hair: '#d8d0f0', skin: '#f2d0b0', hat: 'hood', accent: '#b9a8ee' }
+  },
+  {
+    id: 'art', name: '奥德里奇', title: '钟楼工匠',
+    bg: '守护修道院钟楼的机械师，用齿轮与发条对抗迷雾里的怪物。',
+    color: '#c8b090',
+    stats: { speed: 0.95, decode: 1.20, heal: 1.00, selfHeal: 1.00, vault: 1.00 },
+    passive: { name: '机巧维修', desc: '修机速度 +20%，校准失败不损失进度' },
+    active: { name: '应急零件', type: 'repair', cd: 55, duration: 0, desc: '立刻为最近的未完成密码机注入 12% 进度' },
+    style: { cloak: '#6a5a40', trim: '#d8b46a', hair: '#4a3a2a', skin: '#eec39a', hat: 'cap', accent: '#d0a050' }
   }
 ];
 
@@ -79,6 +97,26 @@ var HUNTERS = [
     active: { name: '空间传送', type: 'teleport', cd: 30, duration: 0, desc: '传送至最近的未完成密码机旁' },
     active2: { name: '全视之眼', type: 'reveal', cd: 50, duration: 4, desc: '4 秒内显示所有求生者位置' },
     style: { cloak: '#3a3358', trim: '#c8b8f0', glow: '#c0a8ff', weapon: 'staff' }
+  },
+  {
+    id: 'hun_cage', name: '摩洛克', title: '缚骨陷阱师',
+    bg: '用铁笼与锁链捕捉猎物的狱卒，把所有逃者钉在雾中。',
+    color: '#e0a050',
+    stats: { speed: 1.00, atkCd: 2.9, atkRange: 50, vision: 280, vault: 0.75 },
+    passive: { name: '枷锁牢笼', desc: '命中后目标 1.2 秒移速 -25%' },
+    active: { name: '铁笼陷阱', type: 'trap', cd: 22, duration: 0, desc: '在面前放置铁笼陷阱，求生者踩中定身 1.5 秒（最多同时 3 个）' },
+    active2: { name: '全视之眼', type: 'reveal', cd: 45, duration: 4, desc: '4 秒内显示所有求生者位置' },
+    style: { cloak: '#5a3a20', trim: '#c0a060', glow: '#ffb860', weapon: 'claw' }
+  },
+  {
+    id: 'hun_heavy', name: '格罗姆', title: '碎骨重锤',
+    bg: '来自雾底矿场的暴君，一锤落下，连墓碑都化为齑粉。',
+    color: '#c86040',
+    stats: { speed: 0.92, atkCd: 3.0, atkRange: 58, vision: 275, vault: 0.6 },
+    passive: { name: '碎骨之击', desc: '命中造成震荡，目标 2.5 秒移速 -12%' },
+    active: { name: '震荡波', type: 'quake', cd: 26, duration: 0, desc: '朝面前释放冲击波，击晕 120° 扇区内的求生者 1.2 秒' },
+    active2: { name: '全视之眼', type: 'reveal', cd: 50, duration: 4, desc: '4 秒内显示所有求生者位置' },
+    style: { cloak: '#3a2a2a', trim: '#8a5a3a', glow: '#ff7a50', weapon: 'hammer' }
   }
 ];
 

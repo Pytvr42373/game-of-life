@@ -754,6 +754,111 @@ test('技能CD: 使用后进入冷却并递减', function () {
 });
 
 // ============================================================
+// 10.5 新角色 / 新地图 / 随机监管者 / AI优化
+// ============================================================
+test('角色: 求生者8名+监管者4名, 新角色数据齐备', function () {
+  assert.strictEqual(SURVIVORS.length, 8, '求生者应8名');
+  assert.strictEqual(HUNTERS.length, 4, '监管者应4名');
+  const quo = getSurvivor('quo');
+  assert.ok(quo && quo.active.type === 'warp', '占卜师技能缺失');
+  const art = getSurvivor('art');
+  assert.ok(art && art.active.type === 'repair', '工匠技能缺失');
+  const cage = getHunter('hun_cage');
+  assert.ok(cage && cage.active.type === 'trap' && cage.active2, '陷阱师技能缺失');
+  const heavy = getHunter('hun_heavy');
+  assert.ok(heavy && heavy.active.type === 'quake' && heavy.active2, '重锤技能缺失');
+});
+
+test('地图: 共6张地图且全部连通', function () {
+  assert.strictEqual(MAPS.length, 6, '应6张地图');
+  for (let i = 0; i < MAPS.length; i++) {
+    const m = parseMap(MAPS[i]);
+    assert.ok(mapConnectivity(m).ok, MAPS[i].name + ' 不连通');
+  }
+});
+
+test('技能: 星语占卜师命运闪回(warp)闪现', function () {
+  const g = fresh(0, { charId: 'quo' });
+  const p = g.player;
+  p.moveX = 1; p.moveY = 0;
+  const x0 = p.x, y0 = p.y;
+  g.useSurvivorSkill(p);
+  assert.ok(Math.abs(p.x - x0) + Math.abs(p.y - y0) > 60, '未闪现距离不足');
+  assert.ok(p.skillCd > 0, '未进入CD');
+});
+
+test('技能: 钟楼工匠应急零件(repair)注入进度', function () {
+  const g = fresh(0, { charId: 'art' });
+  const p = g.player;
+  const m = findMachine(g, 0);
+  const before = m.progress;
+  g.useSurvivorSkill(p);
+  assert.ok(m.progress > before, '未增加进度');
+});
+
+test('技能: 缚骨陷阱师铁笼陷阱(trap)踩中定身', function () {
+  const g = fresh(0, { hunterId: 'hun_cage' });
+  const h = g.hunter;
+  putAt(h, 400, 400); h.dir = 0; h.stunT = 0;
+  g.useHunterSkill(h, 1);
+  assert.strictEqual(h.traps.length, 1, '未放置陷阱');
+  const tp = h.traps[0];
+  const s = g.survivors[0];
+  putAt(s, tp.x + 4, tp.y);
+  for (let i = 0; i < 6; i++) step(g, 1 / 30);
+  assert.ok(s.stunT > 0, '踩中未定身');
+});
+
+test('技能: 碎骨重锤震荡波(quake)击晕面前求生者', function () {
+  const g = fresh(0, { hunterId: 'hun_heavy' });
+  const h = g.hunter, s = g.survivors[0];
+  putAt(h, 400, 400); putAt(s, 400 + 60, 400);
+  h.dir = 0; h.stunT = 0;
+  g.useHunterSkill(h, 1);
+  assert.ok(s.stunT > 0, '未击晕');
+});
+
+test('被动: 枷锁牢笼/碎骨之击命中减速', function () {
+  let g = fresh(0, { hunterId: 'hun_cage' });
+  let h = g.hunter, s = g.survivors[0];
+  putAt(h, 400, 400); putAt(s, 400 + 20, 400);
+  h.dir = 0; h.atkCd = 0; h.wipeT = 0;
+  g.hunterAttack(h);
+  assert.ok(s.hitSlowT > 0 && Math.abs(s.hitSlowMul - 0.75) < 0.01, '枷锁减速未生效');
+  g = fresh(0, { hunterId: 'hun_heavy' });
+  h = g.hunter; s = g.survivors[0];
+  putAt(h, 400, 400); putAt(s, 400 + 20, 400);
+  h.dir = 0; h.atkCd = 0; h.wipeT = 0;
+  g.hunterAttack(h);
+  assert.ok(s.hitSlowT > 0 && Math.abs(s.hitSlowMul - 0.88) < 0.01, '碎骨减速未生效');
+});
+
+test('求生者对局: AI监管者从全部监管者中随机', function () {
+  const ids = HUNTERS.map(function (x) { return x.id; });
+  const seen = {};
+  for (let i = 0; i < 60; i++) {
+    const g2 = new Game();
+    g2.startMatch({ mapIdx: 0, difficulty: 'normal', asHunter: false });
+    assert.ok(ids.indexOf(g2.hunter.id) >= 0, '监管者非法: ' + g2.hunter.id);
+    seen[g2.hunter.id] = 1;
+  }
+  assert.ok(Object.keys(seen).length >= 2, '随机性不足, 仅见: ' + Object.keys(seen).join(','));
+});
+
+test('AI优化: chooseMachine 跳过已被其他AI占用的机器', function () {
+  const g = fresh(0);
+  const a1 = g.survivors[1], a2 = g.survivors[2];
+  assert.ok(a1.ai && a2.ai, 'AI队友不存在');
+  const m1 = g.nearestMachine(a2.x, a2.y, true);
+  a2.decoding = m1;
+  const chosen = a1.ai.chooseMachine(a1);
+  if (g.machines.length > 1) {
+    assert.notStrictEqual(chosen, m1, '未避开已占用机器');
+  }
+  a2.decoding = null;
+});
+
+// ============================================================
 // 11. AI 状态机
 // ============================================================
 test('监管者AI: 视野内发现→追击, 丢失→搜索', function () {

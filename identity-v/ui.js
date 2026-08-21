@@ -476,6 +476,14 @@
       cx.beginPath(); cx.moveTo(-r * 0.4, -r * 0.4); cx.lineTo(-r * 0.55, r * 0.1); cx.lineTo(-r * 0.3, r * 0.05); cx.lineTo(-r * 0.2, -r * 0.4); cx.closePath(); cx.fill();
       cx.fillStyle = '#d8e4ff';
       cx.beginPath(); cx.arc(-r * 0.12, -r * 0.3, r * 0.04, 0, 6.283); cx.arc(r * 0.12, -r * 0.3, r * 0.04, 0, 6.283); cx.fill();
+    } else if (hat === 'cap') {
+      // 工装鸭舌帽
+      cx.fillStyle = st.accent;
+      cx.beginPath(); cx.arc(0, -r * 0.5, r * 0.3, Math.PI, 0); cx.fill();
+      cx.fillStyle = st.cloak;
+      cx.beginPath(); cx.ellipse(0, -r * 0.52, r * 0.34, r * 0.1, 0, 0, 6.283); cx.fill();
+      cx.fillStyle = st.accent;
+      cx.beginPath(); cx.ellipse(r * 0.18, -r * 0.44, r * 0.22, r * 0.08, 0.1, 0, 6.283); cx.fill();
     }
   }
 
@@ -644,6 +652,11 @@
     // 逃生门
     for (var g = 0; g < G.gates.length; g++) drawGate(G.gates[g], ox, oy, ts);
 
+    // 铁笼陷阱(缚骨陷阱师)
+    if (G.hunter && G.hunter.traps && G.hunter.traps.length) {
+      for (var tp = 0; tp < G.hunter.traps.length; tp++) drawTrap(G.hunter.traps[tp], ox, oy, ts);
+    }
+
     // 实体(按 y 排序)
     var ents = [];
     for (var i = 0; i < G.survivors.length; i++) if (G.survivors[i].alive && !G.survivors[i].escaped) ents.push(G.survivors[i]);
@@ -750,6 +763,25 @@
       ctx.fillStyle = 'rgba(190,205,250,0.26)';
       ctx.fillRect(sx, sy, ts, 3);
     }
+  }
+
+  function drawTrap(t, ox, oy, ts) {
+    var sx = t.x - ox, sy = t.y - oy;
+    var pulse = 0.7 + 0.3 * Math.sin(frame * 0.2);
+    ctx.save();
+    ctx.translate(sx, sy);
+    // 地面警示圈
+    ctx.fillStyle = 'rgba(255,184,96,0.16)';
+    ctx.beginPath(); ctx.arc(0, 0, 12, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,184,96,' + (0.45 + 0.4 * pulse).toFixed(2) + ')';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(0, 0, 11 * pulse, 0, 6.283); ctx.stroke();
+    // 铁笼
+    ctx.strokeStyle = '#c8a060';
+    ctx.lineWidth = 2.5;
+    ctx.strokeRect(-8, -8, 16, 16);
+    ctx.beginPath(); ctx.moveTo(-8, -8); ctx.lineTo(8, 8); ctx.moveTo(8, -8); ctx.lineTo(-8, 8); ctx.stroke();
+    ctx.restore();
   }
 
   function drawWindow(w, ox, oy, ts) {
@@ -1048,6 +1080,33 @@
       ctx.strokeStyle = '#b8b8c8';
       ctx.lineWidth = 2.5;
       ctx.beginPath(); ctx.arc(wx + Math.cos(h.dir) * 16, wy + Math.sin(h.dir) * 16, 9, h.dir + 1.4, h.dir + 3.6); ctx.stroke();
+    } else if (st.weapon === 'claw') {
+      // 三根爪刃
+      ctx.strokeStyle = '#d8d8e8'; ctx.lineWidth = 2.5;
+      for (var ci = -1; ci <= 1; ci++) {
+        var ca = h.dir + ci * 0.28;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(h.dir) * 8, Math.sin(h.dir) * 8);
+        ctx.lineTo(Math.cos(ca) * 34, Math.sin(ca) * 34);
+        ctx.stroke();
+      }
+      ctx.fillStyle = st.glow;
+      ctx.globalAlpha = 0.8 + 0.2 * Math.sin(frame * 0.12);
+      ctx.beginPath(); ctx.arc(Math.cos(h.dir) * 30, Math.sin(h.dir) * 30, 4, 0, 6.283); ctx.fill();
+      ctx.globalAlpha = 1;
+    } else if (st.weapon === 'hammer') {
+      // 重锤
+      ctx.strokeStyle = '#8a6a4a'; ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(0, 0); ctx.lineTo(Math.cos(h.dir) * 24, Math.sin(h.dir) * 24); ctx.stroke();
+      ctx.fillStyle = '#6a5a4a';
+      var hmx = Math.cos(h.dir) * 28, hmy = Math.sin(h.dir) * 28;
+      ctx.save();
+      ctx.translate(hmx, hmy); ctx.rotate(h.dir);
+      ctx.fillRect(-7, -5, 14, 10);
+      ctx.restore();
+      ctx.fillStyle = 'rgba(255,122,80,0.85)';
+      ctx.beginPath(); ctx.arc(hmx, hmy, 3.2, 0, 6.283); ctx.fill();
     } else {
       ctx.moveTo(-r * 0.5, r * 0.4); ctx.lineTo(r * 0.9, -r * 0.8);
       ctx.stroke();
@@ -1649,8 +1708,10 @@
 
   function startAsSurvivor(charId) {
     if (AudioSys.startAmbience) AudioSys.startAmbience();
+    // 求生者对局：AI 监管者从全部监管者中随机
+    var rndHunter = HUNTERS[Math.floor(Math.random() * HUNTERS.length)].id;
     G.startMatch({
-      asHunter: false, charId: charId, hunterId: selectedHunter,
+      asHunter: false, charId: charId, hunterId: rndHunter,
       mapIdx: selectedMap, difficulty: currentSave.settings.difficulty || 'normal'
     });
     setTouchRole(false);

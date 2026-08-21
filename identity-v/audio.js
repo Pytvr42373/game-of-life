@@ -94,6 +94,8 @@ var AudioSys = (function () {
     teleport: function () { noise(0.5, 0.2, 3000, 'bandpass', 0, 4); tone(500, 0.4, 'sine', 0.12, 1200); },
     reveal: function () { tone(880, 0.2, 'sine', 0.12); tone(1320, 0.3, 'sine', 0.1, null, 0.12); },
     dash: function () { noise(0.35, 0.18, 1800, 'bandpass', 0, 3); tone(180, 0.3, 'sawtooth', 0.1, 420); },
+    trap: function () { tone(220, 0.12, 'square', 0.14, 140); tone(330, 0.1, 'square', 0.1, null, 0.06); },
+    quake: function () { noise(0.3, 0.3, 200, 'lowpass'); tone(60, 0.4, 'sawtooth', 0.25, 32); },
 
     invis: function () { tone(240, 0.4, 'sine', 0.08, 120); noise(0.4, 0.06, 1000, 'highpass'); },
     shield: function () { tone(400, 0.3, 'triangle', 0.14, 800); },

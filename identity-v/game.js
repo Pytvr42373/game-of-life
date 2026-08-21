@@ -126,7 +126,9 @@
       if (!opts.asHunter) this.player = this.survivors[0];
       else this.player = null;
 
-      var hchar = getHunter(opts.hunterId || 'hun_chase');
+      // 求生者对局：AI 监管者从全部监管者中随机（玩家扮演监管者时才由玩家指定）
+      var hchar = opts.hunterId ? getHunter(opts.hunterId)
+        : (opts.asHunter ? getHunter('hun_chase') : HUNTERS[Math.floor(Math.random() * HUNTERS.length)]);
       this.hunter = this._makeHunter(hchar, hs.x, hs.y);
       this.hunter.isPlayer = this.playerIsHunter;
       this.hunter.isAI = !this.playerIsHunter;
@@ -159,7 +161,7 @@
         decoding: null,
         carriedBy: null, carryStruggle: 0,
         chair: null,
-        vaultT: 0, stunT: 0, hurtFlash: 0,
+        vaultT: 0, stunT: 0, hurtFlash: 0, hitSlowT: 0, hitSlowMul: 0,
         channel: null,           // {type, target, progress, dur}
         healTarget: null,
         path: [], pathIdx: 0, repathT: 0,
@@ -179,6 +181,7 @@
         x: x, y: y, r: 15, dir: 0,
         attacking: 0, atkT: 0, atkCd: 0,
         carrying: null, carryDropCd: 0,
+        traps: [],               // 铁笼陷阱(缚骨陷阱师)
         breakingPallet: null, breakT: 0,
         vaultT: 0, wipeT: 0,
         stunT: 0, hurtFlash: 0, dashT: 0, dashDir: 0, chaseBoostT: 0,
@@ -329,6 +332,7 @@
       if (s.hp === 0) sp *= 0.35;
       if (s.sprintT > 0) sp *= 1.65;
       if (s.hitBoostT > 0) sp *= 1.3;
+      if (s.hitSlowT > 0) sp *= (s.hitSlowMul || 0.8);
       return sp;
     },
 
@@ -483,6 +487,7 @@
       if (this.reveal > 0) this.reveal -= dt;
       if (h.carrying) h.carryDropCd = (h.carryDropCd || 0) - dt;
       this.updatePalletBreak(dt);
+      this.updateTraps(dt);
 
       for (var i = 0; i < this.survivors.length; i++) {
         var s = this.survivors[i];
@@ -497,6 +502,7 @@
         if (s.decodeBoostT > 0) s.decodeBoostT -= dt;
         if (s.ironwallT > 0) s.ironwallT -= dt;
         if (s.hitBoostT > 0) s.hitBoostT -= dt;
+        if (s.hitSlowT > 0) s.hitSlowT -= dt;
         s.moveX = 0; s.moveY = 0;
         if (s.escaped) { s.moveX = 0; s.moveY = 0; }
       }
@@ -822,6 +828,9 @@
       if (s.char.id === 'gua') s.ironwallT = 1.5;
 
       s.hp -= dmg;
+      // 监管者被动减速(命中生效)：枷锁牢笼-1.2s25% / 碎骨之击-2.5s12%
+      if (h.char.id === 'hun_cage') { s.hitSlowT = 1.2; s.hitSlowMul = 0.75; }
+      else if (h.char.id === 'hun_heavy') { s.hitSlowT = 2.5; s.hitSlowMul = 0.88; }
       s.hurtFlash = 0.5;
       this.cam.shake = 0.25;
       if (s.isPlayer) this.vignette = 0.7;
@@ -1199,6 +1208,41 @@
         s.invisible = ac.duration;
         if (AudioSys.invis) AudioSys.invis();
         this.addFloater(s.x, s.y - 26, '遁形!', '#b8c8ff');
+      } else if (type === 'warp') {
+        // 命运闪回：朝移动/面向方向闪现 150px，从远到近找合法落点(不可穿墙/倒板)
+        var WARP_DIST = 150, WARP_STEPS = 8;
+        var wdx = s.moveX, wdy = s.moveY;
+        if (wdx === 0 && wdy === 0) { wdx = Math.cos(s.dir); wdy = Math.sin(s.dir); }
+        var wlen = Math.sqrt(wdx * wdx + wdy * wdy) || 1;
+        wdx /= wlen; wdy /= wlen;
+        var warpX = s.x, warpY = s.y;
+        for (var ws = WARP_STEPS; ws >= 1; ws--) {
+          var wpx = s.x + wdx * WARP_DIST * ws / WARP_STEPS;
+          var wpy = s.y + wdy * WARP_DIST * ws / WARP_STEPS;
+          var wtx = Math.floor(wpx / this.ts), wty = Math.floor(wpy / this.ts);
+          if (!this.tileIsSolid(wtx, wty) && !this.tileIsDownPallet(wtx, wty)) { warpX = wpx; warpY = wpy; break; }
+        }
+        s.x = clamp(warpX, this.ts, this.cols * this.ts - this.ts);
+        s.y = clamp(warpY, this.ts, this.rows * this.ts - this.ts);
+        s.vaultT = 0;
+        this.spawnParticle(s.x, s.y, 'spark', 18);
+        this.addFloater(s.x, s.y - 26, '命运闪回!', '#c0a8ff');
+        if (AudioSys.teleport) AudioSys.teleport();
+      } else if (type === 'repair') {
+        // 应急零件：立刻为最近的未完成密码机注入 12% 进度
+        var rm = this.nearestMachine(s.x, s.y, true);
+        if (rm && !rm.decoded) {
+          rm.progress = Math.min(rm.max, rm.progress + 12);
+          this.addFloater(rm.x, rm.y - 26, '应急零件 +12%!', '#ffd080');
+          if (rm.progress >= rm.max) {
+            rm.decoded = true; rm.occupiedBy = null; rm.decoders = 0;
+            for (var rc = 0; rc < this.survivors.length; rc++) {
+              if (this.survivors[rc].decoding === rm) { this.survivors[rc].decoding = null; this.survivors[rc].channel = null; }
+            }
+            this.addFloater(rm.x, rm.y - 32, '密码机完成!', '#7dffb0');
+            if (AudioSys.machineDone) AudioSys.machineDone();
+          } else if (AudioSys.decode) AudioSys.decode();
+        }
       }
       s.skillCd = ac.cd;
     },
@@ -1220,6 +1264,7 @@
       if (slot === 1) {
         var ac = ch.active;
         if (h.skillCd > 0) return;
+        var skipCd = false;
         if (ac.type === 'dash') {
           h.dashT = ac.duration;
           h.dashDir = h.dir;
@@ -1234,8 +1279,51 @@
           if (AudioSys.teleport) AudioSys.teleport();
           this.spawnParticle(h.x, h.y, 'spark', 30);
           this.addFloater(h.x, h.y - 26, '传送!', '#c0a8ff');
+        } else if (ac.type === 'trap') {
+          // 铁笼陷阱：面前 60px 放置(优先朝向方向，失败则旋转试探最近可行格)，踩中定身 1.5s，最多同时 3 个
+          var placedTrap = false;
+          var tAng = h.dir;
+          for (var ta = 0; ta < 8; ta++) {
+            if (ta > 0) tAng = h.dir + ((ta % 2 === 1 ? 1 : -1) * Math.ceil(ta / 2) * 0.45);
+            var tpx = clamp(h.x + Math.cos(tAng) * 60, this.ts, this.cols * this.ts - this.ts);
+            var tpy = clamp(h.y + Math.sin(tAng) * 60, this.ts, this.rows * this.ts - this.ts);
+            var ttx = Math.floor(tpx / this.ts), tty = Math.floor(tpy / this.ts);
+            if (this.tileIsSolid(ttx, tty) || this.tileIsDownPallet(ttx, tty)) continue;
+            while (h.traps.length >= 3) h.traps.shift();
+            h.traps.push({ x: tpx, y: tpy, life: 18, stun: 1.5, cd: 0 });
+            this.addFloater(tpx, tpy - 24, '铁笼陷阱!', '#ffb860');
+            if (AudioSys.trap) AudioSys.trap();
+            placedTrap = true;
+            break;
+          }
+          if (!placedTrap) {
+            this.addFloater(h.x, h.y - 26, '位置不可用', '#ff9a6a');
+            h.skillCd = 1;
+            skipCd = true;
+          }
+        } else if (ac.type === 'quake') {
+          // 震荡波：面前 120° 扇形 150px 击晕
+          var Q_RANGE = 150, Q_ANGLE = 1.047;
+          var hitAny = false;
+          for (var qi = 0; qi < this.survivors.length; qi++) {
+            var qs = this.survivors[qi];
+            if (!qs.alive || qs.escaped || qs.carriedBy || qs.chair || qs.invisible > 0) continue;
+            var qd = dist(h.x, h.y, qs.x, qs.y);
+            if (qd > Q_RANGE) continue;
+            var qang = angDiff(h.dir, Math.atan2(qs.y - h.y, qs.x - h.x));
+            if (qang > Q_ANGLE) continue;
+            qs.stunT = 1.2;
+            qs.hurtFlash = 0.4;
+            hitAny = true;
+            this.addFloater(qs.x, qs.y - 26, '震荡!', '#ff9a6a');
+          }
+          if (hitAny) {
+            this.cam.shake = 0.4;
+            this.spawnParticle(h.x + Math.cos(h.dir) * 70, h.y + Math.sin(h.dir) * 70, 'spark', 26);
+            if (AudioSys.quake) AudioSys.quake();
+          }
         }
-        h.skillCd = ac.cd;
+        if (!skipCd) h.skillCd = ac.cd;
       } else if (slot === 2) {
         var ac2 = ch.active2;
         if (!ac2 || h.skill2Cd > 0) return;
@@ -1317,6 +1405,31 @@
       p.breakDur = PALLET_BREAK_TIME;
       this.addFloater(p.x, p.y - 22, '破坏木板...', '#ffcf80');
       return true;
+    },
+
+    updateTraps: function (dt) {
+      var h = this.hunter;
+      if (!h || !h.traps) return;
+      for (var ti = h.traps.length - 1; ti >= 0; ti--) {
+        var tp = h.traps[ti];
+        tp.life -= dt;
+        if (tp.cd > 0) tp.cd -= dt;
+        if (tp.life <= 0) { h.traps.splice(ti, 1); continue; }
+        if (tp.cd > 0) continue;
+        for (var ts = 0; ts < this.survivors.length; ts++) {
+          var su = this.survivors[ts];
+          if (!su.alive || su.escaped || su.carriedBy || su.chair) continue;
+          if (dist(tp.x, tp.y, su.x, su.y) < 22) {
+            su.stunT = Math.max(su.stunT, tp.stun);
+            su.hurtFlash = 0.5;
+            tp.cd = 2;
+            tp.life = Math.min(tp.life, 2);
+            this.addFloater(su.x, su.y - 26, '踩中陷阱!', '#ffb860');
+            this.spawnParticle(tp.x, tp.y, 'spark', 18);
+            if (AudioSys.stun) AudioSys.stun();
+          }
+        }
+      }
     },
 
     updatePalletBreak: function (dt) {

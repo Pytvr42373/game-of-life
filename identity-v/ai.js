@@ -15,6 +15,9 @@
     this.active = true;
     this.repathT = 0;
     this.thinkT = 0;
+    this._guardOrbitT = 0;
+    this._searchPoint = null;
+    this._searchT = 0;
   }
 
   HunterAI.prototype.update = function (dt) {
@@ -56,14 +59,30 @@
 
     /* 全视之眼 / 追击技能释放 */
     if (h.state === 'chase') {
+      var tgt = h.target;
       if (h.char.id === 'hun_tele') {
         if (h.skillCd <= 0 && (h.lostT > 1.2 || (h.lastSeen && dist(h.x, h.y, h.lastSeen.x, h.lastSeen.y) > 300))) {
           game.useHunterSkill(h, 1);
         }
-        if (h.skill2Cd <= 0 && h.target) game.useHunterSkill(h, 2);
       }
-      if (h.char.id === 'hun_chase' && h.skillCd <= 0 && h.target && dist(h.x, h.y, h.target.x, h.target.y) > 180) {
+      if (h.char.id === 'hun_chase' && h.skillCd <= 0 && tgt && dist(h.x, h.y, tgt.x, tgt.y) > 180) {
         game.useHunterSkill(h, 1);
+      }
+      // 缚骨陷阱师：追击中接近目标(40~250)时埋下铁笼拦截(先转向目标)
+      if (h.char.id === 'hun_cage' && h.skillCd <= 0 && tgt) {
+        var ctd = dist(h.x, h.y, tgt.x, tgt.y);
+        if (ctd > 40 && ctd < 250) {
+          h.dir = Math.atan2(tgt.y - h.y, tgt.x - h.x);
+          game.useHunterSkill(h, 1);
+        }
+      }
+      // 碎骨重锤：目标进入 150px 内释放震荡波
+      if (h.char.id === 'hun_heavy' && h.skillCd <= 0 && tgt) {
+        if (dist(h.x, h.y, tgt.x, tgt.y) < 150) game.useHunterSkill(h, 1);
+      }
+      // 全视之眼：拥有 active2 的监管者追击丢失目标或远程型时周期释放
+      if (h.char.active2 && h.skill2Cd <= 0 && tgt) {
+        if (h.lostT > 1.5 || h.char.id === 'hun_tele') game.useHunterSkill(h, 2);
       }
     }
 
@@ -100,21 +119,47 @@
 
     if (h.state === 'search') {
       if (h.lastSeen) {
-        this.moveToward(h, h.lastSeen.x, h.lastSeen.y, dt);
-        if (dist(h.x, h.y, h.lastSeen.x, h.lastSeen.y) < 28) { h.state = 'patrol'; h.lastSeen = null; }
+        var ls = h.lastSeen;
+        if (this._searchPoint) {
+          this.moveToward(h, this._searchPoint.x, this._searchPoint.y, dt);
+          if (dist(h.x, h.y, this._searchPoint.x, this._searchPoint.y) < 28) {
+            this._searchPoint = null;
+            this._searchT -= dt;
+          }
+        } else {
+          this.moveToward(h, ls.x, ls.y, dt);
+          if (dist(h.x, h.y, ls.x, ls.y) < 28) {
+            this._searchT -= dt;
+            if (this._searchT > 0 && Math.random() < 0.75) {
+              var sAng = Math.random() * Math.PI * 2;
+              this._searchPoint = {
+                x: clamp(ls.x + Math.cos(sAng) * 200, 42, this.game.cols * this.game.ts - 42),
+                y: clamp(ls.y + Math.sin(sAng) * 200, 42, this.game.rows * this.game.ts - 42)
+              };
+            } else if (this._searchT <= 0) {
+              h.state = 'patrol'; h.lastSeen = null; this._searchPoint = null; this._searchT = 0;
+            }
+          }
+        }
       } else h.state = 'patrol';
       return;
     }
 
     if (h.state === 'guard') {
       h.guardT -= dt;
-      // 守尸：在椅子附近巡逻
+      // 守尸：在椅子周围绕圈巡逻（防贴脸救援/被绕视野）
       var guardChair = this.nearestOccupiedChair();
       if (guardChair) {
-        if (dist(h.x, h.y, guardChair.x, guardChair.y) > 60) this.moveToward(h, guardChair.x, guardChair.y, dt);
-        else { h.moveX = 0; h.moveY = 0; this.thinkT -= dt; }
+        if (dist(h.x, h.y, guardChair.x, guardChair.y) > 85) {
+          this.moveToward(h, guardChair.x, guardChair.y, dt);
+        } else {
+          this._guardOrbitT -= dt;
+          var oca = h.dir + 0.9;
+          if (this._guardOrbitT <= 0) { this._guardOrbitT = 0.55; h.dir = oca; }
+          this.moveToward(h, guardChair.x + Math.cos(h.dir) * 72, guardChair.y + Math.sin(h.dir) * 72, dt);
+        }
       }
-      if (h.guardT <= 0) h.state = 'patrol';
+      if (h.guardT <= 0) { h.state = 'patrol'; this._guardOrbitT = 0; }
       return;
     }
 
@@ -161,10 +206,21 @@
       this.thinkT = 3 + Math.random() * 2;
       var g = this.game;
       var candidates = [];
-      for (var i = 0; i < g.machines.length; i++) candidates.push(g.machines[i]);
+      var undecoded = [];
+      for (var i = 0; i < g.machines.length; i++) {
+        var mm = g.machines[i];
+        candidates.push(mm);
+        if (!mm.decoded) undecoded.push(mm);
+      }
       for (var j = 0; j < g.chairs.length; j++) candidates.push(g.chairs[j]);
       for (var k = 0; k < g.gates.length; k++) candidates.push(g.gates[k]);
-      var c = candidates[Math.floor(Math.random() * candidates.length)];
+      // 优先压制未完成密码机(60%)，其次随机巡逻
+      var c = null;
+      if (undecoded.length && Math.random() < 0.6) {
+        c = undecoded[Math.floor(Math.random() * undecoded.length)];
+      } else {
+        c = candidates[Math.floor(Math.random() * candidates.length)];
+      }
       if (c) {
         h.path = g.pathTo(h.x, h.y, c.x, c.y, { win: true });
         h.pathIdx = 0;
@@ -296,7 +352,7 @@
       if (s.decoding) game.stopDecode(s);
       // 保命技能
       if (s.skillCd <= 0) {
-        if (s.char.id === 'run' || s.char.id === 'gho' || s.char.id === 'gua') game.useSurvivorSkill(s);
+        if (s.char.id === 'run' || s.char.id === 'gho' || s.char.id === 'gua' || s.char.id === 'quo') game.useSurvivorSkill(s);
       }
       // 板子旁下板
       var pal = game.standingOnPallet(s);
@@ -316,10 +372,10 @@
     /* 破译剩余机 */
     var remain = game.machinesRemaining ? game.machinesRemaining() : this.countRemain();
     if (remain > 0) {
-      var m = game.nearestMachine(s.x, s.y, true);
+      var m = this.chooseMachine(s);
       if (m && dist(s.x, s.y, m.x, m.y) <= RANGE + 18 && !m.occupiedBy) {
         if (s.decoding !== m) game.toggleDecode(s);
-        if (s.skillCd <= 0 && (s.char.id === 'eng' || s.char.id === 'dec')) game.useSurvivorSkill(s);
+        if (s.skillCd <= 0 && (s.char.id === 'eng' || s.char.id === 'dec' || s.char.id === 'art')) game.useSurvivorSkill(s);
         s.moveX = 0; s.moveY = 0;
         // 工程师生理上靠近机子才修机，但傀儡技能可远程
       } else {
@@ -407,6 +463,26 @@
     }
   };
 
+  // 分散修机：优先选择未被其他 AI 占用的最近密码机
+  SurvivorAI.prototype.chooseMachine = function (s) {
+    var g = this.game, best = null, bd = 1e9;
+    for (var i = 0; i < g.machines.length; i++) {
+      var m = g.machines[i];
+      if (m.decoded) continue;
+      var taken = false;
+      for (var j = 0; j < g.survivors.length; j++) {
+        var o = g.survivors[j];
+        if (o === s || !o.alive || o.escaped || o.carriedBy || o.chair || !o.ai) continue;
+        if (o.decoding === m) { taken = true; break; }
+      }
+      if (taken) continue;
+      var d = dist(s.x, s.y, m.x, m.y);
+      if (d < bd) { bd = d; best = m; }
+    }
+    if (!best) best = g.nearestMachine(s.x, s.y, true);
+    return best;
+  };
+
   SurvivorAI.prototype.goTo = function (s, tx, ty, dt) {
     this.repathT -= dt;
     if (!s.path || s.path.length === 0 || this.repathT <= 0) {
@@ -449,6 +525,14 @@
         if (!path || path.length < 3) continue;
         var end = path[path.length - 1];
         var score = dist(end.x, end.y, h.x, h.y) - path.length * 7;
+        // 逃跑路线经过窗/倒板可获得地形优势 → 加分(更聪明地利用障碍)
+        var g2 = this.game;
+        for (var pj = 0; pj < path.length; pj++) {
+          var w0 = path[pj];
+          var wx = Math.floor(w0.x / g2.ts), wy = Math.floor(w0.y / g2.ts);
+          if (g2.tileAt(w0.x, w0.y) === global.TILE.WIN) { score += 42; break; }
+          if (g2.tileIsDownPallet(wx, wy)) { score += 36; break; }
+        }
         if (score > bestScore) { bestScore = score; best = path; }
       }
       s.path = best || [];
@@ -463,6 +547,7 @@
   };
 
   function dist(ax, ay, bx, by) { var dx = ax - bx, dy = ay - by; return Math.sqrt(dx * dx + dy * dy); }
+  function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
 
   global.HunterAI = HunterAI;
   global.SurvivorAI = SurvivorAI;
