@@ -5,15 +5,16 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <script>try{if(localStorage.getItem('gh-theme')==='arcade')document.documentElement.classList.add('pre-arcade')}catch(e){}</script>
 <style>html{background:#eef5f3}html.pre-arcade{background:#07111c}</style>
-<meta name="description" content="幸存者计划：六分钟机动生存，自动火力、敌潮构筑与最终裁定机 Boss 战。">
+<meta name="description" content="幸存者计划：两阶段机动生存，自动火力、敌潮构筑，击破第一裁定机与终焉执行者。">
 <title>幸存者计划 · SURVIVOR PROTOCOL</title>
+<script defer src="../anti-addiction.js"></script>
 <link rel="stylesheet" href="style.css">
 <script src="game.js" defer></script>
 </head>
 <body data-theme="4399">
 <canvas id="game" aria-label="幸存者计划战斗画面"></canvas>
 
-<a class="back-home" href="../action-games/index.html" aria-label="返回动作游戏频道">← 动作游戏</a>
+<a class="back-home" href="../action-games/index.html" aria-label="返回好玩游戏频道">← 好玩游戏</a>
 <button class="theme-switch" id="themeToggle" type="button" aria-label="切换主题" title="切换主题"></button>
 
 <section class="screen menu-screen show" id="menuScreen" aria-labelledby="gameTitle">
@@ -22,7 +23,7 @@
     <p class="eyebrow">SURVIVOR PROTOCOL / SP-01</p>
     <h1 id="gameTitle">幸存者计划</h1>
     <p class="theme-sub" id="themeSubtitle">清新训练模拟</p>
-    <p class="lead">六分钟。保持移动，重组火力，在裁定完成前击破零号机。</p>
+    <p class="lead">两阶段机动生存。六分钟敌潮，击破第一裁定机；再战六分钟，在终焉执行者面前存活并完成裁定。</p>
     <button class="primary-btn" id="startBtn" type="button">开始任务</button>
     <div class="briefing" aria-label="操作说明">
       <span><b>移动</b> WASD / 方向键</span>
@@ -44,23 +45,32 @@
     <span class="hud-label">机体完整度</span>
     <div class="bar hp-bar"><i id="hpFill"></i></div>
     <strong id="hpText">100 / 100</strong>
+    <div class="stamina-row">
+      <span class="stamina-label">冲刺能量</span>
+      <div class="bar stamina-bar"><i id="staminaFill"></i></div>
+      <span id="staminaText" class="stamina-num">100 / 100</span>
+    </div>
   </div>
   <div class="hud-time">
-    <span>协议剩余</span>
-    <strong id="timeText">06:00</strong>
+    <span id="stageText">阶段 一</span>
+    <strong id="timeText">05:00</strong>
   </div>
   <div class="hud-right">
-    <span>LV <b id="levelText">1</b></span>
-    <span>击破 <b id="killText">0</b></span>
-    <button id="pauseBtn" type="button" aria-label="暂停游戏">Ⅱ</button>
+    <div class="hud-right-row">
+      <span>LV <b id="levelText">1</b></span>
+      <span>击破 <b id="killText">0</b></span>
+      <button id="pauseBtn" type="button" aria-label="暂停游戏">Ⅱ</button>
+      <button id="settingsBtn" type="button" aria-label="打开设置"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.2A3.8 3.8 0 1 0 12 15.8 3.8 3.8 0 1 0 12 8.2ZM12 14a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z"/><path d="M19.4 13a7.6 7.6 0 0 0 .1-1 7.6 7.6 0 0 0-.1-1l2-1.6a.5.5 0 0 0 .1-.6l-1.9-3.3a.5.5 0 0 0-.6-.2l-2.4 1a7.7 7.7 0 0 0-1.7-1l-.4-2.5A.5.5 0 0 0 14 2h-4a.5.5 0 0 0-.5.4l-.4 2.5a7.7 7.7 0 0 0-1.7 1l-2.4-1a.5.5 0 0 0-.6.2L2.5 8.4a.5.5 0 0 0 .1.6l2 1.6a7.6 7.6 0 0 0 0 2l-2 1.6a.5.5 0 0 0-.1.6l1.9 3.3a.5.5 0 0 0 .6.2l2.4-1a7.7 7.7 0 0 0 1.7 1l.4 2.5a.5.5 0 0 0 .5.4h4a.5.5 0 0 0 .5-.4l.4-2.5a7.7 7.7 0 0 0 1.7-1l2.4 1a.5.5 0 0 0 .6-.2l1.9-3.3a.5.5 0 0 0-.1-.6l-2-1.6Zm-1.2-1a6.4 6.4 0 0 1 0 2l.1.8 1.5 1.2-1.1 1.9-1.8-.7-.6.5a6.4 6.4 0 0 1-1.5.9l-.7.3-.3 1.9h-2.2l-.3-1.9-.7-.3a6.4 6.4 0 0 1-1.5-.9l-.6-.5-1.8.7L4.8 16l1.5-1.2.1-.8a6.4 6.4 0 0 1 0-2l-.1-.8L4.8 10l1.1-1.9 1.8.7.6-.5a6.4 6.4 0 0 1 1.5-.9l.7-.3.3-1.9h2.2l.3 1.9.7.3a6.4 6.4 0 0 1 1.5.9l.6.5 1.8-.7 1.1 1.9-1.5 1.2-.1.8Z"/></svg><span>设置</span></button>
+    </div>
+    <div class="xp-mini">
+      <span class="xp-label">经验</span>
+      <div class="bar xp-bar"><i id="xpFill"></i></div>
+      <span id="xpText">0 / 10</span>
+    </div>
   </div>
   <div class="boss-hud" id="bossHud">
-    <div><span>零号裁定机</span><b id="bossPhase">校准阶段</b></div>
+    <div><span id="bossName">零号裁定机</span><b id="bossPhase">校准阶段</b></div>
     <div class="bar boss-bar"><i id="bossFill"></i></div>
-  </div>
-  <div class="xp-wrap">
-    <div class="bar xp-bar"><i id="xpFill"></i></div>
-    <span id="xpText">0 / 10</span>
   </div>
 </section>
 
@@ -80,9 +90,13 @@
     <p class="eyebrow">SYSTEM HOLD</p>
     <h2 id="pauseTitle">任务暂停</h2>
     <p class="overlay-sub" id="pauseReason">所有战斗计时均已冻结。</p>
+    <div class="settings-row">
+      <span class="settings-label">界面主题</span>
+      <button class="theme-toggle-btn" id="pauseThemeBtn" type="button" aria-label="切换主题"><span id="pauseThemeText">清新训练模拟</span></button>
+    </div>
     <button class="primary-btn" id="resumeBtn" type="button">继续任务</button>
     <button class="secondary-btn" id="restartBtn" type="button">重新开始</button>
-    <a class="secondary-btn link-btn" href="../action-games/index.html">返回动作频道</a>
+    <a class="secondary-btn link-btn" href="../action-games/index.html">返回好玩游戏</a>
   </div>
 </section>
 
@@ -94,13 +108,13 @@
     <div class="result-stats" id="resultStats"></div>
     <div class="build-summary" id="buildSummary"></div>
     <button class="primary-btn" id="againBtn" type="button">再次出击</button>
-    <a class="secondary-btn link-btn" href="../action-games/index.html">返回动作频道</a>
+    <a class="secondary-btn link-btn" href="../action-games/index.html">返回好玩游戏</a>
   </div>
 </section>
 
 <div class="touch-controls" id="touchControls">
   <div class="stick-zone" id="stickZone"><i id="stickKnob"></i></div>
-  <button class="dash-btn" id="dashBtn" type="button" aria-label="冲刺"><span id="dashText">冲刺</span></button>
+  <button class="dash-btn" id="dashBtn" type="button" aria-label="冲刺"><i id="dashRing" aria-hidden="true"></i><span id="dashText">冲刺</span></button>
 </div>
 </body>
 </html>

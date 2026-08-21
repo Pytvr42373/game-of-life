@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<script>try{if(localStorage.getItem('gh-theme')==='arcade')document.documentElement.classList.add('pre-arcade')}catch(e){}</script>
+<style>html{background:#07120b}html.pre-arcade{background:#050a14}</style>
+<meta name="description" content="终局狂奔 · 无尽跑酷：末世边境，暗影巨兽紧咬身后——跳跃与滑铲之间求生，极限闪避铸就连击，被追上就是终局。">
+<title>终局狂奔 · FINAL RUN</title>
+<script defer src="../anti-addiction.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="4399">
+
+<a class="back-home" href="../action-games/index.html" aria-label="返回好玩游戏频道">← 好玩游戏</a>
+<button class="theme-switch" id="themeToggle" type="button" aria-label="切换主题" title="切换主题"></button>
+<div class="corner-settings">
+  <button class="icon-btn" id="musicBtn" type="button" aria-label="音乐开关" title="音乐开关">♪</button>
+  <button class="icon-btn" id="soundBtn" type="button" aria-label="音效开关" title="音效开关">♫</button>
+</div>
+
+<div class="loader" id="loader" aria-hidden="true">
+  <div class="load-ring"></div>
+  <div class="load-track"><i></i></div>
+  <span>LOADING</span>
+</div>
+
+<!-- ================= 开始界面 ================= -->
+<main class="screen screen-start" id="startScreen">
+  <div class="start-inner">
+    <header class="s-head">
+      <p class="kicker">ENDLESS RUNNER · DOOM CHASE</p>
+      <h1>终局狂奔<span>FINAL RUN</span></h1>
+      <p class="tag">末世边境 · 暗影巨兽紧咬身后 · 跳跃与滑铲之间求生</p>
+    </header>
+
+    <section class="rules" aria-label="规则说明">
+      <div class="rule-card highlight"><h3>🏃 操作</h3><p><b class="accent">空格 / ↑ / W</b> 跳跃（空中可<b class="accent">二段跳</b>）· <b class="accent">↓ / S</b> 滑铲 · 触屏：<b class="accent">点击跳</b> / <b class="accent">下滑铲</b></p></div>
+      <div class="rule-card"><h3>👹 追击者</h3><p>巨兽会周期性加速逼近；<b class="danger-c">红框出现</b>后及时跳跃或滑铲才能甩开，逃脱窗口会随难度从 3 秒逐步缩短。</p></div>
+      <div class="rule-card"><h3>⚡ 得分</h3><p>跑得越远分越高，<b class="gold">擦身通过障碍 = 极限闪避</b>连击叠倍；<b class="gold">金币 +30</b>。</p></div>
+      <div class="rule-card"><h3>🛡 道具</h3><p><b class="gold">磁石</b>短时冲刺加速 · <b class="accent">护盾</b>抵挡一次撞击。存活时间或距离达到节点后，速度、障碍节奏与追击强度都会提升。</p></div>
+    </section>
+
+    <button class="start-btn" id="startBtn" type="button">开始狂奔 <span>START</span></button>
+    <p class="start-hint">主题开关在右下角 · 音乐 / 音效在右上角 · 电脑建议使用键盘操作</p>
+  </div>
+</main>
+
+<!-- ================= 游戏界面 ================= -->
+<main class="screen screen-run" id="runScreen" aria-hidden="true">
+  <div class="hud" id="hud">
+    <div class="hud-item"><span class="hud-lbl">距离</span><b id="hudDist">0</b><i>m</i></div>
+    <div class="hud-item"><span class="hud-lbl">连击</span><b id="hudCombo">0</b><i>×</i></div>
+    <div class="hud-item"><span class="hud-lbl">分数</span><b id="hudScore">0</b></div>
+    <div class="hud-item hud-shield" id="hudShield" title="护盾"><span class="hud-lbl">护盾</span><b id="hudShieldN">0</b></div>
+  </div>
+  <canvas id="gameCanvas" width="960" height="540" aria-label="终局狂奔游戏画面"></canvas>
+  <div class="danger-overlay" id="dangerOverlay" aria-hidden="true">
+    <div class="danger-pulse"></div>
+    <div class="danger-text" id="dangerText">甩开它！</div>
+  </div>
+  <div class="tier-toast" id="tierToast" aria-hidden="true"></div>
+  <div class="pause-hint" id="pauseHint">已暂停 <button id="resumeBtn" type="button">继续</button></div>
+  <div class="touch-zone">
+    <button class="tz-btn tz-jump" type="button" aria-label="跳跃">跳跃<br><small>点击</small></button>
+    <button class="tz-btn tz-slide" type="button" aria-label="滑铲">滑铲<br><small>点击</small></button>
+  </div>
+</main>
+
+<!-- ================= 结算界面 ================= -->
+<main class="screen screen-over" id="overScreen" aria-hidden="true">
+  <div class="over-inner">
+    <h2 id="overTitle">终局</h2>
+    <p class="over-sub" id="overSub">被暗影巨兽捕获</p>
+    <div class="stats">
+      <div class="stat"><span>距离</span><b id="statDist">0</b><i>m</i></div>
+      <div class="stat"><span>最高连击</span><b id="statCombo">0</b></div>
+      <div class="stat"><span>极限闪避</span><b id="statNear">0</b></div>
+      <div class="stat"><span>存活</span><b id="statTime">0s</b></div>
+    </div>
+    <section class="rank" id="rankBoard" aria-label="排行榜">
+      <h3>🏆 奔跑档案 · TOP5</h3>
+      <ol id="rankList"></ol>
+    </section>
+    <div class="over-actions">
+      <button class="again-btn" id="againBtn" type="button">再来一次 <span>RETRY</span></button>
+      <button class="home-btn" id="homeBtn" type="button">返回好玩游戏</button>
+    </div>
+  </div>
+</main>
+
+<script src="audio.js"></script>
+<script src="engine.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

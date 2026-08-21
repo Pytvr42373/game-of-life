@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<script>try{if(localStorage.getItem('gh-theme')==='arcade')document.documentElement.classList.add('pre-arcade')}catch(e){}</script>
+<style>html{background:#0d1510}html.pre-arcade{background:#05070f}</style>
+<meta name="description" content="暗巷潜行 · 网格追逃：潜入取钥匙，警报响起后利用声响、转角与卷帘门甩开守卫。">
+<title>暗巷潜行 · ALLEY HEIST</title>
+<script defer src="../anti-addiction.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="4399">
+
+<a class="back-home" href="../action-games/index.html" aria-label="返回好玩游戏频道">← 好玩游戏</a>
+<button class="theme-switch" id="themeToggle" type="button" aria-label="切换主题" title="切换主题"></button>
+<div class="corner-settings">
+  <button class="icon-btn" id="musicBtn" type="button" aria-label="音乐开关" title="音乐开关">♪</button>
+  <button class="icon-btn" id="soundBtn" type="button" aria-label="音效开关" title="音效开关">♪</button>
+</div>
+
+<div class="loader" id="loader" aria-hidden="true">
+  <div class="load-ring"></div>
+  <div class="load-track"><i></i></div>
+  <span>LOADING</span>
+</div>
+
+<!-- ================= 开始界面 ================= -->
+<main class="screen screen-start active" id="startScreen">
+  <div class="start-inner">
+    <header class="s-head">
+      <p class="kicker">ALLEY HEIST · STEALTH</p>
+      <h1>暗巷潜行<span>ALLEY HEIST</span></h1>
+      <p class="tag">安静潜入 · 夺取钥匙 · 警报撤离 · 转角甩开追兵</p>
+    </header>
+
+    <div class="brief-flow" aria-label="任务流程：潜入，夺取钥匙，撤离">
+      <span><i>01</i>潜入</span><b aria-hidden="true">→</b>
+      <span><i>02</i>钥匙</span><b aria-hidden="true">→</b>
+      <span><i>03</i>撤离</span>
+    </div>
+
+    <button class="start-btn" id="startBtn" type="button">潜入暗巷 <span>START</span></button>
+    <p class="start-hint">开始前显示行动规则 · 手机支持方向、冲刺与开门按钮</p>
+  </div>
+</main>
+
+<!-- ================= 游戏界面 ================= -->
+<main class="screen screen-run" id="runScreen">
+  <header class="hud">
+    <div class="hud-item"><i>关卡</i><b id="hudLevel">1</b></div>
+    <div class="hud-item"><i>用时</i><b id="hudTime">0:00</b></div>
+    <div class="hud-item hud-phase"><i>阶段</i><b class="phase-chip" id="hudPhase">潜入</b></div>
+    <div class="hud-item"><i>目标</i><b id="hudKey">取钥匙</b></div>
+    <div class="hud-item"><i>状态</i><b id="hudStatus">隐蔽</b></div>
+    <button class="hud-rules" id="rulesBtn" type="button" aria-label="查看游戏规则">? 规则</button>
+    <button class="hud-pause" id="pauseBtn" type="button" aria-label="暂停游戏">II</button>
+  </header>
+
+  <canvas class="game-canvas" id="gameCanvas" width="960" height="540"></canvas>
+
+  <div class="danger-overlay" id="dangerOverlay" aria-hidden="true">
+    <div class="danger-pulse"></div>
+    <span class="danger-text" id="dangerText"></span>
+  </div>
+
+  <div class="pause-hint" id="pauseHint" aria-hidden="true">
+    <p class="ph-title">已暂停</p>
+    <button class="ph-btn" id="quitBtn" type="button">放弃本关<br><span>QUIT</span></button>
+    <button class="ph-btn" id="resumeBtn" type="button">继续 <span>RESUME</span></button>
+  </div>
+
+  <div class="hint-toast" id="hintToast" role="status" aria-live="polite"></div>
+
+  <div class="touch-zone" aria-label="触屏方向键">
+    <button class="tz-btn tz-up" id="tzUp" type="button" aria-label="向上">▲<i>上</i></button>
+    <button class="tz-btn tz-left" id="tzLeft" type="button" aria-label="向左">◀<i>左</i></button>
+    <button class="tz-btn tz-down" id="tzDown" type="button" aria-label="向下">▼<i>下</i></button>
+    <button class="tz-btn tz-right" id="tzRight" type="button" aria-label="向右">▶<i>右</i></button>
+    <button class="tz-btn tz-sprint" id="tzSprint" type="button" aria-label="按住冲刺">⇧<i>冲刺</i></button>
+    <button class="tz-btn tz-interact" id="tzInteract" type="button" aria-label="开启卷帘门">E<i>开门</i></button>
+  </div>
+</main>
+
+<!-- ================= 结算界面 ================= -->
+<main class="screen screen-over" id="overScreen">
+  <div class="over-inner">
+    <p class="r-kicker">MISSION COMPLETE</p>
+    <h2 id="overTitle">任务完成</h2>
+    <p id="overSub">你从暗巷全身而退</p>
+    <div class="stats">
+      <div class="stat"><span>星级</span><b class="stars" id="statStars">★★★</b></div>
+      <div class="stat"><span>用时</span><b id="statTime">0:00</b></div>
+      <div class="stat"><span>潜入暴露</span><b id="statDetections">0</b></div>
+    </div>
+    <div class="over-btns">
+      <button class="next-btn" id="nextBtn" type="button">下一关</button>
+      <button class="again-btn" id="againBtn" type="button">再来一次 <span>RETRY</span></button>
+      <button class="home-btn" id="homeBtn" type="button">回首页</button>
+    </div>
+    <div class="level-select" id="levelSelect"></div>
+  </div>
+</main>
+
+<!-- ================= 行动规则弹窗：开局与游戏内共用 ================= -->
+<div class="rules-modal" id="rulesModal" role="dialog" aria-modal="true" aria-labelledby="rulesTitle" aria-describedby="rulesLead" aria-hidden="true" hidden inert>
+  <section class="rules-dialog">
+    <button class="rules-close" id="rulesCloseBtn" type="button" aria-label="关闭规则">×</button>
+    <p class="rules-kicker">MISSION BRIEF · 行动简报</p>
+    <h2 id="rulesTitle">拿到钥匙，再活着回来</h2>
+    <p class="rules-lead" id="rulesLead">先安静潜入。钥匙到手后警报必响，利用声响、转角和捷径甩开追兵。</p>
+
+    <div class="rules-route" aria-label="任务分为三个阶段">
+      <span><i>01</i><b>潜入</b><small>观察视锥</small></span>
+      <em aria-hidden="true">→</em>
+      <span><i>02</i><b>夺钥匙</b><small>触发警报</small></span>
+      <em aria-hidden="true">→</em>
+      <span><i>03</i><b>撤离</b><small>甩开追兵</small></span>
+    </div>
+
+    <div class="rules-grid">
+      <article><strong>安静行走</strong><p><kbd>WASD</kbd> / 方向键移动。普通行走没有声音，适合潜入。</p></article>
+      <article><strong>按住冲刺</strong><p><kbd>Shift</kbd> / <kbd>Ctrl</kbd> 冲刺更快，但每格都会产生守卫可追踪的声圈。</p></article>
+      <article><strong>切断视线</strong><p>守卫持续看见你才会确认追捕。转过墙角，再停止冲刺，就能断掉线索。</p></article>
+      <article><strong>危险捷径</strong><p>站在开关上按 <kbd>E</kbd> 打开卷帘门。路线更短，巨响也会引来守卫。</p></article>
+    </div>
+
+    <div class="rules-legend" aria-label="地图符号">
+      <span><i class="legend-key">K</i><b>钥匙</b></span>
+      <span><i class="legend-switch">S</i><b>开关</b></span>
+      <span><i class="legend-gate">D</i><b>卷帘门</b></span>
+      <span><i class="legend-guard">!</i><b>守卫确认</b></span>
+    </div>
+
+    <button class="rules-confirm" id="rulesConfirmBtn" type="button">明白，开始潜入</button>
+  </section>
+</div>
+
+<script src="audio.js"></script>
+<script src="engine.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<style>html{background:#04131c}</style>
+<meta name="description" content="深潜打捞：带领两名 AI 潜水员进入沉船海沟，在氧气耗尽前避开鲨群、搜刮宝物并返回打捞船。">
+<title>深潜打捞 · DEEP SALVAGE</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="back-home" href="../action-games/index.html">← 好玩游戏</a>
+<button class="sound-toggle" id="soundToggle" type="button" aria-label="关闭声音" title="声音开关">SOUND ON</button>
+
+<main class="game-shell">
+  <canvas id="gameCanvas" aria-label="深潜打捞游戏画面"></canvas>
+
+  <header class="mission-hud" id="missionHud" hidden>
+    <div class="mission-id">
+      <i aria-hidden="true"></i>
+      <span><small>DIVE CONTROL</small><b>DS / 06</b></span>
+    </div>
+    <div class="oxygen-cluster">
+      <div class="oxygen-copy"><small>剩余氧气</small><b id="oxygenValue">100</b><em>O₂</em></div>
+      <div class="oxygen-track"><i id="oxygenFill"></i><span id="suffocationCount"></span></div>
+    </div>
+    <div class="primary-readouts">
+      <span><small>深度</small><b id="depthValue">0 m</b></span>
+      <span><small>区域</small><b id="zoneValue">潜航坞</b></span>
+      <span><small>打捞</small><b id="haulValue">0 / 6</b></span>
+      <span><small>用时</small><b id="timeValue">00:00</b></span>
+    </div>
+  </header>
+
+  <section class="crew-strip" id="crewStrip" hidden aria-label="小队状态">
+    <article data-role="guard">
+      <span class="crew-portrait guard" aria-hidden="true"></span>
+      <div><small>护卫 / 余烬</small><b id="guardIntent">跟随玩家</b><i><span id="guardOxygen"></span></i></div>
+    </article>
+    <article data-role="salvager">
+      <span class="crew-portrait salvager" aria-hidden="true"></span>
+      <div><small>打捞员 / 灰鳍</small><b id="salvagerIntent">搜寻宝物</b><i><span id="salvagerOxygen"></span></i></div>
+    </article>
+  </section>
+
+  <aside class="depth-gauge" id="depthGauge" hidden aria-label="当前深度">
+    <b>DEPTH</b>
+    <div class="depth-line">
+      <span style="--p:0">0</span><span style="--p:.25">300</span><span style="--p:.5">600</span><span style="--p:.75">900</span><span style="--p:1">1200m</span>
+      <i id="depthMarker" aria-hidden="true"></i>
+    </div>
+  </aside>
+
+  <aside class="inventory-panel" id="inventoryPanel" hidden aria-label="打捞背包">
+    <div class="inventory-head"><span>打捞背包</span><b id="scorePreview">0 PTS</b></div>
+    <div class="inventory-slots" id="inventorySlots"></div>
+    <div class="stamina-status"><span>冲刺耐力 <b id="staminaValue">100</b></span><i><b id="staminaFill"></b></i></div>
+  </aside>
+
+  <div class="danger-message" id="dangerMessage" aria-live="assertive"></div>
+  <div class="event-toast" id="eventToast" aria-live="polite"></div>
+
+  <div class="control-note" id="controlNote" hidden>
+    <b>WASD / 方向键</b> 游动
+    <span></span><b>Shift / 空格</b> 冲刺
+    <span></span><b>E</b> 返船
+    <span></span><b>P</b> 暂停
+  </div>
+</main>
+
+<section class="start-screen" id="startScreen">
+  <div class="start-scrim"></div>
+  <div class="mission-sheet">
+    <header class="briefing-head">
+      <p class="mission-kicker">SALVAGE ORDER / DS-06</p>
+      <p class="seed-readout"><small>海沟坐标</small><b id="seedValue">CALIBRATING</b></p>
+    </header>
+    <div class="briefing-grid">
+      <div class="start-copy">
+        <h1><span>深潜</span><span>打捞</span></h1>
+        <p class="thesis">下潜、装满、活着返航。</p>
+        <p class="intro">带领两名自主潜水员进入沉船带。灯照向哪里，逃生路线就在哪里。</p>
+        <div class="start-actions">
+          <button class="start-btn" id="startBtn" type="button"><span>开始下潜</span><small>ENTER DIVE</small></button>
+          <button class="seed-btn" id="seedBtn" type="button">更换海沟</button>
+        </div>
+        <div class="archive-line"><span>永久装备档案</span><b id="archiveCount">0 / 5</b><i id="archiveGear"></i></div>
+      </div>
+      <aside class="trench-chart" aria-label="任务海沟剖面">
+        <div class="chart-head"><span>LIVE TRENCH SCAN</span><b>1200 M</b></div>
+        <div class="trench-profile" aria-hidden="true">
+          <canvas id="trenchPreview"></canvas>
+        </div>
+        <div class="chart-key"><span><i></i>开放水域</span><span><i></i>鲨鱼巢穴</span><span><i></i>打捞物</span></div>
+      </aside>
+    </div>
+    <div class="rule-ledger">
+      <div><small>打捞</small><b>六格背包</b><span>稀有度随深度上升</span></div>
+      <div><small>威胁</small><b>两处巢穴</b><span>首次可救，二次拖回淘汰</span></div>
+      <div><small>撤离</small><b>至少一件</b><span>回母船按 E 完成任务</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="result-screen" id="resultScreen" hidden aria-live="assertive">
+  <div class="result-box">
+    <p id="resultKicker">DIVE COMPLETE</p>
+    <h2 id="resultTitle">成功返航</h2>
+    <p id="resultReason"></p>
+    <div class="result-stats" id="resultStats"></div>
+    <div class="result-gear" id="resultGear"></div>
+    <div class="result-actions">
+      <button type="button" id="retryBtn">再次下潜</button>
+      <a href="../action-games/index.html">返回频道</a>
+    </div>
+  </div>
+</section>
+
+<section class="pause-screen" id="pauseScreen" hidden>
+  <div><small>DIVE SUSPENDED</small><b>潜航暂停</b><button type="button" id="resumeBtn">继续</button></div>
+</section>
+
+<div class="touch-move" id="touchMove" aria-label="移动控制">
+  <button type="button" data-move="up" aria-label="向上">↑</button>
+  <button type="button" data-move="left" aria-label="向左">←</button>
+  <button type="button" data-move="down" aria-label="向下">↓</button>
+  <button type="button" data-move="right" aria-label="向右">→</button>
+</div>
+<div class="touch-actions" id="touchActions" aria-label="动作控制">
+  <button type="button" data-action="sprint">冲刺</button>
+  <button type="button" data-action="interact">返船</button>
+</div>
+
+<script src="maps.js"></script>
+<script src="ai.js"></script>
+<script src="game.js"></script>
+<script src="audio.js"></script>
+<script src="preview.js"></script>
+<script src="terrain.js"></script>
+</body>
+</html>

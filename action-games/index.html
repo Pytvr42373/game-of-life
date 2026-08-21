@@ -5,57 +5,74 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>try{if(localStorage.getItem('gh-theme')==='arcade')document.documentElement.classList.add('pre-arcade')}catch(e){}</script>
 <style>
-html{background:#eef4f6}
-html.pre-arcade{background:#081120}
+html{background:#f5efe1}
+html.pre-arcade{background:#15171c}
 </style>
-<meta name="description" content="动作游戏频道：进入战场。黎明迷局、幸存者计划与打字对决均可直接游玩。">
-<title>动作游戏 · 进入战场</title>
+<meta name="description" content="好玩游戏精选：深潜打捞、终局狂奔、黎明迷局、幸存者计划、打字对决、恶魔追逐、暗巷潜行。七款免费小游戏，即点即玩，不分类型，只挑值得再来一局的。">
+<title>好玩游戏 · 今晚玩什么？</title>
+<script defer src="../anti-addiction.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 
-/* ============ 主题1 · 4399 清晨训练场（亮色） ============ */
+/* ============ 主题1 · 4399 米白集市（日间俏皮） ============ */
 body[data-theme="4399"]{
-  --bg:#eef4f6; --bg2:#f7fbfc; --surface:#ffffff;
-  --line:#d5e2e8; --line-soft:#e6eef1;
-  --text:#24343e; --dim:#586b75;
-  --grass:#3f7d4e; --grass-deep:#2f6240; --grass-soft:#e7f0e8;
-  --sweep:rgba(63,125,78,.32);
-  --focus:#2f6240;
-  background:linear-gradient(180deg,#e9f1f4 0%,var(--bg) 34%,var(--bg2) 100%);
+  --bg:#f5efe1; --bg2:#fbf7ec; --surface:#fffdf6;
+  --line:#e0d5bc; --line-soft:#ece3cf;
+  --text:#23261f; --dim:#6e7266;
+  --grass:#4a8f52; --grass-deep:#33683c; --grass-soft:#e7f0e0;
+  --tomato:#e25e33; --tomato-deep:#c24a24; --tomato-soft:#fbe9df;
+  --gold:#c08a1e; --hard:#1c1f18;
+  --sweep:rgba(74,143,82,.32);
+  --focus:#33683c; --accent:#4a8f52;
+  /* 终局狂奔概念图配色 */
+  --art-sky1:#b96a33; --art-sky2:#df8a4c; --art-sky3:#f2b06a;
+  --art-sun:#ffd98a; --art-speed:rgba(255,240,214,.55);
+  --art-beast:#2e2420; --art-eye:#ff6b4a; --art-ground:#3b2f27;
+  --art-ink:#241d19; --art-dust:#4a3a30; --art-type:rgba(255,244,220,.5);
+  --art-lane:rgba(255,244,220,.5);
+  background:linear-gradient(180deg,#f0e7d2 0%,var(--bg) 36%,var(--bg2) 100%);
   color:var(--text);
 }
 body[data-theme="4399"]::before{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.6;
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.65;
   background:
-    radial-gradient(ellipse 58% 42% at 14% 0%, rgba(152,190,205,.5), transparent 62%),
-    radial-gradient(ellipse 44% 34% at 97% 12%, rgba(122,164,140,.26), transparent 60%);
+    radial-gradient(ellipse 52% 40% at 12% 0%, rgba(236,168,110,.38), transparent 62%),
+    radial-gradient(ellipse 44% 34% at 96% 10%, rgba(130,166,110,.28), transparent 60%);
 }
 
-/* ============ 主题2 · arcade 未来机甲作战甲板（暗色） ============ */
+/* ============ 主题2 · arcade 低饱和印刷物（暗色） ============ */
 body[data-theme="arcade"]{
-  --bg:#081120; --bg2:#0c1a2e; --surface:#0e2036;
-  --line:#2b4a66; --line-soft:#1c3249;
-  --text:#dbe6f0; --dim:#7e93a6;
-  --cyan:#46d7e8; --orange:#ff8a3d; --hard:#050b14;
-  --sweep:rgba(70,215,232,.30);
-  --focus:#ff8a3d;
+  --bg:#15171c; --bg2:#1c1f26; --surface:#20242c;
+  --line:#3d434f; --line-soft:#292e38;
+  --text:#ece8dc; --dim:#a0a294;
+  --grass:#8aa58f; --grass-deep:#a9c0ab; --grass-soft:#232b26;
+  --tomato:#b95f38; --tomato-deep:#c97a52; --tomato-soft:#2c211b;
+  --gold:#c9a24e; --hard:#0c0e12;
+  --sweep:rgba(201,162,78,.26);
+  --focus:#c9a24e; --accent:#c9a24e;
+  /* 终局狂奔概念图配色 */
+  --art-sky1:#241c15; --art-sky2:#332820; --art-sky3:#4a3826;
+  --art-sun:#c9824a; --art-speed:rgba(185,168,134,.42);
+  --art-beast:#0f0c0a; --art-eye:#c96b3f; --art-ground:#171310;
+  --art-ink:#0a0807; --art-dust:#3a2f26; --art-type:rgba(236,232,220,.4);
+  --art-lane:rgba(236,232,220,.42);
   background:var(--bg); color:var(--text);
 }
 body[data-theme="arcade"]::before{
   content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background-image:
-    linear-gradient(rgba(43,74,102,.16) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(43,74,102,.16) 1px,transparent 1px);
-  background-size:34px 34px;
-  -webkit-mask-image:radial-gradient(ellipse 92% 72% at 50% 0%, #000 26%, transparent 78%);
-  mask-image:radial-gradient(ellipse 92% 72% at 50% 0%, #000 26%, transparent 78%);
+    radial-gradient(rgba(201,162,78,.13) 1px,transparent 1px);
+  background-size:22px 22px;
+  -webkit-mask-image:radial-gradient(ellipse 90% 72% at 50% 0%, #000 30%, transparent 80%);
+  mask-image:radial-gradient(ellipse 90% 72% at 50% 0%, #000 30%, transparent 80%);
 }
 body[data-theme="arcade"]::after{
   content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:radial-gradient(ellipse 72% 32% at 50% 0%, rgba(70,215,232,.10), transparent 72%);
+  background:radial-gradient(ellipse 80% 36% at 50% 0%, rgba(201,162,78,.08), transparent 74%);
 }
 
 body{font-family:'PingFang SC','Microsoft YaHei','Helvetica Neue',Arial,sans-serif;min-height:100vh;min-height:100dvh;line-height:1.6}
+body[data-theme="arcade"] .stub-no,body[data-theme="arcade"] .genre,body[data-theme="arcade"] .specs li,body[data-theme="arcade"] .media-tag,body[data-theme="arcade"] .f-count,body[data-theme="arcade"] .kicker,body[data-theme="arcade"] .ticket-head,body[data-theme="arcade"] .ticket-note,body[data-theme="arcade"] .pick-hint,body[data-theme="arcade"] .cta-note,body[data-theme="arcade"] .deck-foot,body[data-theme="arcade"] .filter-btn,body[data-theme="arcade"] .pick-btn,body[data-theme="arcade"] .hero h1 .stamp{font-family:'Consolas','Menlo',monospace}
 
 /* ============ 返回主页 ============ */
 .back-home{
@@ -63,203 +80,276 @@ body{font-family:'PingFang SC','Microsoft YaHei','Helvetica Neue',Arial,sans-ser
   padding:9px 16px;border-radius:999px;text-decoration:none;
   font-size:13px;font-weight:700;color:var(--text);
   background:rgba(255,255,255,.72);border:1px solid var(--line);
-  box-shadow:0 5px 18px rgba(36,52,62,.08);
+  box-shadow:0 5px 18px rgba(35,38,31,.08);
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
   transition:transform .2s;
 }
 body[data-theme="arcade"] .back-home{
-  color:var(--text);background:rgba(8,17,32,.8);border-color:rgba(70,215,232,.3);
-  box-shadow:0 0 18px rgba(70,215,232,.08);
+  color:var(--text);background:rgba(21,23,28,.82);border-color:rgba(201,162,78,.32);
+  box-shadow:0 0 18px rgba(201,162,78,.07);
 }
 .back-home:hover{transform:translateY(-2px)}
 .back-home:active{transform:translateY(0)}
 
-/* ============ 主题切换器 ============ */
+/* ============ 主题切换器（表示目标主题） ============ */
+/* 当前 4399（亮色）时，目标为 arcade：深色底 + 机甲六边形图标 */
 .theme-switch{
   position:fixed;z-index:95;right:16px;bottom:16px;padding:0;
   width:clamp(46px,5.5vmin,54px);height:clamp(46px,5.5vmin,54px);border-radius:50%;
   display:grid;place-items:center;cursor:pointer;user-select:none;
-  color:#2f806e;background:rgba(251,254,253,.94);border:1px solid #75a99b;
-  box-shadow:0 5px 18px rgba(33,88,77,.16);
+  color:#c9a24e;background:rgba(28,31,38,.94);border:1px solid #8a7440;
+  box-shadow:0 5px 18px rgba(0,0,0,.45);
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
   transition:transform .18s;
 }
+/* 当前 arcade（暗色）时，目标为 4399：亮米白底 + 清风叶片图标（清晰绿色） */
 body[data-theme="arcade"] .theme-switch{
-  color:#46d7e8;background:rgba(9,22,34,.94);border-color:#4bc7d6;
-  box-shadow:0 5px 18px rgba(0,0,0,.45);
+  color:#2f7a3d;background:rgba(255,253,246,.96);border-color:#a8c4a0;
+  box-shadow:0 5px 18px rgba(35,38,31,.16);
 }
 .theme-switch:hover{transform:scale(1.07)}
 .theme-switch:active{transform:scale(.95)}
 .theme-switch svg{width:clamp(23px,2.7vmin,27px);height:clamp(23px,2.7vmin,27px)}
 
-a:focus-visible,.theme-switch:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+a:focus-visible,.theme-switch:focus-visible,button:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
 
-/* ============ 频道布局 ============ */
-.deck{position:relative;z-index:1;max-width:1160px;margin:0 auto;padding:88px 28px 68px}
+/* ============ 主布局 ============ */
+.deck{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:84px 28px 64px}
 
-/* ===== 频道头部 ===== */
-.channel-head{
-  display:grid;grid-template-columns:minmax(0,1.55fr) minmax(260px,.75fr);
-  gap:clamp(34px,6vw,76px);align-items:end;margin-bottom:36px;
+/* ===== 首屏 Hero（非对称左对齐） ===== */
+.hero{
+  display:grid;grid-template-columns:minmax(0,1.35fr) minmax(250px,.65fr);
+  gap:clamp(30px,5vw,64px);align-items:end;margin-bottom:30px;
 }
-.head-copy{max-width:690px}
+.head-copy{max-width:680px}
 .kicker{
   display:inline-block;font-size:12px;font-weight:800;letter-spacing:4px;
   color:var(--grass-deep);background:var(--grass-soft);border:1px solid var(--line);
-  padding:5px 14px;border-radius:999px;margin-bottom:17px;text-transform:uppercase;
+  padding:5px 14px;border-radius:999px;margin-bottom:16px;text-transform:uppercase;
 }
 body[data-theme="arcade"] .kicker{
-  font-family:'Consolas','Menlo',monospace;letter-spacing:3px;color:var(--cyan);
-  background:rgba(70,215,232,.08);border:1px solid rgba(70,215,232,.35);border-radius:0;
+  letter-spacing:3px;color:var(--gold);
+  background:rgba(201,162,78,.08);border:1px solid rgba(201,162,78,.34);
 }
-.channel-head h1{font-size:clamp(34px,5vw,50px);font-weight:900;letter-spacing:2px;color:var(--text);line-height:1.08}
-.channel-head h1 span{display:block;margin-top:8px;font-size:.58em;letter-spacing:7px;color:var(--grass)}
-body[data-theme="arcade"] .channel-head h1 span{color:var(--cyan);font-family:'Consolas','Menlo',monospace;letter-spacing:9px}
-.intro{margin-top:18px;max-width:600px;font-size:15px;color:var(--dim);line-height:1.8}
-.channel-summary{padding:4px 0 6px 22px;border-left:2px solid var(--grass)}
-body[data-theme="arcade"] .channel-summary{border-color:var(--cyan)}
-.summary-label{font-family:'Consolas','Menlo',monospace;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--dim)}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
-.stat{
-  display:flex;flex-direction:column;gap:1px;padding-top:8px;border-top:1px solid var(--line);
+.hero h1{font-size:clamp(38px,5.4vw,56px);font-weight:900;letter-spacing:2px;color:var(--text);line-height:1.05}
+.hero h1 .stamp{
+  display:inline-block;vertical-align:top;margin:8px 0 0 12px;
+  font-size:11px;font-weight:800;letter-spacing:2px;line-height:1;
+  color:var(--tomato-deep);border:1.5px solid var(--tomato);border-radius:6px;
+  padding:5px 8px;transform:rotate(4deg);
 }
-.stat strong{font-size:22px;font-weight:900;color:var(--grass)}
-.stat i{font-style:normal;font-size:12px;color:var(--dim)}
-body[data-theme="arcade"] .stat strong{color:var(--cyan);font-family:'Consolas','Menlo',monospace}
-.summary-note{margin-top:13px;font-size:12px;color:var(--dim)}
-body[data-theme="arcade"] .summary-note{font-family:'Consolas','Menlo',monospace;letter-spacing:1px}
+body[data-theme="arcade"] .hero h1 .stamp{
+  color:var(--gold);border-color:var(--gold);border-radius:0;
+}
+.tagline{margin-top:16px;font-size:clamp(20px,2.6vw,26px);font-weight:900;letter-spacing:1px;color:var(--tomato)}
+body[data-theme="arcade"] .tagline{color:var(--tomato-deep)}
+.intro{margin-top:10px;max-width:560px;font-size:15px;color:var(--dim);line-height:1.85}
 
-/* ===== 任务选择板 ===== */
-.mission-board{padding-top:24px;border-top:1px solid var(--line-soft)}
-.board-head{margin-bottom:17px}
-.board-head h2{font-size:21px;font-weight:900;letter-spacing:2px;color:var(--text)}
-.board-head p{margin-top:3px;font-size:13px;color:var(--dim)}
-body[data-theme="arcade"] .board-head h2{font-family:'Consolas','Menlo',monospace;letter-spacing:3px}
-
-/* ===== 双任务档案布局 ===== */
-.mission-layout{
-  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:22px;align-items:stretch;
+/* 主 CTA 与随机推荐 */
+.hero-cta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:20px}
+.pick-btn{
+  display:inline-flex;align-items:center;gap:9px;
+  padding:13px 24px;border-radius:999px;border:1px solid var(--tomato);
+  background:var(--tomato);color:#fffdf6;font-size:15px;font-weight:800;letter-spacing:1px;
+  cursor:pointer;transition:transform .2s;
 }
-
-/* ===== 任务卡通用 ===== */
-.mission{
-  position:relative;display:flex;flex-direction:column;color:inherit;text-decoration:none;
-  background:var(--surface);border:1px solid var(--line);border-radius:14px;
-  overflow:hidden;transition:transform .25s;
+body[data-theme="arcade"] .pick-btn{
+  background:var(--gold);color:var(--hard);border-color:var(--gold);
+  letter-spacing:2px;box-shadow:3px 3px 0 var(--hard);
 }
-body[data-theme="arcade"] .mission{border-radius:0;box-shadow:5px 5px 0 var(--hard)}
-.mission-body{display:flex;flex:1;flex-direction:column;padding:22px 24px 24px}
-.mission-code{
-  font-family:'Consolas','Menlo',monospace;font-size:11px;letter-spacing:2px;
-  color:var(--dim);margin-bottom:8px;text-transform:uppercase;
-}
-body[data-theme="arcade"] .mission-code{color:var(--cyan)}
-.mission-body h2{font-size:24px;font-weight:900;color:var(--text);letter-spacing:1px}
-.mission-body .status{margin-top:10px}
-.desc{margin:12px 0 18px;font-size:14px;color:var(--dim);line-height:1.8;max-width:50ch}
-.teaser{margin-top:14px;font-size:12px;color:var(--dim);letter-spacing:1px}
-body[data-theme="arcade"] .teaser{font-family:'Consolas','Menlo',monospace;letter-spacing:2px}
+.pick-btn:hover{transform:translateY(-2px)}
+.pick-btn:active{transform:translateY(0)}
+.pick-btn svg{width:17px;height:17px;flex:none}
+.pick-hint{font-size:12.5px;color:var(--dim)}
+body[data-theme="arcade"] .pick-hint{letter-spacing:1px}
 
-/* ===== 状态徽标 ===== */
-.status{
+/* 票根统计块 */
+.ticket-stats{
+  position:relative;align-self:stretch;display:flex;flex-direction:column;justify-content:center;
+  padding:26px 24px 22px;border:1.5px dashed var(--line);border-radius:16px;
+  background:var(--surface);transform:rotate(-1.2deg);
+}
+body[data-theme="arcade"] .ticket-stats{border-radius:10px;border-style:solid;border-color:var(--line);box-shadow:5px 5px 0 var(--hard);transform:rotate(-1.2deg)}
+.ticket-stats::before,.ticket-stats::after{
+  content:'';position:absolute;top:-9px;width:18px;height:18px;border-radius:50%;
+  background:var(--bg);border:1px solid var(--line);
+}
+.ticket-stats::before{left:22px}
+.ticket-stats::after{right:22px}
+.ticket-head{font-size:12px;font-weight:800;letter-spacing:3px;color:var(--dim);margin-bottom:14px}
+body[data-theme="arcade"] .ticket-head{letter-spacing:2px}
+.ticket-stats ul{list-style:none}
+.ticket-stats li{display:flex;align-items:baseline;gap:12px;padding:8px 0;border-top:1px dashed var(--line-soft)}
+body[data-theme="arcade"] .ticket-stats li{border-top-style:solid}
+.ticket-stats li strong{font-size:24px;font-weight:900;color:var(--grass);font-variant-numeric:tabular-nums}
+body[data-theme="arcade"] .ticket-stats li strong{color:var(--gold)}
+.ticket-stats li span{font-size:13px;color:var(--dim)}
+.ticket-note{margin-top:14px;font-size:12px;color:var(--dim);letter-spacing:1px}
+body[data-theme="arcade"] .ticket-note{letter-spacing:1.5px}
+
+/* ===== 目录区 ===== */
+.catalog-wrap{padding-top:26px;border-top:1px solid var(--line-soft)}
+.catalog-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:16px}
+.catalog-head h2{font-size:21px;font-weight:900;letter-spacing:2px;color:var(--text)}
+.catalog-head p{margin-top:3px;font-size:13px;color:var(--dim)}
+
+/* 筛选胶囊 */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.filter-btn{
   display:inline-flex;align-items:center;gap:7px;
-  padding:5px 12px;border-radius:999px;
-  font-size:12px;font-weight:800;letter-spacing:1px;
+  padding:8px 18px;border-radius:999px;border:1px solid var(--line);
+  background:var(--surface);color:var(--dim);font-size:13px;font-weight:700;letter-spacing:1px;
+  cursor:pointer;transition:transform .18s;
 }
-.status-float{position:absolute;top:14px;left:14px;z-index:2}
-.status-live{background:var(--grass);color:#fff;border:1px solid rgba(255,255,255,.28)}
-.status-live::before{content:'';width:7px;height:7px;border-radius:50%;background:#fff}
-body[data-theme="arcade"] .status-live{
-  background:var(--orange);color:var(--hard);border-color:transparent;border-radius:0;
-  font-family:'Consolas','Menlo',monospace;letter-spacing:2px;
+body[data-theme="arcade"] .filter-btn{letter-spacing:1.5px}
+.filter-btn:hover{transform:translateY(-2px);border-color:var(--grass);color:var(--text)}
+.filter-btn[aria-pressed="true"]{
+  background:var(--grass);border-color:var(--grass);color:#fffdf6;
 }
-body[data-theme="arcade"] .status-live::before{background:var(--hard)}
-.status-design{background:var(--line-soft);color:var(--dim);border:1px solid var(--line)}
-body[data-theme="arcade"] .status-design{
-  border-radius:0;background:rgba(14,32,54,.7);border:1px solid var(--line);
-  font-family:'Consolas','Menlo',monospace;letter-spacing:2px;
+body[data-theme="arcade"] .filter-btn[aria-pressed="true"]{
+  background:var(--gold);border-color:var(--gold);color:var(--hard);
+}
+.f-count{font-size:11px;opacity:.75}
+.filter-status{width:100%;font-size:12px;color:var(--dim);min-height:1.2em}
+
+/* ===== 统一三列目录 ===== */
+.catalog{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:clamp(14px,2vw,22px);
 }
 
-/* ===== 主卡 · 黎明迷局（可游玩） ===== */
-.mission-play:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
-.mission-play:hover{transform:translateY(-4px)}
-body[data-theme="4399"] .mission-play:hover{border-color:var(--grass);box-shadow:0 12px 30px rgba(36,52,62,.10)}
-body[data-theme="arcade"] .mission-play:hover{border-color:rgba(70,215,232,.55)}
-.media{
-  position:relative;aspect-ratio:16/9;overflow:hidden;background:var(--bg2);
-  border-bottom:1px solid var(--line-soft);
+/* ===== 游戏票根卡通用 ===== */
+.game{
+  position:relative;display:flex;flex-direction:column;color:inherit;text-decoration:none;
+  background:var(--surface);border:1px solid var(--line);border-radius:18px;
+  overflow:hidden;transition:transform .22s,border-color .22s;
 }
-.media img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
-.mission-play:hover .media img{transform:scale(1.035)}
-.media-shade{
+body[data-theme="arcade"] .game{border-radius:10px;box-shadow:4px 4px 0 var(--hard)}
+.game:hover{transform:translateY(-4px)}
+body[data-theme="4399"] .game:hover{border-color:var(--grass);box-shadow:0 12px 30px rgba(35,38,31,.10)}
+body[data-theme="arcade"] .game:hover{border-color:rgba(201,162,78,.6);box-shadow:4px 4px 0 var(--hard)}
+.game:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.game.hidden{display:none}
+
+/* 随机推荐高亮 */
+.pick-glint{
+  position:absolute;inset:0;z-index:3;pointer-events:none;border-radius:inherit;
+  background:radial-gradient(ellipse 90% 90% at 50% 40%, var(--sweep), transparent 70%);
+  opacity:0;transition:opacity .22s;
+}
+.game.picked .pick-glint{opacity:1}
+.game.picked{animation:pickPop .55s ease}
+@keyframes pickPop{0%{transform:scale(1)}32%{transform:scale(1.025)}100%{transform:scale(1)}}
+
+/* ===== 概念图区（所有卡统一 16:9） ===== */
+.art{position:relative;aspect-ratio:16/9;overflow:hidden;background:var(--bg2);border-bottom:1px dashed var(--line);container-type:inline-size}
+body[data-theme="arcade"] .art{border-bottom-style:solid}
+.art-svg{width:100%;height:100%;display:block;object-fit:cover}
+.art img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+.game:hover .art img{transform:scale(1.035)}
+.salvage-art{background:#061923}
+.salvage-preview{position:absolute;inset:0;width:100%;height:100%;display:block}
+.art-shade{
   position:absolute;inset:0;z-index:1;
-  background:linear-gradient(180deg,rgba(6,12,20,.02) 38%,rgba(6,12,20,.5) 74%,rgba(6,12,20,.8) 100%);
+  background:linear-gradient(180deg,rgba(20,16,10,.03) 40%,rgba(20,16,10,.42) 76%,rgba(20,16,10,.62) 100%);
 }
 .media-tag{
-  position:absolute;left:14px;bottom:12px;z-index:2;
+  position:absolute;left:14px;bottom:11px;z-index:2;
   font-family:'Consolas','Menlo',monospace;font-size:11px;letter-spacing:2px;
-  color:#fff;opacity:.92;
+  color:#fff;opacity:.9;text-shadow:0 1px 3px rgba(0,0,0,.45);
 }
-.genre{
-  display:inline-block;margin-top:10px;font-size:13px;font-weight:700;
-  color:var(--grass-deep);background:var(--grass-soft);border:1px solid var(--line);
-  padding:3px 12px;border-radius:999px;
+.art-type{
+  position:absolute;right:14px;bottom:4px;z-index:2;
+  font-size:clamp(52px,7vw,88px);font-weight:900;letter-spacing:.1em;line-height:1;
+  color:var(--art-type);user-select:none;
 }
-body[data-theme="arcade"] .genre{
-  color:var(--cyan);background:rgba(70,215,232,.08);border:1px solid rgba(70,215,232,.35);border-radius:0;
-  font-family:'Consolas','Menlo',monospace;font-size:11px;letter-spacing:2px;
-}
-.specs{list-style:none;display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-.specs li{
-  font-size:12px;font-weight:600;color:var(--dim);
-  border:1px solid var(--line-soft);padding:4px 12px;border-radius:999px;background:var(--bg2);
-}
-body[data-theme="arcade"] .specs li{
-  border-radius:0;font-family:'Consolas','Menlo',monospace;font-size:11px;letter-spacing:1px;
-  background:rgba(14,32,54,.6);
-}
-.cta{
-  display:inline-flex;align-items:center;justify-content:center;gap:8px;
-  align-self:flex-start;margin-top:auto;padding:12px 26px;border-radius:10px;
-  background:var(--grass);color:#fff;font-size:15px;font-weight:800;letter-spacing:2px;
-  transition:transform .2s;
-}
-.cta::after{content:'→';font-weight:900;transition:transform .2s}
-.cta:hover{transform:translateY(-2px)}
-.cta:hover::after{transform:translateX(3px)}
-.cta:active{transform:translateY(0)}
-body[data-theme="arcade"] .cta{
-  border-radius:0;background:var(--orange);color:var(--hard);
-  font-family:'Consolas','Menlo',monospace;font-size:13px;letter-spacing:2px;
-  box-shadow:3px 3px 0 var(--hard);
-}
-body[data-theme="arcade"] .cta:hover{box-shadow:3px 3px 0 var(--hard),0 0 14px rgba(255,138,61,.45)}
 
-/* ===== 幸存者计划 ===== */
-.mission-survivor:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
-.mission-survivor:hover{transform:translateY(-4px)}
-body[data-theme="4399"] .mission-survivor:hover{border-color:var(--grass);box-shadow:0 12px 30px rgba(36,52,62,.10)}
-body[data-theme="arcade"] .mission-survivor:hover{border-color:rgba(70,215,232,.55)}
-.survivor-media{
-  position:relative;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;
-  background:var(--bg2);border-bottom:1px solid var(--line-soft);overflow:hidden;
+/* ===== 终局狂奔 · 暮色跑道动态预览（纯 CSS，非手绘 SVG） ===== */
+.run-scene{position:absolute;inset:0;overflow:hidden;background:linear-gradient(180deg,var(--art-sky1) 0%,var(--art-sky2) 62%,var(--art-sky3) 100%)}
+.run-sun{
+  position:absolute;left:66%;top:34%;width:clamp(64px,9vw,110px);aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle at 50% 50%,var(--art-sun) 0%,var(--art-sun) 42%,transparent 72%);
+  opacity:.92;
 }
-body[data-theme="4399"] .survivor-media{
-  background:
-    linear-gradient(rgba(148,180,196,.16) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(148,180,196,.16) 1px,transparent 1px),var(--bg2);
-  background-size:22px 22px;
+.run-ground{
+  position:absolute;left:0;right:0;bottom:0;height:34%;overflow:hidden;
+  background:var(--art-ground);
 }
-body[data-theme="arcade"] .survivor-media{
-  background:
-    linear-gradient(rgba(43,74,102,.14) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(43,74,102,.14) 1px,transparent 1px),var(--bg2);
-  background-size:22px 22px;
+.run-ground::before{
+  content:'';position:absolute;left:0;right:0;top:0;height:3px;
+  background:linear-gradient(90deg,var(--art-sky3),var(--art-sun));
+  opacity:.55;
 }
-/* 雷达 / 包围圈概念示意（纯几何，非游戏截图） */
+.run-lane{
+  position:absolute;left:0;right:0;top:22%;height:2px;
+  background:repeating-linear-gradient(90deg,var(--art-lane) 0 34px,transparent 34px 68px);
+  opacity:.5;animation:laneScroll 1.1s linear infinite;
+}
+.run-lane.l2{top:58%;animation-duration:1.5s}
+@keyframes laneScroll{to{transform:translateX(-68px)}}
+.run-obstacle{
+  position:absolute;left:100%;bottom:34%;width:clamp(10px,1.6vw,16px);height:clamp(14px,2.2vw,22px);
+  background:var(--art-ink);border-radius:3px 3px 0 0;opacity:.85;
+  animation:obsScroll 2.6s linear infinite;
+}
+.run-obstacle.o2{bottom:34%;width:clamp(8px,1.2vw,12px);height:clamp(10px,1.6vw,16px);animation-duration:3.4s;animation-delay:.9s}
+@keyframes obsScroll{from{transform:translateX(0)}to{transform:translateX(-100cqw)}}
+.run-runner{
+  position:absolute;left:26%;bottom:34%;width:clamp(34px,5vw,52px);height:clamp(44px,6.4vw,66px);
+  animation:runnerBob .5s ease-in-out infinite;
+}
+@keyframes runnerBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.run-runner .head{
+  position:absolute;left:50%;top:0;width:26%;aspect-ratio:1;border-radius:50%;
+  transform:translateX(-50%);background:var(--art-ink);
+}
+.run-runner .torso{
+  position:absolute;left:50%;top:22%;width:34%;height:34%;
+  transform:translateX(-50%) rotate(-8deg);background:var(--art-ink);
+  border-radius:4px 4px 6px 6px;
+}
+.run-runner .leg{
+  position:absolute;left:50%;top:52%;width:12%;height:44%;
+  transform-origin:top center;background:var(--art-ink);border-radius:3px;
+}
+.run-runner .leg.front{transform:translateX(-58%) rotate(24deg);animation:legFront .5s ease-in-out infinite}
+.run-runner .leg.back{transform:translateX(46%) rotate(-26deg);animation:legBack .5s ease-in-out infinite}
+@keyframes legFront{0%,100%{transform:translateX(-58%) rotate(24deg)}50%{transform:translateX(-58%) rotate(-18deg)}}
+@keyframes legBack{0%,100%{transform:translateX(46%) rotate(-26deg)}50%{transform:translateX(46%) rotate(20deg)}}
+.run-runner .arm{
+  position:absolute;left:50%;top:24%;width:10%;height:34%;
+  transform-origin:top center;background:var(--art-ink);border-radius:3px;
+}
+.run-runner .arm.front{transform:translateX(-72%) rotate(-30deg);animation:armFront .5s ease-in-out infinite}
+.run-runner .arm.back{transform:translateX(64%) rotate(32deg);animation:armBack .5s ease-in-out infinite}
+@keyframes armFront{0%,100%{transform:translateX(-72%) rotate(-30deg)}50%{transform:translateX(-72%) rotate(22deg)}}
+@keyframes armBack{0%,100%{transform:translateX(64%) rotate(32deg)}50%{transform:translateX(64%) rotate(-24deg)}}
+.run-shadow{
+  position:absolute;left:6%;bottom:20%;width:clamp(70px,11vw,120px);height:clamp(34px,5vw,54px);
+  background:radial-gradient(ellipse at 50% 50%,var(--art-beast) 0%,transparent 70%);
+  opacity:.9;animation:shadowCreep 2.2s ease-in-out infinite;
+}
+.run-shadow::before{
+  content:'';position:absolute;left:38%;top:8%;width:10%;aspect-ratio:1;border-radius:50%;
+  background:var(--art-eye);opacity:.9;animation:eyeBlink 2.2s ease-in-out infinite;
+}
+@keyframes shadowCreep{0%,100%{transform:translateX(0) scaleX(1)}50%{transform:translateX(6%) scaleX(1.06)}}
+@keyframes eyeBlink{0%,100%{opacity:.9}50%{opacity:.35}}
+.run-dust{
+  position:absolute;left:20%;bottom:22%;width:clamp(20px,3vw,32px);height:clamp(10px,1.6vw,16px);
+  background:radial-gradient(ellipse at 50% 50%,var(--art-dust) 0%,transparent 70%);
+  opacity:.5;animation:dustPuff 1.1s ease-in-out infinite;
+}
+@keyframes dustPuff{0%,100%{opacity:.25;transform:translateX(0)}50%{opacity:.6;transform:translateX(8%)}}
+
+/* 暗巷夜色背景 */
+.art-alley{background:linear-gradient(180deg,var(--bg2),#14100b)}
+/* 恶魔暗红背景 */
+.art-demon{background:linear-gradient(180deg,var(--bg2),#23080d)}
+
+/* ===== 幸存者计划 · 动态雷达（纯几何，非游戏截图） ===== */
 .radar{
-  position:relative;width:min(42%,218px);aspect-ratio:1;border-radius:50%;
+  position:relative;width:min(46%,230px);aspect-ratio:1;border-radius:50%;
   border:1px solid var(--line);background:radial-gradient(circle at 50% 50%,var(--bg2) 0%,var(--surface) 72%);
 }
 .radar-ring{position:absolute;border-radius:50%;border:1px solid var(--line)}
@@ -281,7 +371,6 @@ body[data-theme="arcade"] .survivor-media{
   background:var(--grass);transform:translate(-50%,-50%);
   animation:blipPulse 2.2s ease-in-out infinite;animation-delay:var(--d,0s);
 }
-body[data-theme="arcade"] .blip{background:var(--cyan)}
 @keyframes blipPulse{
   0%,100%{opacity:.3;transform:translate(-50%,-50%) scale(1)}
   50%{opacity:1;transform:translate(-50%,-50%) scale(1.4)}
@@ -294,99 +383,135 @@ body[data-theme="arcade"] .blip{background:var(--cyan)}
   content:'';position:absolute;inset:-7px;border-radius:50%;
   border:1px solid var(--line);
 }
-body[data-theme="arcade"] .radar-core{background:var(--cyan)}
+body[data-theme="arcade"] .blip{background:var(--gold)}
+body[data-theme="arcade"] .radar-core{background:var(--gold)}
 
-/* ===== 打字对决 · TYPE DUEL ===== */
-.mission-duel:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
-.mission-duel:hover{transform:translateY(-4px)}
-body[data-theme="4399"] .mission-duel:hover{border-color:var(--grass);box-shadow:0 12px 30px rgba(36,52,62,.10)}
-body[data-theme="arcade"] .mission-duel:hover{border-color:rgba(70,215,232,.55)}
-.duel-media{
-  position:relative;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;
-  background:var(--bg2);border-bottom:1px solid var(--line-soft);overflow:hidden;
+/* 徽标 */
+.badge{
+  position:absolute;top:12px;left:12px;z-index:2;
+  font-size:11px;font-weight:800;letter-spacing:2px;
+  padding:4px 12px;border-radius:999px;
+  background:rgba(255,253,246,.9);color:#23261f;border:1px solid rgba(35,38,31,.14);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
 }
-body[data-theme="4399"] .duel-media{
-  background:
-    linear-gradient(rgba(148,180,196,.16) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(148,180,196,.16) 1px,transparent 1px),var(--bg2);
-  background-size:22px 22px;
+body[data-theme="arcade"] .badge{
+  background:rgba(21,23,28,.82);color:var(--text);border-color:rgba(201,162,78,.4);
+  letter-spacing:2px;
 }
-body[data-theme="arcade"] .duel-media{
-  background:
-    linear-gradient(rgba(43,74,102,.14) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(43,74,102,.14) 1px,transparent 1px),var(--bg2);
-  background-size:22px 22px;
+/* ===== 票根身体 ===== */
+.body{position:relative;display:grid;flex:1;grid-template-rows:auto auto 1fr auto auto;padding:18px 20px 18px}
+.body::before,.body::after{
+  content:'';position:absolute;top:-10px;width:18px;height:18px;border-radius:50%;
+  background:var(--bg);border:1px solid var(--line);
 }
-.duel-art{
-  --accent:var(--grass);
-  width:min(86%,560px);display:block;
+.body::before{left:26px}
+.body::after{right:26px}
+.stub-line{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.stub-no{font-family:'Consolas','Menlo',monospace;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--dim)}
+body[data-theme="arcade"] .stub-no{color:var(--gold)}
+.genre{
+  font-size:12px;font-weight:800;letter-spacing:1px;
+  color:var(--grass-deep);background:var(--grass-soft);border:1px solid var(--line);
+  padding:2px 12px;border-radius:999px;
 }
-body[data-theme="arcade"] .duel-art{--accent:var(--cyan)}
-/* ===== 恶魔追逐 · 蛇梯棋变体卡 ===== */
-.mission-demon:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
-.mission-demon:hover{transform:translateY(-4px)}
-body[data-theme="4399"] .mission-demon:hover{border-color:var(--grass);box-shadow:0 12px 30px rgba(36,52,62,.10)}
-body[data-theme="arcade"] .mission-demon:hover{border-color:rgba(70,215,232,.55)}
-.demon-media{
-  position:relative;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;
-  background:var(--bg2);border-bottom:1px solid var(--line-soft);overflow:hidden;
+body[data-theme="arcade"] .genre{
+  color:var(--gold);background:rgba(201,162,78,.08);border:1px solid rgba(201,162,78,.32);
+  font-size:11px;letter-spacing:2px;
 }
-.demon-art{width:min(88%,580px);display:block}
-
+.body h3{margin-top:2px;font-size:22px;font-weight:900;letter-spacing:1px;color:var(--text);line-height:1.2}
+.desc{margin:8px 0 14px;font-size:13.5px;color:var(--dim);line-height:1.8;max-width:52ch;min-height:4.8em}
+.specs{list-style:none;display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px;min-height:2.4em;align-content:flex-start}
+.specs li{
+  font-size:11.5px;font-weight:600;color:var(--dim);
+  border:1px solid var(--line-soft);padding:3px 11px;border-radius:999px;background:var(--bg2);
+}
+body[data-theme="arcade"] .specs li{
+  font-size:11px;letter-spacing:1px;background:rgba(28,31,38,.75);
+}
+.cta-row{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding-top:14px;border-top:1px dashed var(--line-soft);
+}
+body[data-theme="arcade"] .cta-row{border-top-style:solid}
+.cta-text{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:9px 20px;border-radius:999px;background:var(--grass);color:#fffdf6;
+  font-size:13.5px;font-weight:800;letter-spacing:2px;
+}
+body[data-theme="arcade"] .cta-text{
+  background:var(--gold);color:var(--hard);
+  font-size:12px;letter-spacing:2px;
+}
+.cta-arrow{font-weight:900;color:var(--dim);transition:transform .2s}
+.game:hover .cta-arrow{transform:translateX(3px)}
+.cta-note{font-size:11px;color:var(--dim);letter-spacing:1px}
+body[data-theme="arcade"] .cta-note{letter-spacing:1.5px}
 
 /* ===== 页脚 ===== */
 .deck-foot{
-  margin-top:36px;padding-top:18px;padding-right:58px;border-top:1px solid var(--line-soft);
+  margin-top:38px;padding-top:18px;padding-right:58px;border-top:1px solid var(--line-soft);
   display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
   font-size:12px;color:var(--dim);letter-spacing:1px;
 }
-body[data-theme="arcade"] .deck-foot{font-family:'Consolas','Menlo',monospace;letter-spacing:2px;border-top:1px solid var(--line)}
+body[data-theme="arcade"] .deck-foot{letter-spacing:2px;border-top:1px solid var(--line)}
 
-/* ===== 页面入场动效 ===== */
-body.preload .channel-head,body.preload .mission{opacity:0;transform:translateY(16px)}
-body.preload .channel-head{transition:opacity .5s,transform .5s}
-body.preload .mission-play{transition:transform .25s,opacity .5s .08s}
-body.preload .mission-survivor{transition:transform .25s,opacity .5s .2s}
-body.preload .mission-duel{transition:transform .25s,opacity .5s .32s}
-body.preload .mission-demon{transition:transform .25s,opacity .5s .44s}
-body.ready .channel-head,body.ready .mission{opacity:1;transform:translateY(0)}
+/* ===== 页面入场错落 ===== */
+body.preload .hero,body.preload .filters,body.preload .game{opacity:0;transform:translateY(16px)}
+body.preload .hero{transition:opacity .5s,transform .5s}
+body.preload .filters{transition:opacity .5s .1s,transform .5s .1s}
+body.preload .catalog .game:nth-child(1){transition:opacity .5s .06s,transform .5s .06s}
+body.preload .catalog .game:nth-child(2){transition:opacity .5s .14s,transform .5s .14s}
+body.preload .catalog .game:nth-child(3){transition:opacity .5s .22s,transform .5s .22s}
+body.preload .catalog .game:nth-child(4){transition:opacity .5s .3s,transform .5s .3s}
+body.preload .catalog .game:nth-child(5){transition:opacity .5s .38s,transform .5s .38s}
+body.preload .catalog .game:nth-child(6){transition:opacity .5s .46s,transform .5s .46s}
+body.preload .catalog .game:nth-child(7){transition:opacity .5s .54s,transform .5s .54s}
+body.ready .hero,body.ready .filters,body.ready .game{opacity:1;transform:translateY(0)}
 
 /* ===== 尊重 prefers-reduced-motion ===== */
 @media (prefers-reduced-motion: reduce){
-  body,body.preload .channel-head,body.preload .mission{transition:none!important}
-  body.preload .channel-head,body.preload .mission{opacity:1;transform:none}
-  .mission,.mission img,.cta,.cta::after,.back-home,.theme-switch{transition:none!important}
-  .radar-sweep,.blip{animation:none!important}
+  body,body.preload .hero,body.preload .filters,body.preload .game{transition:none!important}
+  body.preload .hero,body.preload .filters,body.preload .game{opacity:1;transform:none}
+  .game,.game img,.pick-btn,.filter-btn,.back-home,.theme-switch,.cta-arrow,.pick-glint{transition:none!important}
+  .game.picked{animation:none!important}
+  .game:hover,.game:hover .art img{transform:none}
+  /* 动态预览静止 */
+  .radar-sweep,.blip,.run-lane,.run-obstacle,.run-runner,.run-runner .leg,.run-runner .arm,.run-shadow,.run-shadow::before,.run-dust{animation:none!important}
   .radar-sweep{opacity:.25}
   .blip{opacity:.75}
-  .mission-play:hover,.mission-survivor:hover,.mission-duel:hover,.mission-demon:hover,.mission-play:hover .media img,.cta:hover,.cta:hover::after{transform:none}
+  .run-lane{opacity:.3}
+  .run-obstacle{opacity:.6}
+  .run-shadow{opacity:.8}
+  .run-runner .leg.front{transform:translateX(-58%) rotate(24deg)}
+  .run-runner .leg.back{transform:translateX(46%) rotate(-26deg)}
+  .run-runner .arm.front{transform:translateX(-72%) rotate(-30deg)}
+  .run-runner .arm.back{transform:translateX(64%) rotate(32deg)}
 }
 
-/* ===== 中屏双列（三卡时先降为两列） ===== */
+/* ===== 平板双列 ===== */
 @media (max-width:1099px){
-  .mission-layout{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .catalog{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .art-type{font-size:clamp(48px,9vw,84px)}
 }
 
-/* ===== 窄屏单列 ===== */
-@media (max-width:899px){
-  .mission-layout{grid-template-columns:1fr}
-  .radar{width:min(38%,210px)}
-}
+/* ===== 手机单列 ===== */
 @media (max-width:720px){
-  .deck{padding:82px 16px calc(82px + env(safe-area-inset-bottom))}
-  .channel-head{grid-template-columns:1fr;gap:24px;margin-bottom:28px}
-  .channel-summary{padding-left:16px}
-  .mission-board{padding-top:20px}
-  .mission-body{padding:18px 18px 20px}
-  .cta{width:100%;min-height:48px}
-  .channel-head h1 span{letter-spacing:5px}
+  .deck{padding:78px 14px calc(72px + env(safe-area-inset-bottom))}
+  .hero{grid-template-columns:1fr;gap:24px;align-items:stretch;margin-bottom:24px}
+  .ticket-stats{transform:none;padding:20px 20px 18px}
+  body[data-theme="arcade"] .ticket-stats{transform:none}
+  .catalog-wrap{padding-top:22px}
+  .catalog{grid-template-columns:1fr}
+  .art{aspect-ratio:16/9}
+  .body{padding:16px 16px 16px}
+  .desc{min-height:0}
+  .specs{min-height:0}
+  .pick-btn{width:100%;justify-content:center;min-height:48px}
+  .hero-cta{flex-direction:column;align-items:stretch;gap:8px}
+  .pick-hint{text-align:center}
   .deck-foot{flex-direction:column;gap:6px}
   .back-home{top:max(10px,env(safe-area-inset-top));left:max(10px,env(safe-area-inset-left));min-height:44px;padding:7px 14px;font-size:12px;display:flex;align-items:center}
   .theme-switch{right:max(10px,env(safe-area-inset-right));bottom:max(10px,env(safe-area-inset-bottom))}
-}
-@media (max-width:420px){
-  .radar{width:min(54%,190px)}
-  .mission-code{font-size:10px;letter-spacing:1.5px}
 }
 </style>
 </head>
@@ -396,86 +521,153 @@ body.ready .channel-head,body.ready .mission{opacity:1;transform:translateY(0)}
 <button class="theme-switch" id="themeToggle" type="button" aria-label="切换主题" title="切换主题"></button>
 
 <main class="deck">
-  <header class="channel-head">
+  <header class="hero">
     <div class="head-copy">
-      <p class="kicker">ACTION CHANNEL</p>
-      <h1>动作游戏<span>进入战场</span></h1>
-      <p class="intro">追逐、生存、临场构筑。这里没有回合等待，每一次选择都在实时战场中生效。</p>
-    </div>
-    <div class="channel-summary" aria-label="频道状态">
-      <p class="summary-label">CHANNEL STATUS / ONLINE</p>
-      <div class="stats">
-        <span class="stat"><strong>04</strong><i>行动档案</i></span>
-        <span class="stat"><strong>04</strong><i>已开放</i></span>
+      <p class="kicker">FUN GAMES · 七款精选</p>
+      <h1>好玩游戏<span class="stamp" aria-hidden="true">ISSUE 01</span></h1>
+      <p class="tagline">今晚玩什么？</p>
+      <p class="intro">不分类型，只挑值得再来一局的。七款游戏全部免费、即点即玩，不用等加载，不用注册账号。</p>
+      <div class="hero-cta">
+        <button class="pick-btn" id="pickBtn" type="button" aria-label="帮我选一款，从当前可见的游戏中随机挑一个">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h12M13 4l4 4-4 4M20 16H8M11 12l-4 4 4 4"/></svg>
+          帮我选一款
+        </button>
+        <p class="pick-hint" id="pickStatus" aria-live="polite">看眼缘，随机挑一款今晚就玩</p>
       </div>
-      <p class="summary-note">键鼠与触屏均可出击</p>
     </div>
+    <aside class="ticket-stats" aria-label="本期收录统计">
+      <p class="ticket-head">本期收录 · 七款</p>
+      <ul>
+        <li><strong>07</strong><span>精选游戏</span></li>
+        <li><strong>07</strong><span>种玩法</span></li>
+        <li><strong>00</strong><span>元收费</span></li>
+      </ul>
+      <p class="ticket-note">全部免费 · 本地运行 · 无需登录</p>
+    </aside>
   </header>
 
-  <section class="mission-board" id="missions" aria-labelledby="missionHeading">
-    <div class="board-head">
-      <h2 id="missionHeading">选择任务</h2>
-      <p>四种战场，四套完全不同的对决规则。</p>
+  <section class="catalog-wrap" id="catalog" aria-labelledby="catalogHeading">
+    <div class="catalog-head">
+      <div>
+        <h2 id="catalogHeading">本期目录</h2>
+        <p>七款游戏，七种玩法。想找特定类型，用下面的筛选器挑。</p>
+      </div>
     </div>
-    <div class="mission-layout">
-      <a class="mission mission-play js-skip" href="../identity-v/index.html" aria-label="进入黎明迷局：非对称追逃，双阵营，3 张地图，单机 AI">
-      <div class="media">
-        <img src="../identity-v/dawn-map-manor.png" alt="黎明迷局·庄园地图：哥特宅邸与庭院的平面示意图">
-        <span class="media-shade" aria-hidden="true"></span>
-        <span class="status status-live status-float">可游玩</span>
-        <span class="media-tag" aria-hidden="true">DAWN MAZE · MANOR MAP</span>
-      </div>
-      <div class="mission-body">
-        <p class="mission-code">MISSION-01 / DAWN MAZE</p>
-        <h2>黎明迷局</h2>
-        <p class="genre">非对称追逃</p>
-        <ul class="specs">
-          <li>双阵营</li>
-          <li>3 张地图</li>
-          <li>键鼠 / 触屏</li>
-        </ul>
-        <p class="desc">在庄园、教堂与医院的阴影中，猎手与猎物共享同一片黑暗。</p>
-        <span class="cta" aria-hidden="true">进入追逃</span>
-      </div>
-      </a>
 
-      <a class="mission mission-survivor js-skip" href="../survivor-protocol/index.html" aria-label="进入幸存者计划：六分钟敌潮生存、自动火力与局内构筑">
-      <div class="survivor-media">
-        <div class="radar" role="img" aria-label="幸存者计划概念示意：雷达环显示四周敌潮正在逼近中心据点">
-          <span class="radar-ring r1"></span>
-          <span class="radar-ring r2"></span>
-          <span class="radar-ring r3"></span>
-          <span class="radar-cross c-h"></span>
-          <span class="radar-cross c-v"></span>
-          <span class="radar-sweep" aria-hidden="true"></span>
-          <span class="blip" style="--x:18%;--y:-32%;--d:0s"></span>
-          <span class="blip" style="--x:38%;--y:4%;--d:.5s"></span>
-          <span class="blip" style="--x:-30%;--y:26%;--d:1s"></span>
-          <span class="blip" style="--x:-40%;--y:-12%;--d:1.5s"></span>
-          <span class="blip" style="--x:6%;--y:42%;--d:1.8s"></span>
-          <span class="blip" style="--x:-16%;--y:-38%;--d:.8s"></span>
-          <span class="radar-core" aria-hidden="true"></span>
+    <div class="filters" role="group" aria-label="按玩法筛选">
+      <button class="filter-btn" type="button" data-filter="all" aria-pressed="true">全部<span class="f-count" aria-hidden="true">7</span></button>
+      <button class="filter-btn" type="button" data-filter="reflex" aria-pressed="false">反应<span class="f-count" aria-hidden="true">2</span></button>
+      <button class="filter-btn" type="button" data-filter="strategy" aria-pressed="false">策略<span class="f-count" aria-hidden="true">4</span></button>
+      <button class="filter-btn" type="button" data-filter="keyboard" aria-pressed="false">键盘<span class="f-count" aria-hidden="true">4</span></button>
+      <p class="filter-status" id="filterStatus" aria-live="polite"></p>
+    </div>
+
+    <div class="catalog">
+
+      <!-- 深潜打捞 -->
+      <a class="game card-salvage js-skip" href="../deep-salvage/index.html"
+         data-cat="strategy keyboard" data-name="深潜打捞"
+         aria-label="去玩深潜打捞：带领两名 AI 潜水员进入随机海沟，躲避鲨鱼，搜刮宝物并返回母船">
+        <span class="pick-glint" aria-hidden="true"></span>
+        <div class="art salvage-art">
+          <canvas class="salvage-preview" id="salvagePreview" role="img" aria-label="深潜打捞动态海沟扫描：鱼群穿过左右航线，鲨鱼巢穴与打捞物在深海中闪烁">动态海沟扫描</canvas>
+          <span class="art-shade" aria-hidden="true"></span>
+          <span class="badge">本期主推</span>
+          <span class="media-tag" aria-hidden="true">DEEP SALVAGE · LIVE TRENCH SCAN</span>
         </div>
-        <span class="status status-live status-float">新上线</span>
-        <span class="media-tag" aria-hidden="true">RADAR FEED · SIMULATION</span>
-      </div>
-      <div class="mission-body">
-        <p class="mission-code">MISSION-02 / SURVIVOR PROTOCOL</p>
-        <h2 id="survivorTitle">幸存者计划</h2>
-        <p class="genre">敌潮生存</p>
-        <ul class="specs">
-          <li>6 分钟</li>
-          <li>局内构筑</li>
-          <li>Boss 战</li>
-        </ul>
-        <p class="desc">保持移动，重组自动火力，在最终裁定完成前击破零号机。</p>
-        <span class="cta" aria-hidden="true">开始生存</span>
-      </div>
+        <div class="body">
+          <p class="stub-line"><span class="stub-no">NO.01</span><span class="genre">深海搜打撤</span></p>
+          <h3>深潜打捞</h3>
+          <p class="desc">带领两名自主潜水员进入随机沉船海沟。避开鲨鱼巢穴，装满六格背包，活着返回母船。</p>
+          <ul class="specs">
+            <li>三人小队</li>
+            <li>随机海沟</li>
+            <li>键鼠 / 触屏</li>
+          </ul>
+          <p class="cta-row">
+            <span class="cta-text" aria-hidden="true">开始下潜</span>
+            <span class="cta-note" aria-hidden="true">点击整卡入场</span>
+            <span class="cta-arrow" aria-hidden="true">→</span>
+          </p>
+        </div>
       </a>
 
-      <a class="mission mission-duel js-skip" href="../typeduel/index.html" aria-label="进入打字对决：打字射击，单词即敌人，打字即射击，闯关 / 冲刺 / 生存三模式">
-      <div class="duel-media">
-        <svg class="duel-art" viewBox="0 0 320 180" role="img" aria-label="打字对决概念示意：环形准星瞄准下落的单词数据包，底部键盘待命" preserveAspectRatio="xMidYMid meet">
+      <!-- 黎明迷局 -->
+      <a class="game card-side-a js-skip" href="../identity-v/index.html"
+         data-cat="strategy" data-name="黎明迷局"
+         aria-label="去玩黎明迷局：非对称追逃，双阵营，三张地图，猜身份赌走位">
+        <span class="pick-glint" aria-hidden="true"></span>
+        <div class="art">
+          <img src="../identity-v/dawn-map-manor.png" alt="黎明迷局庄园地图：哥特宅邸与庭院的平面示意图">
+          <span class="art-shade" aria-hidden="true"></span>
+          <span class="badge">人气款</span>
+          <span class="media-tag" aria-hidden="true">DAWN MAZE · MANOR MAP</span>
+        </div>
+        <div class="body">
+          <p class="stub-line"><span class="stub-no">NO.02</span><span class="genre">非对称追逃</span></p>
+          <h3>黎明迷局</h3>
+          <p class="desc">猎手与猎物共享同一片黑暗。在庄园、教堂与医院的阴影里，猜身份，赌走位。</p>
+          <ul class="specs">
+            <li>双阵营</li>
+            <li>3 张地图</li>
+            <li>键鼠 / 触屏</li>
+          </ul>
+          <p class="cta-row">
+            <span class="cta-text" aria-hidden="true">猜身份去</span>
+            <span class="cta-note" aria-hidden="true">点击整卡入场</span>
+            <span class="cta-arrow" aria-hidden="true">→</span>
+          </p>
+        </div>
+      </a>
+
+      <!-- 幸存者计划 -->
+      <a class="game card-side-b js-skip" href="../survivor-protocol/index.html"
+         data-cat="reflex" data-name="幸存者计划"
+         aria-label="去玩幸存者计划：六分钟敌潮生存，保持移动重组自动火力，击破零号机">
+        <span class="pick-glint" aria-hidden="true"></span>
+        <div class="art">
+          <div class="radar" role="img" aria-label="幸存者计划概念示意：雷达环显示四周敌潮正在逼近中心据点" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+            <span class="radar-ring r1"></span>
+            <span class="radar-ring r2"></span>
+            <span class="radar-ring r3"></span>
+            <span class="radar-cross c-h"></span>
+            <span class="radar-cross c-v"></span>
+            <span class="radar-sweep" aria-hidden="true"></span>
+            <span class="blip" style="--x:18%;--y:-32%;--d:0s"></span>
+            <span class="blip" style="--x:38%;--y:4%;--d:.5s"></span>
+            <span class="blip" style="--x:-30%;--y:26%;--d:1s"></span>
+            <span class="blip" style="--x:-40%;--y:-12%;--d:1.5s"></span>
+            <span class="blip" style="--x:6%;--y:42%;--d:1.8s"></span>
+            <span class="blip" style="--x:-16%;--y:-38%;--d:.8s"></span>
+            <span class="radar-core" aria-hidden="true"></span>
+          </div>
+          <span class="badge">新上线</span>
+          <span class="media-tag" aria-hidden="true">SURVIVOR PROTOCOL · 6 MIN</span>
+        </div>
+        <div class="body">
+          <p class="stub-line"><span class="stub-no">NO.03</span><span class="genre">敌潮生存</span></p>
+          <h3>幸存者计划</h3>
+          <p class="desc">保持移动，重组自动火力，在六分钟敌潮里活下去，击破零号机。</p>
+          <ul class="specs">
+            <li>6 分钟</li>
+            <li>局内构筑</li>
+            <li>Boss 战</li>
+          </ul>
+          <p class="cta-row">
+            <span class="cta-text" aria-hidden="true">撑过六分钟</span>
+            <span class="cta-note" aria-hidden="true">点击整卡入场</span>
+            <span class="cta-arrow" aria-hidden="true">→</span>
+          </p>
+        </div>
+      </a>
+
+      <!-- 打字对决 -->
+      <a class="game card-b1 js-skip" href="../typeduel/index.html"
+         data-cat="keyboard" data-name="打字对决"
+         aria-label="去玩打字对决：打字射击，单词即敌人，打字即射击，闯关、冲刺、生存三模式">
+        <span class="pick-glint" aria-hidden="true"></span>
+        <div class="art">
+          <svg class="art-svg" viewBox="0 0 320 180" role="img" aria-label="打字对决概念示意：环形准星瞄准下落的单词数据包，底部键盘待命" preserveAspectRatio="xMidYMid meet">
           <text x="76" y="52" font-family="Consolas,Menlo,monospace" font-size="14" font-weight="700" fill="var(--accent)" opacity=".92">BYTE</text>
           <text x="238" y="44" font-family="Consolas,Menlo,monospace" font-size="11" font-weight="700" fill="var(--accent)" opacity=".55">SHELL</text>
           <text x="100" y="112" font-family="Consolas,Menlo,monospace" font-size="12" font-weight="700" fill="var(--accent)" opacity=".38">NODE</text>
@@ -506,52 +698,143 @@ body.ready .channel-head,body.ready .mission{opacity:1;transform:translateY(0)}
             <rect x="154" y="132" width="19" height="10" rx="2.5" fill="var(--focus)" opacity=".9"/>
           </g>
         </svg>
-        <span class="status status-live status-float">新上线</span>
-        <span class="media-tag" aria-hidden="true">TYPE DUEL · TYPING SHOOTER</span>
-      </div>
-      <div class="mission-body">
-        <p class="mission-code">MISSION-03 / TYPE DUEL</p>
-        <h2 id="duelTitle">打字对决</h2>
-        <p class="genre">打字射击</p>
-        <ul class="specs">
-          <li>12 关</li>
-          <li>3 模式</li>
-          <li>键盘输入</li>
-        </ul>
-        <p class="desc">单词即敌人，打字即射击。逐字母击碎入侵的数据病毒，守护服务器核心。</p>
-        <span class="cta" aria-hidden="true">开始对决</span>
-      </div>
+          <span class="badge">新上线</span>
+          <span class="media-tag" aria-hidden="true">TYPE DUEL · TYPING SHOOTER</span>
+        </div>
+        <div class="body">
+          <p class="stub-line"><span class="stub-no">NO.04</span><span class="genre">打字射击</span></p>
+          <h3>打字对决</h3>
+          <p class="desc">单词即敌人，打字即射击。逐字母击碎入侵的数据病毒，守护服务器核心。</p>
+          <ul class="specs">
+            <li>12 关</li>
+            <li>3 模式</li>
+            <li>键盘输入</li>
+          </ul>
+          <p class="cta-row">
+            <span class="cta-text" aria-hidden="true">开始对决</span>
+            <span class="cta-note" aria-hidden="true">点击整卡入场</span>
+            <span class="cta-arrow" aria-hidden="true">→</span>
+          </p>
+        </div>
       </a>
-      <a class="mission mission-demon js-skip" href="../snake-demon/index.html" aria-label="进入恶魔追逐：蛇梯棋变体，你与队友掷骰冲线，恶魔步步紧逼，命运格改写命运，护盾与羁绊是最后的依仗">
-      <div class="demon-media">
-        <svg class="demon-art" viewBox="0 0 320 180" role="img" aria-label="恶魔追逐概念示意：2.5D 阶梯棋盘上，青色剑士与绿色法师掷骰冲线，红色角魔自远方步步逼近" preserveAspectRatio="xMidYMid meet">
+
+      <!-- 恶魔追逐 -->
+      <a class="game card-b2 js-skip" href="../snake-demon/index.html"
+         data-cat="strategy" data-name="恶魔追逐"
+         aria-label="去玩恶魔追逐：蛇梯棋变体，掷骰冲线，恶魔步步紧逼，命运格改写命运">
+        <span class="pick-glint" aria-hidden="true"></span>
+        <div class="art art-demon">
+          <svg class="art-svg" viewBox="0 0 320 180" role="img" aria-label="恶魔追逐概念示意：2.5D 阶梯棋盘上，青色剑士与绿色法师掷骰冲线，红色角魔自远方步步逼近" preserveAspectRatio="xMidYMid meet">
 <defs><linearGradient id="dg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7f1d1d" stop-opacity=".5"/><stop offset="1" stop-color="#23080d" stop-opacity=".95"/></linearGradient><linearGradient id="dgold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fde68a"/><stop offset="1" stop-color="#d97706"/></linearGradient><radialGradient id="dglow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ef4444" stop-opacity=".5"/><stop offset="1" stop-color="#ef4444" stop-opacity="0"/></radialGradient></defs><rect width="320" height="180" fill="url(#dg)"/><circle cx="252" cy="22" r="42" fill="url(#dglow)"/><rect x="74.0" y="8.0" width="14.4" height="10.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="88.4" y="8.0" width="14.4" height="10.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="102.8" y="8.0" width="14.4" height="10.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="117.2" y="8.0" width="14.4" height="10.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="131.6" y="8.0" width="14.4" height="10.4" fill="url(#dgold)" stroke="#f59e0b" stroke-width="1" rx="1.5"/><text x="138.8" y="17.2" font-size="7" text-anchor="middle" fill="#1a0b02" font-weight="900">?</text><rect x="146.0" y="8.0" width="14.4" height="10.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="160.4" y="8.0" width="14.4" height="10.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="174.8" y="8.0" width="14.4" height="10.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="189.2" y="8.0" width="14.4" height="10.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="203.6" y="8.0" width="14.4" height="10.4" fill="url(#dgold)" stroke="#f59e0b" stroke-width="1" rx="1.5"/><text x="210.8" y="17.2" font-size="7" text-anchor="middle" fill="#1a0b02" font-weight="900">?</text><rect x="218.0" y="8.0" width="14.4" height="10.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="232.4" y="8.0" width="14.4" height="10.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="70.0" y="40.0" width="15.8" height="11.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="85.8" y="40.0" width="15.8" height="11.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="101.6" y="40.0" width="15.8" height="11.4" fill="url(#dgold)" stroke="#f59e0b" stroke-width="1" rx="1.5"/><text x="109.5" y="49.7" font-size="7" text-anchor="middle" fill="#1a0b02" font-weight="900">?</text><rect x="117.4" y="40.0" width="15.8" height="11.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="133.2" y="40.0" width="15.8" height="11.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="149.0" y="40.0" width="15.8" height="11.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="164.8" y="40.0" width="15.8" height="11.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="180.6" y="40.0" width="15.8" height="11.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="196.4" y="40.0" width="15.8" height="11.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="212.2" y="40.0" width="15.8" height="11.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="228.0" y="40.0" width="15.8" height="11.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="243.8" y="40.0" width="15.8" height="11.4" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="65.0" y="72.0" width="17.1" height="12.3" fill="url(#dgold)" stroke="#f59e0b" stroke-width="1" rx="1.5"/><text x="73.5" y="82.2" font-size="7" text-anchor="middle" fill="#1a0b02" font-weight="900">?</text><rect x="82.1" y="72.0" width="17.1" height="12.3" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="99.2" y="72.0" width="17.1" height="12.3" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="116.3" y="72.0" width="17.1" height="12.3" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="133.4" y="72.0" width="17.1" height="12.3" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="150.5" y="72.0" width="17.1" height="12.3" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="167.6" y="72.0" width="17.1" height="12.3" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="184.7" y="72.0" width="17.1" height="12.3" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="201.8" y="72.0" width="17.1" height="12.3" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="218.9" y="72.0" width="17.1" height="12.3" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="236.0" y="72.0" width="17.1" height="12.3" fill="url(#dgold)" stroke="#f59e0b" stroke-width="1" rx="1.5"/><text x="244.6" y="82.2" font-size="7" text-anchor="middle" fill="#1a0b02" font-weight="900">?</text><rect x="253.1" y="72.0" width="17.1" height="12.3" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="52.0" y="104.0" width="18.0" height="13.0" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="70.0" y="104.0" width="18.0" height="13.0" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="88.0" y="104.0" width="18.0" height="13.0" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="106.0" y="104.0" width="18.0" height="13.0" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="124.0" y="104.0" width="18.0" height="13.0" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="142.0" y="104.0" width="18.0" height="13.0" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="160.0" y="104.0" width="18.0" height="13.0" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="178.0" y="104.0" width="18.0" height="13.0" fill="url(#dgold)" stroke="#f59e0b" stroke-width="1" rx="1.5"/><text x="187.0" y="114.5" font-size="8" text-anchor="middle" fill="#1a0b02" font-weight="900">?</text><rect x="196.0" y="104.0" width="18.0" height="13.0" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="214.0" y="104.0" width="18.0" height="13.0" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="232.0" y="104.0" width="18.0" height="13.0" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><rect x="250.0" y="104.0" width="18.0" height="13.0" fill="rgba(14,26,22,.62)" stroke="rgba(232,160,106,.34)" stroke-width="1" rx="1.5"/><path d="M 146.0 13.0 L 164.8 46.0 L 150.5 78.0 L 160.0 110.0" fill="none" stroke="rgba(253,230,138,.5)" stroke-width="1.4" stroke-dasharray="3 3"/><g transform="translate(60,116)"><circle r="7" fill="#22d3ee" stroke="#0e7490" stroke-width="1.4"/><path d="M0 4 L-5 13 L5 13 Z" fill="#22d3ee" stroke="#0e7490" stroke-width="1"/><line x1="6" y1="-2" x2="12" y2="4" stroke="#e0f2fe" stroke-width="2" stroke-linecap="round"/></g><g transform="translate(86,116)"><circle r="7" fill="#4ade80" stroke="#15803d" stroke-width="1.4"/><path d="M0 4 L-5 13 L5 13 Z" fill="#4ade80" stroke="#15803d" stroke-width="1"/><line x1="-6" y1="-6" x2="-11" y2="-12" stroke="#bbf7d0" stroke-width="1.6" stroke-linecap="round"/><circle cx="-11" cy="-13" r="2" fill="#fde68a"/></g><g transform="translate(240,20)"><path d="M-9 -4 L-6 -13 L-2 -6 L0 -15 L2 -6 L6 -13 L9 -4 Z" fill="#dc2626" stroke="#7f1d1d" stroke-width="1.2"/><circle r="8" fill="#dc2626" stroke="#7f1d1d" stroke-width="1.4"/><circle cx="-3" cy="0" r="1.6" fill="#fecaca"/><circle cx="3" cy="0" r="1.6" fill="#fecaca"/><path d="M-4 5 Q0 9 4 5" fill="none" stroke="#7f1d1d" stroke-width="1.2"/></g><path d="M252 46 Q220 70 196 92" fill="none" stroke="rgba(239,68,68,.6)" stroke-width="2.4" stroke-dasharray="6 5"/><path d="M196 92 l-7 -2 4 7z" fill="rgba(239,68,68,.85)"/><text x="60" y="142" font-size="8" fill="rgba(220,238,245,.7)" text-anchor="middle">1</text><text x="228" y="142" font-size="8" fill="rgba(220,238,245,.7)" text-anchor="middle">48</text><path d="M224 128 l8 6 -8 6 z" fill="#fde68a" opacity=".9"/>
         </svg>
-        <span class="status status-live status-float">新上线</span>
-        <span class="media-tag" aria-hidden="true">DEMON PURSUIT · TEAM RUN</span>
-      </div>
-      <div class="mission-body">
-        <p class="mission-code">MISSION-04 / DEMON PURSUIT</p>
-        <h2 id="demonTitle">恶魔追逐</h2>
-        <p class="genre">蛇梯棋变体</p>
-        <ul class="specs">
-          <li>48 格</li>
-          <li>队友模式</li>
-          <li>2.5D 阶梯</li>
-        </ul>
-        <p class="desc">你与队友掷骰冲线，恶魔以双骰步步紧逼。命运格改写命运，护盾与羁绊是最后的依仗。</p>
-        <span class="cta" aria-hidden="true">开始冲线</span>
-      </div>
+          <span class="badge">新上线</span>
+          <span class="media-tag" aria-hidden="true">DEMON PURSUIT · TEAM RUN</span>
+        </div>
+        <div class="body">
+          <p class="stub-line"><span class="stub-no">NO.05</span><span class="genre">蛇梯棋变体</span></p>
+          <h3>恶魔追逐</h3>
+          <p class="desc">你与队友掷骰冲线，恶魔以双骰步步紧逼。命运格改写命运，护盾与羁绊是最后的依仗。</p>
+          <ul class="specs">
+            <li>48 格</li>
+            <li>队友模式</li>
+            <li>2.5D 阶梯</li>
+          </ul>
+          <p class="cta-row">
+            <span class="cta-text" aria-hidden="true">开始冲线</span>
+            <span class="cta-note" aria-hidden="true">点击整卡入场</span>
+            <span class="cta-arrow" aria-hidden="true">→</span>
+          </p>
+        </div>
       </a>
+
+      <!-- 暗巷潜行 -->
+      <a class="game card-b3 js-skip" href="../alley-heist/index.html"
+         data-cat="strategy keyboard" data-name="暗巷潜行"
+         aria-label="去玩暗巷潜行：安静潜入夺取钥匙，警报响起后利用转角、声响与卷帘门甩开守卫">
+        <span class="pick-glint" aria-hidden="true"></span>
+        <div class="art art-alley">
+          <svg class="art-svg" viewBox="0 0 320 180" role="img" aria-label="暗巷潜行概念示意：夜色小巷网格俯视，青色潜入者躲避守卫视锥，夺取钥匙后逃向出口" preserveAspectRatio="xMidYMid meet">
+<defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14100b" stop-opacity=".97"/><stop offset="1" stop-color="#2a1f12" stop-opacity="1"/></linearGradient><radialGradient id="alamp" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="rgba(255,210,120,.5)"/><stop offset="1" stop-color="rgba(255,210,120,0)"/></radialGradient><radialGradient id="acon" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="rgba(250,204,21,.3)"/><stop offset="1" stop-color="rgba(250,204,21,0)"/></radialGradient></defs><rect width="320" height="180" fill="url(#ag)"/><g fill="rgba(180,150,100,.12)" stroke="rgba(232,180,120,.28)" stroke-width="1"><rect x="20" y="20" width="46" height="34"/><rect x="20" y="90" width="46" height="34"/><rect x="70" y="20" width="46" height="34"/><rect x="70" y="90" width="46" height="34"/><rect x="120" y="20" width="46" height="34"/><rect x="120" y="90" width="46" height="34"/><rect x="170" y="20" width="46" height="34"/><rect x="170" y="90" width="46" height="34"/><rect x="220" y="20" width="46" height="34"/><rect x="220" y="90" width="46" height="34"/><rect x="270" y="20" width="46" height="34"/><rect x="270" y="90" width="46" height="34"/></g><!-- 墙缝隙砖块填充 --><g fill="rgba(90,70,45,.9)" stroke="rgba(210,170,120,.3)" stroke-width="1"><rect x="20" y="20" width="46" height="34"/><rect x="70" y="20" width="46" height="34"/><rect x="120" y="20" width="46" height="34"/><rect x="170" y="20" width="46" height="34"/><rect x="220" y="20" width="46" height="34"/><rect x="270" y="20" width="46" height="34"/><rect x="20" y="90" width="46" height="34"/><rect x="70" y="90" width="46" height="34"/><rect x="120" y="90" width="46" height="34"/><rect x="170" y="90" width="46" height="34"/><rect x="220" y="90" width="46" height="34"/><rect x="270" y="90" width="46" height="34"/><rect x="20" y="160" width="46" height="20"/><rect x="270" y="160" width="46" height="20"/></g><!-- 暗巷通道 --><rect x="70" y="54" width="46" height="36" fill="rgba(40,30,18,.4)"/><rect x="120" y="54" width="46" height="36" fill="rgba(40,30,18,.4)"/><rect x="170" y="54" width="46" height="36" fill="rgba(40,30,18,.4)"/><rect x="220" y="54" width="46" height="36" fill="rgba(40,30,18,.4)"/><rect x="270" y="54" width="46" height="36" fill="rgba(40,30,18,.4)"/><rect x="20" y="54" width="46" height="36" fill="rgba(40,30,18,.4)"/><rect x="20" y="110" width="46" height="50" fill="rgba(40,30,18,.4)"/><rect x="270" y="110" width="46" height="50" fill="rgba(40,30,18,.4)"/><rect x="70" y="110" width="46" height="30" fill="rgba(40,30,18,.4)"/><rect x="120" y="110" width="46" height="30" fill="rgba(40,30,18,.4)"/><rect x="170" y="110" width="46" height="30" fill="rgba(40,30,18,.4)"/><rect x="220" y="110" width="46" height="30" fill="rgba(40,30,18,.4)"/><!-- 两盏灯 --><circle cx="50" cy="72" r="40" fill="url(#alamp)"/><circle cx="290" cy="72" r="40" fill="url(#alamp)"/><circle cx="50" cy="72" r="6" fill="#ffd984"/><circle cx="290" cy="72" r="6" fill="#ffd984"/><!-- 守卫0 视锥朝右 --><path d="M 172 60 L 300 84 L 172 96 Z" fill="rgba(250,204,21,.13)"/><circle cx="172" cy="78" r="11" fill="#c2410c" stroke="#fca5a5" stroke-width="1.5"/><circle cx="196" cy="78" r="4" fill="#fff"/><!-- 守卫1 视锥朝左（底部） --><path d="M 148 128 L 22 150 L 148 166 Z" fill="rgba(239,68,68,.15)"/><circle cx="148" cy="147" r="10" fill="#dc2626" stroke="#fca5a5" stroke-width="1.5"/><circle cx="126" cy="147" r="3.5" fill="#fff"/><!-- 玩家（青） --><circle cx="116" cy="78" r="9" fill="#38bdf8" stroke="#bae6fd" stroke-width="1.5"/><circle cx="130" cy="78" r="4" fill="#e0f2fe"/><path d="M 116 78 q 6 8 4 16" stroke="#38bdf8" stroke-width="2.4" fill="none" opacity=".7"/><!-- 出口门（绿） --><rect x="252" y="148" width="30" height="30" rx="4" fill="rgba(52,211,153,.18)" stroke="#34d399" stroke-width="2"/><text x="267" y="170" font-size="9" text-anchor="middle" fill="#a7f3d0" font-weight="900">出口</text><!-- 机关 ⚙ 金色 --><circle cx="76" cy="130" r="12" stroke="#e8b84b" stroke-width="2.4" fill="rgba(232,184,75,.22)"/><circle cx="76" cy="130" r="4.5" fill="#e8b84b"/>
+          <g aria-hidden="true"><rect x="58" y="112" width="38" height="36" rx="5" fill="#241a10" opacity=".96"/><circle cx="70" cy="128" r="6" fill="none" stroke="#e8b84b" stroke-width="3"/><path d="M76 128h13m-5 0v6m5-6v4" fill="none" stroke="#e8b84b" stroke-width="3" stroke-linecap="round"/><circle cx="116" cy="78" r="20" fill="none" stroke="#38bdf8" stroke-width="1.5" opacity=".42"/></g>
+        </svg>
+          <span class="badge">追逃重制</span>
+          <span class="media-tag" aria-hidden="true">ALLEY HEIST · KEY ESCAPE</span>
+        </div>
+        <div class="body">
+          <p class="stub-line"><span class="stub-no">NO.06</span><span class="genre">网格潜行</span></p>
+          <h3>暗巷潜行</h3>
+          <p class="desc">安静潜入夺取钥匙，警报响起后冲刺撤离；用转角切断视线，冒险打开卷帘门抄近路。</p>
+          <ul class="specs">
+            <li>6 关</li>
+            <li>钥匙警报</li>
+            <li>追逃博弈</li>
+          </ul>
+          <p class="cta-row">
+            <span class="cta-text" aria-hidden="true">潜入暗巷</span>
+            <span class="cta-note" aria-hidden="true">点击整卡入场</span>
+            <span class="cta-arrow" aria-hidden="true">→</span>
+          </p>
+        </div>
+      </a>
+
+      <!-- 终局狂奔 -->
+      <a class="game card-run js-skip" href="../final-run/index.html"
+         data-cat="reflex keyboard" data-name="终局狂奔"
+         aria-label="去玩终局狂奔：无尽跑酷，二段跳与滑铲躲避暗影巨兽，空格或触屏即可操作">
+        <span class="pick-glint" aria-hidden="true"></span>
+        <div class="art">
+          <div class="run-scene" role="img" aria-label="终局狂奔概念示意：暮色跑道上，跑者剪影向前奔跑，身后暗影巨兽紧追不舍">
+            <span class="run-sun" aria-hidden="true"></span>
+            <span class="run-ground" aria-hidden="true">
+              <span class="run-lane" aria-hidden="true"></span>
+              <span class="run-lane l2" aria-hidden="true"></span>
+            </span>
+            <span class="run-obstacle" aria-hidden="true"></span>
+            <span class="run-obstacle o2" aria-hidden="true"></span>
+            <span class="run-shadow" aria-hidden="true"></span>
+            <span class="run-dust" aria-hidden="true"></span>
+            <span class="run-runner" aria-hidden="true">
+              <span class="head"></span>
+              <span class="torso"></span>
+              <span class="arm front"></span>
+              <span class="arm back"></span>
+              <span class="leg front"></span>
+              <span class="leg back"></span>
+            </span>
+          </div>
+          <span class="art-type" aria-hidden="true">RUN</span>
+          <span class="badge">新上线</span>
+          <span class="media-tag" aria-hidden="true">FINAL RUN · ENDLESS RUNNER</span>
+        </div>
+        <div class="body">
+          <p class="stub-line"><span class="stub-no">NO.07</span><span class="genre">无尽跑酷</span></p>
+          <h3>终局狂奔</h3>
+          <p class="desc">暗影巨兽紧咬身后，二段跳与滑铲之间求生。闪避铸就连击，被追上就是终局。</p>
+          <ul class="specs">
+            <li>无尽模式</li>
+            <li>二段跳</li>
+            <li>滑铲</li>
+            <li>键盘 / 触屏</li>
+          </ul>
+          <p class="cta-row">
+            <span class="cta-text" aria-hidden="true">开跑</span>
+            <span class="cta-note" aria-hidden="true">点击整卡入场</span>
+            <span class="cta-arrow" aria-hidden="true">→</span>
+          </p>
+        </div>
+      </a>
+
     </div>
   </section>
 
   <footer class="deck-foot">
     <span>纯前端 · 本地运行 · 无需登录</span>
-    <span>恶魔追逐 · 新上线</span>
+    <span>好玩游戏 · 七款精选 · 持续上新</span>
   </footer>
 </main>
 
+<script src="../deep-salvage/maps.js"></script>
+<script src="../deep-salvage/preview.js"></script>
 <script>
 (function(){
   'use strict';
@@ -565,15 +848,16 @@ body.ready .channel-head,body.ready .mission{opacity:1;transform:translateY(0)}
   } catch (e) {}
   document.body.dataset.theme = saved;
 
+  /* 主题图标：目标 arcade=机甲六边形，目标 4399=清风叶片；按钮表示目标主题 */
   function iconSVG(theme){
     if (theme === 'arcade'){
       return '<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 2.5 7.5 4.3v8.4L12 19.5l-7.5-4.3V6.8z"/><path d="M8.5 9.2 12 7.3l3.5 1.9v4L12 15l-3.5-1.8z"/><path d="M3 8H1.8v3M21 8h1.2v3M8.5 21.5h7"/></svg>';
     }
-    return '<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6.5" cy="6.5" r="2.5"/><path d="M3 14h10.5c2 0 2-3 0-3-1 0-1.7.5-2 1.2M3 18h14c2.3 0 2.3-3.5 0-3.5-1.1 0-1.9.5-2.3 1.3"/><path d="M16.5 4.5c2.8.2 4.2 1.6 4.5 4.5-2.9-.2-4.3-1.6-4.5-4.5Z"/></svg>';
+    return '<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21.5V10.5"/><path d="M12 14.5c-2.6-1.4-4.2-3.6-4.2-6.2 2.6 0 4.2 1.4 4.2 3.4 0-2.4 1.7-4.2 4.4-4.2 0 3-1.8 6-4.4 7Z"/><path d="M12 21.5c-1.2-1-2-2.5-2-4.2h4c0 1.7-.8 3.2-2 4.2Z"/></svg>';
   }
   function paintIcon(){
     var target = document.body.dataset.theme === 'arcade' ? '4399' : 'arcade';
-    var label = target === 'arcade' ? '切换到未来机甲主题' : '切换到清新主题';
+    var label = target === 'arcade' ? '切换到街机暗色主题' : '切换到清新主题';
     toggle.innerHTML = iconSVG(target);
     toggle.setAttribute('aria-label', label);
     toggle.title = label;
@@ -588,6 +872,7 @@ body.ready .channel-head,body.ready .mission{opacity:1;transform:translateY(0)}
   toggle.addEventListener('click', function(){
     applyTheme(document.body.dataset.theme === 'arcade' ? '4399' : 'arcade');
   });
+
   /* ===== 离开频道页时标记，避免根主页重复开屏 ===== */
   function setSkip(){
     try { sessionStorage.setItem('skipSplash', '1'); } catch (e) {}
@@ -596,14 +881,75 @@ body.ready .channel-head,body.ready .mission{opacity:1;transform:translateY(0)}
     el.addEventListener('click', setSkip);
   });
 
+  /* ===== 分类筛选 ===== */
+  var filterBtns = Array.prototype.slice.call(document.querySelectorAll('.filter-btn'));
+  var games = Array.prototype.slice.call(document.querySelectorAll('.game'));
+  var filterStatus = document.getElementById('filterStatus');
+
+  function applyFilter(cat){
+    var visible = 0;
+    games.forEach(function(g){
+      var cats = (g.getAttribute('data-cat') || '').split(/\s+/);
+      var show = (cat === 'all') || cats.indexOf(cat) !== -1;
+      g.classList.toggle('hidden', !show);
+      if (show) visible++;
+    });
+    filterStatus.textContent = cat === 'all'
+      ? '当前显示全部 ' + games.length + ' 款'
+      : '当前显示 ' + visible + ' 款';
+  }
+
+  filterBtns.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      filterBtns.forEach(function(b){ b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
+      applyFilter(btn.getAttribute('data-filter'));
+    });
+  });
+
+  /* ===== 帮我选一款（从当前可见卡片随机挑，不直接跳走） ===== */
+  var pickBtn = document.getElementById('pickBtn');
+  var pickStatus = document.getElementById('pickStatus');
+  var lastPicked = null;
+
+  function visibleGames(){
+    return games.filter(function(g){ return !g.classList.contains('hidden'); });
+  }
+
+  pickBtn.addEventListener('click', function(){
+    var list = visibleGames();
+    if (!list.length){ pickStatus.textContent = '当前没有可选游戏'; return; }
+    var pick = list[Math.floor(Math.random() * list.length)];
+    if (lastPicked){ lastPicked.classList.remove('picked'); }
+    pick.classList.add('picked');
+    lastPicked = pick;
+    pickStatus.textContent = '就它了：' + pick.getAttribute('data-name') + '，点卡片开玩';
+    pick.focus({ preventScroll: true });
+    pick.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(function(){ pick.classList.remove('picked'); }, 1400);
+  });
+
   /* ===== 页面入场（reduced-motion 时跳过） ===== */
   var rm = matchMedia('(prefers-reduced-motion: reduce)');
+  var salvageCanvas = document.getElementById('salvagePreview');
+  if (salvageCanvas && window.DeepSalvageTerrain && window.DeepSalvagePreview) {
+    var salvageTerrain = window.DeepSalvageTerrain.generateTerrain('ACTION-FEATURE-01');
+    var salvageRenderer = window.DeepSalvagePreview.createRenderer(salvageCanvas, { detailed: false, fit: 'stretch' });
+    salvageRenderer.setTerrain(salvageTerrain);
+    if (rm.matches) {
+      salvageRenderer.render(0);
+    } else {
+      var animateSalvage = function (time) {
+        if (!document.hidden) salvageRenderer.render(time / 1000);
+        requestAnimationFrame(animateSalvage);
+      };
+      requestAnimationFrame(animateSalvage);
+    }
+  }
   if (!rm.matches){
     document.body.classList.add('preload');
     requestAnimationFrame(function(){
       requestAnimationFrame(function(){ document.body.classList.add('ready'); });
     });
-    /* 入场完成后移除标记类，避免 .ready 的 transform 长期覆盖 hover 效果 */
     setTimeout(function(){
       document.body.classList.remove('preload', 'ready');
     }, 900);
