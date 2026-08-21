@@ -12,7 +12,9 @@
   var BASE_SPEED = 142;         // 求生者基准移速 px/s
   var RANGE = 46;               // 交互距离
   var MACHINES_NEEDED = 3;      // 需破译的密码机数量
-  var CHAIR_TOTAL = 66;         // 处刑倒计时秒
+  var CHAIR_TOTAL = 66;         // 处刑倒计时秒(仅默认值,实际按上架次数覆盖)
+  var HOOK_TIMES = [50, 25];    // 第1/2次上架倒计时(秒)；第3次直接淘汰
+  var CHAIR_FLY_CD = 12;        // 放飞(淘汰)后处刑架冷却(秒)
   var DECODE_RATE = 14;         // 单人基础修机速率 /s
   var PALLET_BREAK_TIME = 1.8;  // 监管者破坏倒板所需时间
 
@@ -160,7 +162,7 @@
         skillCd: 0, skillOn: 0, skillActive: false,
         decoding: null,
         carriedBy: null, carryStruggle: 0,
-        chair: null,
+        chair: null, hookCount: 0,
         vaultT: 0, stunT: 0, hurtFlash: 0, hitSlowT: 0, hitSlowMul: 0,
         channel: null,           // {type, target, progress, dur}
         healTarget: null,
@@ -233,8 +235,8 @@
       var sp = ent.kind === 'survivor' ? this.survivorSpeed(ent) : this.hunterSpeed();
       if (ent.carriedBy) return; // 被牵制无法移动
 
-      // 先尝试翻窗
-      if (ent.kind === 'survivor' || ent.kind === 'hunter') {
+      // 先尝试翻窗(倒地求生者不可翻越，防止倒地后滑动漂移)
+      if (ent.kind === 'hunter' || (ent.kind === 'survivor' && ent.hp > 0)) {
         if (this._tryVault(ent)) return;
       }
 
@@ -1111,6 +1113,7 @@
     updateChairs: function (dt) {
       for (var i = 0; i < this.chairs.length; i++) {
         var c = this.chairs[i];
+        if (c.cd > 0) c.cd -= dt; // 放飞CD倒计时
         if (!c.occupant) continue;
         var s = c.occupant;
         if (!s.alive || s.escaped || s.carriedBy) { c.occupant = null; c.timer = 0; continue; }
@@ -1119,11 +1122,12 @@
           if (AudioSys.chairTick && Math.floor(c.timer) % 3 === 0) AudioSys.chairTick();
         }
         if (c.timer >= c.total) {
-          // 淘汰
+          // 淘汰(放飞)：处刑架进入冷却
           s.alive = false;
           s.hp = -1;
           c.occupant = null;
           c.timer = 0;
+          c.cd = CHAIR_FLY_CD;
           this.addFloater(c.x, c.y - 30, '已被淘汰', '#ff4040');
           this.spawnParticle(c.x, c.y, 'boom', 30);
           if (AudioSys.lose) AudioSys.lose();
@@ -1229,20 +1233,20 @@
         this.addFloater(s.x, s.y - 26, '命运闪回!', '#c0a8ff');
         if (AudioSys.teleport) AudioSys.teleport();
       } else if (type === 'repair') {
-        // 应急零件：立刻为最近的未完成密码机注入 12% 进度
-        var rm = this.nearestMachine(s.x, s.y, true);
-        if (rm && !rm.decoded) {
-          rm.progress = Math.min(rm.max, rm.progress + 12);
-          this.addFloater(rm.x, rm.y - 26, '应急零件 +12%!', '#ffd080');
-          if (rm.progress >= rm.max) {
-            rm.decoded = true; rm.occupiedBy = null; rm.decoders = 0;
-            for (var rc = 0; rc < this.survivors.length; rc++) {
-              if (this.survivors[rc].decoding === rm) { this.survivors[rc].decoding = null; this.survivors[rc].channel = null; }
-            }
-            this.addFloater(rm.x, rm.y - 32, '密码机完成!', '#7dffb0');
-            if (AudioSys.machineDone) AudioSys.machineDone();
-          } else if (AudioSys.decode) AudioSys.decode();
+        // 机芯完工：破译中按下 → 直接完成当前密码机；未在破译则不消耗CD
+        var rm = s.decoding;
+        if (!rm || rm.decoded) return;
+        rm.progress = rm.max;
+        rm.decoded = true; rm.occupiedBy = null; rm.decoders = 0;
+        for (var rc = 0; rc < this.survivors.length; rc++) {
+          if (this.survivors[rc].decoding === rm) { this.survivors[rc].decoding = null; this.survivors[rc].channel = null; }
         }
+        s.decoding = null;
+        s.channel = null;
+        this.spawnParticle(rm.x, rm.y, 'spark', 40);
+        this.addFloater(rm.x, rm.y - 32, '直接完工!', '#7dffb0');
+        if (AudioSys.machineDone) AudioSys.machineDone();
+        this.checkGatePower();
       }
       s.skillCd = ac.cd;
     },
@@ -1290,7 +1294,7 @@
             var ttx = Math.floor(tpx / this.ts), tty = Math.floor(tpy / this.ts);
             if (this.tileIsSolid(ttx, tty) || this.tileIsDownPallet(ttx, tty)) continue;
             while (h.traps.length >= 3) h.traps.shift();
-            h.traps.push({ x: tpx, y: tpy, life: 18, stun: 1.5, cd: 0 });
+            h.traps.push({ x: tpx, y: tpy, life: 18, stun: 1.5, cd: 0, revealedT: 0 });
             this.addFloater(tpx, tpy - 24, '铁笼陷阱!', '#ffb860');
             if (AudioSys.trap) AudioSys.trap();
             placedTrap = true;
@@ -1302,7 +1306,7 @@
             skipCd = true;
           }
         } else if (ac.type === 'quake') {
-          // 震荡波：面前 120° 扇形 150px 击晕
+          // 震荡波：面前 120° 扇形 150px，波及求生者掉 1 点血并击晕
           var Q_RANGE = 150, Q_ANGLE = 1.047;
           var hitAny = false;
           for (var qi = 0; qi < this.survivors.length; qi++) {
@@ -1312,10 +1316,11 @@
             if (qd > Q_RANGE) continue;
             var qang = angDiff(h.dir, Math.atan2(qs.y - h.y, qs.x - h.x));
             if (qang > Q_ANGLE) continue;
-            qs.stunT = 1.2;
-            qs.hurtFlash = 0.4;
+            var qhit = this.applyDamage(qs, h);   // 波及即掉 1 点血(可击倒；护盾会抵挡)
+            qs.stunT = Math.max(qs.stunT, 1.2);
+            qs.hurtFlash = Math.max(qs.hurtFlash, 0.4);
             hitAny = true;
-            this.addFloater(qs.x, qs.y - 26, '震荡!', '#ff9a6a');
+            this.addFloater(qs.x, qs.y - 26, qhit ? '震荡! -1血' : '震荡!', '#ff9a6a');
           }
           if (hitAny) {
             this.cam.shake = 0.4;
@@ -1372,7 +1377,7 @@
       var best = null, bd = RANGE + 20;
       for (var i = 0; i < this.chairs.length; i++) {
         var c = this.chairs[i];
-        if (c.occupant) continue;
+        if (c.occupant || c.cd > 0) continue; // 占用或放飞CD中不可挂人
         var d = dist(h.x, h.y, c.x, c.y);
         if (d < bd) { bd = d; best = c; }
       }
@@ -1414,6 +1419,7 @@
         var tp = h.traps[ti];
         tp.life -= dt;
         if (tp.cd > 0) tp.cd -= dt;
+        if (tp.revealedT > 0) tp.revealedT -= dt; // 被踩中后的显现倒计时
         if (tp.life <= 0) { h.traps.splice(ti, 1); continue; }
         if (tp.cd > 0) continue;
         for (var ts = 0; ts < this.survivors.length; ts++) {
@@ -1424,6 +1430,7 @@
             su.hurtFlash = 0.5;
             tp.cd = 2;
             tp.life = Math.min(tp.life, 2);
+            tp.revealedT = 5;   // 被踩中后对求生者显现
             this.addFloater(su.x, su.y - 26, '踩中陷阱!', '#ffb860');
             this.spawnParticle(tp.x, tp.y, 'spark', 18);
             if (AudioSys.stun) AudioSys.stun();
@@ -1470,12 +1477,28 @@
       h.carrying = null;
       s.carriedBy = null;
       s.carryStruggle = 0;
+      if (chair.cd > 0) return; // 放飞CD中不可挂人(双保险)
+      s.hookCount = (s.hookCount || 0) + 1;
+      if (s.hookCount >= 3) {
+        // 第 3 次上架直接淘汰
+        s.alive = false; s.hp = -1;
+        s.chair = null; s.channel = null; s.decoding = null;
+        chair.occupant = null; chair.timer = 0;
+        chair.cd = CHAIR_FLY_CD;
+        this.addFloater(chair.x, chair.y - 30, '已被淘汰!', '#ff4040');
+        this.spawnParticle(chair.x, chair.y, 'boom', 30);
+        if (AudioSys.lose) AudioSys.lose();
+        h.state = 'guard';
+        h.guardT = DIFF[this.difficulty].guardTime;
+        return;
+      }
       chair.occupant = s;
       s.chair = chair;
       chair.timer = 0;
+      chair.total = (s.hookCount === 1) ? HOOK_TIMES[0] : HOOK_TIMES[1];
       s.hp = 0;
       if (AudioSys.chairPlace) AudioSys.chairPlace();
-      this.addFloater(chair.x, chair.y - 26, '挂上处刑架!', '#ff6a6a');
+      this.addFloater(chair.x, chair.y - 26, '挂上处刑架! ' + (s.hookCount === 2 ? '(第2次)' : ''), '#ff6a6a');
       this.spawnParticle(chair.x, chair.y, 'spark', 20);
       h.state = 'guard';
       h.guardT = DIFF[this.difficulty].guardTime;
@@ -1544,36 +1567,20 @@
       }
     },
 
-    /* ---------- 胜负判定 ---------- */
+    /* ---------- 胜负判定(第五人格式) ---------- */
+    // 规则: ①全部未逃脱求生者上架(或淘汰)→监管者胜 ②1人逃脱不结束,直到全逃或未逃者全上架 ③逃脱 2 人→求生者胜
     checkWin: function () {
       if (this.state !== 'playing') return;
-      var done = 0;
-      for (var i = 0; i < this.machines.length; i++) if (this.machines[i].decoded) done++;
-      var aliveCount = 0, escapedCount = 0;
+      var escapedCount = 0, freeCount = 0;
       for (var j = 0; j < this.survivors.length; j++) {
-        if (this.survivors[j].alive) aliveCount++;
-        if (this.survivors[j].escaped) escapedCount++;
+        var sj = this.survivors[j];
+        if (sj.escaped) escapedCount++;
+        else if (sj.alive && !sj.chair) freeCount++;  // 仍在场上自由行动(含被牵制)
       }
-      var anyAliveOrEscaped = aliveCount > 0 || escapedCount > 0;
-      // 求生者胜：全部机器破译 且 至少一人逃脱
-      if (done >= MACHINES_NEEDED && escapedCount >= 1) {
-        this.endMatch('survivor_win');
-        return;
-      }
-      // 监管者胜：所有求生者被淘汰(非存活且非逃脱)
-      if (!anyAliveOrEscaped) {
-        this.endMatch('hunter_win');
-        return;
-      }
-      // 玩家被淘汰且是唯一求生者
-      if (this.player && this.player.kind === 'survivor' && !this.player.alive) {
-        var othersAlive = false;
-        for (var k = 0; k < this.survivors.length; k++) {
-          var o = this.survivors[k];
-          if (o !== this.player && (o.alive || o.escaped)) othersAlive = true;
-        }
-        if (!othersAlive) this.endMatch('hunter_win');
-      }
+      // 求生者胜：2 人及以上逃脱
+      if (escapedCount >= 2) { this.endMatch('survivor_win'); return; }
+      // 监管者胜：场上无自由求生者(未逃脱者全部在架上或已被淘汰)
+      if (freeCount === 0) { this.endMatch('hunter_win'); return; }
     },
 
     endMatch: function (winner) {

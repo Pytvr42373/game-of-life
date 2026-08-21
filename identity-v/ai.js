@@ -171,7 +171,7 @@
     var g = this.game, best = null, bd = 1e9;
     for (var i = 0; i < g.chairs.length; i++) {
       var c = g.chairs[i];
-      if (c.occupant) continue;
+      if (c.occupant || c.cd > 0) continue; // 放飞CD中不可用
       var d = dist(this.h.x, this.h.y, c.x, c.y);
       if (d < bd) { bd = d; best = c; }
     }
@@ -362,11 +362,23 @@
     }
     if (s.dangerT > 0) s.dangerT -= dt;
 
-    /* 救人(优先) */
-    var rescueTarget = this.findRescueTarget(s);
-    if (rescueTarget && d < 620 && s.dangerT <= 0) {
-      this.goToAction(s, rescueTarget, dt);
+    /* 逃生(大门已开)：直接逃脱优先于普通救援(门开后不回头救人的死锁) */
+    var escOpen = this.escapeGate(s);
+    if (escOpen && escOpen.open) {
+      var rtU = this.findRescueTarget(s);
+      var urgU = !!(rtU && rtU.kind === 'chair' && (rtU.target.total - rtU.target.timer) < 15);
+      if (rtU && urgU && s.dangerT <= 0) { this.goToAction(s, rtU, dt); return; }
+      if (dist(s.x, s.y, escOpen.x, escOpen.y) < 24) { s.moveX = 0; s.moveY = 0; }
+      else this.goTo(s, escOpen.x, escOpen.y, dt);
       return;
+    }
+    /* 救人(优先于修机)：未被监管者锁定且非守尸死锁时优先 */
+    var rescueTarget = this.findRescueTarget(s);
+    if (rescueTarget && s.dangerT <= 0) {
+      var gd2 = dist(rescueTarget.target.x, rescueTarget.target.y, h.x, h.y);
+      var rUrg2 = rescueTarget.kind === 'chair' && (rescueTarget.target.total - rescueTarget.target.timer) < 15;
+      // 监管者守在目标旁且救援不紧急 → 放弃本次救援,转修机(避免守尸死锁)
+      if (!(gd2 < 180 && !rUrg2)) { this.goToAction(s, rescueTarget, dt); return; }
     }
 
     /* 破译剩余机 */
@@ -426,25 +438,34 @@
   };
 
   SurvivorAI.prototype.findRescueTarget = function (s) {
-    var g = this.game, best = null, bd = 1e9;
-    var remain = g.machinesRemaining ? g.machinesRemaining() : this.countRemain();
+    var g = this.game;
+    // 救人优先于修机：先找处刑架(时间紧迫)，再找倒地队友；安全与否由 update 的 dangerT 把关
+    var chairTarget = null, cd1 = 1e9;
     for (var i = 0; i < g.survivors.length; i++) {
       var o = g.survivors[i];
-      if (o === s || !o.alive || o.escaped) continue;
-      if (o.chair && !o.carriedBy) {
-        // 椅子救援仅当：密码机还多(>1台) 且 距离较近，或 椅子即将淘汰(紧急)
-        var d1 = dist(s.x, s.y, o.chair.x, o.chair.y);
-        var urgent = (o.chair.total - o.chair.timer) < 22;
-        if (remain > 1 && (d1 < 380 || urgent)) {
-          if (d1 < bd) { bd = d1; best = { x: o.chair.x, y: o.chair.y, kind: 'chair', target: o.chair }; }
-        }
-      } else if (o.hp === 0 && !o.carriedBy && !o.chair) {
-        // 倒地队友治疗：距离内且相对安全
-        var d2 = dist(s.x, s.y, o.x, o.y);
-        if (d2 < 420 && d2 < bd) { bd = d2; best = { x: o.x, y: o.y, kind: 'down', target: o }; }
+      if (o === s || !o.alive || o.escaped || !o.chair || o.carriedBy) continue;
+      // 已有其他 AI 正在救援该椅时，避免重复扑救
+      var beingRescued = false;
+      for (var k = 0; k < g.survivors.length; k++) {
+        var other = g.survivors[k];
+        if (other === s || !other.alive || other.escaped) continue;
+        if (other.channel && other.channel.type === 'rescue' && other.channel.target === o.chair) { beingRescued = true; break; }
       }
+      if (beingRescued) continue;
+      var d1 = dist(s.x, s.y, o.chair.x, o.chair.y);
+      var urgent = (o.chair.total - o.chair.timer) < 22;
+      if (d1 < 520 || urgent) { if (d1 < cd1) { cd1 = d1; chairTarget = { x: o.chair.x, y: o.chair.y, kind: 'chair', target: o.chair }; } }
     }
-    return best;
+    if (chairTarget) return chairTarget;
+    // 倒地队友(次优先)
+    var downTarget = null, d2b = 1e9;
+    for (var j = 0; j < g.survivors.length; j++) {
+      var o2 = g.survivors[j];
+      if (o2 === s || !o2.alive || o2.escaped || o2.hp !== 0 || o2.carriedBy || o2.chair) continue;
+      var d2 = dist(s.x, s.y, o2.x, o2.y);
+      if (d2 < 520 && d2 < d2b) { d2b = d2; downTarget = { x: o2.x, y: o2.y, kind: 'down', target: o2 }; }
+    }
+    return downTarget;
   };
 
   SurvivorAI.prototype.goToAction = function (s, t, dt) {
@@ -531,7 +552,7 @@
           var w0 = path[pj];
           var wx = Math.floor(w0.x / g2.ts), wy = Math.floor(w0.y / g2.ts);
           if (g2.tileAt(w0.x, w0.y) === global.TILE.WIN) { score += 42; break; }
-          if (g2.tileIsDownPallet(wx, wy)) { score += 36; break; }
+          if (g2.tileIsDownPallet(wx, wy)) { score += 90; break; } // 踩板子：大幅加分(高概率看到就翻越,拉开身位)
         }
         if (score > bestScore) { bestScore = score; best = path; }
       }

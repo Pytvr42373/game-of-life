@@ -73,7 +73,7 @@ var SURVIVORS = [
     color: '#c8b090',
     stats: { speed: 0.95, decode: 1.20, heal: 1.00, selfHeal: 1.00, vault: 1.00 },
     passive: { name: '机巧维修', desc: '修机速度 +20%，校准失败不损失进度' },
-    active: { name: '应急零件', type: 'repair', cd: 55, duration: 0, desc: '立刻为最近的未完成密码机注入 12% 进度' },
+    active: { name: '机芯完工', type: 'repair', cd: 55, duration: 0, desc: '破译中按下：立即直接完成当前密码机' },
     style: { cloak: '#6a5a40', trim: '#d8b46a', hair: '#4a3a2a', skin: '#eec39a', hat: 'cap', accent: '#d0a050' }
   }
 ];
@@ -104,7 +104,7 @@ var HUNTERS = [
     color: '#e0a050',
     stats: { speed: 1.00, atkCd: 2.9, atkRange: 50, vision: 280, vault: 0.75 },
     passive: { name: '枷锁牢笼', desc: '命中后目标 1.2 秒移速 -25%' },
-    active: { name: '铁笼陷阱', type: 'trap', cd: 22, duration: 0, desc: '在面前放置铁笼陷阱，求生者踩中定身 1.5 秒（最多同时 3 个）' },
+    active: { name: '铁笼陷阱', type: 'trap', cd: 22, duration: 0, desc: '在面前放置铁笼陷阱（对求生者隐形，踩中显现并定身 1.5 秒；最多同时 3 个）' },
     active2: { name: '全视之眼', type: 'reveal', cd: 45, duration: 4, desc: '4 秒内显示所有求生者位置' },
     style: { cloak: '#5a3a20', trim: '#c0a060', glow: '#ffb860', weapon: 'claw' }
   },
@@ -114,7 +114,7 @@ var HUNTERS = [
     color: '#c86040',
     stats: { speed: 0.92, atkCd: 3.0, atkRange: 58, vision: 275, vault: 0.6 },
     passive: { name: '碎骨之击', desc: '命中造成震荡，目标 2.5 秒移速 -12%' },
-    active: { name: '震荡波', type: 'quake', cd: 26, duration: 0, desc: '朝面前释放冲击波，击晕 120° 扇区内的求生者 1.2 秒' },
+    active: { name: '震荡波', type: 'quake', cd: 26, duration: 0, desc: '朝面前释放冲击波，波及求生者掉 1 点血并击晕 1.2 秒' },
     active2: { name: '全视之眼', type: 'reveal', cd: 50, duration: 4, desc: '4 秒内显示所有求生者位置' },
     style: { cloak: '#3a2a2a', trim: '#8a5a3a', glow: '#ff7a50', weapon: 'hammer' }
   }

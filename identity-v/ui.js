@@ -652,9 +652,12 @@
     // 逃生门
     for (var g = 0; g < G.gates.length; g++) drawGate(G.gates[g], ox, oy, ts);
 
-    // 铁笼陷阱(缚骨陷阱师)
+    // 铁笼陷阱(缚骨陷阱师)：对求生者隐形，被踩中后短暂显现
     if (G.hunter && G.hunter.traps && G.hunter.traps.length) {
-      for (var tp = 0; tp < G.hunter.traps.length; tp++) drawTrap(G.hunter.traps[tp], ox, oy, ts);
+      for (var tp = 0; tp < G.hunter.traps.length; tp++) {
+        var trapE = G.hunter.traps[tp];
+        if (G.playerIsHunter || trapE.revealedT > 0) drawTrap(trapE, ox, oy, ts);
+      }
     }
 
     // 实体(按 y 排序)
@@ -908,6 +911,15 @@
       ctx.font = 'bold 9px serif';
       ctx.textAlign = 'center';
       ctx.fillText(Math.ceil(c.total - c.timer), sx, sy - 2);
+    }
+    if (c.cd > 0) {
+      // 放飞冷却：处刑架变暗并显示剩余秒
+      ctx.fillStyle = 'rgba(10,8,16,0.45)';
+      ctx.beginPath(); ctx.ellipse(sx, sy + 2, 20, 16, 0, 0, 6.283); ctx.fill();
+      ctx.fillStyle = '#9a8a7a';
+      ctx.font = 'bold 9px serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(Math.ceil(c.cd) + 's', sx, sy + 6);
     }
   }
 

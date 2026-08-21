@@ -655,8 +655,9 @@ test('修机: 机器完成清理所有指向它的 decoding', function () {
 // ============================================================
 // 9. 逃生门
 // ============================================================
-test('逃生门: 全部破译→通电→开门→逃脱→求生者胜', function () {
+test('逃生门: 全部破译→通电→开门→逃脱(1人逃脱不结束, 2人逃脱求生者胜)', function () {
   const g = fresh(0);
+  g.hunter.ai.active = false;
   // 直接完成所有密码机
   for (const m of g.machines) { m.progress = m.max; m.decoded = true; }
   g.checkGatePower();
@@ -670,7 +671,15 @@ test('逃生门: 全部破译→通电→开门→逃脱→求生者胜', functi
   putAt(p, gate.x, gate.y);
   step(g, 1 / 30);
   assert.strictEqual(p.escaped, true, '应逃脱');
-  assert.strictEqual(g.state, 'over', '应结束对局');
+  assert.strictEqual(g.state, 'playing', '仅1人逃脱不应结束对局');
+  assert.strictEqual(g.result, null, '1人逃脱不应结算');
+  // 第二名求生者逃脱 → 求生者胜
+  const ally = g.survivors[1];
+  ally.ai = null;
+  putAt(ally, gate.x, gate.y);
+  step(g, 1 / 30);
+  assert.strictEqual(ally.escaped, true, '第二名求生者应逃脱');
+  assert.strictEqual(g.state, 'over', '2人逃脱应结束对局');
   assert.strictEqual(g.result.winner, 'survivor_win', '求生者应获胜');
 });
 
@@ -787,13 +796,23 @@ test('技能: 星语占卜师命运闪回(warp)闪现', function () {
   assert.ok(p.skillCd > 0, '未进入CD');
 });
 
-test('技能: 钟楼工匠应急零件(repair)注入进度', function () {
+test('技能: 钟楼工匠机芯完工(repair)破译中直接完成密码机', function () {
   const g = fresh(0, { charId: 'art' });
   const p = g.player;
   const m = findMachine(g, 0);
-  const before = m.progress;
+  // 未在破译时不生效且不消耗CD
+  p.skillCd = 0;
   g.useSurvivorSkill(p);
-  assert.ok(m.progress > before, '未增加进度');
+  assert.strictEqual(m.decoded, false, '未破译不应完成');
+  assert.strictEqual(p.skillCd, 0, '未破译不应消耗CD');
+  // 破译中按下 → 直接完成
+  putAt(p, m.x, m.y);
+  g.toggleDecode(p);
+  assert.strictEqual(p.decoding, m, '应开始破译');
+  g.useSurvivorSkill(p);
+  assert.strictEqual(m.decoded, true, '技能应直接完成密码机');
+  assert.strictEqual(p.decoding, null, '完成后应停止破译');
+  assert.ok(p.skillCd > 0, '应消耗技能CD');
 });
 
 test('技能: 缚骨陷阱师铁笼陷阱(trap)踩中定身', function () {
@@ -1081,6 +1100,164 @@ test('模拟: 扮演求生者 60s AI监管者追击不崩溃', function () {
     if (g.state !== 'playing') break;
   }
   assert.ok(['playing', 'over', 'paused'].indexOf(g.state) >= 0, '状态异常');
+});
+
+// ============================================================
+// 13. 胜负规则(第五人格式) & 平衡调整
+// ============================================================
+test('胜负: 1人逃脱不结束对局', function () {
+  const g = fresh(0);
+  g.hunter.ai.active = false;
+  g.survivors[0].escaped = true;
+  g.checkWin();
+  assert.strictEqual(g.state, 'playing', '1人逃脱不应结束');
+  assert.strictEqual(g.result, null, '不应结算');
+});
+
+test('胜负: 2人逃脱求生者胜', function () {
+  const g = fresh(0);
+  g.hunter.ai.active = false;
+  g.survivors[0].escaped = true;
+  g.survivors[1].escaped = true;
+  g.checkWin();
+  assert.strictEqual(g.state, 'over', '2人逃脱应结束');
+  assert.strictEqual(g.result.winner, 'survivor_win', '求生者应获胜');
+});
+
+test('胜负: 1人逃脱+其余全部上架 → 监管者胜', function () {
+  const g = fresh(0);
+  g.hunter.ai.active = false;
+  const chair = g.chairs[0];
+  g.survivors[0].escaped = true;
+  for (let i = 1; i < g.survivors.length; i++) { g.survivors[i].chair = chair; g.survivors[i].alive = true; g.survivors[i].escaped = false; }
+  chair.occupant = g.survivors[1];
+  g.checkWin();
+  assert.strictEqual(g.state, 'over', '未逃脱者全部上架应结束');
+  assert.strictEqual(g.result.winner, 'hunter_win', '监管者应获胜');
+});
+
+test('胜负: 全部未逃脱者上架 → 监管者胜(不等倒计时)', function () {
+  const g = fresh(0);
+  g.hunter.ai.active = false;
+  const chair = g.chairs[0];
+  for (let i = 0; i < g.survivors.length; i++) { g.survivors[i].chair = chair; g.survivors[i].alive = true; g.survivors[i].escaped = false; }
+  chair.occupant = g.survivors[0];
+  g.checkWin();
+  assert.strictEqual(g.state, 'over', '全部上架应结束');
+  assert.strictEqual(g.result.winner, 'hunter_win', '监管者应获胜');
+});
+
+test('上架倒计时: 第1次50s 第2次25s 第3次直接淘汰', function () {
+  const g = fresh(0);
+  g.hunter.ai.active = false;
+  const p = g.survivors[0];
+  const h = g.hunter;
+  const chair = g.chairs[0];
+  function hook() {
+    h.carrying = p; p.carriedBy = h; p.hp = 0; p.alive = true; p.escaped = false; p.chair = null;
+    g.placeOnChair(h, chair);
+  }
+  hook();
+  assert.strictEqual(p.hookCount, 1, '第1次上架');
+  assert.strictEqual(chair.total, 50, '第1次应50s');
+  p.chair = null; chair.occupant = null; chair.timer = 0; chair.cd = 0;
+  hook();
+  assert.strictEqual(p.hookCount, 2, '第2次上架');
+  assert.strictEqual(chair.total, 25, '第2次应25s');
+  p.chair = null; chair.occupant = null; chair.timer = 0; chair.cd = 0;
+  hook();
+  assert.strictEqual(p.alive, false, '第3次应直接淘汰');
+  assert.strictEqual(chair.occupant, null, '淘汰后椅子应清空');
+});
+
+test('放飞CD: 淘汰后处刑架进入冷却,期间不可挂人', function () {
+  const g = fresh(0);
+  g.hunter.ai.active = false;
+  const p = g.survivors[0];
+  const h = g.hunter;
+  const chair = g.chairs[0];
+  function hook() {
+    h.carrying = p; p.carriedBy = h; p.hp = 0; p.alive = true; p.escaped = false; p.chair = null;
+    g.placeOnChair(h, chair);
+  }
+  hook(); p.chair = null; chair.occupant = null; chair.timer = 0; chair.cd = 0;
+  hook(); p.chair = null; chair.occupant = null; chair.timer = 0; chair.cd = 0;
+  hook();
+  assert.strictEqual(p.alive, false, '第3次直接淘汰');
+  assert.ok(chair.cd > 0, '淘汰后应有放飞CD');
+  putAt(h, chair.x, chair.y);
+  assert.strictEqual(g.nearChair(h), null, '放飞CD中近椅应不可用');
+  chair.cd = 0;
+  assert.ok(g.nearChair(h) !== null, 'CD结束后可再次使用');
+});
+
+test('平衡: 震荡波波及求生者掉1点血', function () {
+  const g = fresh(0, { hunterId: 'hun_heavy' });
+  const h = g.hunter;
+  const s = g.survivors[0];
+  s.invisible = 0; s.alive = true; s.escaped = false; s.chair = null; s.carriedBy = null;
+  putAt(h, 400, 400); h.dir = 0; h.stunT = 0;
+  putAt(s, h.x + 60, h.y); // 正面60px
+  const hp0 = s.hp;
+  g.useHunterSkill(h, 1);
+  assert.strictEqual(s.hp, hp0 - 1, '震荡波应掉1点血');
+  assert.ok(s.stunT > 0, '震荡波应击晕');
+});
+
+test('平衡: 铁笼陷阱对求生者隐形,踩中后显现', function () {
+  const g = fresh(0, { hunterId: 'hun_cage' });
+  const h = g.hunter;
+  putAt(h, 400, 400); h.dir = 0; h.stunT = 0;
+  g.useHunterSkill(h, 1);
+  const tp = h.traps[0];
+  assert.strictEqual(tp.revealedT, 0, '初始应未显现');
+  const s = g.survivors[0];
+  putAt(s, tp.x + 4, tp.y);
+  for (let i = 0; i < 6; i++) step(g, 1 / 30);
+  assert.ok(tp.revealedT > 0, '被踩中后应显现');
+});
+
+test('平衡: 倒地求生者不触发翻越(防漂移)', function () {
+  const g = fresh(1);
+  g.hunter.ai.active = false; putAt(g.hunter, g.ts, g.ts);
+  const p = g.player;
+  let w = null, side = null;
+  const checks = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+  for (const cand of g.windows) {
+    for (const c of checks) {
+      const tx = cand.tx + c[0], ty = cand.ty + c[1];
+      if (tx >= 0 && ty >= 0 && tx < g.cols && ty < g.rows && !g.tileIsSolid(tx, ty)) {
+        const btx = cand.tx - c[0], bty = cand.ty - c[1];
+        if (btx >= 0 && bty >= 0 && btx < g.cols && bty < g.rows && !g.tileIsSolid(btx, bty)) {
+          w = cand; side = c; break;
+        }
+      }
+    }
+    if (w) break;
+  }
+  assert.ok(w, '找不到两侧可行的窗户');
+  const ts = g.ts;
+  p.hp = 0; // 倒地
+  putAt(p, w.x - side[0] * ts, w.y - side[1] * ts);
+  p.moveX = side[0]; p.moveY = side[1];
+  g.moveEntity(p, 1 / 30);
+  assert.strictEqual(p.vaultT, 0, '倒地不应触发翻越');
+  // 倒地只能小幅爬行，不应跨过窗户到对侧
+  const crossed = (side[0] !== 0) ? ((p.x - w.x) * side[0] > 0) : ((p.y - w.y) * side[1] > 0);
+  assert.ok(!crossed, '倒地不应跨过窗户');
+});
+
+test('AI: 救人优先于修机(有队友上架时优先救援)', function () {
+  const g = fresh(0);
+  g.hunter.ai.active = false; putAt(g.hunter, 9999, 9999);
+  const rescuer = g.survivors[2];
+  const hooked = g.survivors[1];
+  const chair = g.chairs[0];
+  hooked.chair = chair; chair.occupant = hooked; hooked.alive = true; hooked.escaped = false;
+  for (const m of g.machines) m.decoded = false; // 剩余机器多,但救人仍应优先
+  putAt(rescuer, chair.x + 40, chair.y);
+  const t = rescuer.ai.findRescueTarget(rescuer);
+  assert.ok(t && t.kind === 'chair', 'AI应优先选择处刑架救援');
 });
 
 // ============================================================
