@@ -10,6 +10,7 @@
   var HEARTBEAT_MS = 5000;
   var LEASE_MS = 12000;
   var MAX_STEP_MS = HEARTBEAT_MS * 3;
+  var MODAL_AUTO_HIDE_MS = 10000;
   var CLOCK_REMINDERS = [
     { time: '17:10', danger: false, title: '已经 17:10 了', sub: '今天玩得差不多了，可以准备休息啦。' },
     { time: '17:15', danger: false, title: '17:15 了，时间不早啦', sub: '建议今天先到这里，去休息吧。' },
@@ -19,13 +20,15 @@
   var tabId = createTabId();
   var lastCountedAt = 0;
   var host = null;
-  var banner = null;
+  var overlay = null;
+  var card = null;
   var titleElement = null;
   var subElement = null;
   var closeButton = null;
   var hideTimer = null;
   var noticeQueue = [];
   var noticeVisible = false;
+  var noticeBlocking = false;
 
   function createTabId() {
     try {
@@ -48,7 +51,7 @@
     return {
       date: day,
       activeMs: 0,
-      playReminderShown: false,
+      lastPlayReminderSlot: 0,
       clockReminders: [],
       updatedAt: Date.now()
     };
@@ -78,11 +81,18 @@
     if (!parsed || parsed.date !== day) return { state: freshState(day), dirty: true };
 
     var activeMs = Number(parsed.activeMs);
+    var slotRaw = parsed.lastPlayReminderSlot;
+    var slot = Number(slotRaw);
     var dirty = !(isFinite(activeMs) && activeMs >= 0) ||
-      (parsed.playReminderShown !== true && parsed.playReminderShown !== false) ||
+      !(isFinite(slot) && slot >= 0) ||
       !Array.isArray(parsed.clockReminders);
     parsed.activeMs = isFinite(activeMs) && activeMs >= 0 ? activeMs : 0;
-    parsed.playReminderShown = parsed.playReminderShown === true;
+    if (parsed.playReminderShown === true && slotRaw === undefined) {
+      parsed.lastPlayReminderSlot = 1;
+      dirty = true;
+    } else {
+      parsed.lastPlayReminderSlot = isFinite(slot) && slot >= 0 ? slot : 0;
+    }
     parsed.clockReminders = Array.isArray(parsed.clockReminders) ? parsed.clockReminders : [];
     return { state: parsed, dirty: dirty };
   }
@@ -116,22 +126,27 @@
     if (lease && lease.id === tabId) safeRemove(LEASE_KEY);
   }
 
-  function queueNotice(title, sub, danger) {
-    noticeQueue.push({ title: title, sub: sub, danger: danger });
+  function queueNotice(title, sub, danger, block) {
+    noticeQueue.push({ title: title, sub: sub, danger: danger, block: block });
     showNextNotice();
   }
 
   function showNextNotice() {
-    if (!banner || noticeVisible || !noticeQueue.length) return;
+    if (!overlay || noticeVisible || !noticeQueue.length) return;
     var notice = noticeQueue.shift();
     noticeVisible = true;
+    noticeBlocking = !!notice.block;
     titleElement.textContent = notice.title;
     subElement.textContent = notice.sub;
-    banner.classList.toggle('danger', notice.danger);
-    banner.classList.add('show');
-    banner.setAttribute('aria-hidden', 'false');
+    card.classList.toggle('danger', notice.danger);
+    overlay.classList.add('show');
+    overlay.setAttribute('aria-hidden', 'false');
     if (hideTimer) clearTimeout(hideTimer);
-    hideTimer = setTimeout(hideNotice, notice.danger ? 9000 : 10000);
+    if (!noticeBlocking) {
+      hideTimer = setTimeout(hideNotice, MODAL_AUTO_HIDE_MS);
+    } else {
+      hideTimer = null;
+    }
   }
 
   function hideNotice() {
@@ -139,12 +154,17 @@
       clearTimeout(hideTimer);
       hideTimer = null;
     }
-    if (banner) {
-      banner.classList.remove('show');
-      banner.setAttribute('aria-hidden', 'true');
+    if (overlay) {
+      overlay.classList.remove('show');
+      overlay.setAttribute('aria-hidden', 'true');
     }
     noticeVisible = false;
-    setTimeout(showNextNotice, 250);
+    noticeBlocking = false;
+    setTimeout(showNextQueue, 250);
+  }
+
+  function showNextQueue() {
+    showNextNotice();
   }
 
   function checkClockReminders(state, now) {
@@ -156,11 +176,26 @@
       var reminder = CLOCK_REMINDERS[i];
       if (reminder.time === current && state.clockReminders.indexOf(current) === -1) {
         state.clockReminders.push(current);
-        queueNotice(reminder.title, reminder.sub, reminder.danger);
+        queueNotice(reminder.title, reminder.sub, reminder.danger, false);
         changed = true;
       }
     }
     return changed;
+  }
+
+  function checkPlayReminders(state) {
+    var slot = Math.floor(state.activeMs / PLAY_REMINDER_MS);
+    if (slot >= 1 && slot > state.lastPlayReminderSlot) {
+      state.lastPlayReminderSlot = slot;
+      queueNotice(
+        '已连续游戏 ' + Math.floor(state.activeMs / 60000) + ' 分钟',
+        '休息一下吧：看看远处、活动一下肩颈，清醒后再继续。',
+        true,
+        true
+      );
+      return true;
+    }
+    return false;
   }
 
   function recordTime(now, includeElapsed) {
@@ -182,16 +217,7 @@
       }
     }
 
-    if (!state.playReminderShown && state.activeMs >= PLAY_REMINDER_MS) {
-      state.playReminderShown = true;
-      queueNotice(
-        '已经使用 GameHub ' + Math.floor(state.activeMs / 60000) + ' 分钟',
-        '看看远处、活动一下，休息后再继续。',
-        true
-      );
-      changed = true;
-    }
-
+    if (checkPlayReminders(state)) changed = true;
     if (checkClockReminders(state, now)) changed = true;
     if (changed) writeState(state, now);
   }
@@ -247,33 +273,42 @@
     var root = host.attachShadow({ mode: 'open' });
     root.innerHTML =
       '<style>' +
-      ':host{all:initial;position:fixed;inset:0;z-index:2147483647;pointer-events:none;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}' +
-      '.notice{position:absolute;left:50%;bottom:max(24px,env(safe-area-inset-bottom));width:min(500px,calc(100vw - 32px));box-sizing:border-box;display:flex;align-items:center;gap:13px;padding:14px 15px;color:#24401d;background:rgba(255,255,255,.97);border:2px solid #d8e8cd;border-radius:14px;box-shadow:0 12px 34px rgba(0,0,0,.24);opacity:0;transform:translate(-50%,calc(100% + 48px));transition:transform .35s ease,opacity .35s ease;pointer-events:none}' +
-      ':host([data-tone="dark"]) .notice{color:#f4f4ff;background:rgba(16,16,35,.97);border-color:#3a3a5c;border-radius:4px;box-shadow:5px 5px 0 #000,0 0 24px rgba(61,225,255,.2)}' +
-      '.notice.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}' +
-      '.notice.danger{border-color:#e64e00}' +
-      ':host([data-tone="dark"]) .notice.danger{border-color:#ff2d78;box-shadow:5px 5px 0 #000,0 0 28px rgba(255,45,120,.35)}' +
-      '.icon{width:31px;height:31px;flex:0 0 31px;color:#389904}' +
+      ':host{all:initial;position:fixed;inset:0;z-index:2147483647;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}' +
+      '.overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .25s ease}' +
+      '.overlay.show{opacity:1;pointer-events:auto}' +
+      '.card{position:relative;width:min(460px,100%);box-sizing:border-box;display:flex;flex-direction:column;gap:14px;padding:22px 20px;color:#24401d;background:rgba(255,255,255,.99);border:2px solid #d8e8cd;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.35);transform:translateY(14px) scale(.96);transition:transform .25s ease;max-height:calc(100vh - 40px);overflow:auto}' +
+      '.overlay.show .card{transform:none}' +
+      ':host([data-tone="dark"]) .card{color:#f4f4ff;background:rgba(18,18,38,.99);border-color:#3a3a5c;border-radius:8px;box-shadow:5px 5px 0 #000,0 0 30px rgba(61,225,255,.18)}' +
+      '.card.danger{border-color:#e64e00}' +
+      ':host([data-tone="dark"]) .card.danger{border-color:#ff2d78;box-shadow:5px 5px 0 #000,0 0 30px rgba(255,45,120,.3)}' +
+      '.head{display:flex;align-items:center;gap:11px}' +
+      '.icon{width:34px;height:34px;flex:0 0 34px;color:#389904}' +
       '.danger .icon{color:#e64e00}' +
       ':host([data-tone="dark"]) .icon{color:#3de1ff}' +
       ':host([data-tone="dark"]) .danger .icon{color:#ff2d78}' +
       '.copy{min-width:0;flex:1}' +
-      '.title{font-size:15px;font-weight:800;line-height:1.4}' +
-      '.sub{margin-top:3px;color:#6f8a63;font-size:12px;line-height:1.5}' +
+      '.title{font-size:17px;font-weight:800;line-height:1.4}' +
+      '.sub{margin-top:4px;color:#6f8a63;font-size:13px;line-height:1.6}' +
       ':host([data-tone="dark"]) .sub{color:#a8a8c8}' +
-      'button{flex:0 0 auto;min-height:36px;padding:7px 14px;color:#fff;background:#389904;border:0;border-radius:999px;font-family:inherit;font-size:12px;font-weight:700;line-height:1;cursor:pointer}' +
-      ':host([data-tone="dark"]) button{color:#0b0b18;background:#3de1ff;border-radius:3px}' +
+      '.actions{display:flex;justify-content:flex-end;gap:10px}' +
+      'button{flex:0 0 auto;min-height:40px;padding:8px 18px;color:#fff;background:#389904;border:0;border-radius:999px;font-family:inherit;font-size:14px;font-weight:700;line-height:1;cursor:pointer}' +
+      ':host([data-tone="dark"]) button{color:#0b0b18;background:#3de1ff;border-radius:4px}' +
       'button:focus-visible{outline:3px solid #fb6400;outline-offset:2px}' +
-      '@media(max-width:560px){.notice{bottom:max(76px,calc(env(safe-area-inset-bottom) + 66px));align-items:flex-start}.icon{width:27px;height:27px;flex-basis:27px}.title{font-size:14px}button{align-self:center;padding:7px 11px}}' +
-      '@media(prefers-reduced-motion:reduce){.notice{transition:none}}' +
+      '@media(max-width:560px){.card{padding:18px 16px}.title{font-size:16px}.icon{width:30px;height:30px;flex-basis:30px}}' +
+      '@media(prefers-reduced-motion:reduce){.overlay,.card{transition:none}}' +
       '</style>' +
-      '<section class="notice" role="alert" aria-live="assertive" aria-hidden="true">' +
+      '<section class="overlay" role="alertdialog" aria-modal="true" aria-live="assertive" aria-hidden="true">' +
+      '<div class="card">' +
+      '<div class="head">' +
       '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.7 1.8M9 3h6"/></svg>' +
       '<div class="copy"><div class="title"></div><div class="sub"></div></div>' +
-      '<button type="button">知道了</button>' +
+      '</div>' +
+      '<div class="actions"><button type="button">知道了</button></div>' +
+      '</div>' +
       '</section>';
     document.body.appendChild(host);
-    banner = root.querySelector('.notice');
+    overlay = root.querySelector('.overlay');
+    card = root.querySelector('.card');
     titleElement = root.querySelector('.title');
     subElement = root.querySelector('.sub');
     closeButton = root.querySelector('button');
