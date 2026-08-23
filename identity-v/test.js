@@ -844,6 +844,9 @@ test('角色: 求生者8名+监管者4名, 新角色数据齐备', function () {
   assert.ok(cage && cage.active.type === 'trap' && cage.active2, '陷阱师技能缺失');
   const heavy = getHunter('hun_heavy');
   assert.ok(heavy && heavy.active.type === 'quake' && heavy.active2, '重锤技能缺失');
+  SURVIVORS.concat(HUNTERS).forEach(function (c) {
+    assert.ok(c.position && c.contribution, c.name + ' 缺少定位或团队作用资料');
+  });
 });
 
 test('地图: 共6张地图且全部连通', function () {

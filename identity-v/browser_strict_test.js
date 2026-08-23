@@ -149,6 +149,13 @@ fireEl('btn-start', 'click');
 pump(2, '角色选择');
 check('角色选择面板显示(不被菜单兜底拉回)', els['charsel'] && els['charsel'].style.display === 'flex', 'charsel=' + (els['charsel'] ? els['charsel'].style.display : '?') + ' menu=' + (els['menu'] ? els['menu'].style.display : '?'));
 check('角色卡片已构建(8个)', els['charsel-list'] && els['charsel-list'].children.length === 8, 'children=' + (els['charsel-list'] ? els['charsel-list'].children.length : 0));
+const survivorBrief = els['charsel-list'] && els['charsel-list'].children[0] && els['charsel-list'].children[0].children[2];
+check('求生者悬浮资料包含定位、按键、冷却与技能效果', survivorBrief &&
+      /团队定位/.test(survivorBrief.innerHTML) && /SHIFT/.test(survivorBrief.innerHTML) &&
+      /冷却 40 秒/.test(survivorBrief.innerHTML) && /恢复一档伤势/.test(survivorBrief.innerHTML));
+const hunterBrief = els['huntersel-list'] && els['huntersel-list'].children[1] && els['huntersel-list'].children[1].children[2];
+check('双技能监管者悬浮资料标明 Shift 与 Q', hunterBrief &&
+      /战术定位/.test(hunterBrief.innerHTML) && /SHIFT/.test(hunterBrief.innerHTML) && /Q/.test(hunterBrief.innerHTML));
 
 // 点击第一张卡 → 开始对局
 fireEl('charsel-list', 'click');
@@ -305,7 +312,17 @@ check('监管者结算面板', els['result'] && els['result'].style.display === 
 // 触摸流程
 Object.defineProperty(globalThis, 'navigator', { value: { maxTouchPoints: 5 }, configurable: true });
 const game2 = new Game();
-try { UI.start(game2); pump(3, '触摸初始化'); check('触摸流程初始化无异常', true); }
+try {
+  UI.start(game2); pump(3, '触摸初始化'); check('触摸流程初始化无异常', true);
+  fireEl('btn-start', 'click');
+  const touchCard = els['charsel-list'].children[0];
+  fireElRecursive(touchCard, 'pointerdown', { pointerType: 'touch' });
+  fireElRecursive(touchCard, 'click');
+  check('触屏首次点按仅打开角色资料', /brief-open/.test(touchCard.className) && game2.state === 'menu');
+  fireElRecursive(touchCard, 'pointerdown', { pointerType: 'touch' });
+  fireElRecursive(touchCard, 'click');
+  check('触屏再次点按选择角色并开始对局', game2.state === 'playing');
+}
 catch (e) { errors.push('触摸初始化异常: ' + (e && e.stack ? e.stack : String(e))); }
 
 console.log('\n===== 捕获的运行时错误 =====');

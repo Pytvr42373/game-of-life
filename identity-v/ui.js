@@ -237,8 +237,8 @@
 
   function bindButtons() {
     var map = {
-      'btn-start': function () { showPanel('charsel'); AudioSys.uiOpen(); },
-      'btn-hunter': function () { showPanel('huntersel'); AudioSys.uiOpen(); },
+      'btn-start': function () { closeCharacterBriefs($('charsel-list')); showPanel('charsel'); AudioSys.uiOpen(); },
+      'btn-hunter': function () { closeCharacterBriefs($('huntersel-list')); showPanel('huntersel'); AudioSys.uiOpen(); },
       'btn-maps': function () { showPanel('mapsel'); AudioSys.uiOpen(); },
       'btn-settings': function () { openSettings(true); showPanel('settings'); AudioSys.uiOpen(); },
       'btn-tutorial': function () { showPanel('tutorial'); AudioSys.uiOpen(); },
@@ -305,12 +305,88 @@
   }
 
   /* ================= 角色列表 ================= */
+  function escapeHTML(text) {
+    return String(text).replace(/[&<>"']/g, function (ch) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+    });
+  }
+
+  function emphasizeBrief(text) {
+    return escapeHTML(text)
+      .replace(/(\+?\d+(?:\.\d+)?(?:%|px|秒|点|档)?)/g, '<strong>$1</strong>')
+      .replace(/(立刻|立即|恢复一档伤势|直接完成|直接击倒|抵挡下一次攻击|无法锁定|显示所有求生者位置|不可穿墙|传送|定身|击晕)/g, '<strong>$1</strong>');
+  }
+
+  function skillBrief(skill, key, kind) {
+    return '<div class="brief-skill"><div class="brief-skill-meta">' +
+      '<span class="brief-kind">' + kind + '</span><kbd class="brief-key">' + key + '</kbd>' +
+      '<span class="brief-cd">冷却 ' + skill.cd + ' 秒</span></div>' +
+      '<strong class="brief-skill-name">' + escapeHTML(skill.name) + '</strong>' +
+      '<p class="brief-effect">' + emphasizeBrief(skill.desc) + '</p></div>';
+  }
+
+  function buildCharacterBrief(c, isHunter) {
+    var brief = document.createElement('div');
+    brief.className = 'char-brief';
+    brief.id = 'char-brief-' + c.id;
+    brief.innerHTML = '<div class="brief-role-row"><span class="brief-label">' +
+      (isHunter ? '战术定位' : '团队定位') + '</span><strong class="brief-role">' + escapeHTML(c.position) + '</strong></div>' +
+      '<p class="brief-contribution"><span>' + (isHunter ? '战术优势' : '团队作用') + '</span>' + escapeHTML(c.contribution) + '</p>' +
+      skillBrief(c.active, 'SHIFT', '主动技能') +
+      (c.active2 ? skillBrief(c.active2, 'Q', '技能 2') : '') +
+      '<div class="brief-passive"><div class="brief-passive-title"><span>被动</span><strong>' +
+      escapeHTML(c.passive.name) + '</strong></div><p class="brief-effect">' + emphasizeBrief(c.passive.desc) + '</p></div>' +
+      '<div class="brief-action">' + (isTouch ? '再次点按选择角色' : '点击选择角色') + '</div>';
+    return brief;
+  }
+
+  function closeCharacterBriefs(box) {
+    if (!box || !box.children) return;
+    for (var i = 0; i < box.children.length; i++) {
+      var card = box.children[i];
+      card._briefOpen = false;
+      card.className = card.className.replace(/\s*brief-open/g, '');
+    }
+  }
+
+  function bindCharacterCard(card, box, select) {
+    card.addEventListener('pointerdown', function (e) {
+      card._touchActivation = e.pointerType !== 'mouse';
+    });
+    card.addEventListener('mousedown', function () {
+      if (card._touchActivation !== true) card._touchActivation = false;
+    });
+    card.addEventListener('click', function () {
+      if (isTouch && card._touchActivation !== false && !card._briefOpen) {
+        closeCharacterBriefs(box);
+        card._briefOpen = true;
+        card.className += ' brief-open';
+        AudioSys.uiOpen();
+        return;
+      }
+      select();
+    });
+    card.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      if (e.stopPropagation) e.stopPropagation();
+      select();
+    });
+  }
+
   function buildCharList() {
     var box = $('charsel-list'); if (!box) return;
     box.innerHTML = '';
     SURVIVORS.forEach(function (c, i) {
       var card = document.createElement('div');
-      card.className = 'char-card';
+      card.className = 'char-card has-brief';
+      card.tabIndex = 0;
+      if (card.style.setProperty) card.style.setProperty('--char-accent', c.color);
+      if (card.setAttribute) {
+        card.setAttribute('role', 'button');
+        card.setAttribute('aria-label', '选择' + c.name + '，' + c.position + '定位；悬停或聚焦查看技能资料');
+        card.setAttribute('aria-describedby', 'char-brief-' + c.id);
+      }
       var cv = document.createElement('canvas');
       cv.width = 120; cv.height = 140;
       var cx = cv.getContext('2d');
@@ -318,12 +394,14 @@
       var info = document.createElement('div');
       info.className = 'char-info';
       info.innerHTML = '<div class="cn">' + c.name + '</div><div class="ct">' + c.title + '</div>' +
-        '<div class="cs">' + c.passive.name + '</div><div class="cs">' + c.active.name + '</div>';
+        '<div class="char-summary"><span class="char-position">' + c.position + '</span>' +
+        '<span class="char-active">' + c.active.name + '</span></div>' +
+        '<div class="char-peek">' + (isTouch ? '点按查看战术资料' : '悬停查看战术资料') + '</div>';
       card.appendChild(cv);
       card.appendChild(info);
-      card.addEventListener('click', function () {
+      card.appendChild(buildCharacterBrief(c, false));
+      bindCharacterCard(card, box, function () {
         selectedSurvivor = c.id;
-        currentSave.stats.games = currentSave.stats.games; // noop
         startAsSurvivor(c.id);
         AudioSys.uiClick();
       });
@@ -336,7 +414,14 @@
     box.innerHTML = '';
     HUNTERS.forEach(function (c) {
       var card = document.createElement('div');
-      card.className = 'char-card';
+      card.className = 'char-card has-brief';
+      card.tabIndex = 0;
+      if (card.style.setProperty) card.style.setProperty('--char-accent', c.color);
+      if (card.setAttribute) {
+        card.setAttribute('role', 'button');
+        card.setAttribute('aria-label', '选择' + c.name + '，' + c.position + '定位；悬停或聚焦查看技能资料');
+        card.setAttribute('aria-describedby', 'char-brief-' + c.id);
+      }
       var cv = document.createElement('canvas');
       cv.width = 120; cv.height = 140;
       var cx = cv.getContext('2d');
@@ -344,10 +429,13 @@
       var info = document.createElement('div');
       info.className = 'char-info';
       info.innerHTML = '<div class="cn">' + c.name + '</div><div class="ct">' + c.title + '</div>' +
-        '<div class="cs">' + c.active.name + '</div>' + (c.active2 ? '<div class="cs">' + c.active2.name + '</div>' : '');
+        '<div class="char-summary"><span class="char-position">' + c.position + '</span>' +
+        '<span class="char-active">' + c.active.name + '</span></div>' +
+        '<div class="char-peek">' + (isTouch ? '点按查看战术资料' : '悬停查看战术资料') + '</div>';
       card.appendChild(cv);
       card.appendChild(info);
-      card.addEventListener('click', function () {
+      card.appendChild(buildCharacterBrief(c, true));
+      bindCharacterCard(card, box, function () {
         startAsHunter(c.id);
         AudioSys.uiClick();
       });

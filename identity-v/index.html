@@ -38,16 +38,57 @@
   .btn.back{margin-top:14px;background:transparent;border-color:var(--line);color:var(--dim);}
 
   /* 角色卡 */
-  .card-row{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;max-width:1100px;}
+  .card-row{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;max-width:1100px;isolation:isolate;}
   .char-card{background:var(--panel);border:1px solid var(--line);padding:14px;width:210px;cursor:pointer;
-    transition:all .18s;display:flex;flex-direction:column;align-items:center;gap:8px;}
-  .char-card:hover{border-color:var(--gold);transform:translateY(-3px);box-shadow:0 0 22px rgba(216,180,106,0.25);}
+    transition:transform .18s,border-color .18s,box-shadow .18s;display:flex;flex-direction:column;align-items:center;
+    gap:8px;position:relative;isolation:isolate;--char-accent:var(--gold);}
+  .char-card.has-brief::before{content:"";position:absolute;z-index:1;left:-1px;right:-1px;top:-1px;height:2px;
+    background:var(--char-accent);box-shadow:0 0 12px var(--char-accent);opacity:.72;}
+  .char-card:hover,.char-card:focus,.char-card.brief-open{border-color:var(--char-accent);transform:translateY(-3px);
+    box-shadow:0 0 22px rgba(216,180,106,0.25);z-index:5;outline:none;}
+  .char-card:focus-visible{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--char-accent),0 0 22px rgba(216,180,106,0.3);}
   .char-card canvas{image-rendering:auto;}
+  .char-card.has-brief .char-info{width:100%;}
   .char-info .cn{color:var(--gold2);font-size:18px;letter-spacing:2px;font-weight:bold;}
   .char-info .ct{color:var(--dim);font-size:12px;letter-spacing:2px;margin:2px 0 6px;}
   .char-info .cs{color:var(--text);font-size:11px;line-height:1.6;text-align:center;background:rgba(255,255,255,0.04);
     border:1px solid rgba(255,255,255,0.06);border-radius:4px;padding:3px 6px;margin:2px 0;}
   .char-info .desc{font-size:11px;color:var(--dim);line-height:1.5;text-align:left;}
+  .char-summary{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:5px;font-size:11px;}
+  .char-position{color:var(--char-accent);border:1px solid var(--char-accent);padding:2px 7px;letter-spacing:1px;font-weight:bold;}
+  .char-active{color:var(--text);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);padding:2px 7px;}
+  .char-peek{color:var(--dim);font-size:10px;letter-spacing:1px;margin-top:6px;}
+
+  /* 角色战术资料悬浮框 */
+  .char-brief{position:absolute;z-index:6;left:50%;top:50%;width:min(306px,calc(100vw - 32px));padding:14px 15px 11px;
+    color:var(--text);text-align:left;pointer-events:none;visibility:hidden;opacity:0;
+    transform:translate(-50%,-46%) scale(.96);transition:opacity .16s,transform .16s,visibility .16s;
+    background:linear-gradient(145deg,rgba(31,29,57,.99),rgba(10,10,23,.99));border:1px solid var(--char-accent);
+    border-top-width:2px;box-shadow:0 18px 42px rgba(0,0,0,.72),0 0 22px rgba(216,180,106,.16);}
+  .char-card:hover .char-brief,.char-card:focus .char-brief,.char-card.brief-open .char-brief{
+    visibility:visible;opacity:1;transform:translate(-50%,-50%) scale(1);}
+  .brief-role-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+  .brief-label{font-size:10px;color:var(--dim);letter-spacing:2px;}
+  .brief-role{color:var(--char-accent);border:1px solid var(--char-accent);padding:2px 8px;font-size:13px;letter-spacing:2px;}
+  .brief-contribution{font-size:12px;line-height:1.5;color:#f0edf9;padding-bottom:9px;margin-bottom:9px;
+    border-bottom:1px solid rgba(255,255,255,.09);}
+  .brief-contribution span{color:var(--char-accent);font-size:10px;letter-spacing:1px;margin-right:7px;}
+  .brief-skill+.brief-skill{border-top:1px dashed rgba(255,255,255,.1);padding-top:8px;margin-top:8px;}
+  .brief-skill-meta{display:flex;align-items:center;gap:6px;min-height:20px;}
+  .brief-kind{font-size:10px;color:var(--dim);letter-spacing:1px;}
+  .brief-key{font:700 10px/1.2 monospace;color:#fff;background:rgba(255,255,255,.08);border:1px solid var(--char-accent);
+    border-radius:3px;padding:3px 6px;box-shadow:inset 0 -2px 0 rgba(0,0,0,.35);}
+  .brief-cd{margin-left:auto;color:#f0aa83;font-size:10px;letter-spacing:1px;}
+  .brief-skill-name{display:block;color:var(--gold2);font-size:15px;letter-spacing:1px;margin:4px 0 2px;}
+  .brief-effect{color:#bbb7d3;font-size:11px;line-height:1.55;}
+  .brief-effect strong{color:var(--green);font-weight:bold;}
+  .brief-passive{margin-top:9px;padding:7px 8px;background:rgba(255,255,255,.035);border-left:2px solid var(--char-accent);}
+  .brief-passive-title{display:flex;align-items:center;gap:7px;margin-bottom:2px;}
+  .brief-passive-title span{color:var(--dim);font-size:10px;letter-spacing:1px;}
+  .brief-passive-title strong{color:var(--char-accent);font-size:12px;letter-spacing:1px;}
+  .brief-action{text-align:right;color:var(--dim);font-size:9px;letter-spacing:1px;margin-top:7px;}
+  .panel-tip{display:block;color:var(--gold2);font-size:11px;letter-spacing:1px;margin-top:3px;}
+  .tip-touch{display:none;}
 
   /* 设置 */
   .set-row{display:flex;align-items:center;gap:14px;justify-content:space-between;width:min(420px,88vw);
@@ -97,6 +138,18 @@
   #btn-skill2{right:24px;bottom:118px;width:56px;height:56px;font-size:11px;}
   #btn-crouch{right:118px;bottom:118px;width:56px;height:56px;font-size:11px;}
   #btn-pause{top:12px;right:14px;width:48px;height:48px;font-size:12px;}
+  @media (hover:none){
+    .tip-hover{display:none;}.tip-touch{display:inline;}
+  }
+  @media (max-width:520px){
+    #charsel,#huntersel{justify-content:flex-start;padding-top:66px;}
+    .card-row{width:100%;}
+    .char-card{width:min(280px,92vw);}
+    .char-card canvas{width:108px;height:126px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .char-card,.char-brief{transition:none;}
+  }
 </style>
 </head>
 <body>
@@ -122,7 +175,9 @@
 <!-- ================= 选择求生者 ================= -->
 <div class="panel" id="charsel">
   <div class="panel-title">选择求生者</div>
-  <div class="panel-sub">你的队友将与 AI 求生者一起对抗监管者：破译 4 台密码机 → 通电大门 → 逃脱。逃脱 2 人即获胜</div>
+  <div class="panel-sub">你的队友将与 AI 求生者一起对抗监管者：破译 4 台密码机 → 通电大门 → 逃脱。逃脱 2 人即获胜
+    <span class="panel-tip"><span class="tip-hover">悬停角色查看定位与技能资料</span><span class="tip-touch">点按角色查看资料，再次点按选择</span></span>
+  </div>
   <div class="card-row" id="charsel-list"></div>
   <button class="btn back" id="btn-back-chars">返回</button>
 </div>
@@ -130,7 +185,9 @@
 <!-- ================= 选择监管者 ================= -->
 <div class="panel" id="huntersel">
   <div class="panel-title">扮演监管者</div>
-  <div class="panel-sub">追击并淘汰全部 3 名求生者：命中 2 次倒地 → 牵制 → 挂上处刑架。全部未逃脱者上架即获胜</div>
+  <div class="panel-sub">追击并淘汰全部 3 名求生者：命中 2 次倒地 → 牵制 → 挂上处刑架。全部未逃脱者上架即获胜
+    <span class="panel-tip"><span class="tip-hover">悬停角色查看定位与技能资料</span><span class="tip-touch">点按角色查看资料，再次点按选择</span></span>
+  </div>
   <div class="card-row" id="huntersel-list"></div>
   <button class="btn back" id="btn-back-hunters">返回</button>
 </div>
