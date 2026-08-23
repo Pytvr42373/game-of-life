@@ -395,6 +395,74 @@ body[data-theme="arcade"] .modal-btns button.ghost{
 .loader .load-text{font-family:'PingFang SC','Microsoft YaHei';font-size:13px;letter-spacing:2px;color:var(--dim)}
 body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monospace;font-size:10px}
 .loader .load-text b{color:var(--green)}
+
+/* ============ 难度切换（经典/难） ============ */
+.diff-pick{display:flex;gap:8px}
+.diff-pick button{font-weight:700;font-size:13px;padding:8px 14px;border-radius:10px;cursor:pointer;transition:.18s;letter-spacing:.5px}
+body[data-theme="4399"] .diff-pick button{background:var(--surface);border:2px solid var(--line);color:var(--text)}
+body[data-theme="4399"] .diff-pick button.on{background:linear-gradient(135deg,var(--green),var(--green2));border-color:var(--green2);color:#fff;box-shadow:0 3px 10px rgba(56,153,4,.3)}
+body[data-theme="arcade"] .diff-pick button{background:var(--key-bg);border:3px solid var(--line);color:var(--key-text);box-shadow:3px 3px 0 var(--hard)}
+body[data-theme="arcade"] .diff-pick button:hover{border-color:var(--cyan);box-shadow:4px 4px 0 var(--hard)}
+body[data-theme="arcade"] .diff-pick button.on{background:var(--pink);border-color:var(--pink);color:#fff;box-shadow:3px 3px 0 var(--hard)}
+
+/* ============ 难版 HARD 徽章 ============ */
+.h4399 .hard-badge{display:none;margin-left:7px;padding:2px 8px;border-radius:6px;font-size:.68rem;font-weight:900;letter-spacing:1px;color:#fff;background:linear-gradient(135deg,var(--orange),var(--orange2));box-shadow:0 2px 8px rgba(251,100,0,.35);transform:rotate(-2deg)}
+.harcade .hard-badge{display:none;margin-left:8px;padding:3px 8px;font-family:'Press Start 2P',monospace;font-size:8px;color:#000;background:var(--pink);box-shadow:2px 2px 0 var(--hard);animation:blink 1.2s steps(1) infinite}
+body.diff-hard .h4399 .hard-badge{display:inline-block}
+body.diff-hard .harcade .hard-badge{display:inline-block}
+
+/* ============ 难版规则提示条 ============ */
+.rules{display:none;gap:8px;flex-wrap:wrap;justify-content:center;margin:2px 0 8px;font-size:14px;color:var(--dim)}
+body.diff-hard .rules{display:flex}
+.rules .r{padding:4px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
+.ab{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;padding:0 5px;border-radius:7px;font-weight:900;font-size:16px;line-height:1;vertical-align:middle;color:#fff}
+.ab.a{background:var(--green);box-shadow:0 0 8px rgba(56,153,4,.45)}
+.ab.b{background:#e2a400;box-shadow:0 0 8px rgba(226,164,0,.45)}
+.rules .ab{margin-right:3px}
+.rules .ab.a{background:var(--green)}
+.rules .ab.b{background:#e2a400}
+body[data-theme="arcade"] .rules .r{background:var(--key-bg);border:2px solid var(--line);box-shadow:2px 2px 0 var(--hard);font-family:'Press Start 2P',monospace;font-size:11px}
+body[data-theme="4399"] .rules .r{background:rgba(255,255,255,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:var(--shadow-sm)}
+body[data-theme="arcade"] .rules .ab.a{background:var(--green);color:#000;text-shadow:none;box-shadow:2px 2px 0 var(--hard),0 0 8px var(--green)}
+body[data-theme="arcade"] .rules .ab.b{background:var(--yellow);color:#000;text-shadow:none;box-shadow:2px 2px 0 var(--hard),0 0 8px var(--yellow)}
+
+/* ============ 难版棋盘（数字格 + 右侧 A/B 总数徽标） ============ */
+body.diff-hard .board{width:100%}
+body.diff-hard .row{gap:6px;align-items:center}
+.rcells{display:flex;gap:5px}
+body.diff-hard :root{--cell-size:min(calc((100vw - 176px)/6),50px)}
+.fb-badge{min-width:76px;height:var(--cell-size);flex:none;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:calc(var(--cell-size)*0.4);letter-spacing:1px;border-radius:10px;color:var(--dim)}
+.fb-badge .a{color:var(--green);font-weight:900}
+.fb-badge .b{color:#e2a400;font-weight:900}
+body[data-theme="4399"] .fb-badge{background:var(--surface);border:2px solid var(--line);box-shadow:var(--shadow-sm),inset 0 1px 0 rgba(255,255,255,.9)}
+body[data-theme="arcade"] .fb-badge{background:var(--key-bg);border:3px solid var(--line);box-shadow:3px 3px 0 var(--hard);color:#9a9ac4;font-family:'Press Start 2P',monospace;font-size:calc(var(--cell-size)*0.34)}
+body[data-theme="arcade"] .fb-badge .a{color:var(--green);text-shadow:0 0 8px var(--green)}
+body[data-theme="arcade"] .fb-badge .b{color:var(--yellow);text-shadow:0 0 8px var(--yellow)}
+.fb-badge.show{animation:badgeIn .35s ease}
+@keyframes badgeIn{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+.fb-badge.win{border-color:var(--green)!important;box-shadow:0 0 16px rgba(56,153,4,.35)!important}
+body[data-theme="arcade"] .fb-badge.win{box-shadow:3px 3px 0 var(--hard),0 0 16px rgba(0,255,157,.6)!important}
+body.diff-hard .legend{display:none}
+
+/* ============ 难版规则弹窗 ============ */
+.rule-overlay{z-index:160}
+.rule-modal .rule-title{margin-bottom:2px}
+.rule-intro{font-size:14px;color:var(--dim);margin:4px 0 14px}
+.rule-line{display:flex;align-items:center;gap:10px;font-size:16px;color:var(--text);margin:12px 0;text-align:left}
+.rule-line .lbl{font-weight:900;color:var(--text)}
+.rule-line .desc{color:var(--dim);font-size:13px}
+.rule-example{background:var(--bg2);border:1px dashed var(--line);border-radius:10px;padding:12px 14px;margin:14px 0 4px;font-size:14px;color:var(--text);text-align:left}
+.rule-example .ex-title{font-weight:900;color:var(--green);margin-bottom:8px;font-size:13px;letter-spacing:1px}
+.rule-example .ex-fb{display:inline-flex;align-items:center;gap:4px;margin-left:6px;font-weight:900;font-size:16px}
+.rule-example .ex-fb .a{color:var(--green)}
+.rule-example .ex-fb .b{color:#e2a400}
+body[data-theme="arcade"] .rule-example{background:var(--key-bg);border:2px solid var(--line);box-shadow:2px 2px 0 var(--hard)}
+body[data-theme="arcade"] .rule-example .ex-title{color:var(--green);text-shadow:0 0 8px var(--green)}
+body[data-theme="arcade"] .rule-example .ex-fb .a{color:var(--green);text-shadow:0 0 8px var(--green)}
+body[data-theme="arcade"] .rule-example .ex-fb .b{color:var(--yellow);text-shadow:0 0 8px var(--yellow)}
+body[data-theme="arcade"] .rule-modal .ab.a{background:var(--green);color:#000;text-shadow:none;box-shadow:2px 2px 0 var(--hard),0 0 8px var(--green)}
+body[data-theme="arcade"] .rule-modal .ab.b{background:var(--yellow);color:#000;text-shadow:none;box-shadow:2px 2px 0 var(--hard),0 0 8px var(--yellow)}
+
 </style>
 </head>
 <body data-theme="4399">
@@ -413,18 +481,22 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
 
   <!-- Hero 头部（4399，与 Stroop 一致） -->
   <header class="h4399">
-    <div class="topbar"><div class="logo">🔢</div><div class="title">1A2B <em>猜数字</em></div></div>
+    <div class="topbar"><div class="logo">🔢</div><div class="title">1A2B <em id="titleWord">猜数字</em></div><span class="hard-badge" id="hardBadge4399">专家</span></div>
     <div class="sub">猜出隐藏的 N 位数字，数字可重复、首位可为 0</div>
   </header>
 
   <!-- 街机厅 头部 -->
   <header class="harcade">
     <div class="logo">&#9654; INSERT COIN &#9664;</div>
-    <div class="title"><span class="c">1A</span>2B <span class="y">猜数字</span></div>
+    <div class="title"><span class="c">1A</span>2B <span class="y" id="titleWordArcade">猜数字</span><span class="hard-badge" id="hardBadgeArcade">HARD</span></div>
     <div class="sub">- GUESS THE NUMBER -</div>
   </header>
 
   <div class="setup">
+    <div class="diff-pick" id="diffPick">
+      <button class="on" data-diff="classic">🎯 经典</button>
+      <button data-diff="hard">🔥 难版</button>
+    </div>
     <div class="length-pick">
       <button class="on" data-len="4">4位</button>
       <button data-len="5">5位</button>
@@ -442,6 +514,12 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
   <div class="msg" id="msg"></div>
 
   <div class="board" id="board"></div>
+
+  <!-- 难版规则提示条 -->
+  <div class="rules">
+    <span class="r"><b class="ab a">A</b> 位置正确</span>
+    <span class="r"><b class="ab b">B</b> 有但错位</span>
+  </div>
 
   <div class="legend">
     <div class="item"><span class="sw g"></span>正确</div>
@@ -462,6 +540,23 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
     <button class="key" data-digit="8">8</button>
     <button class="key" data-digit="9">9</button>
     <button class="key" data-digit="0">0</button>
+  </div>
+</div>
+
+<!-- 难版进入规则弹窗 -->
+<div class="overlay rule-overlay" id="ruleOverlay">
+  <div class="modal rule-modal">
+    <h2 class="rule-title">📖 1A2B · 难版</h2>
+    <div class="rule-intro">只报 <b>几A几B</b>，不告诉你哪些位置对，请推理破解！</div>
+    <div class="rule-line"><span class="ab a">A</span><span class="lbl">位置正确</span><span class="desc">数字和位置都正确</span></div>
+    <div class="rule-line"><span class="ab b">B</span><span class="lbl">有但错位</span><span class="desc">数字存在但位置不对</span></div>
+    <div class="rule-example">
+      <div class="ex-title">💡 示例</div>
+      <div>答案 <b>1 2 3 4</b>，你猜 <b>1 2 5 6</b> → <span class="ex-fb"><span class="a">2</span>A <span class="b">0</span>B</span></div>
+    </div>
+    <div class="modal-btns">
+      <button id="ruleStart">🎮 开始游戏</button>
+    </div>
   </div>
 </div>
 
@@ -490,7 +585,13 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
   'use strict';
 
   var CURRENT_LEN = 4;
-  var MAX_GUESSES = {4:7, 5:8, 6:9};
+  var DIFF = 'classic'; // 'classic' | 'hard'
+  var MAX_BY_DIFF = {
+    classic: {4:7, 5:8, 6:9},
+    hard:    {4:6, 5:7, 6:8}
+  };
+  function maxGuesses(){ return MAX_BY_DIFF[DIFF][CURRENT_LEN]; }
+  var MAX_GUESSES = MAX_BY_DIFF.classic; // 兼容旧引用
 
   var answer = [];
   var guesses = [];      // 已提交的猜测 (each: array of digits)
@@ -529,6 +630,24 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
     return result;
   }
 
+  /* ================= 难版判定：只算 A 和 B 的总数，不给逐格提示 ================= */
+  function getAB(ans, gue){
+    var n = ans.length;
+    var A = 0, B = 0;
+    var remaining = {};
+    var marked = new Array(n).fill(false);
+    for (var i=0;i<n;i++){ remaining[ans[i]] = (remaining[ans[i]]||0)+1; }
+    for (var i=0;i<n;i++){
+      if (gue[i]===ans[i]){ A++; marked[i]=true; remaining[ans[i]]--; }
+    }
+    for (var i=0;i<n;i++){
+      if (marked[i]) continue;
+      var d = gue[i];
+      if (remaining[d] > 0){ B++; remaining[d]--; }
+    }
+    return {A:A, B:B};
+  }
+
   /* ================= 生成答案 ================= */
   function genAnswer(n){
     var a = [];
@@ -538,12 +657,18 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
 
   /* ================= 渲染棋盘 ================= */
   function renderBoard(){
-    var max = MAX_GUESSES[CURRENT_LEN];
+    var max = maxGuesses();
     var html = '';
     for (var r=0;r<max;r++){
-      html += '<div class="row">';
-      for (var c=0;c<CURRENT_LEN;c++){ html += '<div class="cell"></div>'; }
-      html += '</div>';
+      if (DIFF==='hard'){
+        html += '<div class="row"><div class="rcells">';
+        for (var c=0;c<CURRENT_LEN;c++){ html += '<div class="cell"></div>'; }
+        html += '</div><div class="fb-badge"></div></div>';
+      } else {
+        html += '<div class="row">';
+        for (var c=0;c<CURRENT_LEN;c++){ html += '<div class="cell"></div>'; }
+        html += '</div>';
+      }
     }
     boardEl.innerHTML = html;
   }
@@ -551,7 +676,10 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
   function setCell(r, c, text, cls){
     var rowEl = boardEl.children[r];
     if (!rowEl) return;
-    var cell = rowEl.children[c];
+    var cell;
+    if (DIFF==='hard') cell = rowEl.querySelectorAll('.rcells .cell')[c];
+    else cell = rowEl.children[c];
+    if (!cell) return;
     if (cls) cell.className = 'cell ' + cls; else cell.className = 'cell';
     cell.textContent = text;
   }
@@ -560,16 +688,34 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
     var r = currentRow;
     var c;
     for (c=0;c<CURRENT_LEN;c++){
-      if (c < current.length) setCell(r, c, current[c], 'cell filled');
+      if (c < current.length) setCell(r, c, current[c], 'cell filled' + (DIFF==='hard' ? ' current' : ''));
       else setCell(r, c, '', 'cell');
     }
+  }
+
+  /* 渲染某一行已提交的结果（难版：数字 + 右侧 几A几B 徽标） */
+  function renderRow(i){
+    var rowEl = boardEl.children[i];
+    if (!rowEl) return;
+    var cells = rowEl.querySelectorAll('.rcells .cell');
+    var badge = rowEl.querySelector('.fb-badge');
+    var gue = guesses[i], fb = feedbacks[i];
+    for (var c=0;c<CURRENT_LEN;c++){
+      cells[c].className = 'cell filled';
+      cells[c].textContent = gue[c];
+    }
+    badge.className = 'fb-badge show' + (fb.A===CURRENT_LEN ? ' win' : '');
+    badge.innerHTML = '<span class="a">'+fb.A+'</span>A <span class="b">'+fb.B+'</span>B';
   }
 
   function renderBoardState(){
     // 已提交的行
     for (var i=0;i<feedbacks.length;i++){
-      for (var c=0;c<CURRENT_LEN;c++){
-        setCell(i, c, guesses[i][c], 'cell ' + feedbacks[i][c]);
+      if (DIFF==='hard') renderRow(i);
+      else {
+        for (var c=0;c<CURRENT_LEN;c++){
+          setCell(i, c, guesses[i][c], 'cell ' + feedbacks[i][c]);
+        }
       }
     }
     // 当前行
@@ -624,30 +770,41 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
       return;
     }
     var gue = current.slice();
-    var fb = getFeedback(answer, gue);
-    guesses.push(gue);
-    feedbacks.push(fb);
-    guessedCount++;
+    var won;
+    if (DIFF==='hard'){
+      var fbAB = getAB(answer, gue);
+      guesses.push(gue);
+      feedbacks.push(fbAB);
+      guessedCount++;
+      renderRow(currentRow);
+      // 4399：A 反馈唤起少量叶片
+      if (fbAB.A) setTimeout(function(){ burstLeaves(fbAB.A); }, 250);
+      won = (fbAB.A === CURRENT_LEN);
+    } else {
+      var fb = getFeedback(answer, gue);
+      guesses.push(gue);
+      feedbacks.push(fb);
+      guessedCount++;
 
-    // 逐格动画着色
-    var rowEl = boardEl.children[currentRow];
-    for (var c=0;c<CURRENT_LEN;c++){
-      var cell = rowEl.children[c];
-      cell.textContent = gue[c];
-      setTimeout(function(cell2, cls){
-        cell2.className = 'cell reveal ' + cls;
-      }, 250 + c*160, cell, fb[c]);
+      // 逐格动画着色
+      var rowEl = boardEl.children[currentRow];
+      for (var c=0;c<CURRENT_LEN;c++){
+        var cell = rowEl.children[c];
+        cell.textContent = gue[c];
+        setTimeout(function(cell2, cls){
+          cell2.className = 'cell reveal ' + cls;
+        }, 250 + c*160, cell, fb[c]);
+      }
+
+      updateKeyboard(gue, fb);
+
+      // 4399：正确反馈唤起少量叶片
+      var gc=0;
+      for (var i=0;i<fb.length;i++){ if (fb[i]==='green') gc++; }
+      if (gc) setTimeout(function(){ burstLeaves(gc); }, 260 + CURRENT_LEN*160);
+
+      won = fb.every(function(x){return x==='green';});
     }
-
-    updateKeyboard(gue, fb);
-
-    // 4399：正确反馈唤起少量叶片
-    var gc=0;
-    for (var i=0;i<fb.length;i++){ if (fb[i]==='green') gc++; }
-    if (gc) setTimeout(function(){ burstLeaves(gc); }, 260 + CURRENT_LEN*160);
-
-    // 判断输赢
-    var won = fb.every(function(x){return x==='green';});
     current = [];
     currentRow++;
     updateHud();
@@ -655,11 +812,11 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
     if (won){
       isWin = true;
       gameOver = true;
-      setTimeout(function(){ endGame(true); }, 300 + CURRENT_LEN*160);
-    } else if (currentRow >= MAX_GUESSES[CURRENT_LEN]){
+      setTimeout(function(){ endGame(true); }, DIFF==='hard' ? 350 : 300 + CURRENT_LEN*160);
+    } else if (currentRow >= maxGuesses()){
       isWin = false;
       gameOver = true;
-      setTimeout(function(){ endGame(false); }, 300 + CURRENT_LEN*160);
+      setTimeout(function(){ endGame(false); }, DIFF==='hard' ? 350 : 300 + CURRENT_LEN*160);
     } else {
       // 渲染空当前行
       for (var c=0;c<CURRENT_LEN;c++) setCell(currentRow, c, '', 'cell');
@@ -674,13 +831,13 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
   }
 
   function updateHud(){
-    chancesLeftEl.textContent = Math.max(0, MAX_GUESSES[CURRENT_LEN]-currentRow);
-    chancesTotalEl.textContent = MAX_GUESSES[CURRENT_LEN];
+    chancesLeftEl.textContent = Math.max(0, maxGuesses()-currentRow);
+    chancesTotalEl.textContent = maxGuesses();
     bestLabelEl.textContent = getBest()===null ? '—' : getBest();
   }
 
   /* ================= 本地统计 ================= */
-  function statsKey(len){ return 'ab12-stats-v2-' + len; }
+  function statsKey(len){ return (DIFF==='hard' ? 'ab12h-stats-v2-' : 'ab12-stats-v2-') + len; }
   function defaultStats(){
     return { played:0, won:0, currentStreak:0, maxStreak:0, best:null, dist:{} };
   }
@@ -722,17 +879,27 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
 
   /* ================= 结果弹窗 ================= */
   function getResultSub(win){
-    var max = MAX_GUESSES[CURRENT_LEN];
-    if (!win) return '什么，你' + max + '次还没猜出来，我家猫都能猜出来。';
-    if (guessedCount <= 2) return '第' + guessedCount + '次就猜中？这不是运气，是数字在向你投降！';
-    if (guessedCount <= 4) return '第' + guessedCount + '次猜中，中规中矩吧……不过能赢就是本事。';
-    if (guessedCount <= 6) return '第' + guessedCount + '次才猜中，多练练吧，下次让数字少蹦跶几下。';
-    return '第' + guessedCount + '次才猜中，差一点就要请我家猫来代打了。';
+    var max = maxGuesses();
+    if (!win) return DIFF==='hard'
+      ? '难版' + max + '次都没猜中？连总数提示都救不了你……'
+      : '什么，你' + max + '次还没猜出来，我家猫都能猜出来。';
+    if (guessedCount <= 2) return DIFF==='hard'
+      ? '第' + guessedCount + '次盲猜命中？这已经不是运气，是超能力了！'
+      : '第' + guessedCount + '次就猜中？这不是运气，是数字在向你投降！';
+    if (guessedCount <= 4) return DIFF==='hard'
+      ? '第' + guessedCount + '次破解，能在没有逐格提示下赢，算你狠。'
+      : '第' + guessedCount + '次猜中，中规中矩吧……不过能赢就是本事。';
+    if (guessedCount <= 6) return DIFF==='hard'
+      ? '第' + guessedCount + '次才解开，惊险！差点就要给你发"难度已调低"了。'
+      : '第' + guessedCount + '次才猜中，多练练吧，下次让数字少蹦跶几下。';
+    return DIFF==='hard'
+      ? '第' + guessedCount + '次才解开，差点就要给你发"难度已调低"了。'
+      : '第' + guessedCount + '次才猜中，差一点就要请我家猫来代打了。';
   }
 
   function showModal(win){
     var s = loadStats(CURRENT_LEN);
-    document.getElementById('resultTitle').textContent = win ? '🎉 恭喜通关！' : '😵 挑战失败';
+    document.getElementById('resultTitle').textContent = win ? (DIFF==='hard' ? '🎉 恭喜破解！' : '🎉 恭喜通关！') : '😵 挑战失败';
     document.getElementById('resultAnswer').textContent = answer.join('');
     document.getElementById('resultSub').textContent = getResultSub(win);
 
@@ -743,7 +910,7 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
 
     // 分布
     var distEl = document.getElementById('dist');
-    var max = MAX_GUESSES[CURRENT_LEN];
+    var max = maxGuesses();
     var maxCount = 1;
     for (var k=1;k<=max;k++){ if ((s.dist[k]||0)>maxCount) maxCount=s.dist[k]||0; }
     var html = '';
@@ -770,6 +937,8 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
     resetKeyboard();
     msgEl.textContent = '';
     closeModal();
+    var ro = document.getElementById('ruleOverlay');
+    if (ro) ro.classList.remove('on');
     updateHud();
   }
 
@@ -906,6 +1075,38 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
     }, 500);
   });
 
+  /* ================= 难度切换（经典/难） ================= */
+  var ruleOverlay = document.getElementById('ruleOverlay');
+  function setDiff(d){
+    DIFF = d;
+    try { localStorage.setItem('ab12-diff-v1', d); } catch(e){}
+    document.body.classList.toggle('diff-hard', d==='hard');
+    document.querySelectorAll('#diffPick button').forEach(function(b){
+      b.classList.toggle('on', b.getAttribute('data-diff')===d);
+    });
+    // 标题词
+    var tw = document.getElementById('titleWord'); if (tw) tw.textContent = d==='hard' ? '难版' : '猜数字';
+    var twa = document.getElementById('titleWordArcade'); if (twa) twa.textContent = d==='hard' ? '难版' : '猜数字';
+    // 副标题
+    var s4399 = document.querySelector('.h4399 .sub'); if (s4399) s4399.textContent = d==='hard'
+      ? '只报几A几B，不告诉你哪个对 —— 数字可重复、首位可为 0'
+      : '猜出隐藏的 N 位数字，数字可重复、首位可为 0';
+    var sarc = document.querySelector('.harcade .sub'); if (sarc) sarc.textContent = d==='hard'
+      ? '- NO PER-DIGIT HINT -'
+      : '- GUESS THE NUMBER -';
+    var logo = document.querySelector('.harcade .logo'); if (logo) logo.textContent = d==='hard'
+      ? '▶ EXPERT MODE ◀'
+      : '▶ INSERT COIN ◀';
+    newGame();
+    if (d==='hard' && ruleOverlay) ruleOverlay.classList.add('on');
+  }
+  document.querySelectorAll('#diffPick button').forEach(function(btn){
+    btn.addEventListener('click', function(){ setDiff(btn.getAttribute('data-diff')); });
+  });
+  document.getElementById('ruleStart').addEventListener('click', function(){
+    if (ruleOverlay) ruleOverlay.classList.remove('on');
+  });
+
   /* ================= 绑定事件 ================= */
   document.querySelectorAll('.length-pick button').forEach(function(btn){
     btn.addEventListener('click', function(){
@@ -939,7 +1140,19 @@ body[data-theme="arcade"] .loader .load-text{font-family:'Press Start 2P',monosp
     var saved = null;
     try { saved = localStorage.getItem('gh-theme')||'4399'; } catch(e){ saved='4399'; }
     applyTheme(saved);
-    newGame();
+    // 恢复难度：URL 参数 ?diff=hard 优先，其次上次记忆（默认经典）
+    var urlDiff = null;
+    try {
+      var qs = window.location.search || '';
+      var mm = qs.match(/[?&]diff=(classic|hard)/);
+      if (mm) urlDiff = mm[1];
+    } catch(e){}
+    var lastDiff = urlDiff;
+    if (lastDiff===null){
+      try { lastDiff = localStorage.getItem('ab12-diff-v1'); } catch(e){}
+    }
+    if (lastDiff==='hard' || lastDiff==='classic') setDiff(lastDiff);
+    else setDiff('classic');
   })();
 })();
 </script>
