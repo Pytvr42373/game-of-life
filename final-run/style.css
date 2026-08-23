@@ -413,3 +413,209 @@ body[data-theme="arcade"] #rankList li::before { border-radius: 2px; }
   }
   #gameCanvas { box-shadow: none; }
 }
+
+/* =====================================================================
+ * 丰富版新增组件：档案条 / 每日挑战 / 商店 / 被动三选一 / 狂怒 HUD / 徽章
+ * ===================================================================== */
+
+/* ---- 开始界面 · 档案条 ---- */
+.hub-strip {
+  display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+  margin-bottom: 14px;
+}
+.hub-chip {
+  display: flex; align-items: baseline; gap: 5px;
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 13px;
+}
+.hub-chip span { font-size: 11px; color: var(--muted); letter-spacing: 1px; }
+.hub-chip b { font-family: var(--title-font); font-size: 16px; color: var(--accent-hi); }
+.hub-chip i { font-style: normal; font-size: 11px; color: var(--muted); }
+.hub-chip.hub-gold b { color: var(--gold); }
+body[data-theme="arcade"] .hub-chip { border-radius: 2px; }
+
+/* ---- 每日挑战卡片 ---- */
+.daily-card {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin: 0 auto 20px; width: min(520px, 100%);
+  background: linear-gradient(135deg, var(--surface2), var(--surface));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 11px 16px;
+  font-size: 13.5px;
+}
+body[data-theme="arcade"] .daily-card { border-radius: 2px; }
+.daily-tag {
+  font-family: var(--title-font); font-size: 11px; letter-spacing: 2px;
+  color: var(--accent-ink); background: var(--gold);
+  padding: 3px 10px; border-radius: 999px;
+}
+body[data-theme="arcade"] .daily-tag { border-radius: 2px; }
+.daily-card b { color: var(--text); }
+.daily-prog { color: var(--muted); font-size: 12.5px; margin-left: auto; }
+.daily-card.done { border-color: var(--gold); }
+
+/* ---- 开始按钮组 ---- */
+.start-actions { display: flex; gap: 12px; justify-content: center; align-items: center; flex-wrap: wrap; }
+.shop-btn {
+  font-family: var(--title-font);
+  font-size: 16px; font-weight: 800; letter-spacing: 2px;
+  color: var(--text);
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 18px 26px;
+  cursor: pointer;
+  transition: transform .18s, border-color .18s;
+}
+.shop-btn span { display: block; font-size: 10px; letter-spacing: 4px; opacity: .75; margin-top: 3px; }
+.shop-btn:hover { transform: translateY(-3px); border-color: var(--gold); }
+body[data-theme="arcade"] .shop-btn { border-radius: 2px; }
+
+/* ---- 游戏内 · 狂怒 HUD ---- */
+.rage-hud {
+  position: fixed; top: 64px; left: 50%; transform: translateX(-50%);
+  z-index: 56;
+  display: none; align-items: center; gap: 6px;
+  font-family: var(--title-font); letter-spacing: 2px; font-size: 13px;
+  color: var(--chaser-hi);
+  background: var(--surface);
+  border: 1px solid var(--danger);
+  border-radius: 999px;
+  padding: 5px 14px;
+  box-shadow: 0 0 18px rgba(239, 68, 68, .5);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+.rage-hud.on { display: flex; animation: ragebreathe .8s ease-in-out infinite; }
+.rage-hud b { font-size: 16px; color: var(--chaser-hi); }
+@keyframes ragebreathe { 0%, 100% { transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.06); } }
+body[data-theme="arcade"] .rage-hud { border-radius: 2px; }
+
+.hud-gold b { color: var(--gold); }
+.hud-passive b { color: var(--accent-hi); }
+
+/* ---- 结算 · 副统计 ---- */
+.stats-sub { margin-top: 10px; }
+.stats-sub .stat b { font-size: 18px; }
+
+/* ---- 成就徽章条 ---- */
+.achieve-strip {
+  display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+  margin-bottom: 14px; min-height: 0;
+}
+.achieve-strip:empty { display: none; }
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--title-font); font-size: 13px; letter-spacing: 1px;
+  color: #1a1402; background: linear-gradient(135deg, #fde68a, #f5c518);
+  border-radius: 999px; padding: 7px 14px;
+  box-shadow: 0 4px 18px rgba(245, 197, 24, .45);
+  animation: badgepop .5s cubic-bezier(.2, 1.6, .4, 1);
+}
+@keyframes badgepop { 0% { opacity: 0; transform: scale(.3) rotate(-8deg); } 100% { opacity: 1; transform: scale(1) rotate(0); } }
+body[data-theme="arcade"] .badge { border-radius: 2px; }
+
+/* ---- 结算 · 每日挑战 ---- */
+.daily-over {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin: 12px auto 0; width: min(520px, 100%);
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px 14px; font-size: 13px;
+}
+body[data-theme="arcade"] .daily-over { border-radius: 2px; }
+.daily-over b { color: var(--text); }
+.daily-over .daily-prog { margin-left: auto; }
+
+/* ---- 通用弹层遮罩 ---- */
+.modal-mask {
+  position: fixed; inset: 0; z-index: 80;
+  display: none; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, .55);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  padding: 20px;
+}
+.modal-mask.open { display: flex; }
+.passive-box, .shop-box {
+  width: min(560px, 100%);
+  max-height: 86vh; overflow-y: auto;
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
+}
+body[data-theme="arcade"] .passive-box, body[data-theme="arcade"] .shop-box { border-radius: 2px; }
+
+/* ---- 被动三选一 ---- */
+.passive-title {
+  font-family: var(--title-font); font-size: 17px; letter-spacing: 3px;
+  text-align: center; color: var(--accent-hi); margin: 0 0 18px;
+}
+.passive-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.passive-opt {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 10px;
+  font-family: var(--title-font);
+  color: var(--text);
+  cursor: pointer;
+  transition: transform .15s, border-color .15s;
+}
+.passive-opt b { font-size: 15px; letter-spacing: 1px; }
+.passive-opt span { font-size: 12px; color: var(--muted); }
+.passive-opt:hover { transform: translateY(-3px); border-color: var(--accent-hi); }
+.passive-opt:focus-visible { outline: 2px solid var(--accent-hi); outline-offset: 2px; }
+body[data-theme="arcade"] .passive-opt { border-radius: 2px; }
+.passive-hint { text-align: center; font-size: 12px; color: var(--muted); margin: 14px 0 0; }
+
+/* ---- 商店 ---- */
+.shop-title {
+  font-family: var(--title-font); font-size: 18px; letter-spacing: 3px;
+  text-align: center; margin: 0 0 6px;
+}
+.shop-title span { color: var(--gold); }
+.shop-sec h4 { font-size: 14px; color: var(--accent-hi); margin: 16px 0 8px; }
+.shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.shop-item {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 10px;
+  font-family: var(--title-font);
+  color: var(--text);
+  cursor: pointer;
+  transition: transform .15s, border-color .15s;
+}
+.shop-item b { font-size: 14px; letter-spacing: 1px; }
+.shop-item span { font-size: 12px; color: var(--muted); }
+.shop-item.on { border-color: var(--gold); box-shadow: 0 0 14px rgba(245, 197, 24, .3); }
+.shop-item.on span { color: var(--gold); }
+.shop-item:hover { transform: translateY(-3px); }
+.shop-item:focus-visible { outline: 2px solid var(--accent-hi); outline-offset: 2px; }
+.skin-swatch { width: 46px; height: 30px; border-radius: 6px; border: 1px solid rgba(255,255,255,.25); }
+body[data-theme="arcade"] .shop-item, body[data-theme="arcade"] .skin-swatch { border-radius: 2px; }
+.shop-close {
+  display: block; margin: 20px auto 0;
+  font-family: var(--title-font); font-size: 14px; letter-spacing: 2px;
+  color: var(--accent-ink); background: var(--accent-hi);
+  border: none; border-radius: 999px; padding: 10px 34px; cursor: pointer;
+}
+body[data-theme="arcade"] .shop-close { border-radius: 2px; }
+
+/* ---- 响应式微调 ---- */
+@media (max-width: 720px) {
+  .passive-opts { grid-template-columns: 1fr 1fr; }
+  .shop-grid { grid-template-columns: 1fr 1fr; }
+  .start-actions .shop-btn { padding: 14px 18px; font-size: 14px; }
+}
+@media (pointer: coarse) {
+  .passive-opt, .shop-item { min-height: 72px; }
+}

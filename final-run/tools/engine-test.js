@@ -227,5 +227,226 @@ function ok(c, m) { if (c) { passed++; console.log('  PASS  ' + m); } else { fai
   ok(spawned, '跑动过程中会自然生成道具');
 }
 
+/* ==================== 丰富版新增测试 ==================== */
+const M = require(path.join(__dirname, '..', 'meta.js'));
+const P2 = Math.PI / 2;
+const NY = E.cfg.groundY - E.cfg.actorH;
+
+// ---- 新障碍：移动梁（lift<0 梁高可滑铲，lift>0 梁低须跳跃） ----
+{
+  console.log('== 移动梁 moving ==');
+  const s = E.newGame();
+  s.obstacles.push({ x: E.cfg.playerX, type: 'moving', w: 40, phase: -P2, freq: 2.0, amp: 20, h: 58, passed: false, hit: false });
+  E.update(s, {}, 0); // 触发相位刷新
+  ok(s.obstacles[0].solidBottom <= E.cfg.groundY - E.cfg.slideH, '梁高相位下滑铲高度可通过(lift<0)');
+  const s2 = E.newGame();
+  s2.obstacles.push({ x: E.cfg.playerX, type: 'moving', w: 40, phase: -P2, freq: 2.0, amp: 20, h: 58, passed: false, hit: false });
+  const ev2 = E.update(s2, { slide: true }, 1 / 60);
+  ok(!ev2.some(e => e.type === 'hit'), '梁高时滑铲可通过移动梁');
+  const s3 = E.newGame();
+  s3.obstacles.push({ x: E.cfg.playerX, type: 'moving', w: 40, phase: -P2, freq: 2.0, amp: 20, h: 58, passed: false, hit: false });
+  const ev3 = E.update(s3, {}, 1 / 60);
+  ok(ev3.some(e => e.type === 'hit'), '梁高时站立撞移动梁');
+  const s4 = E.newGame();
+  s4.player.y = NY - 90; s4.player.airborne = true; // 提前跳至空中
+  s4.obstacles.push({ x: E.cfg.playerX, type: 'moving', w: 40, phase: P2, freq: 2.0, amp: 20, h: 58, passed: false, hit: false });
+  const ev4 = E.update(s4, {}, 1 / 60);
+  ok(!ev4.some(e => e.type === 'hit'), '梁低时跳跃可通过移动梁');
+}
+
+// ---- 新障碍：地面裂缝（必须跳） ----
+{
+  console.log('== 地面裂缝 gap ==');
+  const s = E.newGame();
+  s.obstacles.push({ x: E.cfg.playerX, type: 'gap', w: 70, solidTop: E.cfg.groundY - 8, solidBottom: E.cfg.groundY + 60, passed: false, hit: false });
+  const ev = E.update(s, {}, 1 / 60);
+  ok(ev.some(e => e.type === 'hit'), '站立滑过裂缝被判定坠入(hit)');
+  const s2 = E.newGame();
+  s2.obstacles.push({ x: E.cfg.playerX, type: 'gap', w: 70, solidTop: E.cfg.groundY - 8, solidBottom: E.cfg.groundY + 60, passed: false, hit: false });
+  const ev2 = E.update(s2, { jump: true }, 1 / 60);
+  ok(!ev2.some(e => e.type === 'hit'), '跳跃可越过裂缝');
+}
+
+// ---- 新障碍：空翻倒刺（需精确高跳，站立/滑铲必撞） ----
+{
+  console.log('== 空翻倒刺 spike ==');
+  const s = E.newGame();
+  s.obstacles.push({ x: E.cfg.playerX, type: 'spike', w: 34, solidTop: E.cfg.groundY - 96, solidBottom: E.cfg.groundY, passed: false, hit: false });
+  const ev = E.update(s, {}, 1 / 60);
+  ok(ev.some(e => e.type === 'hit'), '站立撞倒刺');
+  const s2 = E.newGame();
+  s2.obstacles.push({ x: E.cfg.playerX, type: 'spike', w: 34, solidTop: E.cfg.groundY - 96, solidBottom: E.cfg.groundY, passed: false, hit: false });
+  const ev2 = E.update(s2, { slide: true }, 1 / 60);
+  ok(ev2.some(e => e.type === 'hit'), '滑铲撞倒刺');
+  const s3 = E.newGame();
+  s3.player.y = NY - 100; s3.player.airborne = true; // 高空中
+  s3.obstacles.push({ x: E.cfg.playerX, type: 'spike', w: 34, solidTop: E.cfg.groundY - 96, solidBottom: E.cfg.groundY, passed: false, hit: false });
+  const ev3 = E.update(s3, {}, 1 / 60);
+  ok(!ev3.some(e => e.type === 'hit'), '跳至足够高可从倒刺上方通过');
+}
+
+// ---- 新障碍：尖刺双联（连续跳，只跳一次撞第二个） ----
+{
+  console.log('== 尖刺双联 double ==');
+  const s = E.newGame();
+  s.obstacles.push({ x: E.cfg.playerX + 150, type: 'low', w: 36, solidTop: E.cfg.groundY - 46, solidBottom: E.cfg.groundY, passed: false, hit: false });
+  s.obstacles.push({ x: E.cfg.playerX + 270, type: 'low', w: 36, solidTop: E.cfg.groundY - 46, solidBottom: E.cfg.groundY, passed: false, hit: false });
+  E.update(s, { jump: true }, 1 / 60); // 提前跳，跳过第一个
+  let secondHit = false;
+  for (let f = 0; f < 50 && !secondHit; f++) {
+    const e2 = E.update(s, {}, 1 / 60);
+    secondHit = e2.some(e => e.type === 'hit');
+  }
+  ok(secondHit, '只跳一次会撞上第二个低坎');
+  const s2 = E.newGame();
+  s2.obstacles.push({ x: E.cfg.playerX, type: 'low', w: 36, solidTop: E.cfg.groundY - 46, solidBottom: E.cfg.groundY, passed: false, hit: false });
+  s2.obstacles.push({ x: E.cfg.playerX + 120, type: 'low', w: 36, solidTop: E.cfg.groundY - 46, solidBottom: E.cfg.groundY, passed: false, hit: false });
+  let firstHit = false;
+  for (let f = 0; f < 30 && !firstHit; f++) {
+    const e2 = E.update(s2, {}, 1 / 60);
+    firstHit = e2.some(e => e.type === 'hit');
+  }
+  ok(firstHit, '站立时尖刺双联必撞');
+}
+
+// ---- 新障碍：复合墙（跳-滑连招） ----
+{
+  console.log('== 复合墙 combo ==');
+  const s = E.newGame();
+  s.obstacles.push({ x: E.cfg.playerX + 100, type: 'low', w: 36, solidTop: E.cfg.groundY - 46, solidBottom: E.cfg.groundY, passed: false, hit: false });
+  s.obstacles.push({ x: E.cfg.playerX + 300, type: 'high', w: 36, solidTop: E.cfg.groundY - 92, solidBottom: E.cfg.groundY - E.cfg.slideH, passed: false, hit: false });
+  E.update(s, { jump: true }, 1 / 60); // 提前跳低坎
+  let landed = false;
+  for (let f = 0; f < 80 && !landed; f++) { const e2 = E.update(s, {}, 1 / 60); landed = e2.some(e => e.type === 'land'); }
+  const ev = E.update(s, { slide: true }, 1 / 60); // 落地后滑铲过梁
+  ok(!ev.some(e => e.type === 'hit'), '跳-滑连招可全过复合墙');
+  const s2 = E.newGame();
+  s2.obstacles.push({ x: E.cfg.playerX + 100, type: 'low', w: 36, solidTop: E.cfg.groundY - 46, solidBottom: E.cfg.groundY, passed: false, hit: false });
+  s2.obstacles.push({ x: E.cfg.playerX + 300, type: 'high', w: 36, solidTop: E.cfg.groundY - 92, solidBottom: E.cfg.groundY - E.cfg.slideH, passed: false, hit: false });
+  E.update(s2, { jump: true }, 1 / 60);
+  let hit2 = false;
+  for (let f = 0; f < 90 && !hit2; f++) { const e2 = E.update(s2, {}, 1 / 60); hit2 = e2.some(e => e.type === 'hit'); }
+  ok(hit2, '只跳不滑铲会撞上复合墙的梁');
+}
+
+// ---- 追击者形态解锁 ----
+{
+  console.log('== 追击者形态 ==');
+  ok(E.chaserKindAt(0) === 'beast', '0m 为暗影巨兽');
+  ok(E.chaserKindAt(299) === 'beast', '299m 仍为巨兽');
+  ok(E.chaserKindAt(300) === 'pack', '300m 解锁猎犬群');
+  ok(E.chaserKindAt(699) === 'pack', '699m 仍为猎犬群');
+  ok(E.chaserKindAt(700) === 'colossus', '700m 解锁战争巨像');
+  const pk = E.profileOf('pack', 0), co = E.profileOf('colossus', 0);
+  ok(pk.danger === 2.0, '猎犬群挣脱窗口固定 2.0s');
+  ok(co.danger === 1.2, '巨像挣脱窗口固定 1.2s');
+  ok(pk.burst < E.profileOf('beast', 0).burst, '猎犬群爆发更短更频繁');
+  const s = E.newGame();
+  s.dist = 299;
+  let switched = null;
+  for (let f = 0; f < 200 && !switched; f++) {
+    const ev = E.update(s, {}, 1 / 60);
+    const sw = ev.find(e => e.type === 'chaserSwitch');
+    if (sw) switched = sw;
+  }
+  ok(switched && switched.kind === 'pack' && s.chaser.kind === 'pack', '跨 300m 发 chaserSwitch 并切换形态');
+}
+
+// ---- 巨兽狂怒 ----
+{
+  console.log('== 巨兽狂怒 ==');
+  const s = E.newGame();
+  s.dist = 499;
+  let rageStart = null;
+  for (let f = 0; f < 200 && !rageStart; f++) {
+    const ev = E.update(s, {}, 1 / 60);
+    const rs = ev.find(e => e.type === 'rageStart');
+    if (rs) rageStart = rs;
+  }
+  ok(rageStart && s.rage && s.rage.wavesNeeded === 3, '跨 500m 触发 rageStart(3 波)');
+  ok(s.nextRageAt === 1000, '下一次狂怒在 1000m');
+  // 三连挣脱（真实玩法：跳 → 二段跳 → 滑铲；这里重置到地面逐次挣脱，验证状态机）
+  let cleared = false, scoreBefore = s.score;
+  const ground = E.cfg.groundY - E.cfg.actorH;
+  for (let w = 0; w < 3 && !cleared; w++) {
+    s.player.y = ground; s.player.vy = 0; s.player.airborne = false; s.player.jumps = 1; s.player.sliding = 0;
+    s.chaser.gap = E.cfg.gapDanger - 5;
+    const ev = E.update(s, { jump: true }, 1 / 60);
+    cleared = ev.some(e => e.type === 'rageClear');
+    if (w < 2) ok(ev.some(e => e.type === 'rageWave'), '前两波发 rageWave');
+  }
+  ok(cleared, '连续挣脱 3 次触发 rageClear');
+  ok(s.rage === null && s.rageCleared === 1, '狂怒清除且计数 +1');
+  ok(s.score >= scoreBefore + E.cfg.rageBonus, '击退狂怒 +500 分');
+}
+
+// ---- 狂怒期间金币双倍 ----
+{
+  const s = E.newGame();
+  s.rage = { wave: 0, wavesNeeded: 3 };
+  s.coins.push({ x: E.cfg.playerX, y: E.cfg.groundY - 70 });
+  const before = s.score;
+  E.update(s, {}, 1 / 60);
+  ok(s.score - before >= E.cfg.coinScore * 2, '狂怒期间金币分值翻倍');
+}
+
+// ---- 被动三选一 ----
+{
+  console.log('== 被动三选一 ==');
+  const s = E.newGame();
+  s.passivePending = true;
+  ok(E.applyPassive(s, 'turbo') === true && s.player.passive.turbo, '涡轮冲刺应用成功');
+  ok(s.passivePending === false && s.passiveList.length === 1, '应用后清除待选状态并记录');
+  const s2 = E.newGame(); s2.passivePending = true;
+  E.applyPassive(s2, 'doubleShield');
+  ok(s2.player.shieldsMax === 3, '双层护盾提升上限到 3');
+  const s3 = E.newGame(); s3.passivePending = true;
+  E.applyPassive(s3, 'coinDouble');
+  s3.coins.push({ x: E.cfg.playerX, y: E.cfg.groundY - 70 });
+  const b3 = s3.score;
+  E.update(s3, {}, 1 / 60);
+  ok(s3.score - b3 >= E.cfg.coinScore * 2, '金币翻倍被动生效');
+  const s4 = E.newGame(); s4.passivePending = true;
+  E.applyPassive(s4, 'evadeTime');
+  E.update(s4, {}, 1 / 60);
+  ok(s4.chaser.dangerMax >= E.profileOf('beast', 0).danger + 1, '挣脱窗口被动 +1s');
+  const s5 = E.newGame();
+  ok(E.applyPassive(s5, 'turbo') === false, '无待选状态时 applyPassive 拒绝');
+}
+
+// ---- meta：成就判定 ----
+{
+  console.log('== 成就判定 ==');
+  const byId = {};
+  M.ACHS.forEach(a => { byId[a.id] = a; });
+  ok(byId.first_run.test({ finished: true }), 'first_run 完成一局');
+  ok(byId.dist_500.test({ dist: 500 }) && !byId.dist_500.test({ dist: 499 }), 'dist_500 阈值');
+  ok(byId.dist_1000.test({ dist: 1000 }), 'dist_1000');
+  ok(byId.dist_3000.test({ dist: 3000 }), 'dist_3000');
+  ok(byId.combo_10.test({ bestCombo: 10 }), 'combo_10');
+  ok(byId.combo_30.test({ bestCombo: 30 }), 'combo_30');
+  ok(byId.near_100.test({}, { near: 100 }), 'near_100 累计');
+  ok(byId.coin_1000.test({}, { coins: 1000 }), 'coin_1000 累计');
+  ok(byId.all_zones.test({ zone: 5 }), 'all_zones 抵最终防线');
+  ok(byId.rage_clear.test({ rageCleared: 1 }), 'rage_clear');
+  ok(byId.escape_10.test({}, { runs: 10 }), 'escape_10 累计局数');
+  ok(byId.daily_win.test({}, {}, { done: true }) && !byId.daily_win.test({}, {}, { done: false }), 'daily_win 今日完成');
+  ok(M.ACHS.length >= 12, '成就总数 ≥ 12');
+}
+
+// ---- meta：每日挑战 ----
+{
+  console.log('== 每日挑战判定 ==');
+  const d = M.freshDaily('2026-08-23');
+  ok(d.goalId && M.DAILY_GOALS.some(g => g.id === d.goalId), 'freshDaily 生成合法目标');
+  ok(d.date === '2026-08-23' && d.done === false, '结构含日期与未完成态');
+  const g = M.dailyGoalOf(d);
+  const d2 = JSON.parse(JSON.stringify(d));
+  d2.prog[g.metric] = g.target;
+  ok(M.dailyDone(d2) === true, '进度达目标即完成');
+  ok(M.dailyDone(d) === false, '进度未达目标未完成');
+  ok(M.hashDay('2026-08-23') !== M.hashDay('2026-08-24'), '跨天目标可不同');
+}
+
 console.log('\n' + (failed === 0 ? '通过 ' + passed + ' 项，全部通过' : '通过 ' + passed + ' 项，失败 ' + failed + ' 项'));
 process.exit(failed === 0 ? 0 : 1);

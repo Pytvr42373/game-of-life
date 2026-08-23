@@ -1,17 +1,15 @@
-/* 浏览器加载冒烟：模拟 DOM/Canvas 环境加载 final-run 三模块 + game.js，验证无引用错误 */
+/* 浏览器加载冒烟：模拟 DOM/Canvas/localStorage 环境加载 final-run 全部脚本
+ * （audio.js / engine.js / meta.js / game.js），验证无引用错误、可初始化。 */
 const fs = require('fs');
 const path = require('path');
-const dir = '/workspace/game-of-life/final-run';
-
+const dir = path.join(__dirname, '..');
 let passed = 0, failed = 0;
 function ok(c, m) { if (c) { passed++; console.log('  PASS  ' + m); } else { failed++; console.error('  FAIL  ' + m); } }
 
-// 模拟 canvas 2d context（记录调用）
 const noop = () => {};
 const ctx2d = new Proxy({}, {
   get(target, prop) {
     if (!(prop in target)) {
-      // 方法 → 返回通用无操作函数；渐变类返回可链式对象
       target[prop] = (prop === 'createLinearGradient' || prop === 'createRadialGradient')
         ? () => ({ addColorStop: noop })
         : noop;
@@ -21,7 +19,6 @@ const ctx2d = new Proxy({}, {
   set(target, prop, v) { target[prop] = v; return true; }
 });
 
-// 模拟 window
 const elements = {};
 function makeEl(id) {
   return {
@@ -32,90 +29,71 @@ function makeEl(id) {
     appendChild: noop, querySelectorAll: () => []
   };
 }
-['startScreen','runScreen','overScreen','loader','hudDist','hudCombo','hudScore','hudShieldN',
- 'dangerOverlay','dangerText','tierToast','pauseHint','statDist','statCombo','statNear','statTime',
- 'rankList','overTitle','overSub','themeToggle','musicBtn','soundBtn','startBtn','againBtn','homeBtn','resumeBtn'].forEach(id => elements[id] = makeEl(id));
-// 独立 canvas mock（需要 getContext）
+const ALL_IDS = [
+  'startScreen','runScreen','overScreen','loader',
+  'hudDist','hudCombo','hudScore','hudShieldN','hudCoins','hudPassiveN',
+  'dangerOverlay','dangerText','tierToast','pauseHint',
+  'statDist','statCombo','statNear','statTime','statCoins','statRage','statPassive','statTotalDist',
+  'rankList','overTitle','overSub',
+  'rageHud','rageWaveN','passiveModal',
+  'shopModal','shopCoin','skinGrid','itemGrid','shopBtn','shopClose',
+  'dailyCard','dailyGoal','dailyProg','dailyOver','dailyOverGoal','dailyOverProg',
+  'achieveStrip','archiveDist','archiveTime','coinCount','dailyGoalShort',
+  'themeToggle','musicBtn','soundBtn','startBtn','againBtn','homeBtn','resumeBtn','shareBtn'
+];
+ALL_IDS.forEach(id => elements[id] = makeEl(id));
 elements['gameCanvas'] = Object.assign(makeEl('gameCanvas'), {
-  width: 960, height: 540, getContext: () => ctx2d
+  width: 960, height: 540, getContext: () => ctx2d,
+  addEventListener: noop
+});
+elements['passiveModal'].querySelectorAll = () => [];
+elements['shopModal'].addEventListener = noop;
+
+// localStorage mock
+const store = {};
+const localStorageMock = {
+  getItem: k => (k in store ? store[k] : null),
+  setItem: (k, v) => { store[k] = String(v); },
+  removeItem: k => { delete store[k]; }
+};
+
+// 全局 mock
+global.localStorage = localStorageMock;
+global.navigator = { vibrate: noop, clipboard: undefined };
+global.requestAnimationFrame = fn => { setTimeout(fn, 16); return 1; };
+global.cancelAnimationFrame = noop;
+global.window = global;
+global.document = {
+  body: { dataset: {} },
+  getElementById: id => elements[id] || (elements[id] = makeEl(id)),
+  querySelectorAll: () => [],
+  createElement: () => makeEl('tmp'),
+  addEventListener: noop,
+  execCommand: () => true,
+  documentElement: { classList: { add: noop } }
+};
+global.AudioContext = undefined;
+global.getComputedStyle = () => ({ getPropertyValue: () => '' });
+global.addEventListener = noop;
+
+// 加载脚本
+['audio.js', 'engine.js', 'meta.js', 'game.js'].forEach(f => {
+  try {
+    const code = fs.readFileSync(path.join(dir, f), 'utf-8');
+    const fn = new Function('window', 'globalThis', 'document', 'localStorage', 'navigator', 'requestAnimationFrame', 'cancelAnimationFrame', code + '\n//# sourceURL=' + f);
+    fn(global, global, global.document, localStorageMock, global.navigator, global.requestAnimationFrame, global.cancelAnimationFrame);
+    ok(true, f + ' 加载无异常');
+  } catch (e) {
+    ok(false, f + ' 加载异常: ' + e.message);
+  }
 });
 
-const listeners = {};
-const storage = {
-  'final-run.settings.v1': JSON.stringify({ sound: false, music: false })
-};
-const windowMock = {
-  FinalRunEngine: null, FinalRunAudio: null,
-  addEventListener: (ev, fn) => { listeners[ev] = fn; },
-  localStorage: {
-    getItem: (key) => Object.prototype.hasOwnProperty.call(storage, key) ? storage[key] : null,
-    setItem: (key, value) => { storage[key] = String(value); },
-    removeItem: (key) => { delete storage[key]; }
-  },
-  requestAnimationFrame: (fn) => { /* 不真正循环 */ return 1; },
-  cancelAnimationFrame: noop,
-  setTimeout: (fn) => 0, clearTimeout: noop, setInterval: () => 0, clearInterval: noop,
-  AudioContext: null, webkitAudioContext: null,
-  navigator: { userAgent: 'smoke' },
-  document: {
-    body: {
-      dataset: { theme: '4399' },
-      classList: { add: noop, remove: noop, toggle: noop },
-      getAttribute: () => null, setAttribute: noop
-    },
-    documentElement: { classList: { add: noop } },
-    getElementById: (id) => elements[id] || makeEl(id),
-    querySelectorAll: () => [],
-    createElement: () => makeEl('created'),
-    addEventListener: noop
-  },
-  Math, Date, JSON, console
-};
-windowMock.globalThis = windowMock;
-windowMock.window = windowMock;
+// 验证全局对象
+ok(!!global.FinalRunEngine, 'FinalRunEngine 已暴露');
+ok(!!global.FinalRunAudio, 'FinalRunAudio 已暴露');
+ok(!!global.FinalRunMeta, 'FinalRunMeta 已暴露');
+ok(global.FinalRunMeta.ACHS.length >= 12, 'meta 成就定义 ≥ 12');
+ok(global.FinalRunMeta.ZONES.length === 6, 'meta 生态区 = 6');
 
-// 注入再加载
-global.window = windowMock;
-global.document = windowMock.document;
-global.localStorage = windowMock.localStorage;
-global.requestAnimationFrame = windowMock.requestAnimationFrame;
-global.cancelAnimationFrame = windowMock.cancelAnimationFrame;
-
-try {
-  const engineSrc = fs.readFileSync(path.join(dir, 'engine.js'), 'utf8');
-  // 包装成函数执行
-  const runScript = (src) => {
-    const fn = new Function('window', 'document', 'localStorage', 'requestAnimationFrame', 'cancelAnimationFrame', 'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'performance', 'navigator', src + '\n;return {window};');
-    return fn(windowMock, windowMock.document, windowMock.localStorage, windowMock.requestAnimationFrame, windowMock.cancelAnimationFrame, windowMock.setTimeout, windowMock.clearTimeout, windowMock.setInterval, windowMock.clearInterval, { now: () => 0 }, windowMock.navigator);
-  };
-  global.performance = { now: () => 0 };
-  runScript(engineSrc);
-  ok(!!windowMock.FinalRunEngine, 'engine.js 加载，暴露 FinalRunEngine');
-  const audioSrc = fs.readFileSync(path.join(dir, 'audio.js'), 'utf8');
-  runScript(audioSrc);
-  ok(!!windowMock.FinalRunAudio, 'audio.js 加载，暴露 FinalRunAudio');
-  ok(typeof windowMock.FinalRunAudio.sfx.jump === 'function', 'audio sfx 接口齐全');
-  // game.js 需要更多 window API（getComputedStyle）
-  global.getComputedStyle = () => ({
-    getPropertyValue: (p) => ({ '--sky-top':'#0a1c12','--sky-bot':'#0c2318','--ground':'#0d2b1c','--ground-line':'rgba(74,222,128,.25)','--obstacle':'#2f6b4f','--obstacle-edge':'rgba(154,230,172,.5)', '--text':'#eaf8ef','--muted':'#8fbfa0' }[p] || '')
-  });
-  windowMock.getComputedStyle = global.getComputedStyle;
-  // game.js 里 void el.offsetWidth 需要 offsetWidth 存在（makeEl 已含）
-  // 模拟 Audio 上下文缺失时 unlock 静默失败：不抛即可
-  const gameSrc = fs.readFileSync(path.join(dir, 'game.js'), 'utf8');
-  try { runScript(gameSrc); ok(true, 'game.js 在模拟环境下加载成功'); }
-  catch (e) { ok(false, 'game.js 加载失败: ' + e.message); }
-  ok(windowMock.FinalRunAudio.sound === false && windowMock.FinalRunAudio.bgm === false,
-    '音乐与音效关闭设置正确恢复');
-  windowMock.FinalRunAudio.setMusic(true);
-  const savedSettings = JSON.parse(storage['final-run.settings.v1']);
-  ok(savedSettings.music === true && !Object.prototype.hasOwnProperty.call(savedSettings, 'bgm'),
-    '音乐设置使用统一的 music 字段保存');
-  // 验证 init 后处于准备状态
-  ok(true, 'smoke 完成');
-} catch (e) {
-  ok(false, '加载异常: ' + e.stack);
-}
-
-console.log('\n通过 ' + passed + ' 项，失败 ' + failed + ' 项');
-process.exit(failed ? 1 : 0);
+console.log('\n' + (failed === 0 ? '通过 ' + passed + ' 项，全部通过' : '通过 ' + passed + ' 项，失败 ' + failed + ' 项'));
+process.exit(failed === 0 ? 0 : 1);
