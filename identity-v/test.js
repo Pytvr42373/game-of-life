@@ -24,7 +24,7 @@ globalThis.AudioSys = audioMod.AudioSys;
 require('./game.js');
 require('./ai.js');
 
-const { Game, DIFF, GAME_HELPERS } = globalThis;
+const { Game, DIFF, GAME_HELPERS, MACHINES_NEEDED } = globalThis;
 const dist = GAME_HELPERS.dist;
 
 // ---------- 工具 ----------
@@ -277,6 +277,7 @@ test('处刑流程: 倒地→牵制→挂椅→救援→淘汰', function () {
   p.hookTimer = p.hookTotal - 0.4;
   for (let i = 0; i < 20; i++) step(g, 1 / 30);
   assert.strictEqual(p.alive, false, '倒计时结束应被淘汰');
+  assert.strictEqual(chair.broken, true, '放飞后对应处刑架应永久损坏');
 });
 
 test('牵制挣扎: 满进度挣脱', function () {
@@ -652,9 +653,75 @@ test('修机: 机器完成清理所有指向它的 decoding', function () {
   assert.strictEqual(m.decoders, 0, '机器完成后应清零 decoders');
 });
 
+test('合力破译: 两人可同时修机且速度为单人2倍', function () {
+  const g = fresh(0);
+  g.hunter.ai.active = false;
+  const a = g.survivors[0], b = g.survivors[1], third = g.survivors[2];
+  a.ai = null; b.ai = null; third.ai = null;
+  a.stats.decode = 1; b.stats.decode = 1; third.stats.decode = 1;
+  const m = g.machines[0];
+  putAt(a, m.x - 12, m.y); putAt(b, m.x + 12, m.y); putAt(third, m.x, m.y + 12);
+
+  g.toggleDecode(a, m);
+  g.updateDecoding(1);
+  const singleProgress = m.progress;
+  g.stopDecode(a);
+  m.progress = 0;
+
+  g.toggleDecode(a, m);
+  g.toggleDecode(b, m);
+  assert.strictEqual(m.decoders, 2, '应允许两人合力破译');
+  g.toggleDecode(third, m);
+  assert.strictEqual(third.decoding, null, '第三人不应让速度超过2倍');
+  g.updateDecoding(1);
+  assert.ok(Math.abs(m.progress - singleProgress * 2) < 0.001, '两人速度应恰为单人2倍');
+
+  g.stopDecode(a);
+  assert.strictEqual(b.decoding, m, '一人离开不应中断另一人');
+  assert.strictEqual(m.decoders, 1, '离开后应保留一名破译者');
+  assert.strictEqual(m.occupiedBy, b.id, '占用标记应转交仍在破译的队友');
+});
+
 // ============================================================
 // 9. 逃生门
 // ============================================================
+test('逃生门: 第3台不通电, 第4台通电', function () {
+  const g = fresh(0);
+  assert.strictEqual(MACHINES_NEEDED, 4, '通电需求应为4台');
+  for (const m of g.machines) { m.progress = 0; m.decoded = false; }
+  for (let i = 0; i < 3; i++) g.machines[i].decoded = true;
+  g.checkGatePower();
+  assert.ok(g.gates.every(function (gate) { return !gate.powered; }), '仅3台时大门不应通电');
+  g.machines[3].decoded = true;
+  g.checkGatePower();
+  assert.ok(g.gates.every(function (gate) { return gate.powered; }), '第4台完成后大门应通电');
+});
+
+test('合力开门: 两人共享进度且速度为单人2倍', function () {
+  const g = fresh(0);
+  g.hunter.ai.active = false;
+  const gate = g.gates[0];
+  gate.powered = true; gate.open = false; gate.progress = 0;
+  const a = g.survivors[0], b = g.survivors[1], third = g.survivors[2];
+  a.ai = null; b.ai = null; third.ai = null;
+  putAt(a, gate.x - 10, gate.y); putAt(b, gate.x + 10, gate.y); putAt(third, gate.x, gate.y + 10);
+
+  g.startChannel(a, { type: 'gate', target: gate, progress: 0, dur: 2.5 });
+  g.updateChannels(0.5);
+  const singleProgress = gate.progress;
+  a.channel = null; gate.progress = 0;
+
+  g.startChannel(a, { type: 'gate', target: gate, progress: 0, dur: 2.5 });
+  g.startChannel(b, { type: 'gate', target: gate, progress: 0, dur: 2.5 });
+  g.startChannel(third, { type: 'gate', target: gate, progress: 0, dur: 2.5 });
+  assert.strictEqual(third.channel, null, '第三人不应让开门速度超过2倍');
+  g.updateChannels(0.5);
+  assert.ok(Math.abs(gate.progress - singleProgress * 2) < 0.001, '两人开门速度应恰为单人2倍');
+  g.updateChannels(0.75);
+  assert.strictEqual(gate.open, true, '两人应在1.25秒内开启大门');
+  assert.strictEqual(a.channel, null, '开门后应清理第一人的通道');
+  assert.strictEqual(b.channel, null, '开门后应清理第二人的通道');
+});
 test('逃生门: 全部破译→通电→开门→逃脱(1人逃脱不结束, 2人逃脱求生者胜)', function () {
   const g = fresh(0);
   g.hunter.ai.active = false;
@@ -797,6 +864,27 @@ test('技能: 星语占卜师命运闪回(warp)闪现', function () {
   assert.ok(p.skillCd > 0, '未进入CD');
 });
 
+test('技能: 伊芙琳命运闪回不会穿墙或落进墙体', function () {
+  const grid = [
+    '#########',
+    '#S..#..H#',
+    '#...#...#',
+    '#...#...#',
+    '#M..#...#',
+    '#...#..G#',
+    '#########'
+  ];
+  const g = freshCustom(grid, { charId: 'quo' });
+  g.hunter.ai.active = false;
+  const p = g.player;
+  const wallLeft = 4 * g.ts;
+  putAt(p, 3 * g.ts + g.ts / 2, 2 * g.ts + g.ts / 2);
+  p.moveX = 1; p.moveY = 0;
+  g.useSurvivorSkill(p);
+  assert.ok(p.x + p.r < wallLeft, '闪现不应穿过正前方墙体');
+  assert.strictEqual(g.collidesAt(p, p.x, p.y), false, '闪现落点不应与墙体重叠');
+});
+
 test('技能: 钟楼工匠机芯完工(repair)破译中直接完成密码机', function () {
   const g = fresh(0, { charId: 'art' });
   const p = g.player;
@@ -878,6 +966,73 @@ test('AI优化: chooseMachine 跳过已被其他AI占用的机器', function () 
   a2.decoding = null;
 });
 
+test('AI优化: 只差一台时优先加入队友合修', function () {
+  const mapIdx = MAPS.findIndex(function (def) { return parseMap(def).entities.machines.length > 4; });
+  const g = fresh(mapIdx);
+  const a1 = g.survivors[1], a2 = g.survivors[2];
+  for (let i = 0; i < 3; i++) g.machines[i].decoded = true;
+  const last = g.machines[3];
+  last.progress = 35;
+  putAt(a2, last.x, last.y);
+  g.toggleDecode(a2, last);
+  assert.strictEqual(a1.ai.chooseMachine(a1), last, '只差一台时应选择队友正在破译的机器');
+  putAt(g.survivors[0], last.x + 10, last.y);
+  g.toggleDecode(g.survivors[0], last);
+  assert.strictEqual(a1.ai.chooseMachine(a1), null, '最后一台已有两人时不应转去破译可选密码机');
+});
+
+test('AI优化: 第4台完成后停止可选密码机并转去开门', function () {
+  const mapIdx = MAPS.findIndex(function (def) { return parseMap(def).entities.machines.length > 4; });
+  assert.ok(mapIdx >= 0, '需要一张包含可选密码机的地图');
+  const g = fresh(mapIdx);
+  g.hunter.ai.active = false; putAt(g.hunter, 9999, 9999);
+  for (let i = 0; i < 4; i++) { g.machines[i].decoded = true; g.machines[i].progress = g.machines[i].max; }
+  g.checkGatePower();
+  const s = g.survivors[1];
+  const optional = g.machines[4];
+  putAt(s, optional.x, optional.y);
+  g.toggleDecode(s, optional);
+  assert.strictEqual(s.decoding, optional, '测试前应正在破译可选密码机');
+  s.ai.update(0.1);
+  assert.strictEqual(s.decoding, null, '达到4台后AI应停止破译可选密码机');
+
+  const gate = s.ai.escapeGate(s);
+  putAt(s, gate.x, gate.y);
+  s.path = [];
+  s.ai.update(0.1);
+  assert.ok(s.channel && s.channel.type === 'gate' && s.channel.target === gate, '达到4台后AI应开启大门');
+});
+
+test('AI优化: 已开启大门优先于另一扇未开大门', function () {
+  const g = fresh(0);
+  assert.ok(g.gates.length >= 2, '测试需要两扇大门');
+  const s = g.survivors[1];
+  g.gates[0].powered = true; g.gates[0].open = true;
+  g.gates[1].powered = true; g.gates[1].open = false;
+  assert.strictEqual(s.ai.escapeGate(s), g.gates[0], 'AI应直接前往已开启的大门');
+  g.gates[0].open = false;
+  const first = g.survivors[0], second = g.survivors[1], waiting = g.survivors[2];
+  putAt(first, g.gates[0].x - 10, g.gates[0].y);
+  putAt(second, g.gates[0].x + 10, g.gates[0].y);
+  g.startChannel(first, { type: 'gate', target: g.gates[0], progress: 0, dur: 2.5 });
+  g.startChannel(second, { type: 'gate', target: g.gates[0], progress: 0, dur: 2.5 });
+  assert.strictEqual(waiting.ai.escapeGate(waiting), g.gates[0], '已有大门正在合力开启时不应转去开启第二扇门');
+});
+
+test('AI治疗: 安全时主动治疗受伤队友', function () {
+  const g = fresh(0);
+  g.hunter.ai.active = false; putAt(g.hunter, 9999, 9999);
+  const healer = g.survivors[1], wounded = g.survivors[0];
+  g.survivors[2].ai = null;
+  wounded.hp = 1;
+  putAt(healer, wounded.x + 16, wounded.y);
+  healer.ai.update(0.1);
+  assert.ok(healer.channel && healer.channel.type === 'heal_other', 'AI应开始治疗受伤队友');
+  assert.strictEqual(healer.channel.target, wounded, 'AI应治疗正确目标');
+  g.updateChannels(4);
+  assert.strictEqual(wounded.hp, 2, 'AI应完成治疗');
+});
+
 // ============================================================
 // 11. AI 状态机
 // ============================================================
@@ -899,6 +1054,28 @@ test('监管者AI: 视野内发现→追击, 丢失→搜索', function () {
   h.state = 'chase'; h.target = null; h.lastSeen = { x: h.x + 500, y: h.y }; h.lostT = 4.6;
   h.ai.update(1.0);
   assert.strictEqual(h.state, 'search', '丢失后应进入搜索');
+});
+
+test('监管者AI: 倒板阻挡时先破板且不能隔板攻击', function () {
+  const g = fresh(0, { hunterId: 'hun_heavy' });
+  const h = g.hunter, target = g.survivors[1], pal = g.pallets[0];
+  for (const s of g.survivors) { s.ai = null; putAt(s, 9999, 9999); }
+  pal.down = true; pal.used = true; pal.destroyed = false;
+  if (pal.axis === 'vertical') {
+    putAt(h, pal.x - 28, pal.y);
+    putAt(target, pal.x + 28, pal.y);
+  } else {
+    putAt(h, pal.x, pal.y - 28);
+    putAt(target, pal.x, pal.y + 28);
+  }
+  target.hp = 2; target.alive = true; target.escaped = false;
+  h.state = 'chase'; h.target = target; h.lastSeen = { x: target.x, y: target.y };
+  h.atkCd = 0; h.stunT = 0; h.wipeT = 0; h.ai.active = true;
+  faceTo(h, target);
+  assert.strictEqual(g.lineOfSight(h.x, h.y, target.x, target.y), false, '测试前倒板应阻挡视线');
+  h.ai.update(0.1);
+  assert.strictEqual(target.hp, 2, '监管者不应隔板攻击');
+  assert.strictEqual(h.breakingPallet, pal, '监管者应优先破坏挡路倒板');
 });
 
 test('求生者AI: 靠近密码机自动修机', function () {
@@ -1161,11 +1338,11 @@ test('上架倒计时: 第1次50s 第2次25s 第3次直接淘汰', function () {
   hook();
   assert.strictEqual(p.hookCount, 1, '第1次上架');
   assert.strictEqual(chair.total, 50, '第1次应50s');
-  p.chair = null; chair.occupant = null; chair.timer = 0; chair.cd = 0;
+  p.chair = null; chair.occupant = null; chair.timer = 0;
   hook();
   assert.strictEqual(p.hookCount, 2, '第2次上架');
   assert.strictEqual(chair.total, 25, '第2次应25s');
-  p.chair = null; chair.occupant = null; chair.timer = 0; chair.cd = 0;
+  p.chair = null; chair.occupant = null; chair.timer = 0;
   hook();
   assert.strictEqual(p.alive, false, '第3次应直接淘汰');
   assert.strictEqual(chair.occupant, null, '淘汰后椅子应清空');
@@ -1211,7 +1388,7 @@ test('上架规则: 第一次剩≤10s被救,第二次上架直接淘汰', funct
   g.updateChairs(0);
   assert.strictEqual(p.firstHookLow, true, '第一次剩≤10s 标记低');
   // 被救下
-  p.chair = null; chair.occupant = null; chair.timer = 0; chair.cd = 0;
+  p.chair = null; chair.occupant = null; chair.timer = 0;
   // 第二次上架 → 直接淘汰
   hook();
   assert.strictEqual(p.hookCount, 2, '第二次上架');
@@ -1234,14 +1411,14 @@ test('上架规则: 第一次及时被救(剩>10s),第二次仍25s', function ()
   p.hookTimer = p.hookTotal - 20; // 剩 30s > 10s
   g.updateChairs(0);
   assert.strictEqual(p.firstHookLow, false, '第一次剩>10s 不标记');
-  p.chair = null; chair.occupant = null; chair.timer = 0; chair.cd = 0;
+  p.chair = null; chair.occupant = null; chair.timer = 0;
   hook();
   assert.strictEqual(p.hookCount, 2, '第二次上架');
   assert.strictEqual(p.alive, true, '正常第二次 25s 不直接淘汰');
   assert.strictEqual(p.hookTotal, 25, '第二次 25s');
 });
 
-test('放飞CD: 淘汰后处刑架进入冷却,期间不可挂人', function () {
+test('放飞: 淘汰后对应处刑架永久消失且不可复用', function () {
   const g = fresh(0);
   g.hunter.ai.active = false;
   const p = g.survivors[0];
@@ -1251,15 +1428,18 @@ test('放飞CD: 淘汰后处刑架进入冷却,期间不可挂人', function () 
     h.carrying = p; p.carriedBy = h; p.hp = 0; p.alive = true; p.escaped = false; p.chair = null;
     g.placeOnChair(h, chair);
   }
-  hook(); p.chair = null; chair.occupant = null; chair.timer = 0; chair.cd = 0;
-  hook(); p.chair = null; chair.occupant = null; chair.timer = 0; chair.cd = 0;
+  hook(); p.chair = null; chair.occupant = null; chair.timer = 0;
+  hook(); p.chair = null; chair.occupant = null; chair.timer = 0;
   hook();
   assert.strictEqual(p.alive, false, '第3次直接淘汰');
-  assert.ok(chair.cd > 0, '淘汰后应有放飞CD');
+  assert.strictEqual(chair.broken, true, '淘汰后处刑架应永久损坏');
   putAt(h, chair.x, chair.y);
-  assert.strictEqual(g.nearChair(h), null, '放飞CD中近椅应不可用');
-  chair.cd = 0;
-  assert.ok(g.nearChair(h) !== null, 'CD结束后可再次使用');
+  assert.strictEqual(g.nearChair(h), null, '损坏处刑架应不可用');
+  const ally = g.survivors[1];
+  h.carrying = ally; ally.carriedBy = h; ally.hp = 0;
+  g.placeOnChair(h, chair);
+  assert.strictEqual(h.carrying, ally, '尝试使用损坏处刑架时应继续牵制目标');
+  assert.strictEqual(chair.occupant, null, '损坏处刑架不应重新挂人');
 });
 
 test('平衡: 震荡波波及求生者掉1点血', function () {

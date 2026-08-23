@@ -890,6 +890,7 @@
   }
 
   function drawChair(c, ox, oy) {
+    if (c.broken) return;
     var sx = c.x - ox, sy = c.y - oy;
     // 处刑架基座
     ctx.fillStyle = '#201c30';
@@ -916,15 +917,6 @@
       ctx.font = 'bold 9px serif';
       ctx.textAlign = 'center';
       ctx.fillText(Math.ceil(c.total - c.timer), sx, sy - 2);
-    }
-    if (c.cd > 0) {
-      // 放飞冷却：处刑架变暗并显示剩余秒
-      ctx.fillStyle = 'rgba(10,8,16,0.45)';
-      ctx.beginPath(); ctx.ellipse(sx, sy + 2, 20, 16, 0, 0, 6.283); ctx.fill();
-      ctx.fillStyle = '#9a8a7a';
-      ctx.font = 'bold 9px serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(Math.ceil(c.cd) + 's', sx, sy + 6);
     }
   }
 
@@ -1342,11 +1334,12 @@
     ctx.fillText(G.map.name + ' · ' + DIFF[G.difficulty].name, 14, 28);
 
     // 右上：剩余密码机 + 大门
-    var remain = G.machinesRemaining();
+    var remain = G.machinesNeededRemaining();
+    var completed = MACHINES_NEEDED - remain;
     ctx.textAlign = 'right';
     ctx.fillStyle = '#ffd25a';
     ctx.font = 'bold 16px serif';
-    ctx.fillText('密码机 ' + (G.machines.length - remain) + '/' + G.machines.length + ' 剩余 ' + remain, cw - 14, 28);
+    ctx.fillText('密码机 ' + completed + '/' + MACHINES_NEEDED + ' 剩余 ' + remain, cw - 14, 28);
     var powered = G.gates[0] && G.gates[0].powered;
     ctx.fillStyle = powered ? '#9ad8ff' : '#b0b8c8';
     ctx.font = 'bold 13px serif';
@@ -1394,7 +1387,7 @@
       else if (p.hp > 0 && !p.decoding && G.standingOnPallet(p)) txt = 'E 放下木板';
       else if (!p.decoding && !p.channel) {
         var m = G.nearestMachine(p.x, p.y, true);
-        if (m && dist2(p.x, p.y, m.x, m.y) <= 64 && (m.occupiedBy === null || m.occupiedBy === p.id)) txt = 'E 破译密码机';
+        if (m && G.canDecode(p, m)) txt = (m.decoders > 0 ? 'E 合力破译密码机' : 'E 破译密码机');
         else {
           var chair = G.nearChairWithOccupant(p);
           if (chair && chair.occupant !== p) txt = 'E 救援队友';
@@ -1403,7 +1396,7 @@
             if (ally) txt = ally.hp === 0 ? 'E 扶起队友' : 'E 治疗队友';
             else {
               var gate = G.nearestGate(p);
-              if (gate && gate.powered && !gate.open && dist2(p.x, p.y, gate.x, gate.y) <= 64) txt = 'E 开启大门';
+              if (gate && G.canOpenGate(p, gate)) txt = 'E 开启大门';
             }
           }
         }
@@ -1673,6 +1666,7 @@
     }
     for (var j = 0; j < G.chairs.length; j++) {
       var c2 = G.chairs[j];
+      if (c2.broken) continue;
       ctx.fillStyle = c2.occupant ? '#ff4040' : '#a04a4a';
       ctx.fillRect(mx + c2.tx * cw2, my + c2.ty * ch2, Math.max(2, cw2), Math.max(2, ch2));
     }

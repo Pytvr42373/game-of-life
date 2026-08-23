@@ -60,16 +60,17 @@
     /* 全视之眼 / 追击技能释放 */
     if (h.state === 'chase') {
       var tgt = h.target;
+      var targetVisible = !!(tgt && game.lineOfSight(h.x, h.y, tgt.x, tgt.y));
       if (h.char.id === 'hun_tele') {
         if (h.skillCd <= 0 && (h.lostT > 1.2 || (h.lastSeen && dist(h.x, h.y, h.lastSeen.x, h.lastSeen.y) > 300))) {
           game.useHunterSkill(h, 1);
         }
       }
-      if (h.char.id === 'hun_chase' && h.skillCd <= 0 && tgt && dist(h.x, h.y, tgt.x, tgt.y) > 180) {
+      if (h.char.id === 'hun_chase' && h.skillCd <= 0 && targetVisible && dist(h.x, h.y, tgt.x, tgt.y) > 180) {
         game.useHunterSkill(h, 1);
       }
       // 缚骨陷阱师：追击中接近目标(40~250)时埋下铁笼拦截(先转向目标)
-      if (h.char.id === 'hun_cage' && h.skillCd <= 0 && tgt) {
+      if (h.char.id === 'hun_cage' && h.skillCd <= 0 && targetVisible) {
         var ctd = dist(h.x, h.y, tgt.x, tgt.y);
         if (ctd > 40 && ctd < 250) {
           h.dir = Math.atan2(tgt.y - h.y, tgt.x - h.x);
@@ -77,7 +78,7 @@
         }
       }
       // 碎骨重锤：目标进入 150px 内释放震荡波
-      if (h.char.id === 'hun_heavy' && h.skillCd <= 0 && tgt) {
+      if (h.char.id === 'hun_heavy' && h.skillCd <= 0 && targetVisible) {
         if (dist(h.x, h.y, tgt.x, tgt.y) < 150) game.useHunterSkill(h, 1);
       }
       // 全视之眼：拥有 active2 的监管者追击丢失目标或远程型时周期释放
@@ -100,6 +101,9 @@
       if (target && target.alive && !target.escaped && target.hp >= 0) {
         h.lastSeen = { x: target.x, y: target.y };
         var d = dist(h.x, h.y, target.x, target.y);
+        // 倒板确实挡住目标时先拆板，避免隔板攻击或在板前反复寻路
+        var blockingPallet = this.blockingPallet(target);
+        if (blockingPallet && !game.lineOfSight(h.x, h.y, target.x, target.y) && game.breakPallet(h, blockingPallet)) return;
         // 目标已倒地且近身：牵制
         if (target.hp === 0 && d < RANGE + 22) { game.hunterInteract(h); return; }
         if (d < h.char.stats.atkRange + 10 && h.atkCd <= 0) {
@@ -171,7 +175,7 @@
     var g = this.game, best = null, bd = 1e9;
     for (var i = 0; i < g.chairs.length; i++) {
       var c = g.chairs[i];
-      if (c.occupant || c.cd > 0) continue; // 放飞CD中不可用
+      if (c.occupant || c.broken) continue;
       var d = dist(this.h.x, this.h.y, c.x, c.y);
       if (d < bd) { bd = d; best = c; }
     }
@@ -212,7 +216,7 @@
         candidates.push(mm);
         if (!mm.decoded) undecoded.push(mm);
       }
-      for (var j = 0; j < g.chairs.length; j++) candidates.push(g.chairs[j]);
+      for (var j = 0; j < g.chairs.length; j++) if (!g.chairs[j].broken) candidates.push(g.chairs[j]);
       for (var k = 0; k < g.gates.length; k++) candidates.push(g.gates[k]);
       // 优先压制未完成密码机(60%)，其次随机巡逻
       var c = null;
@@ -238,6 +242,21 @@
     var pal = g.nearDownPallet(h);
     if (pal) return g.breakPallet(h, pal);
     return false;
+  };
+
+  HunterAI.prototype.blockingPallet = function (target) {
+    var g = this.game, h = this.h, best = null, bd = RANGE + 10;
+    for (var i = 0; i < g.pallets.length; i++) {
+      var pal = g.pallets[i];
+      if (!pal.down || pal.destroyed) continue;
+      var d = dist(h.x, h.y, pal.x, pal.y);
+      if (d >= bd) continue;
+      var axis = pal.axis === 'vertical' ? 'vertical' : 'horizontal';
+      if (g._whichSide(h, pal, axis) === g._whichSide(target, pal, axis)) continue;
+      bd = d;
+      best = pal;
+    }
+    return best;
   };
 
   HunterAI.prototype.nearestDownPallet = function () {
@@ -350,6 +369,7 @@
       if (s.channel && s.channel.type === 'gate') { s.moveX = 0; s.moveY = 0; return; }
       s.dangerT = 2;
       if (s.decoding) game.stopDecode(s);
+      if (s.channel && s.channel.type === 'heal_other') s.channel = null;
       // 保命技能
       if (s.skillCd <= 0) {
         if (s.char.id === 'run' || s.char.id === 'gho' || s.char.id === 'gua' || s.char.id === 'quo') game.useSurvivorSkill(s);
@@ -361,6 +381,14 @@
       return;
     }
     if (s.dangerT > 0) s.dangerT -= dt;
+
+    if (s.channel && s.channel.type === 'heal_other') {
+      s.moveX = 0; s.moveY = 0;
+      return;
+    }
+
+    var remain = game.machinesNeededRemaining ? game.machinesNeededRemaining() : this.countNeeded();
+    if (remain <= 0 && s.decoding) game.stopDecode(s);
 
     /* 逃生(大门已开)：直接逃脱优先于普通救援(门开后不回头救人的死锁) */
     var escOpen = this.escapeGate(s);
@@ -381,12 +409,19 @@
       if (!(gd2 < 180 && !rUrg2)) { this.goToAction(s, rescueTarget, dt); return; }
     }
 
+    /* 安全时治疗受伤队友，优先级低于救援、高于普通破译 */
+    var healTarget = this.findHealTarget(s);
+    if (healTarget && s.dangerT <= 0 && dist(healTarget.target.x, healTarget.target.y, h.x, h.y) >= 180) {
+      this.goToAction(s, healTarget, dt);
+      return;
+    }
+
     /* 破译剩余机 */
-    var remain = game.machinesRemaining ? game.machinesRemaining() : this.countRemain();
     if (remain > 0) {
       var m = this.chooseMachine(s);
-      if (m && dist(s.x, s.y, m.x, m.y) <= RANGE + 18 && !m.occupiedBy) {
-        if (s.decoding !== m) game.toggleDecode(s);
+      if (!m) { s.moveX = 0; s.moveY = 0; return; }
+      if (dist(s.x, s.y, m.x, m.y) <= RANGE + 18 && game.canDecode(s, m)) {
+        if (s.decoding !== m) game.toggleDecode(s, m);
         if (s.skillCd <= 0 && (s.char.id === 'eng' || s.char.id === 'dec' || s.char.id === 'art')) game.useSurvivorSkill(s);
         s.moveX = 0; s.moveY = 0;
         // 工程师生理上靠近机子才修机，但傀儡技能可远程
@@ -402,7 +437,7 @@
     if (g) {
       if (g.powered && !g.open) {
         if (dist(s.x, s.y, g.x, g.y) <= RANGE + 18) {
-          if (!s.channel || s.channel.type !== 'gate') game.startChannel(s, { type: 'gate', target: g, progress: 0, dur: 2.5 });
+          if ((!s.channel || s.channel.type !== 'gate') && game.canOpenGate(s, g)) game.startChannel(s, { type: 'gate', target: g, progress: 0, dur: 2.5 });
           s.moveX = 0; s.moveY = 0;
         } else { if (s.channel) s.channel = null; this.goTo(s, g.x, g.y, dt); }
       } else {
@@ -414,19 +449,28 @@
 
   SurvivorAI.prototype.escapeGate = function (s) {
     var g = this.game, h = g.hunter;
-    var best = null, bestScore = -1e9;
+    var best = null, bestDist = 1e9;
+    // 已开启的大门永远优先，避免转去开启另一扇门
     for (var i = 0; i < g.gates.length; i++) {
       var gate = g.gates[i];
-      if (gate.powered && !gate.open) {
-        // 离监管者越远越好(绕开守门)
-        var score = dist(gate.x, gate.y, h.x, h.y) - dist(s.x, s.y, gate.x, gate.y) * 0.5;
-        if (score > bestScore) { bestScore = score; best = gate; }
-      }
+      if (!gate.open) continue;
+      var openDist = dist(s.x, s.y, gate.x, gate.y);
+      if (openDist < bestDist) { bestDist = openDist; best = gate; }
     }
     if (best) return best;
-    // 兜底：最近的已开启大门
+    var bestScore = -1e9;
     for (var j = 0; j < g.gates.length; j++) {
-      if (g.gates[j].open) { if (!best || dist(s.x, s.y, g.gates[j].x, g.gates[j].y) < dist(s.x, s.y, best.x, best.y)) best = g.gates[j]; }
+      var closed = g.gates[j];
+      if (!closed.powered || closed.open) continue;
+      var openers = 0;
+      for (var k = 0; k < g.survivors.length; k++) {
+        var ch = g.survivors[k].channel;
+        if (ch && ch.type === 'gate' && ch.target === closed) openers++;
+      }
+      // 优先前往队友正在开启的大门；已有两人时在旁等待，避免另开一扇门
+      var score = dist(closed.x, closed.y, h.x, h.y) - dist(s.x, s.y, closed.x, closed.y) * 0.5;
+      if (openers > 0) score += 10000;
+      if (score > bestScore) { bestScore = score; best = closed; }
     }
     return best;
   };
@@ -435,6 +479,11 @@
     var n = 0;
     for (var i = 0; i < this.game.machines.length; i++) if (!this.game.machines[i].decoded) n++;
     return n;
+  };
+
+  SurvivorAI.prototype.countNeeded = function () {
+    var done = this.game.machines.length - this.countRemain();
+    return Math.max(0, (global.MACHINES_NEEDED || 4) - done);
   };
 
   SurvivorAI.prototype.findRescueTarget = function (s) {
@@ -468,7 +517,26 @@
     return downTarget;
   };
 
+  SurvivorAI.prototype.findHealTarget = function (s) {
+    var g = this.game, best = null, bd = 420;
+    for (var i = 0; i < g.survivors.length; i++) {
+      var ally = g.survivors[i];
+      if (ally === s || !ally.alive || ally.escaped || ally.hp !== 1 || ally.carriedBy || ally.chair) continue;
+      var beingHealed = false;
+      for (var j = 0; j < g.survivors.length; j++) {
+        var other = g.survivors[j];
+        if (other === s || !other.channel) continue;
+        if (other.channel.type === 'heal_other' && other.channel.target === ally) { beingHealed = true; break; }
+      }
+      if (beingHealed) continue;
+      var d = dist(s.x, s.y, ally.x, ally.y);
+      if (d < bd) { bd = d; best = { x: ally.x, y: ally.y, kind: 'heal', target: ally }; }
+    }
+    return best;
+  };
+
   SurvivorAI.prototype.goToAction = function (s, t, dt) {
+    if (s.decoding) this.game.stopDecode(s);
     this.goTo(s, t.x, t.y, dt);
     if (dist(s.x, s.y, t.x, t.y) <= RANGE + 18) {
       if (t.kind === 'chair') {
@@ -480,28 +548,69 @@
           this.game.startChannel(s, { type: 'revive', target: t.target, progress: 0, dur: 4 / s.stats.heal });
           s.moveX = 0; s.moveY = 0;
         }
+      } else if (t.kind === 'heal') {
+        if (t.target.hp === 1 && (!s.channel || s.channel.type !== 'heal_other' || s.channel.target !== t.target)) {
+          this.game.startChannel(s, { type: 'heal_other', target: t.target, progress: 0, dur: 2.5 / s.stats.heal });
+        }
+        s.moveX = 0; s.moveY = 0;
       }
     }
   };
 
-  // 分散修机：优先选择未被其他 AI 占用的最近密码机
+  // 多台待完成时分散修机；只差一台时优先合修已有进度的机器
   SurvivorAI.prototype.chooseMachine = function (s) {
     var g = this.game, best = null, bd = 1e9;
+    var needed = g.machinesNeededRemaining ? g.machinesNeededRemaining() : this.countNeeded();
+    if (needed === 1) {
+      var activeBest = null, activeScore = -1e9, hasActive = false;
+      for (var w = 0; w < g.machines.length; w++) {
+        var staffed = g.machines[w];
+        if (staffed.decoded) continue;
+        var workers = this.machineWorkers(staffed);
+        if (workers <= 0) continue;
+        hasActive = true;
+        if (this.machineWorkers(staffed, s) >= 2) continue;
+        var staffedScore = staffed.progress * 10 - dist(s.x, s.y, staffed.x, staffed.y);
+        if (s.decoding === staffed) staffedScore += 100;
+        if (staffedScore > activeScore) { activeScore = staffedScore; activeBest = staffed; }
+      }
+      if (activeBest || hasActive) return activeBest;
+      var bestScore = -1e9;
+      for (var a = 0; a < g.machines.length; a++) {
+        var activeMachine = g.machines[a];
+        if (activeMachine.decoded) continue;
+        var score = activeMachine.progress * 10 - dist(s.x, s.y, activeMachine.x, activeMachine.y);
+        if (score > bestScore) { bestScore = score; best = activeMachine; }
+      }
+      return best;
+    }
     for (var i = 0; i < g.machines.length; i++) {
       var m = g.machines[i];
       if (m.decoded) continue;
-      var taken = false;
-      for (var j = 0; j < g.survivors.length; j++) {
-        var o = g.survivors[j];
-        if (o === s || !o.alive || o.escaped || o.carriedBy || o.chair || !o.ai) continue;
-        if (o.decoding === m) { taken = true; break; }
-      }
-      if (taken) continue;
+      if (this.machineWorkers(m, s) > 0) continue;
       var d = dist(s.x, s.y, m.x, m.y);
       if (d < bd) { bd = d; best = m; }
     }
-    if (!best) best = g.nearestMachine(s.x, s.y, true);
+    if (!best) {
+      bd = 1e9;
+      for (var j = 0; j < g.machines.length; j++) {
+        var fallback = g.machines[j];
+        if (fallback.decoded || this.machineWorkers(fallback, s) >= 2) continue;
+        var fd = dist(s.x, s.y, fallback.x, fallback.y);
+        if (fd < bd) { bd = fd; best = fallback; }
+      }
+    }
     return best;
+  };
+
+  SurvivorAI.prototype.machineWorkers = function (m, exclude) {
+    var n = 0;
+    for (var i = 0; i < this.game.survivors.length; i++) {
+      var s = this.game.survivors[i];
+      if (s === exclude || !s.alive || s.escaped || s.carriedBy || s.chair || s.hp <= 0) continue;
+      if (s.decoding === m) n++;
+    }
+    return n;
   };
 
   SurvivorAI.prototype.goTo = function (s, tx, ty, dt) {

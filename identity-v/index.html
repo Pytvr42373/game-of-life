@@ -122,7 +122,7 @@
 <!-- ================= 选择求生者 ================= -->
 <div class="panel" id="charsel">
   <div class="panel-title">选择求生者</div>
-  <div class="panel-sub">你的队友将与 AI 求生者一起对抗监管者：破译 3 台密码机 → 通电大门 → 逃脱。逃脱 2 人即获胜</div>
+  <div class="panel-sub">你的队友将与 AI 求生者一起对抗监管者：破译 4 台密码机 → 通电大门 → 逃脱。逃脱 2 人即获胜</div>
   <div class="card-row" id="charsel-list"></div>
   <button class="btn back" id="btn-back-chars">返回</button>
 </div>
@@ -163,7 +163,7 @@
   <div class="panel-title">操作教程</div>
   <div class="tut-box">
     <h3>目标（求生者）</h3>
-    <p>找到密码机（<b>黄色灯</b>），靠近后按 <span class="k">E</span> 修机；必须<b>停留在机器旁</b>，一旦离开立即停止破译。破译 <b>3 台</b> 后大门通电，到大门口按交互开门并走进去即可 <b>逃脱</b>。逃脱 <b>2 人</b> 即获胜；仅 1 人逃脱<b>不结束</b>，直到全员逃脱或未逃脱者全部上架。</p>
+    <p>找到密码机（<b>黄色灯</b>），靠近后按 <span class="k">E</span> 修机；必须<b>停留在机器旁</b>，一旦离开立即停止破译。破译 <b>4 台</b> 后大门通电，到大门口按交互开门并走进去即可 <b>逃脱</b>。两人合力破译密码机或开启大门时速度为单人 <b>2 倍</b>。逃脱 <b>2 人</b> 即获胜；仅 1 人逃脱<b>不结束</b>，直到全员逃脱或未逃脱者全部上架。</p>
     <h3>修机校准</h3>
     <p>修机时会出现移动指针，指针落入 <b>绿色区</b> 时再次按交互即可完美校准（+进度）；错过或按偏会损失进度并<b>暴露位置</b>。</p>
     <h3>溜鬼</h3>
@@ -171,7 +171,7 @@
     <h3>受伤与救援</h3>
     <p>被命中 <b>2 次</b> 倒地。受伤后移速不变，且受击获得 <b>2 秒 30% 加速</b>；仅受伤时<b>不能自愈</b>，需队友按交互治疗。倒地后按 <span class="k">空格</span> 可<b>自愈</b>，队友靠近按交互可扶起；被挂上处刑架后队友按交互可救援。上架倒计时：第 <b>1</b> 次 <b>50 秒</b>、第 <b>2</b> 次 <b>25 秒</b>、第 <b>3</b> 次<b>直接淘汰</b>。</p>
     <h3>目标（监管者）</h3>
-    <p>按 <span class="k">空格</span> 攻击（命中 2 次倒地），命中后原地<b>擦刀 1 秒</b>。靠近倒地者按 <span class="k">E</span> 牵制，拖到处刑架再按 <span class="k">E</span> 挂上，倒计时结束即<b>淘汰</b>；上架倒计时第 1 次 50 秒、第 2 次 25 秒、第 3 次直接淘汰，淘汰后处刑架进入<b>放飞冷却</b>。靠近放下的木板按 <span class="k">E</span> 花 1.8 秒摧毁，期间不能移动或攻击。技能：<span class="k">Shift</span>（冲刺/传送）、<span class="k">Q</span>（全视之眼）。全部未逃脱者上架（或淘汰）即胜。</p>
+    <p>按 <span class="k">空格</span> 攻击（命中 2 次倒地），命中后原地<b>擦刀 1 秒</b>。靠近倒地者按 <span class="k">E</span> 牵制，拖到处刑架再按 <span class="k">E</span> 挂上，倒计时结束即<b>淘汰</b>；上架倒计时第 1 次 50 秒、第 2 次 25 秒、第 3 次直接淘汰，淘汰后对应处刑架<b>永久消失</b>。靠近放下的木板按 <span class="k">E</span> 花 1.8 秒摧毁，期间不能移动或攻击。技能：<span class="k">Shift</span>（冲刺/传送）、<span class="k">Q</span>（全视之眼）。全部未逃脱者上架（或淘汰）即胜。</p>
     <h3>操作按键</h3>
     <p>移动 <span class="k">WASD / 方向键</span> · 求生者交互 <span class="k">E / 空格 / 回车</span>（倒地时 <span class="k">空格</span> 改为自愈） · 监管者攻击 <span class="k">空格</span> / 交互 <span class="k">E / 回车</span> · 技能 <span class="k">Shift</span> · 技能2 <span class="k">Q</span> · 蹲伏 <span class="k">C</span> · 暂停 <span class="k">P / Esc</span>。触屏设备使用左下摇杆与右侧按钮。</p>
   </div>

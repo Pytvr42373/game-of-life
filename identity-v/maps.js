@@ -32,7 +32,7 @@ function parseMap(def) {
       var px = x * ts + ts / 2;
       var py = y * ts + ts / 2;
       if (c === TILE.MACH) E.machines.push({ x: px, y: py, tx: x, ty: y, progress: 0, max: 100, decoded: false, occupiedBy: null, ghost: 0, decoders: 0 });
-      else if (c === TILE.CHAIR) E.chairs.push({ x: px, y: py, tx: x, ty: y, occupant: null, timer: 0, total: 55, broken: false, cd: 0 });
+      else if (c === TILE.CHAIR) E.chairs.push({ x: px, y: py, tx: x, ty: y, occupant: null, timer: 0, total: 55, broken: false });
       else if (c === TILE.GATE) E.gates.push({ x: px, y: py, tx: x, ty: y, progress: 0, powered: false, open: false, leverBy: null });
       else if (c === TILE.PAL) E.pallets.push({ x: px, y: py, tx: x, ty: y, down: false, used: false, destroyed: false, breakT: 0, breakDur: 1.8, axis: 'horizontal', stun: 0 });
       else if (c === TILE.WIN) E.windows.push({ x: px, y: py, tx: x, ty: y, cd: 0 });

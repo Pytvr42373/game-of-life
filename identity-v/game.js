@@ -11,11 +11,11 @@
   var TILE_TYPE = global.TILE;
   var BASE_SPEED = 142;         // 求生者基准移速 px/s
   var RANGE = 46;               // 交互距离
-  var MACHINES_NEEDED = 3;      // 需破译的密码机数量
+  var MACHINES_NEEDED = 4;      // 需破译的密码机数量
   var CHAIR_TOTAL = 66;         // 处刑倒计时秒(仅默认值,实际按上架次数覆盖)
   var HOOK_TIMES = [50, 25];    // 第1/2次上架倒计时(秒)；第3次直接淘汰
-  var CHAIR_FLY_CD = 12;        // 放飞(淘汰)后处刑架冷却(秒)
   var DECODE_RATE = 14;         // 单人基础修机速率 /s
+  var GATE_OPEN_TIME = 2.5;     // 单人开启大门所需时间
   var PALLET_BREAK_TIME = 1.8;  // 监管者破坏倒板所需时间
 
   var DIFF = {
@@ -614,39 +614,61 @@
     /* ---------- 修机 ---------- */
     canDecode: function (s, m) {
       if (!m || m.decoded) return false;
-      if (m.occupiedBy && m.occupiedBy !== s.id) return false;
       if (s.hp === 0 || s.carriedBy || s.chair || s.escaped || !s.alive) return false;
       // 开始破译必须距机器 <=64px
       if (dist(s.x, s.y, m.x, m.y) > 64) return false;
-      return true;
+      if (s.decoding === m) return true;
+      var workers = 0;
+      for (var i = 0; i < this.survivors.length; i++) {
+        var o = this.survivors[i];
+        if (o.decoding === m && o.alive && !o.escaped && !o.carriedBy && !o.chair && o.hp > 0) workers++;
+      }
+      return workers < 2;
     },
 
-    toggleDecode: function (s) {
-      var m = this.nearestMachine(s.x, s.y, true);
+    toggleDecode: function (s, target) {
+      var m = target || this.nearestMachine(s.x, s.y, true);
       if (!m) { this.stopDecode(s); return; }
       if (s.decoding === m) { this.stopDecode(s); return; }
       // 内部必须调用 canDecode，而非依赖调用点
       if (!this.canDecode(s, m)) { this.stopDecode(s); return; }
       this.stopDecode(s);
+      s.channel = null;
       s.decoding = m;
-      m.occupiedBy = s.id;
-      m.decoders = (m.decoders || 0) + 1;
+      this._syncMachineDecoders(m);
     },
 
     stopDecode: function (s) {
       if (s.decoding) {
         var m = s.decoding;
         s.decoding = null;
-        m.occupiedBy = null;
-        m.decoders = Math.max(0, (m.decoders || 1) - 1);
+        this._syncMachineDecoders(m);
       }
       if (this.check && this.check.decoder === s) this.check = null;
+    },
+
+    _syncMachineDecoders: function (m) {
+      var first = null, count = 0;
+      for (var i = 0; i < this.survivors.length; i++) {
+        var s = this.survivors[i];
+        if (s.decoding !== m || !s.alive || s.escaped || s.carriedBy || s.chair || s.hp <= 0) continue;
+        if (!first) first = s;
+        count++;
+      }
+      m.decoders = count;
+      m.occupiedBy = first ? first.id : null;
     },
 
     machinesRemaining: function () {
       var n = 0;
       for (var i = 0; i < this.machines.length; i++) if (!this.machines[i].decoded) n++;
       return n;
+    },
+
+    machinesNeededRemaining: function () {
+      var done = 0;
+      for (var i = 0; i < this.machines.length; i++) if (this.machines[i].decoded) done++;
+      return Math.max(0, MACHINES_NEEDED - done);
     },
 
     nearestMachine: function (x, y, uncomplete) {
@@ -665,19 +687,23 @@
         var m = this.machines[i];
         if (m.decoded) continue;
         var added = 0;
-        // 真人解码
+        var active = [];
+        // 最多两名求生者合力破译，速度为两人的贡献之和
         for (var s = 0; s < this.survivors.length; s++) {
           var sv = this.survivors[s];
-          if (!sv.alive || sv.escaped) continue;
-          if (sv.decoding === m && !sv.carriedBy && !sv.chair && sv.hp > 0) {
-            // 持续破译时距机器 >72px 立即停止(轻微滞回)
-            if (dist(sv.x, sv.y, m.x, m.y) > 72) { this.stopDecode(sv); continue; }
-            if (this.check && this.check.decoder === sv) continue; // 校准中暂停
-            var rate = DECODE_RATE * sv.stats.decode * (sv.decodeBoostT > 0 ? 2 : 1);
-            if (sv.char.id === 'eng' && sv.hp === 1) rate *= 0.75;
-            added += rate * dt;
+          if (sv.decoding !== m) continue;
+          if (!sv.alive || sv.escaped || sv.carriedBy || sv.chair || sv.hp <= 0 || dist(sv.x, sv.y, m.x, m.y) > 72) {
+            this.stopDecode(sv);
+            continue;
           }
+          if (active.length >= 2) { this.stopDecode(sv); continue; }
+          active.push(sv);
+          if (this.check && this.check.decoder === sv) continue; // 校准中暂停
+          var rate = DECODE_RATE * sv.stats.decode * (sv.decodeBoostT > 0 ? 2 : 1);
+          if (sv.char.id === 'eng' && sv.hp === 1) rate *= 0.75;
+          added += rate * dt;
         }
+        this._syncMachineDecoders(m);
         if (m.ghost > 0) added += 6 * m.ghost * dt;
         if (added > 0) {
           m.progress = Math.min(m.max, m.progress + added);
@@ -794,6 +820,7 @@
         if (s.invisible > 0) continue;
         var d = dist(h.x, h.y, s.x, s.y);
         if (d > h.char.stats.atkRange + s.r) continue;
+        if (!this.lineOfSight(h.x, h.y, s.x, s.y)) continue;
         var ang = angDiff(h.dir, Math.atan2(s.y - h.y, s.x - h.x));
         if (ang > 1.0) continue;
         var hit = this.applyDamage(s, h);
@@ -881,14 +908,14 @@
       }
       // 修机
       var m = this.nearestMachine(s.x, s.y, true);
-      if (m && dist(s.x, s.y, m.x, m.y) <= RANGE + 18 && m.occupiedBy === null) {
-        this.toggleDecode(s);
+      if (m && this.canDecode(s, m)) {
+        this.toggleDecode(s, m);
         return;
       }
       // 逃生门
       var gate = this.nearestGate(s);
       if (gate && gate.powered && !gate.open && dist(s.x, s.y, gate.x, gate.y) <= RANGE + 18) {
-        this.startChannel(s, { type: 'gate', target: gate, progress: 0, dur: 2.5 });
+        this.startChannel(s, { type: 'gate', target: gate, progress: 0, dur: GATE_OPEN_TIME });
         return;
       }
       // 放板
@@ -908,6 +935,8 @@
 
     startChannel: function (s, ch) {
       if (s.carriedBy || s.chair) return;
+      if (ch.type === 'gate' && !this.canOpenGate(s, ch.target)) return;
+      if (s.decoding) this.stopDecode(s);
       s.channel = ch;
     },
 
@@ -1026,6 +1055,18 @@
       return best;
     },
 
+    canOpenGate: function (s, gate) {
+      if (!gate || !gate.powered || gate.open || !s.alive || s.escaped || s.hp <= 0 || s.carriedBy || s.chair) return false;
+      if (dist(s.x, s.y, gate.x, gate.y) > RANGE + 26) return false;
+      if (s.channel && s.channel.type === 'gate' && s.channel.target === gate) return true;
+      var openers = 0;
+      for (var i = 0; i < this.survivors.length; i++) {
+        var ch = this.survivors[i].channel;
+        if (ch && ch.type === 'gate' && ch.target === gate) openers++;
+      }
+      return openers < 2;
+    },
+
     /* ---------- 通道系统(治疗/救援/开门) ---------- */
     updateChannels: function (dt) {
       for (var i = 0; i < this.survivors.length; i++) {
@@ -1094,29 +1135,55 @@
             s.channel = null;
           }
         } else if (ch.type === 'gate') {
-          var g = ch.target;
-          if (!g || g.open) { s.channel = null; continue; }
-          if (dist(s.x, s.y, g.x, g.y) > RANGE + 26) { s.channel = null; continue; }
-          ch.progress += dt;
-          g.progress = Math.min(100, ch.progress / ch.dur * 100);
-          if (ch.progress >= ch.dur) {
-            g.open = true;
-            g.leverBy = null;
-            if (AudioSys.gateOpen) AudioSys.gateOpen();
-            this.addFloater(g.x, g.y - 24, '逃生门已开启!', '#7dffb0');
-            this.spawnParticle(g.x, g.y, 'spark', 40);
+          var gate = ch.target;
+          if (!gate || !gate.powered || gate.open || dist(s.x, s.y, gate.x, gate.y) > RANGE + 26) {
             s.channel = null;
           }
         }
       }
+      this.updateGateChannels(dt);
       // 处刑架上的求生者小挣扎(简化：不改变倒计时)
+    },
+
+    updateGateChannels: function (dt) {
+      for (var g = 0; g < this.gates.length; g++) {
+        var gate = this.gates[g];
+        var openers = [];
+        for (var i = 0; i < this.survivors.length; i++) {
+          var s = this.survivors[i];
+          var ch = s.channel;
+          if (!ch || ch.type !== 'gate' || ch.target !== gate) continue;
+          if (!gate.powered || gate.open || !s.alive || s.escaped || s.hp <= 0 || s.carriedBy || s.chair || dist(s.x, s.y, gate.x, gate.y) > RANGE + 26) {
+            s.channel = null;
+            continue;
+          }
+          openers.push(s);
+        }
+        if (!openers.length || gate.open) {
+          gate.leverBy = null;
+          continue;
+        }
+        gate.leverBy = openers[0].id;
+        gate.progress = Math.min(100, gate.progress + dt * 100 / GATE_OPEN_TIME * Math.min(2, openers.length));
+        for (var j = 0; j < openers.length; j++) {
+          var openerChannel = openers[j].channel;
+          openerChannel.progress = gate.progress / 100 * openerChannel.dur;
+        }
+        if (gate.progress < 100) continue;
+        gate.open = true;
+        gate.leverBy = null;
+        for (var k = 0; k < openers.length; k++) openers[k].channel = null;
+        if (AudioSys.gateOpen) AudioSys.gateOpen();
+        this.addFloater(gate.x, gate.y - 24, '逃生门已开启!', '#7dffb0');
+        this.spawnParticle(gate.x, gate.y, 'spark', 40);
+      }
     },
 
     /* ---------- 处刑架 ---------- */
     updateChairs: function (dt) {
       for (var i = 0; i < this.chairs.length; i++) {
         var c = this.chairs[i];
-        if (c.cd > 0) c.cd -= dt; // 放飞CD倒计时
+        if (c.broken) continue; // 已放飞(淘汰)的处刑架永久消失
         if (!c.occupant) continue;
         var s = c.occupant;
         if (!s.alive || s.escaped || s.carriedBy) { this._clearChair(c, s); continue; }
@@ -1132,11 +1199,11 @@
           if (AudioSys.chairTick && Math.floor(c.timer) % 3 === 0) AudioSys.chairTick();
         }
         if (s.hookTimer >= s.hookTotal) {
-          // 淘汰(放飞)：处刑架进入冷却
+          // 淘汰(放飞)：处刑架永久消失，不可复用
           s.alive = false;
           s.hp = -1;
+          c.broken = true;
           this._clearChair(c, s);
-          c.cd = CHAIR_FLY_CD;
           this.addFloater(c.x, c.y - 30, '已被淘汰', '#ff4040');
           this.spawnParticle(c.x, c.y, 'boom', 30);
           if (AudioSys.lose) AudioSys.lose();
@@ -1178,6 +1245,18 @@
         for (var g = 0; g < this.gates.length; g++) if (!this.gates[g].powered) any = true;
         if (any) {
           for (var gg = 0; gg < this.gates.length; gg++) this.gates[gg].powered = true;
+          // 达成目标后，AI 立即停止继续破译地图上的可选密码机
+          for (var s = 0; s < this.survivors.length; s++) {
+            var survivor = this.survivors[s];
+            if (!survivor.isAI) continue;
+            if (survivor.decoding) this.stopDecode(survivor);
+            if (survivor.skillActive && survivor._ghostMachine) {
+              survivor._ghostMachine.ghost = Math.max(0, (survivor._ghostMachine.ghost || 1) - 1);
+              survivor._ghostMachine = null;
+              survivor.skillActive = false;
+              survivor.skillOn = 0;
+            }
+          }
           if (AudioSys.gatePower) AudioSys.gatePower();
           this.addFloater(this.gates[0].x, this.gates[0].y - 30, '大门通电!', '#9ad8ff');
         }
@@ -1192,7 +1271,8 @@
         for (var g = 0; g < this.gates.length; g++) {
           if (this.gates[g].open && dist(s.x, s.y, this.gates[g].x, this.gates[g].y) < 24) {
             s.escaped = true;
-            s.decoding = null;
+            this.stopDecode(s);
+            s.channel = null;
             this.addFloater(this.gates[g].x, this.gates[g].y - 30, s.name + ' 逃脱!', '#7dffb0');
             if (AudioSys.win && !this.playerIsHunter) AudioSys.win();
           }
@@ -1230,21 +1310,22 @@
         if (AudioSys.invis) AudioSys.invis();
         this.addFloater(s.x, s.y - 26, '遁形!', '#b8c8ff');
       } else if (type === 'warp') {
-        // 命运闪回：朝移动/面向方向闪现 150px，从远到近找合法落点(不可穿墙/倒板)
-        var WARP_DIST = 150, WARP_STEPS = 8;
+        // 命运闪回：沿路径逐段前进，落点按角色半径做完整碰撞检测
+        var WARP_DIST = 150, WARP_STEPS = 24;
         var wdx = s.moveX, wdy = s.moveY;
         if (wdx === 0 && wdy === 0) { wdx = Math.cos(s.dir); wdy = Math.sin(s.dir); }
         var wlen = Math.sqrt(wdx * wdx + wdy * wdy) || 1;
         wdx /= wlen; wdy /= wlen;
         var warpX = s.x, warpY = s.y;
-        for (var ws = WARP_STEPS; ws >= 1; ws--) {
+        for (var ws = 1; ws <= WARP_STEPS; ws++) {
           var wpx = s.x + wdx * WARP_DIST * ws / WARP_STEPS;
           var wpy = s.y + wdy * WARP_DIST * ws / WARP_STEPS;
-          var wtx = Math.floor(wpx / this.ts), wty = Math.floor(wpy / this.ts);
-          if (!this.tileIsSolid(wtx, wty) && !this.tileIsDownPallet(wtx, wty)) { warpX = wpx; warpY = wpy; break; }
+          if (this.collidesAt(s, wpx, wpy)) break;
+          warpX = wpx;
+          warpY = wpy;
         }
-        s.x = clamp(warpX, this.ts, this.cols * this.ts - this.ts);
-        s.y = clamp(warpY, this.ts, this.rows * this.ts - this.ts);
+        s.x = warpX;
+        s.y = warpY;
         s.vaultT = 0;
         this.spawnParticle(s.x, s.y, 'spark', 18);
         this.addFloater(s.x, s.y - 26, '命运闪回!', '#c0a8ff');
@@ -1394,7 +1475,7 @@
       var best = null, bd = RANGE + 20;
       for (var i = 0; i < this.chairs.length; i++) {
         var c = this.chairs[i];
-        if (c.occupant || c.cd > 0) continue; // 占用或放飞CD中不可挂人
+        if (c.occupant || c.broken) continue;
         var d = dist(h.x, h.y, c.x, c.y);
         if (d < bd) { bd = d; best = c; }
       }
@@ -1490,11 +1571,10 @@
 
     placeOnChair: function (h, chair) {
       var s = h.carrying;
-      if (!s) return;
+      if (!s || !chair || chair.occupant || chair.broken) return;
       h.carrying = null;
       s.carriedBy = null;
       s.carryStruggle = 0;
-      if (chair.cd > 0) return; // 放飞CD中不可挂人(双保险)
       s.hookCount = (s.hookCount || 0) + 1;
       // 淘汰判定：①第3次上架直接淘汰 ②第2次上架时，若第一次没及时下来（剩≤10s）也直接淘汰
       if (s.hookCount >= 3 || (s.hookCount === 2 && s.firstHookLow)) {
@@ -1502,7 +1582,7 @@
         s.chair = null; s.channel = null; s.decoding = null;
         s.hookTimer = 0; s.hookTotal = 0;
         chair.occupant = null; chair.timer = 0;
-        chair.cd = CHAIR_FLY_CD;
+        chair.broken = true;
         this.addFloater(chair.x, chair.y - 30, '已被淘汰!', '#ff4040');
         this.spawnParticle(chair.x, chair.y, 'boom', 30);
         if (AudioSys.lose) AudioSys.lose();
