@@ -163,6 +163,7 @@
         decoding: null,
         carriedBy: null, carryStruggle: 0,
         chair: null, hookCount: 0,
+        hookTimer: 0, hookTotal: 0, firstHookLow: false,
         vaultT: 0, stunT: 0, hurtFlash: 0, hitSlowT: 0, hitSlowMul: 0,
         channel: null,           // {type, target, progress, dur}
         healTarget: null,
@@ -1081,6 +1082,8 @@
             if (occ) {
               occ.hp = 1;
               occ.chair = null;
+              occ.hookTimer = 0;
+              occ.hookTotal = 0;
               occ.vaultT = 0.5;
               ch.target.occupant = null;
               ch.target.timer = 0;
@@ -1116,23 +1119,37 @@
         if (c.cd > 0) c.cd -= dt; // 放飞CD倒计时
         if (!c.occupant) continue;
         var s = c.occupant;
-        if (!s.alive || s.escaped || s.carriedBy) { c.occupant = null; c.timer = 0; continue; }
-        c.timer += dt;
+        if (!s.alive || s.escaped || s.carriedBy) { this._clearChair(c, s); continue; }
+        // 倒计时以"人"为准（幸存者自带计时），架子仅作显示，避免人与架不同步
+        s.hookTimer += dt;
+        c.timer = s.hookTimer;
+        c.total = s.hookTotal;
+        // 第一次上架：记录本轮最低剩余时间（用于"没及时下来→下次直接淘汰"规则）
+        if (s.hookCount === 1 && s.firstHookLow === false) {
+          if (s.hookTotal - s.hookTimer <= 10) s.firstHookLow = true;
+        }
         if (AudioSys && c.timer > 0 && Math.floor(c.timer) !== Math.floor(c.timer - dt)) {
           if (AudioSys.chairTick && Math.floor(c.timer) % 3 === 0) AudioSys.chairTick();
         }
-        if (c.timer >= c.total) {
+        if (s.hookTimer >= s.hookTotal) {
           // 淘汰(放飞)：处刑架进入冷却
           s.alive = false;
           s.hp = -1;
-          c.occupant = null;
-          c.timer = 0;
+          this._clearChair(c, s);
           c.cd = CHAIR_FLY_CD;
           this.addFloater(c.x, c.y - 30, '已被淘汰', '#ff4040');
           this.spawnParticle(c.x, c.y, 'boom', 30);
           if (AudioSys.lose) AudioSys.lose();
         }
       }
+    },
+
+    /* 清空处刑架占用（同时清掉人身上的计时），保证人与架同步 */
+    _clearChair: function (c, s) {
+      c.occupant = null;
+      c.timer = 0;
+      c.total = 55;
+      if (s) { s.chair = null; s.hookTimer = 0; s.hookTotal = 0; }
     },
 
     updateStruggle: function (s, dt) {
@@ -1479,10 +1496,11 @@
       s.carryStruggle = 0;
       if (chair.cd > 0) return; // 放飞CD中不可挂人(双保险)
       s.hookCount = (s.hookCount || 0) + 1;
-      if (s.hookCount >= 3) {
-        // 第 3 次上架直接淘汰
+      // 淘汰判定：①第3次上架直接淘汰 ②第2次上架时，若第一次没及时下来（剩≤10s）也直接淘汰
+      if (s.hookCount >= 3 || (s.hookCount === 2 && s.firstHookLow)) {
         s.alive = false; s.hp = -1;
         s.chair = null; s.channel = null; s.decoding = null;
+        s.hookTimer = 0; s.hookTotal = 0;
         chair.occupant = null; chair.timer = 0;
         chair.cd = CHAIR_FLY_CD;
         this.addFloater(chair.x, chair.y - 30, '已被淘汰!', '#ff4040');
@@ -1494,8 +1512,11 @@
       }
       chair.occupant = s;
       s.chair = chair;
+      // 计时以"人"为准：第一次 50s，第二次 25s
+      s.hookTotal = (s.hookCount === 1) ? HOOK_TIMES[0] : HOOK_TIMES[1];
+      s.hookTimer = 0;
       chair.timer = 0;
-      chair.total = (s.hookCount === 1) ? HOOK_TIMES[0] : HOOK_TIMES[1];
+      chair.total = s.hookTotal;
       s.hp = 0;
       if (AudioSys.chairPlace) AudioSys.chairPlace();
       this.addFloater(chair.x, chair.y - 26, '挂上处刑架! ' + (s.hookCount === 2 ? '(第2次)' : ''), '#ff6a6a');

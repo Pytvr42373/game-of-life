@@ -95,9 +95,9 @@ ok(global.FinalRunMeta.ACHS.length >= 12, 'meta 成就定义 ≥ 12');
 ok(global.FinalRunMeta.ZONES.length === 3, 'meta 三幕场景配色 = 3');
 ok(global.FinalRunMeta.ACTS.length === 3, 'meta 三幕场景 = 3');
 ok(global.FinalRunMeta.SKINS.every(sk => typeof sk.unlockRuns === 'number'), '皮肤带累计开局解锁门槛');
-ok(global.FinalRunEngine.cfg.finishDist === 800, '引擎总程 800m');
-ok(global.FinalRunEngine.cfg.actStep === 300, '三幕阈值 300m');
-ok(global.FinalRunEngine.cfg.speedLow === 0.6 && global.FinalRunEngine.cfg.speedHigh === 1.8, '速度档 0.6x → 1.8x');
+ok(global.FinalRunEngine.cfg.finishDist === 1000, '引擎总程 1000m');
+ok(global.FinalRunEngine.cfg.actStep === 333, '三幕阈值 333m');
+ok(global.FinalRunEngine.cfg.speedLow === 0.78 && global.FinalRunEngine.cfg.speedHigh === 1.8, '速度档 0.78x → 1.8x');
 ok(typeof global.FinalRunEngine.applyPassive === 'undefined', '引擎无 Rogue 被动接口');
 
 console.log('\n' + (failed === 0 ? '通过 ' + passed + ' 项，全部通过' : '通过 ' + passed + ' 项，失败 ' + failed + ' 项'));

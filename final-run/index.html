@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <script>try{if(localStorage.getItem('gh-theme')==='arcade')document.documentElement.classList.add('pre-arcade')}catch(e){}</script>
 <style>html{background:#07120b}html.pre-arcade{background:#050a14}</style>
-<meta name="description" content="终局狂奔 · 800m 三幕终局跑酷：末世边境，暗影巨兽紧咬身后——跳跃与滑铲之间求生，极限闪避铸就连击，穿过最终防线即获胜。">
+<meta name="description" content="终局狂奔 · 1km 三幕终局跑酷：末世边境，暗影巨兽紧咬身后——失误即被逼近，跳跃与滑铲之间求生，极限闪避铸就连击，穿过最终防线即获胜。">
 <title>终局狂奔 · FINAL RUN</title>
 <script defer src="../anti-addiction.js"></script>
 <link rel="stylesheet" href="style.css">
@@ -29,16 +29,16 @@
 <main class="screen screen-start" id="startScreen">
   <div class="start-inner">
     <header class="s-head">
-      <p class="kicker">800M RUN · DOOM CHASE</p>
+      <p class="kicker">1KM RUN · DOOM CHASE</p>
       <h1>终局狂奔<span>FINAL RUN</span></h1>
       <p class="tag">三幕推进 · 暗影巨兽紧咬身后 · 跑过最终防线</p>
     </header>
 
     <section class="rules" aria-label="规则说明">
       <div class="rule-card highlight"><h3>🏃 操作</h3><p><b class="accent">空格 / ↑ / W</b> 跳跃（空中可<b class="accent">二段跳</b>）· <b class="accent">↓ / S</b> 滑铲 · 触屏：<b class="accent">点击跳</b> / <b class="accent">下滑铲</b></p></div>
-      <div class="rule-card"><h3>👹 追击者</h3><p>巨兽周期加速逼近；<b class="danger-c">红框出现</b>后跳跃或滑铲甩开。160m 起猎犬群、360m 起战争巨像，<b class="danger-c">每 300m 狂怒</b>两连挣脱。</p></div>
-      <div class="rule-card"><h3>⚡ 得分</h3><p>距离 1m=1 分，<b class="gold">擦身通过 = 极限闪避</b>连击叠倍；金币跨局累计。速度按<b class="gold">非线性档位</b>从 0.6 倍飙升至 1.8 倍。</p></div>
-      <div class="rule-card"><h3>🛡 道具</h3><p><b class="gold">磁石</b>短时冲刺 · <b class="accent">护盾</b>挡一次撞击。场景在 <b class="gold">300m / 600m</b> 切换，800m 穿过最终防线。</p></div>
+      <div class="rule-card"><h3>👹 追击者</h3><p>撞障碍即失误，追击者<b class="danger-c">每次逼近一截</b>；贴近后再失误进入<b class="danger-c">读条</b>，读条内跳跃/滑铲可挣脱，读满被捕获。250m 起猎犬群、600m 起战争巨像，<b class="danger-c">每 333m 狂怒</b>连挣脱 2 次。</p></div>
+      <div class="rule-card"><h3>⚡ 得分</h3><p>距离 1m=1 分，<b class="gold">擦身通过 = 极限闪避</b>连击叠倍；金币跨局累计。速度按<b class="gold">非线性档位</b>从 0.78 倍飙升至 1.8 倍。</p></div>
+      <div class="rule-card"><h3>🛡 道具</h3><p><b class="gold">磁石</b>短时冲刺 · <b class="accent">护盾</b>挡一次撞击。场景在 <b class="gold">333m / 666m</b> 切换，1km 穿过最终防线。</p></div>
     </section>
 
     <div class="hub-strip" aria-label="奔跑档案">
@@ -75,7 +75,7 @@
   <canvas id="gameCanvas" width="960" height="540" aria-label="终局狂奔游戏画面"></canvas>
   <div class="danger-overlay" id="dangerOverlay" aria-hidden="true">
     <div class="danger-pulse"></div>
-    <div class="danger-text" id="dangerText">甩开它！</div>
+    <div class="danger-text" id="dangerText">快挣脱！</div>
   </div>
   <div class="tier-toast" id="tierToast" aria-hidden="true"></div>
   <div class="pause-hint" id="pauseHint">已暂停 <button id="resumeBtn" type="button">继续</button></div>

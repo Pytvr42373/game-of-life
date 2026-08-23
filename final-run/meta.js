@@ -6,7 +6,7 @@
 (function (global) {
   'use strict';
 
-  /* —— 三幕场景（0 / 300 / 600m，双主题配色） —— */
+  /* —— 三幕场景（0 / 333 / 666m，双主题配色） —— */
   var ZONES = [
     { name: '城市废墟',
       pal: { '4399': { skyTop:'#0a1c12', skyBot:'#0c2318', ground:'#0d2b1c', groundLine:'rgba(74,222,128,.25)', obstacle:'#2f6b4f', obstacleEdge:'rgba(154,230,172,.5)', star:'#c9e8d2', building:'rgba(18,48,31,.85)' },
@@ -44,7 +44,7 @@
     { id: 'first_run',  icon: '🏁', name: '初次终局',   desc: '完成一局',            test: function (s) { return !!s.finished; } },
     { id: 'dist_500',   icon: '🏃', name: '三百米幸存', desc: '单局跑 300m',        test: function (s) { return s.dist >= 300; } },
     { id: 'dist_1000',  icon: '🏃', name: '六百米潜行', desc: '单局跑 600m',        test: function (s) { return s.dist >= 600; } },
-    { id: 'dist_3000',  icon: '👑', name: '终局抵达',   desc: '跑完 800m 终局',     test: function (s) { return s.dist >= 800; } },
+    { id: 'dist_3000',  icon: '👑', name: '终局抵达',   desc: '跑完 1km 终局',      test: function (s) { return s.dist >= 1000; } },
     { id: 'combo_10',   icon: '⚡', name: '十连闪避',   desc: '连击达 10',           test: function (s) { return s.bestCombo >= 10; } },
     { id: 'combo_20',   icon: '⚡', name: '二十连狂舞', desc: '连击达 20',           test: function (s) { return s.bestCombo >= 20; } },
     { id: 'combo_30',   icon: '🌪', name: '三十连神话', desc: '连击达 30',           test: function (s) { return s.bestCombo >= 30; } },

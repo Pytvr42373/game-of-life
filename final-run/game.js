@@ -623,14 +623,14 @@
   function handleEvent(ev) {
     playEvent(ev);
     switch (ev.type) {
-      case 'danger':
+      case 'readout':
         clearTimeout(dangerTimer);
         dangerOverlay.classList.add('on');
-        dangerText.textContent = '甩开它 · ' + (Math.ceil(ev.left * 10) / 10).toFixed(1) + 's';
+        dangerText.textContent = '快挣脱！ · ' + (Math.ceil((ev.max - ev.left) * 10) / 10).toFixed(1) + 's';
         A.setTension(2);
         break;
       case 'chase':
-        A.setTension(ev.burst ? Math.max(1, tensionNow()) : tensionNow());
+        A.setTension(tensionNow());
         break;
       case 'escape':
         clearTimeout(dangerTimer);
@@ -893,14 +893,14 @@
       ctx.fillText('×' + S.combo, cfg.playerX, cfg.groundY - cfg.actorH - 44);
       ctx.restore();
     }
-    /* 贴脸倒计时条 */
-    if (S.chaser && S.chaser.gap < cfg.gapDanger) {
-      var frac = Math.max(0, S.chaser.dangerLeft / (S.chaser.dangerMax || cfg.dangerTime));
+    /* 读条倒计时条 */
+    if (S.chaser && S.readout) {
+      var frac = Math.max(0, Math.min(1, S.readout.left / (S.readout.max || cfg.readoutTime)));
       ctx.save();
       ctx.fillStyle = 'rgba(0,0,0,.5)';
       ctx.fillRect(W / 2 - 110, 18, 220, 8);
       ctx.fillStyle = '#ef4444';
-      ctx.fillRect(W / 2 - 110 + (1 - frac) * 220, 18, 220 * frac, 8);
+      ctx.fillRect(W / 2 - 110, 18, 220 * frac, 8);
       ctx.restore();
     }
     ctx.restore();
@@ -922,7 +922,7 @@
     var kind = S.chaser.kind || 'beast';
     var scale = (E.cfg.chaserKinds[kind] || E.cfg.chaserKinds.beast).scale;
     var danger = cgap < cfg.gapDanger;
-    var surge = S.chaser.burst > 0 ? 0.04 + Math.sin(elapsed * 11) * 0.025 : 0;
+    var surge = S.readout ? 0.04 + Math.sin(elapsed * 11) * 0.025 : 0;
     var edge = ctx.createLinearGradient(0, 0, 130, 0);
     edge.addColorStop(0, 'rgba(239,68,68,' + (0.05 + threat * 0.2 + surge) + ')');
     edge.addColorStop(1, 'rgba(239,68,68,0)');

@@ -1,8 +1,8 @@
 /* =====================================================================
  * engine.js —— 《终局狂奔》核心逻辑（纯计算，无 DOM 依赖）
- * 横版终局跑酷：跳跃/滑铲躲障碍；追击者贴脸时做动作挣脱，
- * 否则被捕获；提速分档；极限闪避连击；冲刺磁石/护盾道具。
-  * v0.4：800m 三幕终局、两次狂怒、非线性提速 0.6x→1.8x，跑完即结算。
+ * 横版终局跑酷：跳跃/滑铲躲障碍；失误即让追击者逼近，近距离再失误
+ * 进入读条状态，读条内做动作可挣脱，读满被捕获；提速分档。
+  * v0.5：1km 三幕终局、失误逼近+读条捕获、非线性提速 0.78x→1.8x。
  * 事件型 update(state, actions, dt)：返回本帧事件，供 UI 与测试消费。
  * 暴露全局 window.FinalRunEngine；支持 Node require 自检。
  * ===================================================================== */
@@ -19,20 +19,24 @@
     baseSpeed: 340,            // 旧基准速度：非线性速度曲线的参考值
     gearStep: 100,             // 每 100m 一档
     gearTime: 15,              // 每 15s 一档（时间兜底）
-    maxTier: 7,                // 800m 共 8 档（0..7）
-    speedLow: 0.6,             // 起始档：旧基准 ×0.6
-    speedHigh: 1.8,            // 终局档：旧基准 ×1.8
+    maxTier: 9,                // 1000m 共 10 档（0..9）
+    speedLow: 0.78,            // 起始档：旧基准 ×0.78（=原 0.6 ×1.3 提速）
+    speedHigh: 1.8,            // 终局档：旧基准 ×1.8（终点速度不变）
     pxPerM: 36,                // 距离换算：压缩里程，完整一局约 2 分钟
-    finishDist: 800,           // 终点：跑完三幕即胜利
-    gapStart: 620, gapDanger: 260, gapBack: 720, dangerTime: 3.0,
+    finishDist: 1000,          // 终点：跑完三幕即胜利
+    gapStart: 620, gapDanger: 340, gapBack: 720,
+    mistakePush: 220,          // 每次失误(撞障碍)追击者逼近的像素
+    readoutTime: 2.6,          // 读条填满时间(秒)：期间做动作可挣脱
+    escapeGap: 480,            // 挣脱成功后追击者被推回的距离
+    dangerTime: 3.0,           // 兼容字段（读条界面兜底）
     stun: 0.42, invuln: 0.9,
     magnetDur: 2.4, magnetBoost: 0.45,
     evadeGap: 16,             // 极限闪避：竖直缝隙 < 16px 视为擦身
     spawnLead: 1500,          // 前方预生成距离
     coinScore: 30,
-    /* —— 三幕终局参数 —— */
-    actStep: 300,             // 每 300m 一幕：0/300/600 切换三幕场景
-    rageStep: 300,            // 每 300m 一次巨兽狂怒
+    /* —— 三幕终局参数（1km 分三段） —— */
+    actStep: 333,             // 每 333m 一幕：0/333/666 切换三幕场景
+    rageStep: 333,            // 每 333m 一次巨兽狂怒
     rageWaves: 2,             // 狂怒需连续挣脱 2 次
     rageBonus: 300,           // 击退狂怒奖励分
     obstUnlocks: [            // 障碍类型按里程逐步解锁
@@ -40,22 +44,13 @@
       { at: 100, types: ['moving'] },
       { at: 200, types: ['gap'] },
       { at: 300, types: ['double'] },
-      { at: 450, types: ['spike'] },
-      { at: 600, types: ['combo'] }
+      { at: 500, types: ['spike'] },
+      { at: 700, types: ['combo'] }
     ],
     chaserKinds: {            // 追击者三形态参数（按距离解锁）
-      beast:    { unlock: 0,   burstMin: 3.1, burstMax: 4.4, burstTier: 0.07,
-                  danger: 0, dangerMin: 1.5, dangerStep: 0.12,
-                  delayMin: 3.8, delayBase: 7.2, delayTier: 0.28,
-                  squeeze: 72, gapSpeed: 2.5, scale: 1.0,  label: '暗影巨兽' },
-      pack:     { unlock: 160, burstMin: 1.8, burstMax: 2.6, burstTier: 0.05,
-                  danger: 2.0,
-                  delayMin: 2.2, delayBase: 5.0, delayTier: 0.2,
-                  squeeze: 88, gapSpeed: 3.1, scale: 0.5,  label: '猎犬群' },
-      colossus: { unlock: 360, burstMin: 5.0, burstMax: 6.4, burstTier: 0.04,
-                  danger: 1.2,
-                  delayMin: 4.2, delayBase: 8.0, delayTier: 0.2,
-                  squeeze: 78, gapSpeed: 2.0, scale: 1.55, label: '战争巨像' }
+      beast:    { unlock: 0,   gapSpeed: 2.5, scale: 1.0,  label: '暗影巨兽' },
+      pack:     { unlock: 250, gapSpeed: 3.1, scale: 0.5,  label: '猎犬群' },
+      colossus: { unlock: 600, gapSpeed: 2.0, scale: 1.55, label: '战争巨像' }
     }
   };
 
@@ -75,9 +70,11 @@
       player: { y: cfg.groundY - cfg.actorH, vy: 0, airborne: false, jumps: 0,
                 sliding: 0, slideCd: 0, stun: 0, invuln: 0, shield: 0, magnet: 0,
                 shieldsMax: 2 },
-      chaser: { gap: cfg.gapStart, burst: 0, burstMax: 0, nextBurst: 6.5,
-                dangerLeft: cfg.dangerTime, dangerMax: cfg.dangerTime, escaped: 0,
+      chaser: { gap: cfg.gapStart, escaped: 0,
                 kind: 'beast' },
+      mistakes: 0,           // 本局失误次数（每 10s 衰减 1 次）
+      readout: null,         // 读条状态：{ left, max } 或 null
+      misT: 10,              // 连续失误时间窗（首帧不立即衰减）
       obstacles: [], coins: [], pickups: [], spawnCount: 0,
       score: 0, combo: 0, bestCombo: 0, nearMiss: 0,
       coinsGot: 0, rageCleared: 0, act: 0,
@@ -103,10 +100,6 @@
     return Math.max(1.5, cfg.dangerTime - tier * 0.12);
   }
 
-  function nextBurstDelay(tier) {
-    return Math.max(3.8, 7.2 - tier * 0.28) + Math.random() * 1.2;
-  }
-
   /* —— 追击者形态：按距离解锁 —— */
   function chaserKindAt(dist) {
     if (dist >= cfg.chaserKinds.colossus.unlock) return 'colossus';
@@ -115,14 +108,10 @@
   }
   function profileOf(kind, tier) {
     var k = cfg.chaserKinds[kind] || cfg.chaserKinds.beast;
-    var danger = k.danger || dangerTimeFor(tier);
-    return { burst: Math.max(k.burstMin, k.burstMax - tier * k.burstTier),
-             danger: danger,
-             delay: Math.max(k.delayMin, k.delayBase - tier * k.delayTier) + Math.random() * 1.2,
-             squeeze: k.squeeze, gapSpeed: k.gapSpeed, scale: k.scale };
+    return { gapSpeed: k.gapSpeed, scale: k.scale };
   }
 
-  /* —— 三幕场景：0 / 300 / 600m —— */
+  /* —— 三幕场景：0 / 333 / 666m —— */
   function actFor(dist) {
     return Math.min(2, Math.floor(dist / cfg.actStep));
   }
@@ -271,11 +260,13 @@
 
     var reachedFinish = s.dist >= cfg.finishDist;
 
-    // —— 巨兽狂怒触发（每 300m，连续 2 波挣脱） ——
+    // —— 巨兽狂怒触发（每 333m，连续 2 波挣脱） ——
     if (!reachedFinish && !s.rage && s.dist >= s.nextRageAt) {
       s.rage = { wave: 0, wavesNeeded: cfg.rageWaves };
       s.nextRageAt += cfg.rageStep;
-      s.chaser.burst = 1; s.chaser.burstMax = 1; s.chaser.nextBurst = 999;
+      // 狂怒开启：追击者直接贴脸并进入读条
+      s.chaser.gap = Math.min(s.chaser.gap, cfg.gapDanger - 1);
+      if (!s.readout) s.readout = { left: 0, max: cfg.readoutTime };
       ev.push({ type: 'rageStart', wave: 1 });
     }
 
@@ -342,9 +333,11 @@
         if (p.shield > 0) {
           p.shield--; p.invuln = cfg.invuln; s.combo = 0;
           ev.push({ type: 'shieldBreak' });
+          registerMistake(s);
         } else {
           s.speed *= 0.55; p.stun = cfg.stun; p.invuln = cfg.invuln; s.combo = 0;
           ev.push({ type: 'hit' });
+          registerMistake(s);
           return ev; // 本帧不再继续
         }
       }
@@ -373,77 +366,80 @@
       }
     }
 
-    // —— 追击者 ——
+    // —— 追击者：仅靠失误逼近 + 读条捕获 ——
     var c2 = s.chaser;
-    if (s.rage) { c2.burst = 1; c2.burstMax = 1; c2.nextBurst = 999; }  // 狂怒期强制高压
-    var prof = profileOf(c2.kind, t.tier);
-    var dangerMax = prof.danger;
-    c2.dangerMax = dangerMax;
-    c2.dangerLeft = Math.min(c2.dangerLeft, dangerMax);
 
-    var burstActive = c2.burst > 0;
-    if (!burstActive) {
-      c2.nextBurst -= dt;
-      if (c2.nextBurst <= 0) {
-        c2.burst = prof.burst;
-        c2.burstMax = prof.burst;
-        c2.nextBurst = prof.delay;
-        burstActive = true;
+    // 失误计数按时间自然衰减（每 10s 减 1，至少 0）
+    if (s.misT <= 0) { if (s.mistakes > 0) s.mistakes--; s.misT = 10; }
+    else s.misT -= dt;
+
+    // 读条界面推进 + 追赶
+    if (s.readout) {
+      s.readout.left += dt;
+      if (s.readout.left >= s.readout.max) {
+        s.gameOver = true; s.over = 'caught';
+        s.readout = null;
+        ev.push({ type: 'caught' });
+        return ev;
       }
-    }
-    if (c2.burst > 0) {
-      c2.burst -= dt;
-      if (!c2.burstMax) c2.burstMax = Math.max(1, c2.burst + dt);
-      var progress = 1 - Math.max(0, c2.burst) / c2.burstMax;
-      var squeeze = prof.squeeze + t.tier * 10 + progress * 32;
-      c2.gap -= squeeze * dt;
-      if (s.rage) c2.gap -= 60 * dt;   // 狂怒期额外强推进
-    } else if (s.time > 3) {
-      c2.gap -= (prof.gapSpeed + t.tier * 0.8) * dt;
-    }
-    if (p.stun > 0) c2.gap -= s.speed * dt * 0.5; // 被撞掉速 → 追击者逼近
-    if (burstActive || c2.gap < cfg.gapDanger + 160) {
-      ev.push({ type: 'chase', gap: Math.round(c2.gap), burst: burstActive });
-    }
-
-    // 只有危险区内的有效动作能挣脱
-    var gapBeforeAction = c2.gap;
-    if (evadeAction && c2.gap < cfg.gapDanger) {
-      c2.gap += (cfg.gapBack - c2.gap) * 0.52;
-      c2.dangerLeft = dangerMax;
-      c2.escaped++;
-      var leftDanger = gapBeforeAction < cfg.gapDanger && c2.gap >= cfg.gapDanger;
-      if (leftDanger) {
-        c2.burst = 0;
-        c2.burstMax = 0;
-        c2.nextBurst = prof.delay;
-        ev.push({ type: 'escape', escaped: c2.escaped });
-        // 狂怒进度：每挣脱一次推进一波
-        if (s.rage) {
-          s.rage.wave++;
-          if (s.rage.wave >= s.rage.wavesNeeded) {
-            s.rage = null;
-            c2.nextBurst = 6.5;      // 击退后喘息
-            s.score += cfg.rageBonus; s.rageCleared++;
-            ev.push({ type: 'rageClear' });
-          } else {
-            ev.push({ type: 'rageWave', wave: s.rage.wave });
-          }
-        }
-      }
-    }
-
-    // —— 贴脸危险窗口：gap 低于阈值即持续倒计时 ——
-    if (c2.gap < cfg.gapDanger) {
-      c2.dangerLeft -= dt;
-      if (c2.dangerLeft <= 0) { s.gameOver = true; s.over = 'caught'; ev.push({ type: 'caught' }); return ev; }
-      ev.push({ type: 'danger', left: Math.max(0, c2.dangerLeft) });
+      c2.gap = Math.max(90, c2.gap - dt * (40 + t.tier * 4));
+      ev.push({ type: 'readout', left: s.readout.left, max: s.readout.max, gap: Math.round(c2.gap) });
     } else {
-      c2.dangerLeft = dangerMax;
+      // 不在读条：只极慢跟随，绝不主动贴脸（逼近只能靠失误）
+      if (s.time > 3 && c2.gap > cfg.gapDanger + 120) {
+        c2.gap -= profileOf(c2.kind, t.tier).gapSpeed * dt * 0.15;
+      }
+      if (c2.gap < cfg.gapDanger) {
+        // 已进入贴脸区（因失误）：追击者缓缓逼近但给足反应时间
+        c2.gap -= dt * 6;
+      }
+      ev.push({ type: 'chase', gap: Math.round(c2.gap), burst: false });
     }
+
+    // 读条内做动作 → 挣脱（读条清空，追击者被推回）
+    if (evadeAction && s.readout) {
+      s.readout = null;
+      c2.escaped++;
+      if (s.rage) {
+        // 狂怒中：连续挣脱推进一波，挣脱后立即重新进入读条（保持高压）
+        s.rage.wave++;
+        if (s.rage.wave >= s.rage.wavesNeeded) {
+          s.rage = null;
+          c2.gap += cfg.escapeGap;
+          c2.gap = Math.min(cfg.gapBack, c2.gap);
+          s.score += cfg.rageBonus; s.rageCleared++;
+          ev.push({ type: 'rageClear' });
+        } else {
+          c2.gap = Math.min(c2.gap, cfg.gapDanger - 1);
+          s.readout = { left: 0, max: cfg.readoutTime };
+          ev.push({ type: 'rageWave', wave: s.rage.wave });
+        }
+      } else {
+        c2.gap += cfg.escapeGap;
+        c2.gap = Math.min(cfg.gapBack, c2.gap);
+        ev.push({ type: 'escape', escaped: c2.escaped });
+      }
+    }
+
     c2.gap = Math.max(90, c2.gap);
 
     return ev;
+  }
+
+  /* —— 失误：追击者逼近，近距离再失误进入读条 —— */
+  function registerMistake(s) {
+    var c2 = s.chaser;
+    s.mistakes++;
+    if (s.readout) {
+      // 读条中再失误：读条进度 +50%
+      s.readout.left = Math.min(s.readout.max, s.readout.left + s.readout.max * 0.5);
+      return;
+    }
+    c2.gap -= cfg.mistakePush;
+    // 近距离(贴脸区)再失误 → 进入读条状态
+    if (c2.gap < cfg.gapDanger) {
+      s.readout = { left: 0, max: cfg.readoutTime };
+    }
   }
 
   function endGame(s, reason) {
@@ -456,7 +452,8 @@
     cfg: cfg, newGame: newGame, update: update, endGame: endGame,
     tierFor: tierFor, intervalFor: intervalFor, dangerTimeFor: dangerTimeFor,
     chaserKindAt: chaserKindAt, profileOf: profileOf,
-    actFor: actFor, unlockedObstacles: unlockedObstacles, speedMultFor: speedMultFor
+    actFor: actFor, unlockedObstacles: unlockedObstacles, speedMultFor: speedMultFor,
+    registerMistake: registerMistake
   };
   global.FinalRunEngine = API;
   if (typeof module !== 'undefined' && module.exports) module.exports = API;

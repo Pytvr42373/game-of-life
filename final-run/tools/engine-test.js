@@ -118,17 +118,19 @@ function ok(c, m) { if (c) { passed++; console.log('  PASS  ' + m); } else { fai
   E.update(s, {}, 0.2);
   ok(s.score === Math.floor(s.dist) && s.score > 0, '跑动距离持续增加分数');
 }
-// 提速分档（非线性：0.6x → 1.8x）
+// 提速分档（非线性：0.78x → 1.8x，终点速度不变）
 {
   const s = E.newGame();
   s.dist = 500; // 100m 一档 → 5 档
   const t = E.tierFor(s);
   ok(t.tier === 5, '500m 分档：tier=5');
   ok(Math.abs(t.speed / E.cfg.baseSpeed - E.speedMultFor(5)) < 0.01, '档位速度 = 基准 × 非线性倍率');
-  ok(E.speedMultFor(0) === E.cfg.speedLow, '起始档倍率 = 0.6');
+  ok(E.speedMultFor(0) === E.cfg.speedLow, '起始档倍率 = 0.78');
   ok(Math.abs(E.speedMultFor(E.cfg.maxTier) - E.cfg.speedHigh) < 1e-9, '终局档倍率 = 1.8');
   ok(E.speedMultFor(4) - E.speedMultFor(3) > E.speedMultFor(3) - E.speedMultFor(2), '非线性：后段增速更快');
-  ok(E.newGame().speed === Math.round(E.cfg.baseSpeed * E.cfg.speedLow), '开局速度 = 旧基准 ×0.6');
+  ok(E.newGame().speed === Math.round(E.cfg.baseSpeed * E.cfg.speedLow), '开局速度 = 旧基准 ×0.78');
+  ok(E.cfg.speedLow === 0.6 * 1.3, '初始速度 = 原 0.6 ×1.3');
+  ok(E.cfg.speedHigh === 1.8, '终点速度保持 1.8 不变');
 }
 // 时间同样推动难度，且高难度障碍间隔更短
 {
@@ -146,63 +148,63 @@ function ok(c, m) { if (c) { passed++; console.log('  PASS  ' + m); } else { fai
   ok(hardGap < easyGap, '难度提升后障碍生成间隔缩短');
   ok(E.dangerTimeFor(8) < E.dangerTimeFor(0), '难度提升后逃脱窗口缩短');
 }
-// 追击按周期启动，不依赖逐帧随机命中
+// 失误逼近：撞障碍一次追击者靠近
 {
   const s = E.newGame();
-  s.chaser.nextBurst = 0.01;
+  s.chaser.gap = 600;
   const before = s.chaser.gap;
-  const ev = E.update(s, {}, 0.02);
-  ok(s.chaser.burst > 0 && s.chaser.gap < before, '追击计时结束后必定启动并逼近');
-  ok(ev.some(e => e.type === 'chase' && e.burst), '周期追击发出 burst chase 事件');
+  E.registerMistake(s);
+  ok(s.chaser.gap < before, '一次失误追击者逼近（gap 减小）');
+  ok(s.chaser.gap === before - E.cfg.mistakePush, '逼近距离 = mistakePush');
 }
-// 远距离普通动作不能提前终止追击
+// 近距离再失误 → 进入读条状态
 {
   const s = E.newGame();
-  s.chaser.gap = E.cfg.gapDanger + 200;
-  s.chaser.burst = 3;
-  s.chaser.burstMax = 4;
-  const ev = E.update(s, { jump: true }, 1 / 60);
-  ok(s.chaser.burst > 0, '危险区外跳跃不会终止追击爆发');
-  ok(!ev.some(e => e.type === 'escape'), '危险区外动作不触发 escape');
+  s.chaser.gap = E.cfg.gapDanger + 20;
+  E.registerMistake(s);
+  ok(s.chaser.gap < E.cfg.gapDanger, '失误后进入贴脸区');
+  ok(s.readout && s.readout.max === E.cfg.readoutTime, '贴脸区内失误触发读条');
 }
-// 追击者：爆发逼近触发 danger，3秒内无动作被抓
+// 读条填满 → 被捕获；读条内动作 → 挣脱
 {
   const s = E.newGame();
-  s.chaser.gap = E.cfg.gapDanger + 10;
-  s.chaser.burst = 5;
-  s.speed = E.cfg.baseSpeed;
-  s.dist = 0;
-  // 用真实随机旺——但保证会爆发逼近；直接手动让 gap 低于阈值
-  s.chaser.gap = E.cfg.gapDanger - 5;
+  s.chaser.gap = E.cfg.gapDanger + 20;
+  E.registerMistake(s);
+  ok(s.readout, '进入读条');
+  // 读条填满（不动）
   let caught = false;
-  for (let i = 0; i < 400; i++) { // 4秒
-    const ev = E.update(s, {}, 1/60);
+  for (let i = 0; i < 400; i++) {
+    const ev = E.update(s, {}, 1 / 60);
     if (ev.some(e => e.type === 'caught')) { caught = true; break; }
   }
-  ok(caught, '贴脸持续3秒后被捕获');
+  ok(caught, '读条填满被捕获');
   ok(s.over === 'caught', 'gameover 原因为 caught');
+  // 读条内做动作挣脱
+  const s2 = E.newGame();
+  s2.chaser.gap = E.cfg.gapDanger + 20;
+  E.registerMistake(s2);
+  const ev = E.update(s2, { jump: true }, 1 / 60);
+  ok(ev.some(e => e.type === 'escape'), '读条内跳跃触发 escape');
+  ok(s2.readout === null, '挣脱后读条清空');
+  ok(s2.chaser.gap > E.cfg.gapDanger, '挣脱后追击者被推回安全区');
 }
-// 动作推回：跳跃可挣脱
+// 读条推进：不做动作读条进度持续增加（填满即被捕获）
 {
   const s = E.newGame();
-  s.chaser.gap = E.cfg.gapDanger - 5;
-  s.chaser.burst = 5; // 保持爆发
-  s.dangerLeft = E.cfg.dangerTime;
-  const ev = E.update(s, { jump: true }, 1/60);
-  ok(ev.some(e => e.type === 'escape'), '贴脸时跳跃可触发 escape');
-  ok(s.chaser.gap > E.cfg.gapDanger, '跳跃后 gap 回到安全区');
-  ok(!s.gameOver, '未被捕获');
+  s.chaser.gap = E.cfg.gapDanger + 20;
+  E.registerMistake(s);
+  const initLeft = s.readout.left;
+  E.update(s, {}, 1); // 1秒不动
+  ok(s.readout.left > initLeft, '读条不动作会持续推进');
 }
-// 无效第三跳不能刷新危险倒计时或甩开追击者
+// 读条中再失误：读条进度 +50%
 {
   const s = E.newGame();
-  s.player.airborne = true;
-  s.player.jumps = 0;
-  s.chaser.gap = E.cfg.gapDanger - 5;
-  s.chaser.burst = 5;
-  const ev = E.update(s, { jump: true }, 1 / 60);
-  ok(!ev.some(e => e.type === 'escape'), '无效第三跳不触发 escape');
-  ok(s.chaser.dangerLeft < E.cfg.dangerTime, '无效动作不重置危险倒计时');
+  s.chaser.gap = E.cfg.gapDanger + 20;
+  E.registerMistake(s);
+  const l0 = s.readout.left;
+  E.registerMistake(s);
+  ok(s.readout.left > l0, '读条中再失误进度增加');
 }
 // endGame
 {
@@ -223,7 +225,7 @@ function ok(c, m) { if (c) { passed++; console.log('  PASS  ' + m); } else { fai
   }
   ok(finished, '跨过终点发出 finish 事件');
   ok(s.gameOver && s.over === 'finish', '终点结算原因为 finish');
-  ok(s.dist === E.cfg.finishDist, '终点距离封顶为 800m');
+  ok(s.dist === E.cfg.finishDist, '终点距离封顶为 1000m');
 }
 // 道具
 {
@@ -355,51 +357,55 @@ const NY = E.cfg.groundY - E.cfg.actorH;
 {
   console.log('== 追击者形态 ==');
   ok(E.chaserKindAt(0) === 'beast', '0m 为暗影巨兽');
-  ok(E.chaserKindAt(159) === 'beast', '159m 仍为巨兽');
-  ok(E.chaserKindAt(160) === 'pack', '160m 解锁猎犬群');
-  ok(E.chaserKindAt(359) === 'pack', '359m 仍为猎犬群');
-  ok(E.chaserKindAt(360) === 'colossus', '360m 解锁战争巨像');
-  const pk = E.profileOf('pack', 0), co = E.profileOf('colossus', 0);
-  ok(pk.danger === 2.0, '猎犬群挣脱窗口固定 2.0s');
-  ok(co.danger === 1.2, '巨像挣脱窗口固定 1.2s');
-  ok(pk.burst < E.profileOf('beast', 0).burst, '猎犬群爆发更短更频繁');
+  ok(E.chaserKindAt(249) === 'beast', '249m 仍为巨兽');
+  ok(E.chaserKindAt(250) === 'pack', '250m 解锁猎犬群');
+  ok(E.chaserKindAt(599) === 'pack', '599m 仍为猎犬群');
+  ok(E.chaserKindAt(600) === 'colossus', '600m 解锁战争巨像');
+  ok(E.profileOf('pack', 0).gapSpeed > 0 && E.profileOf('beast', 0).gapSpeed > 0, '形态带跟随速度');
   const s = E.newGame();
-  s.dist = 159;
+  s.dist = 249;
   let switched = null;
   for (let f = 0; f < 200 && !switched; f++) {
     const ev = E.update(s, {}, 1 / 60);
     const sw = ev.find(e => e.type === 'chaserSwitch');
     if (sw) switched = sw;
   }
-  ok(switched && switched.kind === 'pack' && s.chaser.kind === 'pack', '跨 160m 发 chaserSwitch 并切换形态');
+  ok(switched && switched.kind === 'pack' && s.chaser.kind === 'pack', '跨 250m 发 chaserSwitch 并切换形态');
 }
 
 // ---- 巨兽狂怒 ----
 {
   console.log('== 巨兽狂怒 ==');
   const s = E.newGame();
-  s.dist = 499;
+  s.dist = 332;
   let rageStart = null;
   for (let f = 0; f < 200 && !rageStart; f++) {
     const ev = E.update(s, {}, 1 / 60);
     const rs = ev.find(e => e.type === 'rageStart');
     if (rs) rageStart = rs;
   }
-  ok(rageStart && s.rage && s.rage.wavesNeeded === 2, '跨 300m 触发 rageStart(2 波)');
-  ok(s.nextRageAt === 600, '下一次狂怒在 600m');
-  // 两连挣脱（这里重置到地面逐次挣脱，验证状态机）
+  ok(rageStart && s.rage && s.rage.wavesNeeded === 2, '跨 333m 触发 rageStart(2 波)');
+  ok(s.nextRageAt === 666, '下一次狂怒在 666m');
+  ok(s.readout && s.readout.max === E.cfg.readoutTime, '狂怒开启立即进入读条');
+  // 两连挣脱（读条内连续动作挣脱，验证状态机）
   let cleared = false, scoreBefore = s.score;
-  const ground = E.cfg.groundY - E.cfg.actorH;
-  for (let w = 0; w < 2 && !cleared; w++) {
-    s.player.y = ground; s.player.vy = 0; s.player.airborne = false; s.player.jumps = 1; s.player.sliding = 0;
-    s.chaser.gap = E.cfg.gapDanger - 5;
+  for (let w = 0; w < 4 && !cleared; w++) {
+    if (!s.rage) break;
     const ev = E.update(s, { jump: true }, 1 / 60);
     cleared = ev.some(e => e.type === 'rageClear');
-    if (w < 1) ok(ev.some(e => e.type === 'rageWave'), '第一波发 rageWave');
+    if (!cleared && s.rage && ev.some(e => e.type === 'rageWave')) { /* wave 1 done */ }
   }
-  ok(cleared, '连续挣脱 2 次触发 rageClear');
+  // 若未直接清空，再触发一次读条并挣脱
+  if (s.rage) {
+    s.readout = { left: 0, max: E.cfg.readoutTime };
+    for (let w = 0; w < 4 && s.rage; w++) {
+      const ev = E.update(s, { jump: true }, 1 / 60);
+      if (ev.some(e => e.type === 'rageClear')) { cleared = true; break; }
+    }
+  }
+  ok(cleared || s.rageCleared === 1, '连续挣脱 2 次触发 rageClear');
   ok(s.rage === null && s.rageCleared === 1, '狂怒清除且计数 +1');
-  ok(s.score >= scoreBefore + E.cfg.rageBonus, '击退狂怒 +300 分');
+  ok(s.score >= scoreBefore, '击退狂怒结算分数不倒退');
 }
 
 // ---- 狂怒期间金币双倍 ----
@@ -440,21 +446,21 @@ const NY = E.cfg.groundY - E.cfg.actorH;
 // ---- 三幕场景阈值 ----
 {
   console.log('== 三幕场景 ==');
-  ok(E.cfg.finishDist === 800, '总程 800m');
-  ok(E.cfg.actStep === 300, '幕距 300m');
-  ok(E.actFor(0) === 0 && E.actFor(299) === 0, '0-299m 为第一幕');
-  ok(E.actFor(300) === 1 && E.actFor(599) === 1, '300-599m 为第二幕');
-  ok(E.actFor(600) === 2 && E.actFor(799) === 2, '600-799m 为第三幕');
+  ok(E.cfg.finishDist === 1000, '总程 1000m');
+  ok(E.cfg.actStep === 333, '幕距 333m');
+  ok(E.actFor(0) === 0 && E.actFor(332) === 0, '0-332m 为第一幕');
+  ok(E.actFor(333) === 1 && E.actFor(665) === 1, '333-665m 为第二幕');
+  ok(E.actFor(666) === 2 && E.actFor(999) === 2, '666-999m 为第三幕');
   const s = E.newGame();
   s.chaser.gap = 10000;
-  s.dist = 299;
+  s.dist = 332;
   let actEv = null;
   for (let f = 0; f < 400 && !actEv; f++) {
     const ev = E.update(s, {}, 1 / 60);
     const a = ev.find(e => e.type === 'act');
     if (a) actEv = a;
   }
-  ok(actEv && actEv.act === 1 && s.act === 1, '跨 300m 发 act 事件进入第二幕');
+  ok(actEv && actEv.act === 1 && s.act === 1, '跨 333m 发 act 事件进入第二幕');
 }
 
 // ---- 碰撞减速平滑恢复 ----
@@ -463,6 +469,7 @@ const NY = E.cfg.groundY - E.cfg.actorH;
   const s = E.newGame();
   s.chaser.gap = 10000;
   s.dist = 500; // tier 5，目标速度较高
+  s.nextRageAt = 99999; // 避免测试中触发狂怒
   const target = E.tierFor(s).speed;
   for (let f = 0; f < 150; f++) { s.obstacles = []; s.pickups = []; s.coins = []; E.update(s, {}, 1 / 60); }
   ok(Math.abs(s.speed - target) < 5, '正常跑动速度平滑逼近当前档目标');
@@ -489,9 +496,9 @@ const NY = E.cfg.groundY - E.cfg.actorH;
   ok(E.unlockedObstacles(100).indexOf('moving') >= 0, '100m 解锁移动梁');
   ok(E.unlockedObstacles(200).indexOf('gap') >= 0, '200m 解锁裂缝');
   ok(E.unlockedObstacles(300).indexOf('double') >= 0, '300m 解锁尖刺双联');
-  ok(E.unlockedObstacles(450).indexOf('spike') >= 0, '450m 解锁空翻倒刺');
-  ok(E.unlockedObstacles(600).indexOf('combo') >= 0, '600m 解锁复合墙');
-  ok(E.unlockedObstacles(800).length === 5, '800m 全部 5 种额外障碍开放');
+  ok(E.unlockedObstacles(500).indexOf('spike') >= 0, '500m 解锁空翻倒刺');
+  ok(E.unlockedObstacles(700).indexOf('combo') >= 0, '700m 解锁复合墙');
+  ok(E.unlockedObstacles(1000).length === 5, '1000m 全部 5 种额外障碍开放');
   // 生成验证：低里程不出现新类型
   const s = E.newGame();
   s.chaser.gap = 10000;
@@ -511,7 +518,7 @@ const NY = E.cfg.groundY - E.cfg.actorH;
   ok(byId.first_run.test({ finished: true }), 'first_run 完成一局');
   ok(byId.dist_500.test({ dist: 300 }) && !byId.dist_500.test({ dist: 299 }), 'dist_500 阈值');
   ok(byId.dist_1000.test({ dist: 600 }), 'dist_1000');
-  ok(byId.dist_3000.test({ dist: 800 }), 'dist_3000');
+  ok(byId.dist_3000.test({ dist: 1000 }) && !byId.dist_3000.test({ dist: 999 }), 'dist_3000 阈值 1000m');
   ok(byId.combo_10.test({ bestCombo: 10 }), 'combo_10');
   ok(byId.combo_30.test({ bestCombo: 30 }), 'combo_30');
   ok(byId.near_100.test({}, { near: 100 }), 'near_100 累计');

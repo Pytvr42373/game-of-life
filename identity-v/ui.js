@@ -652,6 +652,11 @@
     // 逃生门
     for (var g = 0; g < G.gates.length; g++) drawGate(G.gates[g], ox, oy, ts);
 
+    // 主题装饰物（可行走、不挡路，突出游乐园/医院主题）
+    if (G.map && G.map.entities && G.map.entities.decors && G.map.entities.decors.length) {
+      drawDecors(G.map.entities.decors, ox, oy, ts);
+    }
+
     // 铁笼陷阱(缚骨陷阱师)：对求生者隐形，被踩中后短暂显现
     if (G.hunter && G.hunter.traps && G.hunter.traps.length) {
       for (var tp = 0; tp < G.hunter.traps.length; tp++) {
@@ -949,6 +954,103 @@
     ctx.font = 'bold 9px serif';
     ctx.textAlign = 'center';
     ctx.fillText(g.powered ? (g.open ? '开启' : '通电·交互') : '未通电', sx, sy + 28);
+  }
+
+  /* ================= 主题装饰物 ================= */
+  /* 游乐园/医院专属摆设：可行走、不挡路，仅增强主题氛围 */
+  function drawDecors(decors, ox, oy, ts) {
+    var name = G.map ? G.map.name : '';
+    var carnival = name.indexOf('游乐园') >= 0;
+    var asylum = name.indexOf('医院') >= 0;
+    for (var i = 0; i < decors.length; i++) {
+      var d = decors[i];
+      var sx = d.x - ox, sy = d.y - oy;
+      if (sx < -ts || sy < -ts || sx > 960 + ts || sy > 540 + ts) continue;
+      var h = hash2(d.tx, d.ty);
+      if (carnival) drawCarnivalDecor(sx, sy, h);
+      else if (asylum) drawHospitalDecor(sx, sy, h);
+      else drawGenericDecor(sx, sy, h);
+    }
+  }
+
+  /* 游乐园：旋转木马马匹 / 棉花糖车 / 气球束 */
+  function drawCarnivalDecor(sx, sy, h) {
+    var k = h % 3;
+    ctx.save();
+    if (k < 1) {
+      // 旋转木马马匹：圆杆 + 彩条
+      ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(sx, sy + 8); ctx.lineTo(sx, sy - 10); ctx.stroke();
+      ctx.fillStyle = 'rgba(255,140,200,0.9)';
+      ctx.beginPath(); ctx.ellipse(sx - 4, sy - 12, 7, 5, 0, 0, 6.283); ctx.fill();
+      ctx.fillStyle = 'rgba(255,210,120,0.9)';
+      ctx.beginPath(); ctx.ellipse(sx + 4, sy - 12, 7, 5, 0, 0, 6.283); ctx.fill();
+    } else if (k < 2) {
+      // 棉花糖车：小摊
+      ctx.fillStyle = 'rgba(120,80,200,0.85)';
+      ctx.fillRect(sx - 9, sy - 4, 18, 12);
+      ctx.fillStyle = 'rgba(255,255,255,0.85)';
+      ctx.beginPath(); ctx.arc(sx, sy - 10, 6, 0, 6.283); ctx.fill();
+      ctx.fillStyle = 'rgba(255,120,120,0.5)';
+      ctx.beginPath(); ctx.arc(sx - 4, sy - 12, 3, 0, 6.283); ctx.arc(sx + 4, sy - 12, 3, 0, 6.283); ctx.fill();
+    } else {
+      // 气球束
+      for (var b = -1; b <= 1; b++) {
+        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(sx, sy + 6); ctx.lineTo(sx + b * 5, sy - 12); ctx.stroke();
+        ctx.fillStyle = b < 0 ? 'rgba(255,90,90,0.9)' : (b > 0 ? 'rgba(90,200,255,0.9)' : 'rgba(255,220,80,0.9)');
+        ctx.beginPath(); ctx.ellipse(sx + b * 5, sy - 15, 4, 5.5, 0, 0, 6.283); ctx.fill();
+      }
+    }
+    ctx.restore();
+  }
+
+  /* 医院：病床 / 轮椅 / 输液架 */
+  function drawHospitalDecor(sx, sy, h) {
+    var k = h % 3;
+    ctx.save();
+    if (k < 1) {
+      // 病床
+      ctx.fillStyle = 'rgba(200,200,210,0.5)';
+      ctx.fillRect(sx - 10, sy - 6, 20, 5);
+      ctx.fillStyle = 'rgba(120,140,170,0.9)';
+      ctx.fillRect(sx - 10, sy - 1, 20, 3);
+      ctx.strokeStyle = 'rgba(160,170,190,0.7)';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(sx - 10, sy - 6); ctx.lineTo(sx - 10, sy + 6); ctx.moveTo(sx + 10, sy - 6); ctx.lineTo(sx + 10, sy + 6); ctx.stroke();
+    } else if (k < 2) {
+      // 轮椅
+      ctx.strokeStyle = 'rgba(180,190,210,0.85)';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(sx, sy - 2, 6, 0, 6.283); ctx.stroke();
+      ctx.fillStyle = 'rgba(120,140,170,0.8)';
+      ctx.fillRect(sx - 4, sy - 8, 8, 6);
+      ctx.beginPath(); ctx.moveTo(sx, sy - 8); ctx.lineTo(sx, sy - 12); ctx.stroke();
+    } else {
+      // 输液架
+      ctx.strokeStyle = 'rgba(190,200,220,0.8)';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(sx, sy + 8); ctx.lineTo(sx, sy - 12); ctx.stroke();
+      ctx.fillStyle = 'rgba(200,80,80,0.75)';
+      ctx.fillRect(sx - 3, sy - 12, 6, 7);
+      ctx.strokeStyle = 'rgba(160,170,190,0.7)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(sx, sy - 12); ctx.lineTo(sx + 8, sy - 18); ctx.moveTo(sx, sy - 9); ctx.lineTo(sx - 8, sy - 15); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  /* 通用装饰：小碎石/木箱 */
+  function drawGenericDecor(sx, sy, h) {
+    ctx.save();
+    ctx.fillStyle = h > 0.5 ? 'rgba(90,70,50,0.6)' : 'rgba(60,60,80,0.6)';
+    ctx.fillRect(sx - 4, sy - 4, 8, 8);
+    ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(sx - 4, sy - 4, 8, 8);
+    ctx.restore();
   }
 
   /* ================= 角色绘制 ================= */
@@ -1372,7 +1474,11 @@
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 12px serif';
     ctx.fillText('HP ' + Math.max(0, s.hp), ax + 48, ay + 26);
-    if (s.hp === 0) {
+    if (s.chair && s.hookTotal > 0) {
+      ctx.fillStyle = '#ff8a8a';
+      ctx.font = 'bold 15px serif';
+      ctx.fillText('处刑中 ' + Math.ceil(Math.max(0, s.hookTotal - s.hookTimer)) + 's', ax + 130, ay + 26);
+    } else if (s.hp === 0) {
       ctx.fillStyle = '#ff6a6a';
       ctx.font = 'bold 15px serif';
       ctx.fillText('倒地!', ax + 130, ay + 26);

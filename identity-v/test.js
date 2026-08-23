@@ -68,8 +68,8 @@ test('地图: 三张地图连通且实体齐备', function () {
   for (const def of MAPS) {
     const m = parseMap(def);
     assert.ok(mapConnectivity(m).ok, def.name + ' 不连通');
-    assert.ok(m.entities.machines.length >= 3, def.name + ' 密码机不足');
-    assert.ok(m.entities.chairs.length >= 2, def.name + ' 处刑架不足');
+    assert.ok(m.entities.machines.length >= 4, def.name + ' 密码机不足');
+    assert.ok(m.entities.chairs.length >= 3, def.name + ' 处刑架不足');
     assert.ok(m.entities.gates.length >= 1, def.name + ' 逃生门缺失');
     assert.ok(m.entities.pallets.length >= 3, def.name + ' 板子不足');
     for (const pallet of m.entities.pallets) {
@@ -274,7 +274,7 @@ test('处刑流程: 倒地→牵制→挂椅→救援→淘汰', function () {
   assert.strictEqual(h.carrying, p, '再次牵制');
   putAt(h, chair.x, chair.y); g.hunterInteract(h);
   assert.strictEqual(chair.occupant, p, '再次挂椅');
-  chair.timer = chair.total - 0.4;
+  p.hookTimer = p.hookTotal - 0.4;
   for (let i = 0; i < 20; i++) step(g, 1 / 30);
   assert.strictEqual(p.alive, false, '倒计时结束应被淘汰');
 });
@@ -718,9 +718,10 @@ test('技能: 机械师傀儡远程修机', function () {
   putAt(p, p.x, p.y); // 玩家远距离(出生点)
   g.useSurvivorSkill(p);
   assert.ok(p.skillActive, '傀儡未激活');
-  const before = m.progress;
+  const target = p._ghostMachine || m;
+  const before = target.progress;
   for (let i = 0; i < 30; i++) step(g, 1 / 30); // 1s
-  assert.ok(m.progress > before, '傀儡未增加进度');
+  assert.ok(target.progress > before, '傀儡未增加进度');
 });
 
 test('技能: 医生急救立即治疗队友', function () {
@@ -1168,6 +1169,76 @@ test('上架倒计时: 第1次50s 第2次25s 第3次直接淘汰', function () {
   hook();
   assert.strictEqual(p.alive, false, '第3次应直接淘汰');
   assert.strictEqual(chair.occupant, null, '淘汰后椅子应清空');
+});
+
+test('上架倒计时: 人与架计时同步(人以人计时为准)', function () {
+  const g = fresh(0);
+  g.hunter.ai.active = false;
+  const p = g.survivors[0];
+  const h = g.hunter;
+  const chair = g.chairs[0];
+  h.carrying = p; p.carriedBy = h; p.hp = 0; p.alive = true; p.escaped = false; p.chair = null;
+  g.placeOnChair(h, chair);
+  // 推进 1 秒，人的 hookTimer 与架的 timer 应一致
+  g.updateChairs(1);
+  assert.strictEqual(p.hookTimer, 1, '人的计时推进 1s');
+  assert.strictEqual(chair.timer, p.hookTimer, '架子显示与人同步');
+  assert.strictEqual(chair.total, p.hookTotal, '架子总数与人同步');
+  // 救援清空：人/架计时都归零
+  const ally = g.survivors[1];
+  putAt(ally, chair.x - 10, chair.y);
+  g.startChannel(ally, { type: 'rescue', target: chair, progress: 0, dur: 1.8 });
+  for (let i = 0; i < 70; i++) step(g, 1 / 30);
+  assert.strictEqual(p.chair, null, '救援后脱离');
+  assert.strictEqual(p.hookTimer, 0, '救援后人的计时清空');
+  assert.strictEqual(chair.timer, 0, '救援后架子计时清空');
+});
+
+test('上架规则: 第一次剩≤10s被救,第二次上架直接淘汰', function () {
+  const g = fresh(0);
+  g.hunter.ai.active = false;
+  const p = g.survivors[0];
+  const h = g.hunter;
+  const chair = g.chairs[0];
+  function hook() {
+    h.carrying = p; p.carriedBy = h; p.hp = 0; p.alive = true; p.escaped = false; p.chair = null;
+    g.placeOnChair(h, chair);
+  }
+  // 第一次上架：把剩余时间压到 ≤10s
+  hook();
+  assert.strictEqual(p.hookTotal, 50, '第一次 50s');
+  p.hookTimer = p.hookTotal - 8; // 剩 8s
+  g.updateChairs(0);
+  assert.strictEqual(p.firstHookLow, true, '第一次剩≤10s 标记低');
+  // 被救下
+  p.chair = null; chair.occupant = null; chair.timer = 0; chair.cd = 0;
+  // 第二次上架 → 直接淘汰
+  hook();
+  assert.strictEqual(p.hookCount, 2, '第二次上架');
+  assert.strictEqual(p.alive, false, '第一次低剩余→第二次直接淘汰');
+  assert.strictEqual(chair.occupant, null, '淘汰后椅子清空');
+});
+
+test('上架规则: 第一次及时被救(剩>10s),第二次仍25s', function () {
+  const g = fresh(0);
+  g.hunter.ai.active = false;
+  const p = g.survivors[0];
+  const h = g.hunter;
+  const chair = g.chairs[0];
+  function hook() {
+    h.carrying = p; p.carriedBy = h; p.hp = 0; p.alive = true; p.escaped = false; p.chair = null;
+    g.placeOnChair(h, chair);
+  }
+  hook();
+  assert.strictEqual(p.hookTotal, 50, '第一次 50s');
+  p.hookTimer = p.hookTotal - 20; // 剩 30s > 10s
+  g.updateChairs(0);
+  assert.strictEqual(p.firstHookLow, false, '第一次剩>10s 不标记');
+  p.chair = null; chair.occupant = null; chair.timer = 0; chair.cd = 0;
+  hook();
+  assert.strictEqual(p.hookCount, 2, '第二次上架');
+  assert.strictEqual(p.alive, true, '正常第二次 25s 不直接淘汰');
+  assert.strictEqual(p.hookTotal, 25, '第二次 25s');
 });
 
 test('放飞CD: 淘汰后处刑架进入冷却,期间不可挂人', function () {
