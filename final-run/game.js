@@ -1,7 +1,7 @@
 /* =====================================================================
  * game.js —— 《终局狂奔》主流程：Canvas 渲染 / 键鼠与触屏输入 /
- * HUD 状态 / 三屏切换 / 结算与 Top5 / 生态区 / 追击者形态 / 粒子与震动 /
- * 成就 · 档案 · 金币商店 · 每日挑战 · 被动三选一。
+ * HUD 状态 / 三屏切换 / 结算与 Top5 / 三幕场景 / 追击者形态 / 粒子与震动 /
+ * 成就 · 档案 · 皮肤解锁 · 金币商店 · 每日挑战。
  * 依赖：engine.js(FinalRunEngine) / audio.js(FinalRunAudio)。
  * ===================================================================== */
 (function () {
@@ -20,14 +20,13 @@
 
   var startScreen = $('startScreen'), runScreen = $('runScreen'), overScreen = $('overScreen');
   var hudDist = $('hudDist'), hudCombo = $('hudCombo'), hudScore = $('hudScore'), hudShieldN = $('hudShieldN');
-  var hudCoins = $('hudCoins'), hudPassiveN = $('hudPassiveN');
+  var hudCoins = $('hudCoins');
   var dangerOverlay = $('dangerOverlay'), dangerText = $('dangerText');
   var tierToast = $('tierToast'), pauseHint = $('pauseHint');
   var statDist = $('statDist'), statCombo = $('statCombo'), statNear = $('statNear'), statTime = $('statTime');
-  var statCoins = $('statCoins'), statRage = $('statRage'), statPassive = $('statPassive'), statTotalDist = $('statTotalDist');
+  var statCoins = $('statCoins'), statRage = $('statRage'), statTotalDist = $('statTotalDist');
   var rankList = $('rankList'), overTitle = $('overTitle'), overSub = $('overSub');
   var rageHud = $('rageHud'), rageWaveN = $('rageWaveN');
-  var passiveModal = $('passiveModal');
   var shopModal = $('shopModal'), shopCoin = $('shopCoin'), skinGrid = $('skinGrid'), itemGrid = $('itemGrid');
   var dailyCard = $('dailyCard'), dailyGoal = $('dailyGoal'), dailyProg = $('dailyProg');
   var dailyOver = $('dailyOver'), dailyOverGoal = $('dailyOverGoal'), dailyOverProg = $('dailyOverProg');
@@ -240,7 +239,10 @@
     rageHud.classList.remove('on');
     hudShieldN.textContent = S.player.shield;
     hudCoins.textContent = '0';
-    hudPassiveN.textContent = '0';
+    // 每局开局累计一次（皮肤解锁依据）
+    var arch = loadArchive();
+    arch.runs += 1;
+    saveArchive(arch);
     showScreen(runScreen);
     A.unlock();
     A.startMusic();
@@ -300,6 +302,7 @@
     A.stopMusic();
     A.setTension(0);
     if (S.over === 'caught') { overTitle.textContent = '被捕获'; overSub.textContent = '暗影巨兽追上了你'; }
+    else if (S.over === 'finish') { overTitle.textContent = '终局抵达'; overSub.textContent = '穿过最终防线，记录封存'; }
     else { overTitle.textContent = '终局'; overSub.textContent = '记录封存'; }
     statDist.textContent = Math.round(S.dist);
     statCombo.textContent = S.bestCombo;
@@ -307,7 +310,6 @@
     statTime.textContent = fmtTime(elapsed);
     statCoins.textContent = S.coinsGot;
     statRage.textContent = S.rageCleared;
-    statPassive.textContent = (S.passiveList && S.passiveList.length) ? S.passiveList.map(passiveName).join('·') : '—';
     var list = submitScore();
 
     // —— 金币 ——
@@ -316,7 +318,6 @@
     var arch = loadArchive();
     arch.dist += Math.round(S.dist);
     arch.coins += S.coinsGot;
-    arch.runs += 1;
     arch.bestCombo = Math.max(arch.bestCombo, S.bestCombo);
     arch.time += Math.round(elapsed);
     arch.near += S.nearMiss;
@@ -354,9 +355,6 @@
     showScreen(overScreen);
   }
 
-  function passiveName(id) {
-    return { turbo: '涡轮', doubleShield: '双盾', coinDouble: '金币×2', evadeTime: '挣脱+1s' }[id] || id;
-  }
   function renderAchieve(newly) {
     achieveStrip.innerHTML = '';
     newly.forEach(function (ac) {
@@ -395,7 +393,6 @@
     if (!running || S.gameOver) return;
     var k = e.key;
     if (k === 'p' || k === 'P' || k === 'Escape') {
-      if (passiveModal.classList.contains('open')) return;
       e.preventDefault();
       togglePause();
       return;
@@ -483,7 +480,7 @@
   })();
 
   function togglePause() {
-    if (!running || S.gameOver || passiveModal.classList.contains('open')) return;
+    if (!running || S.gameOver) return;
     paused = !paused;
     pauseHint.classList.toggle('show', paused);
     A.setTension(paused ? 0 : tensionNow());
@@ -493,36 +490,6 @@
   $('startBtn').addEventListener('click', function () { A.unlock(); startGame(); });
   $('againBtn').addEventListener('click', startGame);
   $('homeBtn').addEventListener('click', function () { window.location.href = '../action-games/index.html'; });
-
-  /* ---------------- 被动三选一 ---------------- */
-  var PASSIVE_DEFS = {
-    turbo: { name: '涡轮冲刺', icon: '⚡', desc: '速度 +8%' },
-    doubleShield: { name: '双层护盾', icon: '🛡', desc: '护盾上限 +1' },
-    coinDouble: { name: '金币翻倍', icon: '💰', desc: '本局金币 ×2' },
-    evadeTime: { name: '挣脱窗口', icon: '⏱', desc: '逃脱时间 +1s' }
-  };
-  passiveModal.querySelectorAll('.passive-opt').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var id = btn.getAttribute('data-p');
-      if (!E.applyPassive(S, id)) return;
-      hudPassiveN.textContent = S.passiveList.length;
-      if (A.sfx.passive) A.sfx.passive();
-      passiveModal.classList.remove('open');
-      passiveModal.setAttribute('aria-hidden', 'true');
-      paused = false;
-      pauseHint.classList.remove('show');
-      A.setTension(tensionNow());
-      lastTs = 0; cancelAnimationFrame(rafId); rafId = requestAnimationFrame(loop);
-      toast(PASSIVE_DEFS[id].icon + ' ' + PASSIVE_DEFS[id].name);
-    });
-  });
-  function openPassive() {
-    paused = true;
-    pauseHint.classList.remove('show');
-    A.setTension(0);
-    passiveModal.classList.add('open');
-    passiveModal.setAttribute('aria-hidden', 'false');
-  }
 
   /* ---------------- 商店 ---------------- */
   function openShop() {
@@ -541,34 +508,33 @@
   function renderShop() {
     var coins = loadCoins();
     var shop = loadShop();
+    var arch = loadArchive();
     shopCoin.textContent = coins;
     skinGrid.innerHTML = '';
     M.SKINS.forEach(function (sk) {
-      var owned = shop.skins.indexOf(sk.id) >= 0;
+      var owned = shop.skins.indexOf(sk.id) >= 0 || arch.runs >= sk.unlockRuns;
       var active = shop.activeSkin === sk.id;
       var btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = 'shop-item skin-item' + (active ? ' on' : '');
+      btn.className = 'shop-item skin-item' + (active ? ' on' : '') + (owned ? '' : ' locked');
       var sw = document.createElement('i');
       sw.className = 'skin-swatch';
       sw.style.background = 'linear-gradient(135deg,' + sk.c1 + ',' + sk.c2 + ')';
       var nm = document.createElement('b');
       nm.textContent = sk.name;
       var st = document.createElement('span');
-      st.textContent = active ? '使用中' : (owned ? '已拥有' : sk.price + ' 金币');
+      if (active) st.textContent = '使用中';
+      else if (owned) st.textContent = '已解锁';
+      else st.textContent = '累计开局 ' + sk.unlockRuns + ' 次解锁 · 已开局 ' + arch.runs;
       btn.appendChild(sw); btn.appendChild(nm); btn.appendChild(st);
       btn.addEventListener('click', function () {
         if (active) return;
-        if (!owned) {
-          if (coins >= sk.price) {
-            coins -= sk.price; saveCoins(coins);
-            shop.skins.push(sk.id); shop.activeSkin = sk.id; saveShop(shop);
-            toast('🎨 已解锁 ' + sk.name);
-            if (A.sfx.achievement) A.sfx.achievement();
-          } else { toast('💰 金币不足'); return; }
-        } else {
-          shop.activeSkin = sk.id; saveShop(shop);
-        }
+        if (!owned) { toast('🔒 累计开局 ' + sk.unlockRuns + ' 次解锁'); return; }
+        shop.activeSkin = sk.id;
+        if (shop.skins.indexOf(sk.id) < 0) shop.skins.push(sk.id);
+        saveShop(shop);
+        toast('🎨 已选择 ' + sk.name);
+        if (A.sfx.achievement) A.sfx.achievement();
         renderShop();
       });
       skinGrid.appendChild(btn);
@@ -636,7 +602,7 @@
       }
       for (i = 0; i < evs.length; i++) {
         handleEvent(evs[i]);
-        if (S.gameOver && evs[i].type === 'caught') break;
+        if (S.gameOver) break;
       }
       bgScroll = (bgScroll + S.speed * dt) % 220;
       updateParticles(dt);
@@ -693,6 +659,12 @@
         dangerOverlay.classList.add('on');
         finishGame();
         break;
+      case 'finish':
+        dangerOverlay.classList.remove('on');
+        rageHud.classList.remove('on');
+        toast('🏁 终局抵达 · 记录封存');
+        finishGame();
+        break;
       case 'magnet':
         toast('🧲 磁石冲刺！');
         break;
@@ -701,13 +673,6 @@
         break;
       case 'coin':
         spawnParticles(cfg.playerX, cfg.groundY - cfg.actorH / 2, { n: 5, color: '#f5c518', spread: Math.PI, up: 100, speed0: 40, speed1: 120, life: 0.35 });
-        break;
-      case 'zone':
-        var zn = M.ZONES[ev.zone];
-        toast('🏜 ' + zn.name);
-        spawnParticles(cfg.playerX, cfg.groundY - 100, { n: 18, color: '#f5c518', spread: Math.PI * 2, up: 140, speed0: 100, speed1: 240, life: 0.7 });
-        if (A.sfx.zone) A.sfx.zone();
-        triggerShake(6);
         break;
       case 'chaserSwitch':
         toast('👹 前方出现新的追击者 · ' + ev.label);
@@ -729,13 +694,17 @@
         break;
       case 'rageClear':
         rageHud.classList.remove('on');
-        toast('👹 狂怒击退 · +500');
+        toast('👹 狂怒击退 · +300');
         spawnParticles(cfg.playerX, cfg.groundY - cfg.actorH, { n: 22, color: '#fbbf24', spread: Math.PI * 2, up: 180, speed0: 120, speed1: 280, life: 0.8 });
         if (A.sfx.rageClear) A.sfx.rageClear();
         triggerShake(10);
         break;
-      case 'passiveChoice':
-        openPassive();
+      case 'act':
+        var an = M.ACTS[ev.act];
+        toast('🎬 ' + an.name);
+        spawnParticles(cfg.playerX, cfg.groundY - 100, { n: 20, color: '#f5c518', spread: Math.PI * 2, up: 150, speed0: 100, speed1: 260, life: 0.7 });
+        if (A.sfx.zone) A.sfx.zone();
+        triggerShake(8);
         break;
       default:
         break;
@@ -744,7 +713,7 @@
 
   /* ---------------- 渲染 ---------------- */
   function themeOf() { return document.body.dataset.theme || '4399'; }
-  function zoneIndex(dist) { return Math.min(M.ZONES.length - 1, Math.floor(dist / cfg.zoneStep)); }
+  function zoneIndex(dist) { return E.actFor(dist); }
   function zonePal() {
     var z = M.ZONES[zoneIndex(S ? S.dist : 0)];
     var t = themeOf();
@@ -943,7 +912,6 @@
     if (hudScore.textContent !== String(S.score)) hudScore.textContent = S.score;
     if (hudShieldN.textContent !== String(S.player.shield)) hudShieldN.textContent = S.player.shield;
     if (hudCoins.textContent !== String(S.coinsGot)) hudCoins.textContent = S.coinsGot;
-    if (hudPassiveN.textContent !== String((S.passiveList || []).length)) hudPassiveN.textContent = (S.passiveList || []).length;
   }
 
   /* 追击者按形态绘制 */

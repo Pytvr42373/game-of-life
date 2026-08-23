@@ -173,7 +173,7 @@
       osc('sawtooth', 660, 1320, 0.16, 0.06, 0.04);
       noise(0.14, 0.07, 0, 3000);
     },
-    zone: function () { // 生态区切换（下行号角）
+    zone: function () { // 场景切换（下行号角）
       if (!ready()) return;
       osc('triangle', 392, 392, 0.2, 0.1);
       osc('triangle', 523, 523, 0.26, 0.1, 0.14);
@@ -202,11 +202,6 @@
     achievement: function () { // 成就解锁（闪亮琶音）
       if (!ready()) return;
       [784, 988, 1175, 1568].forEach(function (f, i) { osc('sine', f, f * 1.03, 0.16, 0.09, i * 0.07); });
-    },
-    passive: function () { // 被动选择（两段确认）
-      if (!ready()) return;
-      osc('triangle', 659, 659, 0.1, 0.1);
-      osc('triangle', 988, 988, 0.18, 0.1, 0.09);
     }
   };
 

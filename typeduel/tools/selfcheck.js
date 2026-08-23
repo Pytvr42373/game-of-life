@@ -1,8 +1,9 @@
 /* =====================================================================
  * tools/selfcheck.js —— 《打字对决 TYPE DUEL》核心逻辑 node 自测
  * 运行：node tools/selfcheck.js
- * 覆盖：词库完整性、连击倍率封顶、计分公式、评级/准确率/WPM、
- *       关卡表结构、生存衰减/回血、Boss 解锁逻辑。
+ * 覆盖：词库完整性、经典词池（2-5 字母/五字母权重）、连击倍率封顶、
+ *       计分公式、评级/准确率/WPM、关卡表结构（6 关）、每档题量、
+ *       入门时长配置、生存衰减/回血、Boss 解锁逻辑。
  * 注：词表按设计文档 §5.2 逐字抄录，个别词略超档位边界属文档原样；
  *     自测对档位长度采用"≥80% 在名义区间内"的宽松校验。
  * ===================================================================== */
@@ -58,6 +59,28 @@ t('random 支持 pool / upper', function () {
   assert.strictEqual(u, u.toUpperCase());
 });
 
+console.log('== 经典词池（2-5 字母，五字母稀少） ==');
+t('classic.short 全部 2-4 字母且 ≥30 词', function () {
+  assert(WORDS.classic.short.length >= 30);
+  WORDS.classic.short.forEach(function (w) { assert(w.length >= 2 && w.length <= 4, w + ' 长度' + w.length); });
+});
+t('classic.five 全部恰 5 字母且少于 short（稀少）', function () {
+  assert(WORDS.classic.five.length >= 10);
+  WORDS.classic.five.forEach(function (w) { assert(w.length === 5, w + ' 长度' + w.length); });
+  assert(WORDS.classic.five.length < WORDS.classic.short.length, '五字母词应少于短词');
+});
+t('五字母权重 fiveWeight = 0.08（稀少）', function () {
+  assert.strictEqual(WORDS.classic.fiveWeight, 0.08);
+});
+t('classicWord 各类型均 ≤5 字母（绝不超过 5）', function () {
+  ['common', 'bonus', 'skill'].forEach(function (type) {
+    for (var i = 0; i < 300; i++) {
+      var w = WORDS.classicWord(type);
+      assert(w.length >= 2 && w.length <= 5, type + ' 出词超长: ' + w);
+    }
+  });
+});
+
 console.log('== 连击倍率（§4.4：10 连击封顶） ==');
 t('comboMult 0→1.0 / 1→1.1 / 10→2.0', function () {
   assert(near(TD.comboMult(0), 1.0));
@@ -89,13 +112,12 @@ t('生存计分难度系数恒 1.2', function () {
   assert.strictEqual(TD.scoreWord({ len: 5, type: 'common', diffMult: 1.2, comboMult: 1, modeMult: 1 }), 60);
 });
 
-console.log('== 经典关卡表（§5.4） ==');
-t('12 关、第 3/6/9/12 关 Boss、词长档 1,1,1,2,2,2,3,3,3,4,4,4', function () {
-  assert.strictEqual(TD.LEVELS.length, 12);
+console.log('== 经典关卡表（§5.4 改版：6 关，各关平缓） ==');
+t('6 关、第 3/6 关 Boss、词长档全 1（不按关大幅变长）', function () {
+  assert.strictEqual(TD.LEVELS.length, 6);
   var bosses = TD.LEVELS.map(function (l) { return l.boss || null; });
   assert.deepStrictEqual(bosses[2], 'A'); assert.deepStrictEqual(bosses[5], 'B');
-  assert.deepStrictEqual(bosses[8], 'C'); assert.deepStrictEqual(bosses[11], 'D');
-  assert.deepStrictEqual(TD.LEVELS.map(function (l) { return l.tier; }), [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4]);
+  assert.deepStrictEqual(TD.LEVELS.map(function (l) { return l.tier; }), [1, 1, 1, 1, 1, 1]);
 });
 t('拍频逐关递减且 ≥500ms / 刷怪递减 / 同屏递增', function () {
   var prevBeat = Infinity, prevSpawn = Infinity, prevCap = 0;
@@ -106,6 +128,18 @@ t('拍频逐关递减且 ≥500ms / 刷怪递减 / 同屏递增', function () {
     assert(l.cap >= prevCap, 'cap ' + l.cap);
     prevBeat = l.beat; prevSpawn = l.spawn; prevCap = l.cap;
   });
+});
+t('每档题量：easy 8 / normal 9 / hard 10 / inferno 11（缓慢增加）', function () {
+  assert.strictEqual(TD.stageQuota('easy'), 8);
+  assert.strictEqual(TD.stageQuota('normal'), 9);
+  assert.strictEqual(TD.stageQuota('hard'), 10);
+  assert.strictEqual(TD.stageQuota('inferno'), 11);
+});
+t('入门整局目标约 3 分钟，难度升高仅略增', function () {
+  assert.strictEqual(TD.CAMPAIGN_TARGET_MIN.easy, 3);
+  assert(TD.CAMPAIGN_TARGET_MIN.normal > 3);
+  assert(TD.CAMPAIGN_TARGET_MIN.hard > TD.CAMPAIGN_TARGET_MIN.normal);
+  assert(TD.CAMPAIGN_TARGET_MIN.inferno > TD.CAMPAIGN_TARGET_MIN.hard);
 });
 t('难度档数值（§4.1）', function () {
   var n = TD.difficulty('normal'), h = TD.difficulty('hard'), i = TD.difficulty('inferno');
@@ -118,11 +152,13 @@ t('通关解锁：normal→hard→inferno→null', function () {
   assert.strictEqual(TD.nextDifficulty('hard'), 'inferno');
   assert.strictEqual(TD.nextDifficulty('inferno'), null);
 });
-t('Boss 段长区间 A/B/C/D', function () {
-  assert.deepStrictEqual(TD.bossSegLen('A'), [5, 6]);
-  assert.deepStrictEqual(TD.bossSegLen('B'), [6, 7]);
-  assert.deepStrictEqual(TD.bossSegLen('C'), [7, 8]);
-  assert.deepStrictEqual(TD.bossSegLen('D'), [8, 10]);
+t('Boss 段长区间 A/B 且全部 ≤5 字母', function () {
+  assert.deepStrictEqual(TD.bossSegLen('A'), [3, 4]);
+  assert.deepStrictEqual(TD.bossSegLen('B'), [4, 5]);
+  ['A', 'B'].forEach(function (l) {
+    var r = TD.bossSegLen(l);
+    assert(r[0] >= 2 && r[1] <= 5, l + ' 段长超 5: ' + r);
+  });
 });
 t('敌人基础速度（§3.1）', function () {
   assert.strictEqual(TD.enemySpeed('quick'), 1.6);
@@ -166,23 +202,23 @@ t('短/标准/长 档系数 1.0/1.2/1.4 且词长档正确', function () {
 });
 
 console.log('== 模式解锁（任务2：初始仅经典闯关，通关阶梯解锁） ==');
-t('campaign 始终解锁 / sprint 通关第4关 / survival 通关第8关', function () {
+t('campaign 始终解锁 / sprint 通关第4关 / survival 通关第6关', function () {
   assert.strictEqual(TD.isModeUnlocked('campaign', {}), true);
   assert.strictEqual(TD.isModeUnlocked('sprint', { stage: { normal: 1 } }), false);
   assert.strictEqual(TD.isModeUnlocked('sprint', { stage: { normal: 4 } }), false);
   assert.strictEqual(TD.isModeUnlocked('sprint', { stage: { normal: 5 } }), true);
-  assert.strictEqual(TD.isModeUnlocked('survival', { stage: { normal: 8 } }), false);
-  assert.strictEqual(TD.isModeUnlocked('survival', { stage: { normal: 9 } }), true);
+  assert.strictEqual(TD.isModeUnlocked('survival', { stage: { normal: 6 } }), false);
+  assert.strictEqual(TD.isModeUnlocked('survival', { stage: { normal: 7 } }), true);
   assert.strictEqual(TD.isModeUnlocked('survival', { stage: { normal: 12 } }), true);
 });
-t('解锁阶梯阈值：sprint=5 / survival=9 / campaign=1', function () {
+t('解锁阶梯阈值：sprint=5 / survival=7 / campaign=1', function () {
   assert.strictEqual(TD.modeUnlockStage('campaign'), 1);
   assert.strictEqual(TD.modeUnlockStage('sprint'), 5);
-  assert.strictEqual(TD.modeUnlockStage('survival'), 9);
+  assert.strictEqual(TD.modeUnlockStage('survival'), 7);
 });
 t('跨难度取经典最高进度判定解锁', function () {
   assert.strictEqual(TD.isModeUnlocked('sprint', { stage: { normal: 2, hard: 5, inferno: 1 } }), true);
-  assert.strictEqual(TD.isModeUnlocked('survival', { stage: { normal: 1, hard: 1, inferno: 9 } }), true);
+  assert.strictEqual(TD.isModeUnlocked('survival', { stage: { normal: 1, hard: 1, inferno: 7 } }), true);
   assert.strictEqual(TD.isModeUnlocked('sprint', { stage: { normal: 1, hard: 4, inferno: 1 } }), false);
 });
 t('无进度（默认 1 关）时 sprint/survival 均锁定', function () {

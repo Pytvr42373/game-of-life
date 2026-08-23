@@ -8,7 +8,7 @@
 html{background:#f5efe1}
 html.pre-arcade{background:#15171c}
 </style>
-<meta name="description" content="好玩游戏精选：深潜打捞、终局狂奔、黎明迷局、幸存者计划、打字对决、恶魔追逐、暗巷潜行。七款免费小游戏，即点即玩，不分类型，只挑值得再来一局的。">
+<meta name="description" content="好玩游戏精选：终局狂奔、黎明迷局、幸存者计划、打字对决、恶魔追逐。五款免费小游戏，另有深潜打捞与暗巷潜行隐藏档案。">
 <title>好玩游戏 · 今晚玩什么？</title>
 <script defer src="../anti-addiction.js"></script>
 <style>
@@ -230,6 +230,20 @@ body[data-theme="4399"] .game:hover{border-color:var(--grass);box-shadow:0 12px 
 body[data-theme="arcade"] .game:hover{border-color:rgba(201,162,78,.6);box-shadow:4px 4px 0 var(--hard)}
 .game:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
 .game.hidden{display:none}
+.archive-only{display:none!important}
+.archive-mode .hero,.archive-mode .filters,.archive-mode .archive-cta{display:none}
+.archive-mode .archive-mode-hero{display:flex}
+.archive-mode .catalog-wrap{padding-top:0;border-top:0}
+.archive-mode .catalog-head{display:none}
+.archive-mode .catalog{grid-template-columns:repeat(2,minmax(0,1fr))}
+.archive-mode .catalog .game:not(.archive-only){display:none}
+.archive-mode .catalog .archive-only{display:flex!important}
+.archive-mode .deck-foot{margin-top:28px}
+.archive-mode-hero{display:none;align-items:end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:26px}
+.archive-mode-hero h1{margin:0;color:var(--text);font-size:clamp(30px,6vw,54px);letter-spacing:-1px}
+.archive-mode-hero p{margin:8px 0 0;color:var(--dim);font-size:13px;line-height:1.7}
+.archive-back{display:inline-flex;align-items:center;min-height:42px;padding:9px 14px;border:1px solid var(--line);border-radius:999px;color:var(--accent);font-size:12px;font-weight:800;text-decoration:none}
+.archive-back:hover{border-color:var(--accent);transform:translateY(-2px)}
 
 /* 随机推荐高亮 */
 .pick-glint{
@@ -455,6 +469,19 @@ body[data-theme="arcade"] .cta-note{letter-spacing:1.5px}
 }
 body[data-theme="arcade"] .deck-foot{letter-spacing:2px;border-top:1px solid var(--line)}
 
+/* ===== 隐藏档案入口 ===== */
+.archive-cta{
+  display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;
+  margin-top:28px;padding:16px 18px;border:1px dashed var(--line);border-radius:14px;
+  background:linear-gradient(105deg,var(--surface),var(--bg2));
+}
+.archive-cta p{margin:0;color:var(--dim);font-size:12px;line-height:1.6}
+.archive-cta p b{display:block;margin-bottom:2px;color:var(--text);font-size:14px;letter-spacing:1px}
+.archive-link{display:inline-flex;align-items:center;gap:10px;padding:9px 14px;border:1px solid var(--grass);border-radius:999px;color:var(--grass);font-size:12px;font-weight:800;text-decoration:none;transition:transform .18s,background .18s,color .18s}
+.archive-link:hover{transform:translateY(-2px);background:var(--grass);color:#fffdf6}
+body[data-theme="arcade"] .archive-link{border-color:var(--gold);color:var(--gold)}
+body[data-theme="arcade"] .archive-link:hover{background:var(--gold);color:var(--hard)}
+
 /* ===== 页面入场错落 ===== */
 body.preload .hero,body.preload .filters,body.preload .game{opacity:0;transform:translateY(16px)}
 body.preload .hero{transition:opacity .5s,transform .5s}
@@ -491,6 +518,7 @@ body.ready .hero,body.ready .filters,body.ready .game{opacity:1;transform:transl
 /* ===== 平板双列 ===== */
 @media (max-width:1099px){
   .catalog{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .archive-mode .catalog{grid-template-columns:repeat(2,minmax(0,1fr))}
   .art-type{font-size:clamp(48px,9vw,84px)}
 }
 
@@ -502,6 +530,7 @@ body.ready .hero,body.ready .filters,body.ready .game{opacity:1;transform:transl
   body[data-theme="arcade"] .ticket-stats{transform:none}
   .catalog-wrap{padding-top:22px}
   .catalog{grid-template-columns:1fr}
+  .archive-mode .catalog{grid-template-columns:1fr}
   .art{aspect-ratio:16/9}
   .body{padding:16px 16px 16px}
   .desc{min-height:0}
@@ -523,10 +552,10 @@ body.ready .hero,body.ready .filters,body.ready .game{opacity:1;transform:transl
 <main class="deck">
   <header class="hero">
     <div class="head-copy">
-      <p class="kicker">FUN GAMES · 七款精选</p>
+      <p class="kicker">FUN GAMES · 五款精选</p>
       <h1>好玩游戏<span class="stamp" aria-hidden="true">ISSUE 01</span></h1>
       <p class="tagline">今晚玩什么？</p>
-      <p class="intro">不分类型，只挑值得再来一局的。七款游戏全部免费、即点即玩，不用等加载，不用注册账号。</p>
+      <p class="intro">不分类型，只挑值得再来一局的。五款游戏全部免费、即点即玩，不用等加载，不用注册账号。</p>
       <div class="hero-cta">
         <button class="pick-btn" id="pickBtn" type="button" aria-label="帮我选一款，从当前可见的游戏中随机挑一个">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h12M13 4l4 4-4 4M20 16H8M11 12l-4 4 4 4"/></svg>
@@ -536,36 +565,45 @@ body.ready .hero,body.ready .filters,body.ready .game{opacity:1;transform:transl
       </div>
     </div>
     <aside class="ticket-stats" aria-label="本期收录统计">
-      <p class="ticket-head">本期收录 · 七款</p>
+      <p class="ticket-head">本期收录 · 五款</p>
       <ul>
-        <li><strong>07</strong><span>精选游戏</span></li>
-        <li><strong>07</strong><span>种玩法</span></li>
+        <li><strong>05</strong><span>精选游戏</span></li>
+        <li><strong>05</strong><span>种玩法</span></li>
         <li><strong>00</strong><span>元收费</span></li>
       </ul>
       <p class="ticket-note">全部免费 · 本地运行 · 无需登录</p>
     </aside>
   </header>
 
+  <header class="archive-mode-hero" aria-label="隐藏档案">
+    <div>
+      <p class="kicker">HIDDEN ARCHIVE / 02</p>
+      <h1>隐藏档案</h1>
+      <p>保留原始封面与完整入口的实验性追逃游戏。</p>
+    </div>
+    <a class="archive-back js-skip" href="index.html">&larr; 返回主目录</a>
+  </header>
+
   <section class="catalog-wrap" id="catalog" aria-labelledby="catalogHeading">
     <div class="catalog-head">
       <div>
         <h2 id="catalogHeading">本期目录</h2>
-        <p>七款游戏，七种玩法。想找特定类型，用下面的筛选器挑。</p>
+        <p>五款游戏，五种玩法。想找特定类型，用下面的筛选器挑。</p>
       </div>
     </div>
 
     <div class="filters" role="group" aria-label="按玩法筛选">
-      <button class="filter-btn" type="button" data-filter="all" aria-pressed="true">全部<span class="f-count" aria-hidden="true">7</span></button>
+      <button class="filter-btn" type="button" data-filter="all" aria-pressed="true">全部<span class="f-count" aria-hidden="true">5</span></button>
       <button class="filter-btn" type="button" data-filter="reflex" aria-pressed="false">反应<span class="f-count" aria-hidden="true">2</span></button>
-      <button class="filter-btn" type="button" data-filter="strategy" aria-pressed="false">策略<span class="f-count" aria-hidden="true">4</span></button>
-      <button class="filter-btn" type="button" data-filter="keyboard" aria-pressed="false">键盘<span class="f-count" aria-hidden="true">4</span></button>
+      <button class="filter-btn" type="button" data-filter="strategy" aria-pressed="false">策略<span class="f-count" aria-hidden="true">2</span></button>
+      <button class="filter-btn" type="button" data-filter="keyboard" aria-pressed="false">键盘<span class="f-count" aria-hidden="true">2</span></button>
       <p class="filter-status" id="filterStatus" aria-live="polite"></p>
     </div>
 
     <div class="catalog">
 
       <!-- 深潜打捞 -->
-      <a class="game card-salvage js-skip" href="../deep-salvage/index.html"
+       <a class="game card-salvage archive-only js-skip" href="../deep-salvage/index.html"
          data-cat="strategy keyboard" data-name="深潜打捞"
          aria-label="去玩深潜打捞：带领两名 AI 潜水员进入随机海沟，躲避鲨鱼，搜刮宝物并返回母船">
         <span class="pick-glint" aria-hidden="true"></span>
@@ -604,7 +642,7 @@ body.ready .hero,body.ready .filters,body.ready .game{opacity:1;transform:transl
           <span class="media-tag" aria-hidden="true">DAWN MAZE · MANOR MAP</span>
         </div>
         <div class="body">
-          <p class="stub-line"><span class="stub-no">NO.02</span><span class="genre">非对称追逃</span></p>
+          <p class="stub-line"><span class="stub-no">NO.01</span><span class="genre">非对称追逃</span></p>
           <h3>黎明迷局</h3>
           <p class="desc">猎手与猎物共享同一片黑暗。在庄园、教堂、游乐园、矿道与实验室的阴影里，猜身份，赌走位。</p>
           <ul class="specs">
@@ -623,7 +661,7 @@ body.ready .hero,body.ready .filters,body.ready .game{opacity:1;transform:transl
       <!-- 幸存者计划 -->
       <a class="game card-side-b js-skip" href="../survivor-protocol/index.html"
          data-cat="reflex" data-name="幸存者计划"
-         aria-label="去玩幸存者计划：六分钟敌潮生存，保持移动重组自动火力，击破零号机">
+         aria-label="去玩幸存者计划：两关各三分钟敌潮养成，每关九十秒出现精英，关底迎战裁定机">
         <span class="pick-glint" aria-hidden="true"></span>
         <div class="art">
           <div class="radar" role="img" aria-label="幸存者计划概念示意：雷达环显示四周敌潮正在逼近中心据点" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
@@ -642,19 +680,19 @@ body.ready .hero,body.ready .filters,body.ready .game{opacity:1;transform:transl
             <span class="radar-core" aria-hidden="true"></span>
           </div>
           <span class="badge">新上线</span>
-          <span class="media-tag" aria-hidden="true">SURVIVOR PROTOCOL · 6 MIN</span>
+          <span class="media-tag" aria-hidden="true">SURVIVOR PROTOCOL · 2 × 3 MIN</span>
         </div>
         <div class="body">
-          <p class="stub-line"><span class="stub-no">NO.03</span><span class="genre">敌潮生存</span></p>
+          <p class="stub-line"><span class="stub-no">NO.02</span><span class="genre">敌潮生存</span></p>
           <h3>幸存者计划</h3>
-          <p class="desc">保持移动，重组自动火力，在六分钟敌潮里活下去，击破零号机。</p>
+          <p class="desc">两关各三分钟养成，90 秒迎战精英；每关倒计时结束后进入 Boss 阶段，击破后继续推进。</p>
           <ul class="specs">
-            <li>6 分钟</li>
-            <li>局内构筑</li>
+            <li>两关各 3 分钟</li>
+            <li>3 档难度</li>
             <li>Boss 战</li>
           </ul>
           <p class="cta-row">
-            <span class="cta-text" aria-hidden="true">撑过六分钟</span>
+            <span class="cta-text" aria-hidden="true">启动六分钟任务</span>
             <span class="cta-note" aria-hidden="true">点击整卡入场</span>
             <span class="cta-arrow" aria-hidden="true">→</span>
           </p>
@@ -702,11 +740,11 @@ body.ready .hero,body.ready .filters,body.ready .game{opacity:1;transform:transl
           <span class="media-tag" aria-hidden="true">TYPE DUEL · TYPING SHOOTER</span>
         </div>
         <div class="body">
-          <p class="stub-line"><span class="stub-no">NO.04</span><span class="genre">打字射击</span></p>
+          <p class="stub-line"><span class="stub-no">NO.03</span><span class="genre">打字射击</span></p>
           <h3>打字对决</h3>
           <p class="desc">单词即敌人，打字即射击。逐字母击碎入侵的数据病毒，守护服务器核心。</p>
           <ul class="specs">
-            <li>12 关</li>
+            <li>6 关</li>
             <li>3 模式</li>
             <li>键盘输入</li>
           </ul>
@@ -731,7 +769,7 @@ body.ready .hero,body.ready .filters,body.ready .game{opacity:1;transform:transl
           <span class="media-tag" aria-hidden="true">DEMON PURSUIT · TEAM RUN</span>
         </div>
         <div class="body">
-          <p class="stub-line"><span class="stub-no">NO.05</span><span class="genre">蛇梯棋变体</span></p>
+          <p class="stub-line"><span class="stub-no">NO.04</span><span class="genre">蛇梯棋变体</span></p>
           <h3>恶魔追逐</h3>
           <p class="desc">你与队友掷骰冲线，恶魔以双骰步步紧逼。命运格改写命运，护盾与羁绊是最后的依仗。</p>
           <ul class="specs">
@@ -748,7 +786,7 @@ body.ready .hero,body.ready .filters,body.ready .game{opacity:1;transform:transl
       </a>
 
       <!-- 暗巷潜行 -->
-      <a class="game card-b3 js-skip" href="../alley-heist/index.html"
+       <a class="game card-b3 archive-only js-skip" href="../alley-heist/index.html"
          data-cat="strategy keyboard" data-name="暗巷潜行"
          aria-label="去玩暗巷潜行：安静潜入夺取钥匙，警报响起后利用转角、声响与卷帘门甩开守卫">
         <span class="pick-glint" aria-hidden="true"></span>
@@ -761,7 +799,7 @@ body.ready .hero,body.ready .filters,body.ready .game{opacity:1;transform:transl
           <span class="media-tag" aria-hidden="true">ALLEY HEIST · KEY ESCAPE</span>
         </div>
         <div class="body">
-          <p class="stub-line"><span class="stub-no">NO.06</span><span class="genre">网格潜行</span></p>
+          <p class="stub-line"><span class="stub-no">NO.02</span><span class="genre">网格潜行</span></p>
           <h3>暗巷潜行</h3>
           <p class="desc">安静潜入夺取钥匙，警报响起后冲刺撤离；用转角切断视线，冒险打开卷帘门抄近路。</p>
           <ul class="specs">
@@ -780,7 +818,7 @@ body.ready .hero,body.ready .filters,body.ready .game{opacity:1;transform:transl
       <!-- 终局狂奔 -->
       <a class="game card-run js-skip" href="../final-run/index.html"
          data-cat="reflex keyboard" data-name="终局狂奔"
-         aria-label="去玩终局狂奔：无尽跑酷，二段跳与滑铲躲避暗影巨兽，空格或触屏即可操作">
+           aria-label="去玩终局狂奔：800m 三幕跑酷，二段跳与滑铲躲避暗影巨兽，累计开局解锁皮肤">
         <span class="pick-glint" aria-hidden="true"></span>
         <div class="art">
           <div class="run-scene" role="img" aria-label="终局狂奔概念示意：暮色跑道上，跑者剪影向前奔跑，身后暗影巨兽紧追不舍">
@@ -804,17 +842,17 @@ body.ready .hero,body.ready .filters,body.ready .game{opacity:1;transform:transl
           </div>
           <span class="art-type" aria-hidden="true">RUN</span>
           <span class="badge">新上线</span>
-          <span class="media-tag" aria-hidden="true">FINAL RUN · ENDLESS RUNNER</span>
+          <span class="media-tag" aria-hidden="true">FINAL RUN · 800M RUN</span>
         </div>
         <div class="body">
-          <p class="stub-line"><span class="stub-no">NO.07</span><span class="genre">无尽跑酷</span></p>
+          <p class="stub-line"><span class="stub-no">NO.05</span><span class="genre">800m 终局</span></p>
           <h3>终局狂奔</h3>
-          <p class="desc">暗影巨兽紧咬身后，二段跳与滑铲之间求生。闪避铸就连击，被追上就是终局。</p>
+          <p class="desc">暗影巨兽紧咬身后，二段跳与滑铲之间求生。三幕逐段提速，800m 穿过最终防线。</p>
           <ul class="specs">
-            <li>无尽模式</li>
+            <li>800m 终局</li>
+            <li>3 幕场景</li>
             <li>二段跳</li>
-            <li>滑铲</li>
-            <li>键盘 / 触屏</li>
+            <li>皮肤解锁</li>
           </ul>
           <p class="cta-row">
             <span class="cta-text" aria-hidden="true">开跑</span>
@@ -827,9 +865,14 @@ body.ready .hero,body.ready .filters,body.ready .game{opacity:1;transform:transl
     </div>
   </section>
 
+  <section class="archive-cta" aria-label="隐藏档案入口">
+    <p><b>HIDDEN ARCHIVE · 隐藏档案</b>两款实验性追逃游戏已移入独立排版，入口仍在这里。</p>
+    <a class="archive-link js-skip" href="archives.html">打开隐藏档案 <span aria-hidden="true">→</span></a>
+  </section>
+
   <footer class="deck-foot">
     <span>纯前端 · 本地运行 · 无需登录</span>
-    <span>好玩游戏 · 七款精选 · 持续上新</span>
+    <span>好玩游戏 · 五款精选 · 另有隐藏档案</span>
   </footer>
 </main>
 
@@ -839,6 +882,8 @@ body.ready .hero,body.ready .filters,body.ready .game{opacity:1;transform:transl
 (function(){
   'use strict';
   var toggle = document.getElementById('themeToggle');
+  var archiveMode = window.location.hash === '#archive';
+  if (archiveMode) document.body.classList.add('archive-mode');
 
   /* ===== 主题联动（与全站共享 localStorage gh-theme） ===== */
   var saved = '4399';
@@ -883,7 +928,7 @@ body.ready .hero,body.ready .filters,body.ready .game{opacity:1;transform:transl
 
   /* ===== 分类筛选 ===== */
   var filterBtns = Array.prototype.slice.call(document.querySelectorAll('.filter-btn'));
-  var games = Array.prototype.slice.call(document.querySelectorAll('.game'));
+  var games = Array.prototype.slice.call(document.querySelectorAll('.game:not(.archive-only)'));
   var filterStatus = document.getElementById('filterStatus');
 
   function applyFilter(cat){
@@ -931,7 +976,7 @@ body.ready .hero,body.ready .filters,body.ready .game{opacity:1;transform:transl
   /* ===== 页面入场（reduced-motion 时跳过） ===== */
   var rm = matchMedia('(prefers-reduced-motion: reduce)');
   var salvageCanvas = document.getElementById('salvagePreview');
-  if (salvageCanvas && window.DeepSalvageTerrain && window.DeepSalvagePreview) {
+  if (salvageCanvas && (archiveMode || !salvageCanvas.closest('.archive-only')) && window.DeepSalvageTerrain && window.DeepSalvagePreview) {
     var salvageTerrain = window.DeepSalvageTerrain.generateTerrain('ACTION-FEATURE-01');
     var salvageRenderer = window.DeepSalvagePreview.createRenderer(salvageCanvas, { detailed: false, fit: 'stretch' });
     salvageRenderer.setTerrain(salvageTerrain);

@@ -182,7 +182,7 @@
   }
 
   var MODE_LABEL = { campaign: '经典闯关', sprint: '限时冲刺', survival: '无尽生存' };
-  var DIFF_LABEL = { normal: '普通', hard: '困难', inferno: '地狱', short: '短词', standard: '标准', long: '长词' };
+  var DIFF_LABEL = { easy: '入门', normal: '普通', hard: '困难', inferno: '地狱', short: '短词', standard: '标准', long: '长词' };
 
   /* —— 实时 HUD 更新（每帧或每秒） —— */
   /* data: {wpm, acc, combo, mode, hearts, maxHearts, hp, maxHp,
@@ -256,7 +256,7 @@
     el('resultTitle').textContent = isVictory ? '全面胜利' : (result.mode === 'sprint' ? '时间到' : '本局结束');
     el('resultCode').textContent = (result.mode === 'campaign' ? 'CAMPAIGN' : result.mode === 'sprint' ? 'SPRINT' : 'SURVIVAL') +
       ' · ' + (DIFF_LABEL[result.difficulty] || '') + ' · 评级 ' + grade;
-    el('resultReason').textContent = isVictory ? '你打穿了 12 关数据防线！' :
+    el('resultReason').textContent = isVictory ? '你打穿了 6 关数据防线！' :
       (result.mode === 'sprint' ? '60 秒战报结算，已写入本地 Top10。' : '防线已破，训练数据已归档。');
 
     var extra = '';

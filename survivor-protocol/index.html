@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <script>try{if(localStorage.getItem('gh-theme')==='arcade')document.documentElement.classList.add('pre-arcade')}catch(e){}</script>
 <style>html{background:#eef5f3}html.pre-arcade{background:#07111c}</style>
-<meta name="description" content="幸存者计划：两阶段机动生存，自动火力、敌潮构筑，击破第一裁定机与终焉执行者。">
+<meta name="description" content="幸存者计划：两关各三分钟机动生存，入门/普通/困难三档难度，每关养成后迎战裁定机。">
 <title>幸存者计划 · SURVIVOR PROTOCOL</title>
 <script defer src="../anti-addiction.js"></script>
 <link rel="stylesheet" href="style.css">
@@ -23,8 +23,13 @@
     <p class="eyebrow">SURVIVOR PROTOCOL / SP-01</p>
     <h1 id="gameTitle">幸存者计划</h1>
     <p class="theme-sub" id="themeSubtitle">清新训练模拟</p>
-    <p class="lead">两阶段机动生存。六分钟敌潮，击破第一裁定机；再战六分钟，在终焉执行者面前存活并完成裁定。</p>
+    <p class="lead">两关各三分钟机动生存。每关 90 秒精英入场，完成三分钟养成后迎战裁定机；击破后进入下一关。</p>
     <button class="primary-btn" id="startBtn" type="button">开始任务</button>
+    <div class="difficulty-pick" role="radiogroup" aria-label="选择难度">
+      <button type="button" class="diff-btn" id="diffEasy" role="radio" aria-checked="false">入门<span>敌潮稀疏 · 升级更快</span></button>
+      <button type="button" class="diff-btn selected" id="diffNormal" role="radio" aria-checked="true">普通<span>标准强度</span></button>
+      <button type="button" class="diff-btn" id="diffHard" role="radio" aria-checked="false">困难<span>敌潮更密 · 弹幕更凶</span></button>
+    </div>
     <div class="briefing" aria-label="操作说明">
       <span><b>移动</b> WASD / 方向键</span>
       <span><b>冲刺</b> Space / Shift</span>
@@ -53,7 +58,8 @@
   </div>
   <div class="hud-time">
     <span id="stageText">阶段 一</span>
-    <strong id="timeText">05:00</strong>
+    <strong id="timeText">03:00</strong>
+    <span id="difficultyText" class="hud-diff">普通</span>
   </div>
   <div class="hud-right">
     <div class="hud-right-row">

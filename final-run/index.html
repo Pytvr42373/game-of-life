@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <script>try{if(localStorage.getItem('gh-theme')==='arcade')document.documentElement.classList.add('pre-arcade')}catch(e){}</script>
 <style>html{background:#07120b}html.pre-arcade{background:#050a14}</style>
-<meta name="description" content="终局狂奔 · 无尽跑酷：末世边境，暗影巨兽紧咬身后——跳跃与滑铲之间求生，极限闪避铸就连击，被追上就是终局。丰富版：7 种障碍、3 形态追击者、6 生态区、巨兽狂怒、成就与每日挑战。">
+<meta name="description" content="终局狂奔 · 800m 三幕终局跑酷：末世边境，暗影巨兽紧咬身后——跳跃与滑铲之间求生，极限闪避铸就连击，穿过最终防线即获胜。">
 <title>终局狂奔 · FINAL RUN</title>
 <script defer src="../anti-addiction.js"></script>
 <link rel="stylesheet" href="style.css">
@@ -29,16 +29,16 @@
 <main class="screen screen-start" id="startScreen">
   <div class="start-inner">
     <header class="s-head">
-      <p class="kicker">ENDLESS RUNNER · DOOM CHASE</p>
+      <p class="kicker">800M RUN · DOOM CHASE</p>
       <h1>终局狂奔<span>FINAL RUN</span></h1>
-      <p class="tag">末世边境 · 暗影巨兽紧咬身后 · 跳跃与滑铲之间求生</p>
+      <p class="tag">三幕推进 · 暗影巨兽紧咬身后 · 跑过最终防线</p>
     </header>
 
     <section class="rules" aria-label="规则说明">
       <div class="rule-card highlight"><h3>🏃 操作</h3><p><b class="accent">空格 / ↑ / W</b> 跳跃（空中可<b class="accent">二段跳</b>）· <b class="accent">↓ / S</b> 滑铲 · 触屏：<b class="accent">点击跳</b> / <b class="accent">下滑铲</b></p></div>
-      <div class="rule-card"><h3>👹 追击者</h3><p>巨兽周期加速逼近；<b class="danger-c">红框出现</b>后跳跃或滑铲甩开。300m 起猎犬群、700m 起战争巨像，<b class="danger-c">每 500m 巨兽狂怒</b>三连挣脱。</p></div>
-      <div class="rule-card"><h3>⚡ 得分</h3><p>距离 1m=1 分，<b class="gold">擦身通过 = 极限闪避</b>连击叠倍；金币跨局累计。<b class="gold">每 800m 三选一被动</b>强化本局。</p></div>
-      <div class="rule-card"><h3>🛡 道具</h3><p><b class="gold">磁石</b>短时冲刺 · <b class="accent">护盾</b>挡一次撞击。每 600m 跨越一个<b class="gold">生态区</b>，风景与配色推进。</p></div>
+      <div class="rule-card"><h3>👹 追击者</h3><p>巨兽周期加速逼近；<b class="danger-c">红框出现</b>后跳跃或滑铲甩开。160m 起猎犬群、360m 起战争巨像，<b class="danger-c">每 300m 狂怒</b>两连挣脱。</p></div>
+      <div class="rule-card"><h3>⚡ 得分</h3><p>距离 1m=1 分，<b class="gold">擦身通过 = 极限闪避</b>连击叠倍；金币跨局累计。速度按<b class="gold">非线性档位</b>从 0.6 倍飙升至 1.8 倍。</p></div>
+      <div class="rule-card"><h3>🛡 道具</h3><p><b class="gold">磁石</b>短时冲刺 · <b class="accent">护盾</b>挡一次撞击。场景在 <b class="gold">300m / 600m</b> 切换，800m 穿过最终防线。</p></div>
     </section>
 
     <div class="hub-strip" aria-label="奔跑档案">
@@ -70,9 +70,8 @@
     <div class="hud-item"><span class="hud-lbl">分数</span><b id="hudScore">0</b></div>
     <div class="hud-item hud-shield" id="hudShield" title="护盾"><span class="hud-lbl">护盾</span><b id="hudShieldN">0</b></div>
     <div class="hud-item hud-gold" title="本局金币"><span class="hud-lbl">金币</span><b id="hudCoins">0</b></div>
-    <div class="hud-item hud-passive" id="hudPassive" title="本局被动"><span class="hud-lbl">被动</span><b id="hudPassiveN">0</b></div>
   </div>
-  <div class="rage-hud" id="rageHud" aria-hidden="true">狂怒 <b id="rageWaveN">0</b>/3</div>
+  <div class="rage-hud" id="rageHud" aria-hidden="true">狂怒 <b id="rageWaveN">0</b>/2</div>
   <canvas id="gameCanvas" width="960" height="540" aria-label="终局狂奔游戏画面"></canvas>
   <div class="danger-overlay" id="dangerOverlay" aria-hidden="true">
     <div class="danger-pulse"></div>
@@ -80,20 +79,6 @@
   </div>
   <div class="tier-toast" id="tierToast" aria-hidden="true"></div>
   <div class="pause-hint" id="pauseHint">已暂停 <button id="resumeBtn" type="button">继续</button></div>
-
-  <!-- 被动三选一 -->
-  <div class="modal-mask" id="passiveModal" aria-hidden="true">
-    <div class="passive-box" role="dialog" aria-modal="true" aria-label="被动强化选择">
-      <p class="passive-title">800m 里程碑 · 选择一项被动</p>
-      <div class="passive-opts">
-        <button class="passive-opt" type="button" data-p="turbo"><b>⚡ 涡轮冲刺</b><span>速度 +8%</span></button>
-        <button class="passive-opt" type="button" data-p="doubleShield"><b>🛡 双层护盾</b><span>护盾上限 +1</span></button>
-        <button class="passive-opt" type="button" data-p="coinDouble"><b>💰 金币翻倍</b><span>本局金币 ×2</span></button>
-        <button class="passive-opt" type="button" data-p="evadeTime"><b>⏱ 挣脱窗口</b><span>逃脱时间 +1s</span></button>
-      </div>
-      <p class="passive-hint">暂停中 · 选择后继续狂奔</p>
-    </div>
-  </div>
 
   <div class="touch-zone">
     <button class="tz-btn tz-jump" type="button" aria-label="跳跃">跳跃<br><small>点击</small></button>
@@ -115,7 +100,6 @@
     <div class="stats stats-sub">
       <div class="stat"><span>本局金币</span><b id="statCoins">0</b></div>
       <div class="stat"><span>击退狂怒</span><b id="statRage">0</b></div>
-      <div class="stat"><span>本局被动</span><b id="statPassive">—</b></div>
       <div class="stat"><span>档案总里程</span><b id="statTotalDist">0</b><i>m</i></div>
     </div>
     <div class="achieve-strip" id="achieveStrip" aria-label="新解锁成就"></div>
@@ -141,7 +125,7 @@
   <div class="shop-box" role="dialog" aria-modal="true" aria-label="金币商店">
     <p class="shop-title">金币商店 <span id="shopCoin">0</span> 金币</p>
     <section class="shop-sec" aria-label="跑者皮肤">
-      <h4>🎨 跑者皮肤</h4>
+      <h4>🎨 跑者皮肤 · 累计开局解锁</h4>
       <div class="shop-grid" id="skinGrid"></div>
     </section>
     <section class="shop-sec" aria-label="起始道具">
