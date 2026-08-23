@@ -4,7 +4,10 @@ const vm = require('vm');
 
 const code = fs.readFileSync(__dirname + '/anti-addiction.js', 'utf8');
 const RealDate = Date;
-let CLOCK = new RealDate('2026-08-22T10:00:00+08:00').getTime();
+function localTime(hour, minute) {
+  return new RealDate(2026, 7, 22, hour, minute, 0, 0).getTime();
+}
+let CLOCK = localTime(10, 0);
 
 class FakeDate {
   static now() { return CLOCK; }
@@ -80,7 +83,7 @@ function makeContext(storage, label) {
   sandbox.window = sandbox;
   vm.createContext(sandbox);
   vm.runInContext(code, sandbox);
-  return { sandbox, intervals, timeouts, els, storage, label, shadowRoot };
+  return { sandbox, intervals, timeouts, els, shadowRoot, storage, label };
 }
 
 let passed = 0, failed = 0;
@@ -94,7 +97,7 @@ function heartbeats(ctx, n) { for (let i = 0; i < n; i++) { FakeDate.advance(500
 console.log('[1] 每日重置 + 初始不弹');
 {
   const st = makeStorage();
-  FakeDate.set(new RealDate('2026-08-22T10:00:00+08:00').getTime());
+  FakeDate.set(new RealDate('2026-08-22T10:00:00').getTime());
   const ctx = makeContext(st, 't1');
   const overlay = ctx.els[0], title = ctx.els[2], card = ctx.els[1];
   T('初始不弹窗', () => { if (title.textContent !== '') throw new Error('title=' + title.textContent); if (overlay.classList.contains('show')) throw new Error('overlay shown'); });
@@ -106,7 +109,7 @@ console.log('[1] 每日重置 + 初始不弹');
 console.log('[2] 每 15 分钟周期性弹窗');
 {
   const st = makeStorage();
-  FakeDate.set(new RealDate('2026-08-22T10:00:00+08:00').getTime());
+  FakeDate.set(localTime(10, 0));
   const ctx = makeContext(st, 't2');
   const overlay = ctx.els[0], title = ctx.els[2], card = ctx.els[1], btn = ctx.els[4];
   heartbeats(ctx, 180); // 10:00 -> 10:15
@@ -127,7 +130,7 @@ console.log('[2] 每 15 分钟周期性弹窗');
 console.log('[3] 时钟提醒(17:10 普通/自动关)');
 {
   const st = makeStorage();
-  FakeDate.set(new RealDate('2026-08-22T17:10:00+08:00').getTime());
+  FakeDate.set(localTime(17, 10));
   const ctx = makeContext(st, 't3');
   const title = ctx.els[2], card = ctx.els[1];
   T('17:10 弹时钟提醒', () => { if (title.textContent !== '已经 17:10 了') throw new Error('title=' + title.textContent); });
@@ -141,7 +144,7 @@ console.log('[4] 跨天重置 + 重新开始周期');
   const st = makeStorage();
   // 预置昨天的旧状态
   st.setItem('gh-wellbeing-v1', JSON.stringify({ date: '2026-08-21', activeMs: 3600000, lastPlayReminderSlot: 4, clockReminders: ['17:10', '17:15'], updatedAt: 0 }));
-  FakeDate.set(new RealDate('2026-08-22T09:00:00+08:00').getTime());
+  FakeDate.set(localTime(9, 0));
   const ctx = makeContext(st, 't4');
   const title = ctx.els[2];
   T('跨天自动重置(activeMs/slot/clock归零)', () => { const s = stateOf(st); if (s.date !== '2026-08-22' || s.activeMs !== 0 || s.lastPlayReminderSlot !== 0 || s.clockReminders.length !== 0) throw new Error(JSON.stringify(s)); });
@@ -155,7 +158,7 @@ console.log('[4] 跨天重置 + 重新开始周期');
 console.log('[5] 多标签页 lease 不重复计数 + 切换接管');
 {
   const st = makeStorage();
-  FakeDate.set(new RealDate('2026-08-22T09:30:00+08:00').getTime());
+  FakeDate.set(localTime(9, 30));
   const ctx1 = makeContext(st, 't5a');
   heartbeats(ctx1, 180); // 09:30 -> 09:45, slot=3
   const base = stateOf(st).activeMs;
@@ -184,7 +187,7 @@ console.log('[6] 旧状态兼容迁移(playReminderShown -> slot)');
 {
   const st = makeStorage();
   st.setItem('gh-wellbeing-v1', JSON.stringify({ date: '2026-08-22', activeMs: 900000, playReminderShown: true, clockReminders: [], updatedAt: 0 }));
-  FakeDate.set(new RealDate('2026-08-22T10:00:00+08:00').getTime());
+  FakeDate.set(localTime(10, 0));
   const ctx = makeContext(st, 't6');
   const title = ctx.els[2];
   T('旧一次性提醒迁移为 slot=1', () => { const s = stateOf(st); if (s.lastPlayReminderSlot !== 1) throw new Error('slot=' + s.lastPlayReminderSlot); });
@@ -194,7 +197,7 @@ console.log('[6] 旧状态兼容迁移(playReminderShown -> slot)');
 console.log('[7] 隐藏时宿主事件穿透(pointer-events 回归)');
 {
   const st = makeStorage();
-  FakeDate.set(new RealDate('2026-08-22T10:00:00+08:00').getTime());
+  FakeDate.set(localTime(10, 0));
   const ctx = makeContext(st, 't7');
   const css = ctx.shadowRoot.innerHTML;
   const ruleOf = re => { const m = css.match(re); if (!m) throw new Error('missing rule: ' + re); return m[0]; };
