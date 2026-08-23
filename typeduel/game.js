@@ -12,25 +12,27 @@
    * ================================================================ */
   var TDCORE = (function () {
 
-    /* —— 经典关卡表（§5.4） —— */
+    /* —— 经典关卡表（§5.4 改版：12 关缩至 6 关，各关平缓） ——
+     * 词长档全 1：经典模式统一走 2-5 字母词池（五字母稀少），不按关大幅变长。 */
     var LEVELS = [
-      { tier: 1, beat: 1200, spawn: 2400, cap: 4 },
-      { tier: 1, beat: 1150, spawn: 2200, cap: 5 },
-      { tier: 1, beat: 1100, spawn: 2000, cap: 6, boss: 'A' },
-      { tier: 2, beat: 1050, spawn: 1900, cap: 6 },
-      { tier: 2, beat: 1000, spawn: 1800, cap: 7 },
-      { tier: 2, beat: 950, spawn: 1700, cap: 8, boss: 'B' },
-      { tier: 3, beat: 900, spawn: 1600, cap: 8 },
-      { tier: 3, beat: 850, spawn: 1500, cap: 9 },
-      { tier: 3, beat: 800, spawn: 1400, cap: 9, boss: 'C' },
-      { tier: 4, beat: 750, spawn: 1300, cap: 10 },
-      { tier: 4, beat: 700, spawn: 1200, cap: 10 },
-      { tier: 4, beat: 650, spawn: 1100, cap: 10, boss: 'D' }
+      { tier: 1, beat: 1300, spawn: 2400, cap: 4 },
+      { tier: 1, beat: 1250, spawn: 2300, cap: 4 },
+      { tier: 1, beat: 1200, spawn: 2200, cap: 5, boss: 'A' },
+      { tier: 1, beat: 1150, spawn: 2100, cap: 5 },
+      { tier: 1, beat: 1100, spawn: 2000, cap: 6 },
+      { tier: 1, beat: 1050, spawn: 1900, cap: 6, boss: 'B' }
     ];
+
+    /* —— 经典每关题量（休闲向）：入门约 8 词，难度升高仅缓慢增加 —— */
+    var QUOTA_BASE = { easy: 8, normal: 9, hard: 10, inferno: 11 };
+    function stageQuota(diff) { return QUOTA_BASE[diff] || QUOTA_BASE.normal; }
+
+    /* —— 经典整局目标时长（分钟）：入门约 3 分钟，难度升高略增 —— */
+    var CAMPAIGN_TARGET_MIN = { easy: 3, normal: 3.2, hard: 3.4, inferno: 3.6 };
 
     /* —— 难度档（§4.1） —— */
     var DIFFS = {
-      /* 简单档（简单版本）：速度 0.5 倍，默认可选，不参与 hard/inferno 解锁链。
+      /* 入门档：速度 0.5 倍，默认可选，不参与 hard/inferno 解锁链。
        * 打错整词重打为全局规则（§2.2③/⑤），由 handleKey 统一处理，不再按难度区分。 */
       easy:    { scoreMult: 1.0, speedAdd: 0.00, beatMult: 1.0, hearts: 6, speedMult: 0.5 },
       normal:  { scoreMult: 1.0, speedAdd: 0.00, beatMult: 1.0, hearts: 5 },
@@ -81,7 +83,7 @@
     /* 生存触底掉血：重排/加速 -15，其余 -10（§4.3） */
     function survivalBreachDmg(type) { return (type === 'quick' || type === 'shuffle') ? 15 : 10; }
 
-    function levelConfig(stage) { return LEVELS[clamp(stage, 1, 12) - 1]; }
+    function levelConfig(stage) { return LEVELS[clamp(stage, 1, 6) - 1]; }
     function difficulty(name) { return DIFFS[name] || DIFFS.normal; }
     function sprintTier(name) { return SPRINT_TIERS[name] || SPRINT_TIERS.standard; }
     function enemySpeed(type) { return ENEMY_SPEED[type] || 1.0; }
@@ -92,15 +94,15 @@
       return (i >= 0 && i < DIFF_ORDER.length - 1) ? DIFF_ORDER[i + 1] : null;
     }
 
-    /* Boss 段长区间（§5.4） */
+    /* Boss 段长区间（§5.4 改版）：经典仅 2-5 字母词，段长不超 5 */
     function bossSegLen(letter) {
-      return { A: [5, 6], B: [6, 7], C: [7, 8], D: [8, 10] }[letter] || [5, 6];
+      return { A: [3, 4], B: [4, 5] }[letter] || [3, 4];
     }
 
     /* 模式解锁（任务2）：初始仅开放「经典闯关」；通关经典第 4 关解锁「限时冲刺」、
-     * 通关第 8 关解锁「无尽生存」。基于经典闯关跨难度最高关卡进度推导（stage 记录为
+     * 通关第 6 关（全通）解锁「无尽生存」。基于经典闯关跨难度最高关卡进度推导（stage 记录为
      * 下一关，通关第 N 关 → stage = N+1，故阈值 = N+1）。 */
-    var MODE_UNLOCK_STAGE = { campaign: 1, sprint: 5, survival: 9 };
+    var MODE_UNLOCK_STAGE = { campaign: 1, sprint: 5, survival: 7 };
     function modeUnlockStage(mode) { return MODE_UNLOCK_STAGE[mode] || 1; }
     function isModeUnlocked(mode, prog) {
       if (mode === 'campaign') return true;
@@ -112,6 +114,7 @@
 
     return {
       LEVELS: LEVELS, DIFFS: DIFFS, SPRINT_TIERS: SPRINT_TIERS, DIFF_ORDER: DIFF_ORDER,
+      QUOTA_BASE: QUOTA_BASE, CAMPAIGN_TARGET_MIN: CAMPAIGN_TARGET_MIN,
       clamp: clamp, comboMult: comboMult, scoreWord: scoreWord,
       SHIELD_BREAK_BONUS: SHIELD_BREAK_BONUS,
       bossSegmentScore: bossSegmentScore, bossKillBonus: bossKillBonus,
@@ -119,6 +122,7 @@
       survivalSpawnMs: survivalSpawnMs, survivalTiers: survivalTiers,
       survivalBreachDmg: survivalBreachDmg,
       levelConfig: levelConfig, difficulty: difficulty, sprintTier: sprintTier,
+      stageQuota: stageQuota,
       enemySpeed: enemySpeed, nextDifficulty: nextDifficulty, bossSegLen: bossSegLen,
       modeUnlockStage: modeUnlockStage, isModeUnlocked: isModeUnlocked
     };
@@ -252,7 +256,7 @@
       });
       on('modeSurvival', function () {
         if (!C.isModeUnlocked('survival', STATS.getProgress())) {
-          self.showMenuToast('🔒 通关经典第 8 关解锁「无尽生存」');
+          self.showMenuToast('🔒 通关经典第 6 关解锁「无尽生存」');
           return;
         }
         self.mode = 'survival'; self.updateModeUI();
@@ -318,7 +322,7 @@
       var m = this.mode;
       var set = function (id, on) { var n = el(id); if (n) n.classList.toggle('on', on); };
 
-      /* 模式解锁（任务2）：初始仅「经典闯关」；通关第 4 关解锁「限时冲刺」、第 8 关解锁「无尽生存」 */
+      /* 模式解锁（任务2）：初始仅「经典闯关」；通关第 4 关解锁「限时冲刺」、第 6 关解锁「无尽生存」 */
       var prog = STATS.getProgress();
       var MODE_DESC = { sprint: '60s · Top10 榜', survival: 'HP 衰减 · 连击回血' };
       var lockMode = function (mode, id, needStage) {
@@ -331,7 +335,7 @@
         }
       };
       lockMode('sprint', 'modeSprint', 5);
-      lockMode('survival', 'modeSurvival', 9);
+      lockMode('survival', 'modeSurvival', 7);
       /* 当前所选模式若被锁定 → 回退经典闯关 */
       if (m !== 'campaign' && !C.isModeUnlocked(m, prog)) { m = 'campaign'; this.mode = 'campaign'; }
 
@@ -362,7 +366,7 @@
       var modeDesc = el('modeDesc');
       if (modeDesc) {
         var txt = {
-          campaign: '5 心起步 · 12 关主线 · 每 3 关词长升档 + Boss 战',
+          campaign: '5 心起步 · 6 关主线 · 2-5 字母短词 · 入门约 ' + C.CAMPAIGN_TARGET_MIN.easy + ' 分钟',
           sprint: '60 秒冲榜 · 无扣命 · 触底断连击 · Top10 本地榜',
           survival: 'HP 100 持续衰减（3→8 HP/s）· 连击回血 · 硬核持久'
         }[m];
@@ -379,7 +383,7 @@
       if (menuCombo) menuCombo.textContent = st.maxCombo;
       var prog = STATS.getProgress();
       var stageEl = el('menuStage');
-      if (stageEl) stageEl.textContent = '第 ' + Math.min(prog.stage[this.difficulty] || 1, 12) + ' 关';
+      if (stageEl) stageEl.textContent = '第 ' + Math.min(prog.stage[this.difficulty] || 1, 6) + ' 关';
     };
 
     /* ---------------- 开新局 ---------------- */
@@ -431,7 +435,7 @@
       this.spawnAcc = 0;
       this.spawned = 0;
       this.quota = 0;
-      this.stage = Math.min(prog.stage[this.difficulty] || 1, 12);
+      this.stage = Math.min(prog.stage[this.difficulty] || 1, 6);
 
       if (this.mode === 'campaign') {
         this.hearts = C.difficulty(this.difficulty).hearts;   /* 每局初始心（§4.1） */
@@ -461,7 +465,7 @@
       this.spawnMs = conf.spawn;
       this.cap = conf.cap;
       this.tier = conf.tier;
-      this.quota = 8 + stage;
+      this.quota = C.stageQuota(this.difficulty);
       this.spawned = 0;
       /* 修复（任务1）：开局立即出首怪，避免进入战场后约 2.4s 空场被误判为“没有怪物” */
       this.spawnAcc = this.spawnMs;
@@ -593,6 +597,8 @@
       var col = pick(free);
       var type = this.pickEnemyType();
       var tier = this.pickTier();
+      /* 经典模式：所有词仅 2-5 字母（五字母稀少），走 classicWord 保证不超 5 */
+      var classic = g.mode === 'campaign';
       var enemy = {
         id: 'e' + (g.enemies.length) + '_' + Math.floor(Math.random() * 1e6),
         type: type,
@@ -612,15 +618,15 @@
       };
       if (type === 'shield') {
         enemy.outerWord = WORDS.random({ pool: 'shield' });
-        enemy.word = WORDS.random({ tier: tier });
+        enemy.word = classic ? WORDS.classicWord('common') : WORDS.random({ tier: tier });
       } else if (type === 'quick') {
-        enemy.word = WORDS.random({ tier: Math.max(1, tier - 1) });
+        enemy.word = classic ? WORDS.classicWord('common') : WORDS.random({ tier: Math.max(1, tier - 1) });
       } else if (type === 'bonus') {
-        enemy.word = WORDS.random({ pool: 'bonus' });
+        enemy.word = classic ? WORDS.classicWord('bonus') : WORDS.random({ pool: 'bonus' });
       } else if (type === 'skill') {
-        enemy.word = WORDS.random({ pool: 'skills' });
+        enemy.word = classic ? WORDS.classicWord('skill') : WORDS.random({ pool: 'skills' });
       } else {
-        enemy.word = WORDS.random({ tier: tier });
+        enemy.word = classic ? WORDS.classicWord('common') : WORDS.random({ tier: tier });
       }
       g.enemies.push(enemy);
       return true;
@@ -667,7 +673,7 @@
       var slowFactor = g.slowTimer > 0 ? 0.5 : 1;
       var frozen = g.freezeTimer > 0;
       var toRemove = [];
-      /* 简单档：速度 0.5 倍 */
+      /* 入门档：速度 0.5 倍 */
       var diffCfg = g.mode === 'campaign' ? C.difficulty(g.difficulty) : null;
       var speedMult = (diffCfg && diffCfg.speedMult) || 1;
       g.enemies.forEach(function (e) {
@@ -1088,12 +1094,22 @@
           });
         });
       }
-      if (pool.length < 3) pool = WORDS.boss.slice();
+      if (pool.length < 3) {
+        pool = WORDS.boss.filter(function (w) { return w.length >= minL && w.length <= maxL; });
+      }
+      /* Boss 也遵守休闲短词规则：补入经典短词，且每次 Boss 最多一个五字母词。 */
+      (WORDS.classic.short || []).forEach(function (w) {
+        if (w.length >= minL && w.length <= maxL && !seen[w]) { seen[w] = true; pool.push(w); }
+      });
       var out = [];
+      var fiveUsed = 0;
       while (out.length < 3 && pool.length > 0) {
-        var i = Math.floor(Math.random() * pool.length);
-        out.push(pool[i]);
-        pool.splice(i, 1);
+        var eligible = pool.filter(function (w) { return w.length < 5 || fiveUsed === 0; });
+        if (!eligible.length) break;
+        var word = eligible[Math.floor(Math.random() * eligible.length)];
+        if (word.length === 5) fiveUsed++;
+        out.push(word);
+        pool.splice(pool.indexOf(word), 1);
       }
       return out;
     };
@@ -1118,7 +1134,7 @@
     Game.prototype.clearStage = function () {
       var g = this;
       AUDIO.stageClear();
-      if (g.stage >= 12) {
+      if (g.stage >= 6) {
         g.win = true;
         this.finish('win');
         return;
@@ -1129,7 +1145,7 @@
       /* 保存进度（§6.3） */
       var prog = STATS.getProgress();
       prog.stage = prog.stage || { easy: 1, normal: 1, hard: 1, inferno: 1 };
-      prog.stage[g.difficulty] = Math.max(prog.stage[g.difficulty] || 1, Math.min(g.stage, 12));
+      prog.stage[g.difficulty] = Math.max(prog.stage[g.difficulty] || 1, Math.min(g.stage, 6));
       STATS.saveProgress(prog);
       this.setupStage(g.stage);
       AUDIO.playBgm(C.levelConfig(g.stage).boss ? 'boss' : 'battle');
@@ -1278,7 +1294,7 @@
         skillsUsed: g.skillsUsed,
         win: !!g.win
       };
-      /* 难度解锁（原逻辑只读不写，困难/地狱永远锁死）：通关当前难度 12 关 → 解锁下一档，只升不降 */
+      /* 难度解锁（原逻辑只读不写，困难/地狱永远锁死）：通关当前难度 6 关 → 解锁下一档，只升不降 */
       if (g.mode === 'campaign' && g.win) {
         var prog = STATS.getProgress();
         var cur = prog.unlockedDifficulty || 'normal';
@@ -1356,7 +1372,7 @@
             var map = { '1': 'campaign', '2': 'sprint', '3': 'survival' };
             var want = map[k];
             if (want !== 'campaign' && !C.isModeUnlocked(want, STATS.getProgress())) {
-              self.showMenuToast(want === 'sprint' ? '🔒 通关经典第 4 关解锁「限时冲刺」' : '🔒 通关经典第 8 关解锁「无尽生存」');
+              self.showMenuToast(want === 'sprint' ? '🔒 通关经典第 4 关解锁「限时冲刺」' : '🔒 通关经典第 6 关解锁「无尽生存」');
               return;
             }
             self.mode = want;

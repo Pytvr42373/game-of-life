@@ -1,9 +1,8 @@
 /* =====================================================================
  * engine.js —— 《终局狂奔》核心逻辑（纯计算，无 DOM 依赖）
- * 横版无尽跑酷：跳跃/滑铲躲障碍；追击者贴脸 3 秒内必做动作挣脱，
+ * 横版终局跑酷：跳跃/滑铲躲障碍；追击者贴脸时做动作挣脱，
  * 否则被捕获；提速分档；极限闪避连击；冲刺磁石/护盾道具。
- * 丰富版 v0.2：障碍 2→7 种、追击者 3 形态、6 生态区事件、巨兽狂怒 Boss
- * 事件(每500m 三连挣脱)、800m 被动三选一、金币倍率。
+  * v0.4：800m 三幕终局、两次狂怒、非线性提速 0.6x→1.8x，跑完即结算。
  * 事件型 update(state, actions, dt)：返回本帧事件，供 UI 与测试消费。
  * 暴露全局 window.FinalRunEngine；支持 Node require 自检。
  * ===================================================================== */
@@ -17,30 +16,43 @@
     actorW: 34, actorH: 66, slideH: 28,
     jumpV: 620, jumpV2: 540, gravity: 1900,
     slideDur: 0.75, slideCd: 0.22,
-    baseSpeed: 340, maxSpeed: 980, accelPer100m: 42,
-    pxPerM: 40,                // 距离换算：px → m（100m ≈ 12s 一档节奏）
+    baseSpeed: 340,            // 旧基准速度：非线性速度曲线的参考值
+    gearStep: 100,             // 每 100m 一档
+    gearTime: 15,              // 每 15s 一档（时间兜底）
+    maxTier: 7,                // 800m 共 8 档（0..7）
+    speedLow: 0.6,             // 起始档：旧基准 ×0.6
+    speedHigh: 1.8,            // 终局档：旧基准 ×1.8
+    pxPerM: 36,                // 距离换算：压缩里程，完整一局约 2 分钟
+    finishDist: 800,           // 终点：跑完三幕即胜利
     gapStart: 620, gapDanger: 260, gapBack: 720, dangerTime: 3.0,
     stun: 0.42, invuln: 0.9,
     magnetDur: 2.4, magnetBoost: 0.45,
     evadeGap: 16,             // 极限闪避：竖直缝隙 < 16px 视为擦身
     spawnLead: 1500,          // 前方预生成距离
     coinScore: 30,
-    /* —— 丰富版参数 —— */
-    zoneStep: 600,            // 每 600m 一个生态区
-    rageStep: 500,            // 每 500m 一次巨兽狂怒
-    rageWaves: 3,             // 狂怒需连续挣脱 3 次
-    rageBonus: 500,           // 击退狂怒奖励分
-    passiveStep: 800,         // 每 800m 弹三选一被动
+    /* —— 三幕终局参数 —— */
+    actStep: 300,             // 每 300m 一幕：0/300/600 切换三幕场景
+    rageStep: 300,            // 每 300m 一次巨兽狂怒
+    rageWaves: 2,             // 狂怒需连续挣脱 2 次
+    rageBonus: 300,           // 击退狂怒奖励分
+    obstUnlocks: [            // 障碍类型按里程逐步解锁
+      { at: 0,   types: [] },
+      { at: 100, types: ['moving'] },
+      { at: 200, types: ['gap'] },
+      { at: 300, types: ['double'] },
+      { at: 450, types: ['spike'] },
+      { at: 600, types: ['combo'] }
+    ],
     chaserKinds: {            // 追击者三形态参数（按距离解锁）
       beast:    { unlock: 0,   burstMin: 3.1, burstMax: 4.4, burstTier: 0.07,
                   danger: 0, dangerMin: 1.5, dangerStep: 0.12,
                   delayMin: 3.8, delayBase: 7.2, delayTier: 0.28,
                   squeeze: 72, gapSpeed: 2.5, scale: 1.0,  label: '暗影巨兽' },
-      pack:     { unlock: 300, burstMin: 1.8, burstMax: 2.6, burstTier: 0.05,
+      pack:     { unlock: 160, burstMin: 1.8, burstMax: 2.6, burstTier: 0.05,
                   danger: 2.0,
                   delayMin: 2.2, delayBase: 5.0, delayTier: 0.2,
                   squeeze: 88, gapSpeed: 3.1, scale: 0.5,  label: '猎犬群' },
-      colossus: { unlock: 700, burstMin: 5.0, burstMax: 6.4, burstTier: 0.04,
+      colossus: { unlock: 360, burstMin: 5.0, burstMax: 6.4, burstTier: 0.04,
                   danger: 1.2,
                   delayMin: 4.2, delayBase: 8.0, delayTier: 0.2,
                   squeeze: 78, gapSpeed: 2.0, scale: 1.55, label: '战争巨像' }
@@ -59,29 +71,32 @@
 
   function newGame() {
     return {
-      dist: 0, speed: cfg.baseSpeed, time: 0,
+      dist: 0, speed: Math.round(cfg.baseSpeed * cfg.speedLow), time: 0,
       player: { y: cfg.groundY - cfg.actorH, vy: 0, airborne: false, jumps: 0,
                 sliding: 0, slideCd: 0, stun: 0, invuln: 0, shield: 0, magnet: 0,
-                shieldsMax: 2, passive: {} },
+                shieldsMax: 2 },
       chaser: { gap: cfg.gapStart, burst: 0, burstMax: 0, nextBurst: 6.5,
                 dangerLeft: cfg.dangerTime, dangerMax: cfg.dangerTime, escaped: 0,
                 kind: 'beast' },
       obstacles: [], coins: [], pickups: [], spawnCount: 0,
       score: 0, combo: 0, bestCombo: 0, nearMiss: 0,
-      coinsGot: 0, rageCleared: 0, zone: 0,
+      coinsGot: 0, rageCleared: 0, act: 0,
       speedTier: 0, gameOver: false, over: null,
-      rage: null, nextRageAt: cfg.rageStep, nextPassiveAt: cfg.passiveStep,
-      passivePending: false, passiveList: []
+      rage: null, nextRageAt: cfg.rageStep
     };
   }
 
-  /* —— 难度档位：每 250m 或每 24 秒提升，取进度更快的一项 —— */
+  /* —— 难度档位：非线性提速，每 100m 或每 15s 提升，取进度更快的一项 ——
+   * 速度曲线：旧基准 ×(0.6 → 1.8)，幂曲线 1.7 让后段陡升。 */
+  function speedMultFor(tier) {
+    var p = Math.min(1, tier / cfg.maxTier);
+    return cfg.speedLow + (cfg.speedHigh - cfg.speedLow) * Math.pow(p, 1.7);
+  }
   function tierFor(s) {
-    var distTier = Math.floor(s.dist / 250);
-    var timeTier = Math.floor((s.time || 0) / 24);
-    var tier = Math.max(distTier, timeTier);
-    return { speed: Math.min(cfg.maxSpeed, cfg.baseSpeed + tier * cfg.accelPer100m),
-              tier: tier };
+    var distTier = Math.floor(s.dist / cfg.gearStep);
+    var timeTier = Math.floor((s.time || 0) / cfg.gearTime);
+    var tier = Math.min(cfg.maxTier, Math.max(distTier, timeTier));
+    return { speed: Math.round(cfg.baseSpeed * speedMultFor(tier)), tier: tier };
   }
 
   function dangerTimeFor(tier) {
@@ -107,6 +122,20 @@
              squeeze: k.squeeze, gapSpeed: k.gapSpeed, scale: k.scale };
   }
 
+  /* —— 三幕场景：0 / 300 / 600m —— */
+  function actFor(dist) {
+    return Math.min(2, Math.floor(dist / cfg.actStep));
+  }
+
+  /* —— 障碍解锁：里程增加逐步开放更多类型 —— */
+  function unlockedObstacles(dist) {
+    var out = [];
+    for (var i = 0; i < cfg.obstUnlocks.length; i++) {
+      if (dist >= cfg.obstUnlocks[i].at) out = out.concat(cfg.obstUnlocks[i].types);
+    }
+    return out;
+  }
+
   /* —— 障碍生成 —— */
   function makeObstacle(x, type) {
     var d = OBST[type];
@@ -127,11 +156,8 @@
   function pickType(s) {
     var dist = s.dist, t = tierFor(s).tier;
     var r = Math.random();
-    // 新类型按距离解锁：前 300m 保持原 2 种为主
-    var extra = [];
-    if (dist >= 300) extra.push('moving', 'gap');
-    if (dist >= 600) extra.push('double', 'spike');
-    if (dist >= 1200) extra.push('combo');
+    // 新类型按里程逐步解锁：前 100m 保持原 2 种为主
+    var extra = unlockedObstacles(dist);
     if (extra.length && r < 0.38 + Math.min(0.22, t * 0.02)) {
       return extra[Math.floor(Math.random() * extra.length)];
     }
@@ -189,8 +215,8 @@
 
     var t = tierFor(s);
     if (t.tier > s.speedTier) { s.speedTier = t.tier; ev.push({ type: 'tierUp', tier: t.tier }); }
-    var speedTarget = t.speed * (s.player.passive.turbo ? 1.08 : 1);
-    s.speed += (speedTarget - s.speed) * Math.min(1, dt * 1.6);
+    var speedTarget = t.speed;
+    s.speed += (speedTarget - s.speed) * Math.min(1, dt * 1.6);   // 平滑逼近当前档目标速度（碰撞减速后自动恢复）
     if (s.player.magnet > 0) s.player.magnet = Math.max(0, s.player.magnet - dt);
 
     var p = s.player;
@@ -231,7 +257,7 @@
     // —— 前进（冲刺磁石加速） ——
     var moved = s.speed * dt * (p.magnet > 0 ? (1 + cfg.magnetBoost) : 1);
     var oldMeters = Math.floor(s.dist);
-    s.dist += moved / cfg.pxPerM;   // 以米累计
+    s.dist = Math.min(cfg.finishDist, s.dist + moved / cfg.pxPerM);   // 以米累计，到终点封顶
     s.score += Math.max(0, Math.floor(s.dist) - oldMeters);
 
     // —— 世界滚动：所有实体向左移动 ——
@@ -239,22 +265,25 @@
     for (mi = 0; mi < s.coins.length; mi++) s.coins[mi].x -= moved;
     for (mi = 0; mi < s.pickups.length; mi++) s.pickups[mi].x -= moved;
 
-    // —— 生态区事件 ——
-    var newZone = Math.min(5, Math.floor(s.dist / cfg.zoneStep));
-    if (newZone !== s.zone) { s.zone = newZone; ev.push({ type: 'zone', zone: newZone }); }
+    // —— 三幕场景切换 ——
+    var newAct = actFor(s.dist);
+    if (newAct !== s.act) { s.act = newAct; ev.push({ type: 'act', act: newAct }); }
 
-    // —— 巨兽狂怒触发（每 500m，连续 3 波挣脱） ——
-    if (!s.rage && s.dist >= s.nextRageAt) {
+    var reachedFinish = s.dist >= cfg.finishDist;
+
+    // —— 巨兽狂怒触发（每 300m，连续 2 波挣脱） ——
+    if (!reachedFinish && !s.rage && s.dist >= s.nextRageAt) {
       s.rage = { wave: 0, wavesNeeded: cfg.rageWaves };
       s.nextRageAt += cfg.rageStep;
       s.chaser.burst = 1; s.chaser.burstMax = 1; s.chaser.nextBurst = 999;
       ev.push({ type: 'rageStart', wave: 1 });
     }
-    // —— 被动三选一触发（每 800m） ——
-    if (!s.passivePending && s.dist >= s.nextPassiveAt) {
-      s.passivePending = true;
-      s.nextPassiveAt += cfg.passiveStep;
-      ev.push({ type: 'passiveChoice' });
+
+    if (reachedFinish) {
+      s.gameOver = true;
+      s.over = 'finish';
+      ev.push({ type: 'finish', dist: cfg.finishDist });
+      return ev;
     }
 
     // —— 移动梁碰撞盒随相位刷新 ——
@@ -327,7 +356,7 @@
       if (c.x > cfg.playerX - 30 && c.x < cfg.playerX + 30 &&
           c.y > box.top - 24 && c.y < box.bottom + 24) {
         s.coins.splice(i, 1);
-        var coinVal = cfg.coinScore * (s.rage ? 2 : 1) * (p.passive.coinDouble ? 2 : 1);
+        var coinVal = cfg.coinScore * (s.rage ? 2 : 1);
         s.score += coinVal; s.combo++; s.coinsGot++;
         s.bestCombo = Math.max(s.bestCombo, s.combo);
         ev.push({ type: 'coin' });
@@ -348,7 +377,7 @@
     var c2 = s.chaser;
     if (s.rage) { c2.burst = 1; c2.burstMax = 1; c2.nextBurst = 999; }  // 狂怒期强制高压
     var prof = profileOf(c2.kind, t.tier);
-    var dangerMax = prof.danger + (p.passive.evadeTime ? 1 : 0);   // 挣脱窗口被动 +1s
+    var dangerMax = prof.danger;
     c2.dangerMax = dangerMax;
     c2.dangerLeft = Math.min(c2.dangerLeft, dangerMax);
 
@@ -417,22 +446,6 @@
     return ev;
   }
 
-  /* —— 被动三选一应用（game.js UI 回调） —— */
-  function applyPassive(s, id) {
-    if (!s || s.passivePending !== true) return false;
-    var p = s.player;
-    p.passive = p.passive || {};
-    if (id === 'turbo') { p.passive.turbo = true; }
-    else if (id === 'doubleShield') { p.shieldsMax = 3; p.passive.doubleShield = true; }
-    else if (id === 'coinDouble') { p.passive.coinDouble = true; }
-    else if (id === 'evadeTime') { p.passive.evadeTime = true; }
-    else return false;
-    s.passivePending = false;
-    s.passiveList = s.passiveList || [];
-    s.passiveList.push(id);
-    return true;
-  }
-
   function endGame(s, reason) {
     if (s.gameOver) return s.over;
     s.gameOver = true; s.over = reason || 'quit';
@@ -442,7 +455,8 @@
   var API = {
     cfg: cfg, newGame: newGame, update: update, endGame: endGame,
     tierFor: tierFor, intervalFor: intervalFor, dangerTimeFor: dangerTimeFor,
-    applyPassive: applyPassive, chaserKindAt: chaserKindAt, profileOf: profileOf
+    chaserKindAt: chaserKindAt, profileOf: profileOf,
+    actFor: actFor, unlockedObstacles: unlockedObstacles, speedMultFor: speedMultFor
   };
   global.FinalRunEngine = API;
   if (typeof module !== 'undefined' && module.exports) module.exports = API;

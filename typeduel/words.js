@@ -1,7 +1,8 @@
 /* =====================================================================
  * words.js —— 《打字对决 TYPE DUEL》内置词库（独立数据文件）
- * 结构遵循设计文档 §5.1：window.WORDS = { tiers, shield, bonus, skills, boss, pick, random }
+ * 结构遵循设计文档 §5.1：window.WORDS = { tiers, shield, bonus, skills, boss, classic, pick, random, classicWord }
  * 词表按 §5.2 / §5.3 抄录（频率优先排序），纯数据、零依赖。
+ * 经典模式专用词池 classic：仅 2-5 字母，五字母词稀少（fiveWeight 权重）。
  * 兼容浏览器（window.WORDS）与 node（module.exports）双环境，便于自测。
  * ===================================================================== */
 (function (global) {
@@ -108,6 +109,36 @@
     skills: ["heal","bomb","freeze","slow"],
     /* —— Boss 分段词池（赛博主题） —— */
     boss: ["prism","hacker","matrix","cyber","virus","trojan","breach","glitch","photon","signal","vector","kernel","pulse","gamma","delta","sonic","laser","fusion","neon","echo"]
+  };
+
+  /* —— 经典模式词池（2-5 字母，五字母词稀少） ——
+   * short 复用 L1 短词（2-4 字母）；five 为精选五字母词，按 fiveWeight 权重出现。
+   * 经典模式所有难度仅取 2-5 字母词，绝不超过 5。 */
+  WORDS.classic = {
+    fiveWeight: 0.08,
+    short: WORDS.tiers[1].slice(),
+    five: [
+      "about","after","again","apple","black","block","board","break","bring","build",
+      "carry","catch","chair","check","child","clean","clear","click","clock","close",
+      "cloud","color","could","count","cover","cross","dance","dream","drive","earth",
+      "early","eight","every","field","fight","final","first","flash","floor","force","found"
+    ]
+  };
+
+  /* 经典模式取词：所有词 ≤5 字母；五字母词按 fiveWeight 稀少出现。
+   * type: common（普通/护盾内层/加速）/ bonus（奖励）/ skill（技能） */
+  WORDS.classicWord = function (type) {
+    if (type === 'bonus') {
+      var b = WORDS.bonus.filter(function (w) { return w.length <= 5; });
+      return b[Math.floor(Math.random() * b.length)];
+    }
+    if (type === 'skill') {
+      var s = WORDS.skills.filter(function (w) { return w.length <= 5; });
+      return s[Math.floor(Math.random() * s.length)];
+    }
+    var c = WORDS.classic;
+    var arr = Math.random() < c.fiveWeight ? c.five : c.short;
+    return arr[Math.floor(Math.random() * arr.length)];
   };
 
   /* —— 取词工具：从数组随机取 n 个不重复词 —— */

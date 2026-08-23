@@ -19,14 +19,38 @@ test('经验需求按等级线性增长', function () {
   assert.strictEqual(api.xpRequired(10), 73);
 });
 
-test('六段波次边界准确', function () {
+test('XP 需求按难度缩放', function () {
+  assert.strictEqual(api.xpRequired(1, 'easy'), 8, '入门 Lv1 需求为现状 80%');
+  assert.strictEqual(api.xpRequired(5, 'easy'), 30);
+  assert.strictEqual(api.xpRequired(5, 'normal'), 38);
+  assert.strictEqual(api.xpRequired(5, 'hard'), 42);
+  assert.strictEqual(api.xpRequired(10, 'easy'), 58);
+  assert.strictEqual(api.xpRequired(10, 'hard'), 80);
+});
+
+test('六段波次边界准确（每关 180 秒）', function () {
   assert.strictEqual(api.waveAt(0).rate, 1.05);
-  assert.strictEqual(api.waveAt(44.999).rate, 1.05);
-  assert.strictEqual(api.waveAt(45).rate, 1.6);
-  assert.strictEqual(api.waveAt(90).rate, 2);
-  assert.strictEqual(api.waveAt(180).rate, 2.9);
-  assert.strictEqual(api.waveAt(299.999).rate, 3.6);
-  assert.strictEqual(api.waveAt(300), null);
+  assert.strictEqual(api.waveAt(29.999).rate, 1.05);
+  assert.strictEqual(api.waveAt(30).rate, 1.6);
+  assert.strictEqual(api.waveAt(60).rate, 2);
+  assert.strictEqual(api.waveAt(90).rate, 2.4);
+  assert.strictEqual(api.waveAt(120).rate, 2.9);
+  assert.strictEqual(api.waveAt(149.999).rate, 2.9);
+  assert.strictEqual(api.waveAt(150).rate, 3.6);
+  assert.strictEqual(api.waveAt(179.999).rate, 3.6);
+  assert.strictEqual(api.waveAt(180), null);
+});
+
+test('每关 180 秒养成，两关合计 360 秒', function () {
+  assert.strictEqual(api.constants.stageLength, 180);
+  assert.strictEqual(api.constants.stageLength * 2, 360);
+  assert.strictEqual(api.waveAt(179.999).rate, 3.6, '第一关末段波次');
+  assert.strictEqual(api.waveAt(0, 1).rate, 1.6, '第二关起始波次');
+});
+
+test('每关精英使用本关 90 秒标记', function () {
+  assert.deepStrictEqual(api.constants.eliteMarks, [90]);
+  assert.strictEqual(api.constants.eliteMarks[0], api.constants.stageLength / 2);
 });
 
 test('固定种子随机数可复现', function () {
@@ -44,13 +68,13 @@ test('胜负同帧优先级为最终 Boss、玩家、超时', function () {
 });
 
 test('Boss 在半血切换第二阶段', function () {
-  const adj = {hp: 5400, phaseHp: 2700};
-  const exec = {hp: 12500, phaseHp: 6500};
+  const adj = {hp: 1800, phaseHp: 900};
+  const exec = {hp: 4200, phaseHp: 2100};
   assert.strictEqual(api.bossPhase(adj), 1);
-  adj.hp = 2701; assert.strictEqual(api.bossPhase(adj), 1);
-  adj.hp = 2700; assert.strictEqual(api.bossPhase(adj), 2);
+  adj.hp = 901; assert.strictEqual(api.bossPhase(adj), 1);
+  adj.hp = 900; assert.strictEqual(api.bossPhase(adj), 2);
   assert.strictEqual(api.bossPhase(exec), 1);
-  exec.hp = 6500; assert.strictEqual(api.bossPhase(exec), 2);
+  exec.hp = 2100; assert.strictEqual(api.bossPhase(exec), 2);
 });
 
 test('两个 Boss 定义与数值存在', function () {
@@ -63,12 +87,35 @@ test('两个 Boss 定义与数值存在', function () {
   assert.strictEqual(api.bossDefFor(0), api.constants.bosses.adjudicator);
 });
 
+test('BOSS 血量适配三分钟发育而下降', function () {
+  const adj = api.constants.bosses.adjudicator;
+  const exec = api.constants.bosses.executioner;
+  assert.ok(adj.hp < 3000, '第一裁定机血量应明显低于原版 5400');
+  assert.ok(exec.hp < 6000, '终焉执行者血量应明显低于原版 12500');
+  assert.strictEqual(adj.timeLimit, 30, '第一 Boss 独立限时 30 秒');
+  assert.strictEqual(exec.timeLimit, 40, '最终 Boss 独立限时 40 秒');
+});
+
 test('两阶段波次表存在且第二阶段更密', function () {
-  assert.strictEqual(api.constants.stageLength, 300);
+  assert.strictEqual(api.constants.stageLength, 180);
   assert.strictEqual(api.waveAt(0, 0).rate, 1.05);
   assert.strictEqual(api.waveAt(0, 1).rate, 1.6);
   assert.ok(api.waveAt(0, 1).rate > api.waveAt(0, 0).rate);
   assert.strictEqual(api.constants.stage2Waves.length, 6);
+});
+
+test('三档难度 profile 维度顺序与关键乘数', function () {
+  const d = api.constants.difficulties;
+  const keys = ['spawnRate', 'xpNeed', 'enemyHp', 'enemyDamage', 'eliteHp', 'bossHp', 'bulletPressure'];
+  keys.forEach(k => {
+    assert.ok(d.easy[k] < d.normal[k], `easy.${k} 应小于 normal.${k}`);
+    assert.ok(d.normal[k] < d.hard[k], `normal.${k} 应小于 hard.${k}`);
+  });
+  assert.strictEqual(d.easy.spawnRate, 0.7, '入门敌量约现状 70%');
+  assert.strictEqual(d.easy.xpNeed, 0.8, '入门 XP 需求现状 80%');
+  assert.ok(d.easy.eliteHp < 0.8 && d.easy.bossHp < 0.8 && d.easy.bulletPressure < 0.8, '入门精英/BOSS 血量与弹幕同向明显下降');
+  assert.ok(d.normal.spawnRate < 1 && d.normal.bossHp < 1 && d.normal.bulletPressure < 1, '普通低于原版强度');
+  assert.ok(d.hard.spawnRate > 1 && d.hard.bulletPressure > 1 && d.hard.bossHp > 1, '困难高于普通');
 });
 
 test('被动升级采用锁定数值', function () {
@@ -213,16 +260,20 @@ test('浏览器启动壳可绑定并开始任务', function () {
     assert.ok(elements.startBtn.listeners.click, '开始按钮未绑定');
     elements.startBtn.listeners.click();
     assert.ok(body.classList.contains('playing'), '开始任务后未进入战斗状态');
-    assert.strictEqual(elements.timeText.textContent, '05:00');
+    assert.strictEqual(elements.timeText.textContent, '03:00');
     game.gainXp(10);
     assert.strictEqual(game.state, 'LEVEL_UP');
     assert.strictEqual(elements.upgradeGrid.children.length, 3);
     elements.upgradeGrid.children[0].listeners.click();
     assert.strictEqual(game.state, 'PLAYING');
-    game.time = 299.99;
+    game.time = 89.99;
     game.update(0.02);
-    assert.ok(game.boss, '5:00 未生成第一 Boss');
-    game.boss.hp = 2700;
+    assert.ok(game.enemies.some(function (enemy) { return enemy.type === 'elite'; }), '第一关 90 秒未生成精英');
+    assert.ok(!game.boss, '第一关 90 秒不应提前生成 Boss');
+    game.time = 179.99;
+    game.update(0.02);
+    assert.ok(game.boss, '第一关 180 秒未生成第一 Boss');
+    game.boss.hp = game.boss.phaseHp;
     game.update(1 / 60);
     assert.strictEqual(game.boss.phase, 2);
     game.boss.hp = 0;
@@ -231,11 +282,17 @@ test('浏览器启动壳可绑定并开始任务', function () {
     assert.strictEqual(game.stage, 1, '应进入第二阶段');
     assert.ok(!game.boss, '第一 Boss 应被清除');
     assert.strictEqual(elements.stageText.textContent, '阶段 二');
-    game.time = 299.99;
+    assert.strictEqual(elements.timeText.textContent, '03:00', '第二关应重新获得完整三分钟');
+    assert.strictEqual(game.eliteFlags[90], false, '第二关精英计时应独立重置');
+    game.time = 89.99;
     game.update(0.02);
-    assert.ok(game.boss, '第二阶段 5:00 未生成最终 Boss');
+    assert.ok(game.enemies.some(function (enemy) { return enemy.type === 'elite'; }), '第二关 90 秒未生成精英');
+    assert.ok(!game.boss, '第二关 90 秒不应提前生成最终 Boss');
+    game.time = 179.99;
+    game.update(0.02);
+    assert.ok(game.boss, '第二关 180 秒未生成最终 Boss');
     assert.strictEqual(game.finalBoss, true);
-    game.boss.hp = 6500;
+    game.boss.hp = game.boss.phaseHp;
     game.update(1 / 60);
     assert.strictEqual(game.boss.phase, 2);
     game.boss.hp = 0;
@@ -272,7 +329,7 @@ test('无人机数量严格等于武器等级配置', function () {
       getContext() { return context; }
     };
   }
-  const ids = ['game', 'menuScreen', 'upgradeScreen', 'pauseScreen', 'resultScreen', 'startBtn', 'resumeBtn', 'restartBtn', 'againBtn', 'pauseBtn', 'settingsBtn', 'themeToggle', 'themeSubtitle', 'upgradeGrid', 'pauseReason', 'hpFill', 'hpText', 'timeText', 'levelText', 'killText', 'xpFill', 'xpText', 'bossHud', 'bossName', 'bossFill', 'bossPhase', 'combatToast', 'resultTitle', 'resultCode', 'resultReason', 'resultStats', 'buildSummary', 'recordRuns', 'recordWins', 'recordLevel', 'recordKills', 'stickZone', 'stickKnob', 'dashBtn', 'dashText', 'staminaFill', 'staminaText', 'dashRing', 'stageText', 'pauseThemeBtn', 'pauseThemeText'];
+  const ids = ['game', 'menuScreen', 'upgradeScreen', 'pauseScreen', 'resultScreen', 'startBtn', 'resumeBtn', 'restartBtn', 'againBtn', 'pauseBtn', 'settingsBtn', 'themeToggle', 'themeSubtitle', 'upgradeGrid', 'pauseReason', 'hpFill', 'hpText', 'timeText', 'levelText', 'killText', 'xpFill', 'xpText', 'bossHud', 'bossName', 'bossFill', 'bossPhase', 'combatToast', 'resultTitle', 'resultCode', 'resultReason', 'resultStats', 'buildSummary', 'recordRuns', 'recordWins', 'recordLevel', 'recordKills', 'stickZone', 'stickKnob', 'dashBtn', 'dashText', 'staminaFill', 'staminaText', 'dashRing', 'stageText', 'pauseThemeBtn', 'pauseThemeText', 'diffEasy', 'diffNormal', 'diffHard', 'difficultyText'];
   const elements = Object.fromEntries(ids.map(id => [id, element(id)]));
   const body = element('body');
   body.dataset.theme = '4399';
@@ -340,7 +397,7 @@ test('冲刺消耗耐力并平滑恢复', function () {
       getContext() { return context; }
     };
   }
-  const ids = ['game', 'menuScreen', 'upgradeScreen', 'pauseScreen', 'resultScreen', 'startBtn', 'resumeBtn', 'restartBtn', 'againBtn', 'pauseBtn', 'settingsBtn', 'themeToggle', 'themeSubtitle', 'upgradeGrid', 'pauseReason', 'hpFill', 'hpText', 'timeText', 'levelText', 'killText', 'xpFill', 'xpText', 'bossHud', 'bossName', 'bossFill', 'bossPhase', 'combatToast', 'resultTitle', 'resultCode', 'resultReason', 'resultStats', 'buildSummary', 'recordRuns', 'recordWins', 'recordLevel', 'recordKills', 'stickZone', 'stickKnob', 'dashBtn', 'dashText', 'staminaFill', 'staminaText', 'dashRing', 'stageText', 'pauseThemeBtn', 'pauseThemeText'];
+  const ids = ['game', 'menuScreen', 'upgradeScreen', 'pauseScreen', 'resultScreen', 'startBtn', 'resumeBtn', 'restartBtn', 'againBtn', 'pauseBtn', 'settingsBtn', 'themeToggle', 'themeSubtitle', 'upgradeGrid', 'pauseReason', 'hpFill', 'hpText', 'timeText', 'levelText', 'killText', 'xpFill', 'xpText', 'bossHud', 'bossName', 'bossFill', 'bossPhase', 'combatToast', 'resultTitle', 'resultCode', 'resultReason', 'resultStats', 'buildSummary', 'recordRuns', 'recordWins', 'recordLevel', 'recordKills', 'stickZone', 'stickKnob', 'dashBtn', 'dashText', 'staminaFill', 'staminaText', 'dashRing', 'stageText', 'pauseThemeBtn', 'pauseThemeText', 'diffEasy', 'diffNormal', 'diffHard', 'difficultyText'];
   const elements = Object.fromEntries(ids.map(id => [id, element(id)]));
   const body = element('body');
   body.dataset.theme = '4399';
@@ -397,7 +454,7 @@ test('设置面板内含主题切换', function () {
       getContext() { return context; }
     };
   }
-  const ids = ['game', 'menuScreen', 'upgradeScreen', 'pauseScreen', 'resultScreen', 'startBtn', 'resumeBtn', 'restartBtn', 'againBtn', 'pauseBtn', 'settingsBtn', 'themeToggle', 'themeSubtitle', 'upgradeGrid', 'pauseReason', 'hpFill', 'hpText', 'timeText', 'levelText', 'killText', 'xpFill', 'xpText', 'bossHud', 'bossName', 'bossFill', 'bossPhase', 'combatToast', 'resultTitle', 'resultCode', 'resultReason', 'resultStats', 'buildSummary', 'recordRuns', 'recordWins', 'recordLevel', 'recordKills', 'stickZone', 'stickKnob', 'dashBtn', 'dashText', 'staminaFill', 'staminaText', 'dashRing', 'stageText', 'pauseThemeBtn', 'pauseThemeText'];
+  const ids = ['game', 'menuScreen', 'upgradeScreen', 'pauseScreen', 'resultScreen', 'startBtn', 'resumeBtn', 'restartBtn', 'againBtn', 'pauseBtn', 'settingsBtn', 'themeToggle', 'themeSubtitle', 'upgradeGrid', 'pauseReason', 'hpFill', 'hpText', 'timeText', 'levelText', 'killText', 'xpFill', 'xpText', 'bossHud', 'bossName', 'bossFill', 'bossPhase', 'combatToast', 'resultTitle', 'resultCode', 'resultReason', 'resultStats', 'buildSummary', 'recordRuns', 'recordWins', 'recordLevel', 'recordKills', 'stickZone', 'stickKnob', 'dashBtn', 'dashText', 'staminaFill', 'staminaText', 'dashRing', 'stageText', 'pauseThemeBtn', 'pauseThemeText', 'diffEasy', 'diffNormal', 'diffHard', 'difficultyText'];
   const elements = Object.fromEntries(ids.map(id => [id, element(id)]));
   const body = element('body');
   body.dataset.theme = '4399';
@@ -424,6 +481,71 @@ test('设置面板内含主题切换', function () {
     assert.strictEqual(elements.pauseThemeText.textContent, '未来机甲实战');
     elements.pauseThemeBtn.listeners.click();
     assert.strictEqual(body.dataset.theme, '4399');
+  } finally {
+    for (const key of Object.keys(old)) {
+      if (old[key] === undefined) delete global[key];
+      else global[key] = old[key];
+    }
+  }
+});
+
+test('难度选择切换 profile 并同步 HUD', function () {
+  const context = new Proxy({}, {get: (target, key) => target[key] || function () {}, set: (target, key, value) => (target[key] = value, true)});
+  function classList() {
+    const values = new Set();
+    return {
+      add: (...names) => names.forEach(name => values.add(name)),
+      remove: (...names) => names.forEach(name => values.delete(name)),
+      toggle: (name, force) => force ? values.add(name) : values.delete(name),
+      contains: name => values.has(name)
+    };
+  }
+  function element(id) {
+    return {
+      id, style: {}, dataset: {}, children: [], listeners: {}, attrs: {},
+      classList: classList(),
+      setAttribute(name, value) { this.attrs[name] = value; },
+      getAttribute(name) { return this.attrs[name]; },
+      addEventListener(type, handler) { this.listeners[type] = handler; },
+      appendChild() {},
+      getBoundingClientRect() { return {left: 0, top: 0, width: 112, height: 112}; },
+      setPointerCapture() {},
+      getContext() { return context; }
+    };
+  }
+  const ids = ['game', 'menuScreen', 'upgradeScreen', 'pauseScreen', 'resultScreen', 'startBtn', 'resumeBtn', 'restartBtn', 'againBtn', 'pauseBtn', 'settingsBtn', 'themeToggle', 'themeSubtitle', 'upgradeGrid', 'pauseReason', 'hpFill', 'hpText', 'timeText', 'levelText', 'killText', 'xpFill', 'xpText', 'bossHud', 'bossName', 'bossFill', 'bossPhase', 'combatToast', 'resultTitle', 'resultCode', 'resultReason', 'resultStats', 'buildSummary', 'recordRuns', 'recordWins', 'recordLevel', 'recordKills', 'stickZone', 'stickKnob', 'dashBtn', 'dashText', 'staminaFill', 'staminaText', 'dashRing', 'stageText', 'pauseThemeBtn', 'pauseThemeText', 'diffEasy', 'diffNormal', 'diffHard', 'difficultyText'];
+  const elements = Object.fromEntries(ids.map(id => [id, element(id)]));
+  const body = element('body');
+  body.dataset.theme = '4399';
+  const fakeDocument = {body, hidden: false, getElementById(id) { return elements[id]; }, addEventListener() {}, createElement(tag) { return element(tag); }};
+  const old = {};
+  for (const key of ['document', 'innerWidth', 'innerHeight', 'devicePixelRatio', 'matchMedia', 'addEventListener', 'requestAnimationFrame', 'localStorage', 'setTimeout', 'clearTimeout']) old[key] = global[key];
+  try {
+    global.document = fakeDocument;
+    global.innerWidth = 1024;
+    global.innerHeight = 768;
+    global.devicePixelRatio = 1;
+    global.matchMedia = () => ({matches: false});
+    global.addEventListener = () => {};
+    global.requestAnimationFrame = () => 1;
+    global.localStorage = {getItem: () => null, setItem: () => {}};
+    global.setTimeout = () => 1;
+    global.clearTimeout = () => {};
+    const game = api.boot();
+    assert.strictEqual(game.difficultyKey, 'normal', '默认难度应为普通');
+    elements.diffEasy.listeners.click();
+    assert.strictEqual(game.difficultyKey, 'easy');
+    assert.strictEqual(elements.difficultyText.textContent, '入门', 'HUD 难度应同步为入门');
+    assert.strictEqual(elements.diffEasy.getAttribute('aria-checked'), 'true');
+    assert.strictEqual(elements.diffNormal.getAttribute('aria-checked'), 'false');
+    game.start();
+    assert.strictEqual(game.difficulty.spawnRate, 0.7, '入门敌量乘数 0.7');
+    assert.strictEqual(game.difficulty.xpNeed, 0.8, '入门 XP 需求乘数 0.8');
+    assert.strictEqual(game.difficulty.bossHp, 0.7, '入门 BOSS 血量乘数 0.7');
+    elements.diffHard.listeners.click();
+    assert.strictEqual(game.difficultyKey, 'hard');
+    assert.strictEqual(game.difficulty.bulletPressure, 1.15, '困难弹幕压力乘数 1.15');
+    assert.strictEqual(elements.difficultyText.textContent, '困难');
   } finally {
     for (const key of Object.keys(old)) {
       if (old[key] === undefined) delete global[key];

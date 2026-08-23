@@ -101,7 +101,7 @@ function fire(ev, obj) {
 const store = {};
 /* 任务2 预置：默认视作已通关全部模式（保证既有 sprint/survival 集成用例可直接开局）；
  * 新玩家的“锁定”行为由末尾新增的解锁自测用例单独验证（覆写 store）。 */
-store['typeduel.progress.v1'] = JSON.stringify({ unlockedDifficulty: 'inferno', stage: { normal: 9, hard: 9, inferno: 9 } });
+store['typeduel.progress.v1'] = JSON.stringify({ unlockedDifficulty: 'inferno', stage: { normal: 7, hard: 7, inferno: 7 } });
 const localStorageStub = {
   getItem: function (k) { return Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null; },
   setItem: function (k, v) { store[k] = String(v); },
@@ -260,8 +260,8 @@ t('Boss 关：预警→入场→三段击杀→过关', function () {
   });
   assert(game.boss === null && game.stage === 4, 'Boss 击杀后未过关');
 });
-t('第 12 关通关 → 胜利结算', function () {
-  game.mode = 'campaign'; game.difficulty = 'normal'; game.setupStage(12);
+t('第 6 关通关 → 胜利结算', function () {
+  game.mode = 'campaign'; game.difficulty = 'normal'; game.setupStage(6);
   game.spawned = game.quota; game.enemies = [];
   game.checkStage(); game.bossWaitT = 0; game.update(0.05);
   game.boss.segments.slice().forEach(function (w) {
@@ -326,6 +326,7 @@ t('audio.js 暴露 4 个 BGM 文件名（§8.5）', function () {
   assert(f.boss === 'assets/audio/bgm_boss.mp3');
 });
 t('localStorage 键名写入正确（§6.3/§8.4）', function () {
+  store['typeduel.progress.v1'] = JSON.stringify({ unlockedDifficulty: 'normal', stage: { normal: 1, hard: 1, inferno: 1 } });
   game.mode = 'campaign'; game.difficulty = 'normal'; game.start();
   /* 清关 1 → 2 触发 progress 写入 */
   game.enemies = []; game.clearStage();
@@ -356,7 +357,7 @@ t('新玩家默认锁定 sprint/survival，点击锁定卡不进入并提示', f
   assert(elements.menuToast._text.indexOf('第 4 关') >= 0, 'sprint 提示缺失: ' + elements.menuToast._text);
   (elements.modeSurvival._listeners.click || []).forEach(function (fn) { fn({}); });
   assert(game.mode === 'campaign', '锁定 survival 点击不应切换');
-  assert(elements.menuToast._text.indexOf('第 8 关') >= 0, 'survival 提示缺失: ' + elements.menuToast._text);
+  assert(elements.menuToast._text.indexOf('第 6 关') >= 0, 'survival 提示缺失: ' + elements.menuToast._text);
 });
 t('键盘 2/3 选择锁定模式 → 提示且不切换', function () {
   store['typeduel.progress.v1'] = JSON.stringify({ unlockedDifficulty: 'normal', stage: { normal: 1, hard: 1, inferno: 1 } });
@@ -366,16 +367,16 @@ t('键盘 2/3 选择锁定模式 → 提示且不切换', function () {
   fire('keydown', { key: '3', preventDefault: function () {} });
   assert(game.mode === 'campaign', '按 3 不应切换');
 });
-t('通关第4关解锁 sprint / 第8关解锁 survival，点击可正常进入', function () {
+t('通关第4关解锁 sprint / 通关第6关解锁 survival，点击可正常进入', function () {
   store['typeduel.progress.v1'] = JSON.stringify({ unlockedDifficulty: 'normal', stage: { normal: 5, hard: 1, inferno: 1 } });
   game.mode = 'campaign'; game.updateModeUI();
   assert(!elements.modeSprint.classList.contains('locked'), '通关4关后 sprint 应解锁');
-  assert(elements.modeSurvival.classList.contains('locked'), '第8关未达 survival 仍应锁定');
+  assert(elements.modeSurvival.classList.contains('locked'), '第6关未达 survival 仍应锁定');
   (elements.modeSprint._listeners.click || []).forEach(function (fn) { fn({}); });
   assert(game.mode === 'sprint', '解锁后点击 sprint 应进入');
-  store['typeduel.progress.v1'] = JSON.stringify({ unlockedDifficulty: 'normal', stage: { normal: 9, hard: 1, inferno: 1 } });
+  store['typeduel.progress.v1'] = JSON.stringify({ unlockedDifficulty: 'normal', stage: { normal: 7, hard: 1, inferno: 1 } });
   game.mode = 'campaign'; game.updateModeUI();
-  assert(!elements.modeSurvival.classList.contains('locked'), '通关8关后 survival 应解锁');
+  assert(!elements.modeSurvival.classList.contains('locked'), '通关6关后 survival 应解锁');
   (elements.modeSurvival._listeners.click || []).forEach(function (fn) { fn({}); });
   assert(game.mode === 'survival', '解锁后点击 survival 应进入');
 });

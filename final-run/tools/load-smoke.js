@@ -31,11 +31,11 @@ function makeEl(id) {
 }
 const ALL_IDS = [
   'startScreen','runScreen','overScreen','loader',
-  'hudDist','hudCombo','hudScore','hudShieldN','hudCoins','hudPassiveN',
+  'hudDist','hudCombo','hudScore','hudShieldN','hudCoins',
   'dangerOverlay','dangerText','tierToast','pauseHint',
-  'statDist','statCombo','statNear','statTime','statCoins','statRage','statPassive','statTotalDist',
+  'statDist','statCombo','statNear','statTime','statCoins','statRage','statTotalDist',
   'rankList','overTitle','overSub',
-  'rageHud','rageWaveN','passiveModal',
+  'rageHud','rageWaveN',
   'shopModal','shopCoin','skinGrid','itemGrid','shopBtn','shopClose',
   'dailyCard','dailyGoal','dailyProg','dailyOver','dailyOverGoal','dailyOverProg',
   'achieveStrip','archiveDist','archiveTime','coinCount','dailyGoalShort',
@@ -46,7 +46,6 @@ elements['gameCanvas'] = Object.assign(makeEl('gameCanvas'), {
   width: 960, height: 540, getContext: () => ctx2d,
   addEventListener: noop
 });
-elements['passiveModal'].querySelectorAll = () => [];
 elements['shopModal'].addEventListener = noop;
 
 // localStorage mock
@@ -93,7 +92,13 @@ ok(!!global.FinalRunEngine, 'FinalRunEngine 已暴露');
 ok(!!global.FinalRunAudio, 'FinalRunAudio 已暴露');
 ok(!!global.FinalRunMeta, 'FinalRunMeta 已暴露');
 ok(global.FinalRunMeta.ACHS.length >= 12, 'meta 成就定义 ≥ 12');
-ok(global.FinalRunMeta.ZONES.length === 6, 'meta 生态区 = 6');
+ok(global.FinalRunMeta.ZONES.length === 3, 'meta 三幕场景配色 = 3');
+ok(global.FinalRunMeta.ACTS.length === 3, 'meta 三幕场景 = 3');
+ok(global.FinalRunMeta.SKINS.every(sk => typeof sk.unlockRuns === 'number'), '皮肤带累计开局解锁门槛');
+ok(global.FinalRunEngine.cfg.finishDist === 800, '引擎总程 800m');
+ok(global.FinalRunEngine.cfg.actStep === 300, '三幕阈值 300m');
+ok(global.FinalRunEngine.cfg.speedLow === 0.6 && global.FinalRunEngine.cfg.speedHigh === 1.8, '速度档 0.6x → 1.8x');
+ok(typeof global.FinalRunEngine.applyPassive === 'undefined', '引擎无 Rogue 被动接口');
 
 console.log('\n' + (failed === 0 ? '通过 ' + passed + ' 项，全部通过' : '通过 ' + passed + ' 项，失败 ' + failed + ' 项'));
 process.exit(failed === 0 ? 0 : 1);
