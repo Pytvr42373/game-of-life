@@ -80,7 +80,7 @@ function makeContext(storage, label) {
   sandbox.window = sandbox;
   vm.createContext(sandbox);
   vm.runInContext(code, sandbox);
-  return { sandbox, intervals, timeouts, els, storage, label };
+  return { sandbox, intervals, timeouts, els, storage, label, shadowRoot };
 }
 
 let passed = 0, failed = 0;
@@ -189,6 +189,30 @@ console.log('[6] 旧状态兼容迁移(playReminderShown -> slot)');
   const title = ctx.els[2];
   T('旧一次性提醒迁移为 slot=1', () => { const s = stateOf(st); if (s.lastPlayReminderSlot !== 1) throw new Error('slot=' + s.lastPlayReminderSlot); });
   T('迁移后不重复弹(同槽位不触发)', () => { if (title.textContent !== '') throw new Error('re-fired: ' + title.textContent); });
+}
+
+console.log('[7] 隐藏时宿主事件穿透(pointer-events 回归)');
+{
+  const st = makeStorage();
+  FakeDate.set(new RealDate('2026-08-22T10:00:00+08:00').getTime());
+  const ctx = makeContext(st, 't7');
+  const css = ctx.shadowRoot.innerHTML;
+  const ruleOf = re => { const m = css.match(re); if (!m) throw new Error('missing rule: ' + re); return m[0]; };
+  T('宿主 :host 含 pointer-events:none(隐藏时整页可点击)', () => {
+    const r = ruleOf(/:host\{[^}]+\}/);
+    if (!/pointer-events:\s*none/.test(r)) throw new Error(r);
+  });
+  T('overlay 默认(隐藏) pointer-events:none', () => {
+    const r = ruleOf(/\.overlay\{[^}]+\}/);
+    if (!/pointer-events:\s*none/.test(r)) throw new Error(r);
+  });
+  T('overlay.show 弹窗显示时 pointer-events:auto(可交互)', () => {
+    const r = ruleOf(/\.overlay\.show\{[^}]+\}/);
+    if (!/pointer-events:\s*auto/.test(r)) throw new Error(r);
+  });
+  T('overlay 与 :host 都声明 pointer-events(双保险)', () => {
+    if ((css.match(/pointer-events/g) || []).length < 3) throw new Error(css.match(/pointer-events/g));
+  });
 }
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');

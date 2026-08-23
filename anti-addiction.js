@@ -273,7 +273,7 @@
     var root = host.attachShadow({ mode: 'open' });
     root.innerHTML =
       '<style>' +
-      ':host{all:initial;position:fixed;inset:0;z-index:2147483647;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}' +
+      ':host{all:initial;position:fixed;inset:0;z-index:2147483647;pointer-events:none;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}' +
       '.overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;background:rgba(0,0,0,.5);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .25s ease}' +
       '.overlay.show{opacity:1;pointer-events:auto}' +
       '.card{position:relative;width:min(460px,100%);box-sizing:border-box;display:flex;flex-direction:column;gap:14px;padding:22px 20px;color:#24401d;background:rgba(255,255,255,.99);border:2px solid #d8e8cd;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.35);transform:translateY(14px) scale(.96);transition:transform .25s ease;max-height:calc(100vh - 40px);overflow:auto}' +
