@@ -52,10 +52,10 @@ for(let i=0;i<7200;i++){ // 2 分钟
 }
 check('场景1 全AI对局 2分钟不崩溃 (推进 '+g1steps+' 步, 状态='+g1.state+')', g1steps>600);
 
-// ===== 场景2: 所有地图 × 求生者开局, 跑 60s =====
-const charIds=['med','eng','dec','run','gua','gho'];
-for(let m=0;m<3;m++){
-  for(let c=0;c<charIds.length;c++){
+// ===== 场景2: 所有地图 × 全部求生者开局, 跑 30s =====
+const charIds = SURVIVORS.map(function (c) { return c.id; });
+for (let m = 0; m < MAPS.length; m++){
+  for (let c = 0; c < charIds.length; c++){
     const g=new Game();
     g.startMatch({mapIdx:m, difficulty:'normal', asHunter:false, charId:charIds[c], hunterId:'hun_chase'});
     let steps=0;
@@ -69,9 +69,10 @@ for(let m=0;m<3;m++){
   }
 }
 
-// ===== 场景3: 所有地图 × 监管者开局 =====
-for(let m=0;m<3;m++){
-  for(const hid of ['hun_chase','hun_tele']){
+// ===== 场景3: 所有地图 × 全部监管者开局 =====
+const hunterIds = HUNTERS.map(function (c) { return c.id; });
+for(let m=0;m<MAPS.length;m++){
+  for(const hid of hunterIds){
     const g=new Game();
     g.startMatch({mapIdx:m, difficulty:'nightmare', asHunter:true, charId:'med', hunterId:hid});
     let steps=0;

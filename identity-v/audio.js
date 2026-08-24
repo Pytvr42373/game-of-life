@@ -92,7 +92,9 @@ var AudioSys = (function () {
     chairTick: function () { tone(300, 0.06, 'square', 0.05, 260); },
 
     teleport: function () { noise(0.5, 0.2, 3000, 'bandpass', 0, 4); tone(500, 0.4, 'sine', 0.12, 1200); },
-    reveal: function () { tone(880, 0.2, 'sine', 0.12); tone(1320, 0.3, 'sine', 0.1, null, 0.12); },
+    fog: function () { noise(0.28, 0.12, 900, 'bandpass', 0, 2); tone(170, 0.2, 'sine', 0.08, 90); },
+    chain: function () { noise(0.16, 0.18, 1800, 'highpass', 0, 3); tone(260, 0.14, 'square', 0.12, 120); },
+    smash: function () { noise(0.24, 0.28, 260, 'lowpass', 0, 2); tone(72, 0.28, 'sawtooth', 0.2, 38); },
     dash: function () { noise(0.35, 0.18, 1800, 'bandpass', 0, 3); tone(180, 0.3, 'sawtooth', 0.1, 420); },
     trap: function () { tone(220, 0.12, 'square', 0.14, 140); tone(330, 0.1, 'square', 0.1, null, 0.06); },
     quake: function () { noise(0.3, 0.3, 200, 'lowpass'); tone(60, 0.4, 'sawtooth', 0.25, 32); },

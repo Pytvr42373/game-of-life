@@ -105,7 +105,7 @@ var HUNTERS = [
     stats: { speed: 0.94, atkCd: 3.3, atkRange: 46, vision: 290, vault: 0.8 },
     passive: { name: '迷雾感知', desc: '求生者修机校准失败时会暴露位置' },
     active: { name: '空间传送', type: 'teleport', cd: 30, duration: 0, desc: '传送至最近的未完成密码机旁' },
-    active2: { name: '全视之眼', type: 'reveal', cd: 50, duration: 4, desc: '4 秒内显示所有求生者位置' },
+    active2: { name: '迷雾禁区', type: 'fog_zone', cd: 36, duration: 8, radius: 140, moveMul: 0.8, decodeMul: 0.6, desc: '在当前位置生成半径 140px 的迷雾禁区，持续 8 秒；区内求生者移速与破译速度下降' },
     style: { cloak: '#3a3358', trim: '#c8b8f0', glow: '#c0a8ff', weapon: 'staff' }
   },
   {
@@ -116,7 +116,7 @@ var HUNTERS = [
     stats: { speed: 1.00, atkCd: 2.9, atkRange: 50, vision: 280, vault: 0.75 },
     passive: { name: '枷锁牢笼', desc: '命中后目标 1.2 秒移速 -25%' },
     active: { name: '铁笼陷阱', type: 'trap', cd: 22, duration: 0, desc: '在面前放置铁笼陷阱（对求生者隐形，踩中显现并定身 1.5 秒；最多同时 3 个）' },
-    active2: { name: '全视之眼', type: 'reveal', cd: 45, duration: 4, desc: '4 秒内显示所有求生者位置' },
+    active2: { name: '锁链拖拽', type: 'chain_pull', cd: 24, range: 240, pull: 80, desc: '将面前 240px 内最近的求生者向自己拖拽最多 80px（不造成伤害、不可穿墙/倒板、不可与监管者重叠）；成功时中断其破译与持续交互' },
     style: { cloak: '#5a3a20', trim: '#c0a060', glow: '#ffb860', weapon: 'claw' }
   },
   {
@@ -127,7 +127,7 @@ var HUNTERS = [
     stats: { speed: 0.92, atkCd: 3.0, atkRange: 58, vision: 275, vault: 0.6 },
     passive: { name: '碎骨之击', desc: '命中造成震荡，目标 2.5 秒移速 -12%' },
     active: { name: '震荡波', type: 'quake', cd: 26, duration: 0, desc: '朝面前释放冲击波，波及求生者掉 1 点血并击晕 1.2 秒' },
-    active2: { name: '全视之眼', type: 'reveal', cd: 50, duration: 4, desc: '4 秒内显示所有求生者位置' },
+    active2: { name: '粉碎之姿', type: 'smash_stance', cd: 30, duration: 6, stunMul: 0.4, breakDuration: 0.7, desc: '6 秒内被板砸晕时间大幅缩短，主动破板速度大幅加快' },
     style: { cloak: '#3a2a2a', trim: '#8a5a3a', glow: '#ff7a50', weapon: 'hammer' }
   }
 ];

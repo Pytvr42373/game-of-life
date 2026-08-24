@@ -225,6 +225,11 @@
   function setTouchRole(asHunter) {
     var primary = $('btn-interact');
     var secondary = $('btn-crouch');
+    var skill = $('btn-skill');
+    var skill2 = $('btn-skill2');
+    var role = G && G.player;
+    var active = role && role.char && role.char.active;
+    var active2 = asHunter && role && role.char && role.char.active2;
     if (primary) {
       primary.textContent = asHunter ? '攻击' : '交互';
       if (primary.setAttribute) primary.setAttribute('aria-label', asHunter ? '攻击' : '交互');
@@ -232,6 +237,15 @@
     if (secondary) {
       secondary.textContent = asHunter ? '交互' : '蹲';
       if (secondary.setAttribute) secondary.setAttribute('aria-label', asHunter ? '牵制、挂椅或破坏木板' : '蹲伏');
+    }
+    if (skill) {
+      skill.textContent = active ? active.name : '技能';
+      if (skill.setAttribute) skill.setAttribute('aria-label', active ? active.name : '角色技能');
+    }
+    if (skill2) {
+      skill2.textContent = active2 ? active2.name : '技能2';
+      skill2.style.display = active2 ? 'flex' : 'none';
+      if (skill2.setAttribute) skill2.setAttribute('aria-label', active2 ? active2.name : '技能2（不可用）');
     }
   }
 
@@ -753,6 +767,9 @@
       }
     }
 
+    // 监管者脚下状态在实体之前，避免遮住角色
+    if (G.hunter) drawHunterGroundFx(G.hunter, ox, oy);
+
     // 实体(按 y 排序)
     var ents = [];
     for (var i = 0; i < G.survivors.length; i++) if (G.survivors[i].alive && !G.survivors[i].escaped) ents.push(G.survivors[i]);
@@ -763,8 +780,8 @@
       else drawHunter(ents[e], ox, oy);
     }
 
-    // 传送指示
-    if (G.hunter && G.reveal > 0) drawRevealPings(ox, oy);
+    // 锁链在实体上方，端点始终使用技能提供的世界坐标
+    if (G.hunter && G.hunter.chainFx > 0) drawChainFx(G.hunter, ox, oy);
 
     // 粒子
     drawParticles(ox, oy);
@@ -877,6 +894,100 @@
     ctx.lineWidth = 2.5;
     ctx.strokeRect(-8, -8, 16, 16);
     ctx.beginPath(); ctx.moveTo(-8, -8); ctx.lineTo(8, 8); ctx.moveTo(8, -8); ctx.lineTo(-8, 8); ctx.stroke();
+    ctx.restore();
+  }
+
+  function zoneAlpha(z) {
+    var fadeIn = Math.min(1, z.t / 0.35);
+    var fadeOut = Math.min(1, Math.max(0, (z.dur - z.t) / 0.55));
+    return Math.min(fadeIn, fadeOut);
+  }
+
+  function drawFogZones(ox, oy) {
+    if (!G.fogZones || !G.fogZones.length) return;
+    for (var i = 0; i < G.fogZones.length; i++) {
+      var z = G.fogZones[i], a = zoneAlpha(z);
+      if (a <= 0) continue;
+      var sx = z.x - ox, sy = z.y - oy;
+      var pulse = reducedMotion ? 1 : 1 + Math.sin(frame * 0.06 + i) * 0.035;
+      ctx.save();
+      ctx.globalAlpha = a;
+      var haze = ctx.createRadialGradient(sx, sy, z.radius * 0.38, sx, sy, z.radius * pulse);
+      haze.addColorStop(0, 'rgba(101,88,128,0.23)');
+      haze.addColorStop(0.72, 'rgba(82,76,111,0.16)');
+      haze.addColorStop(1, 'rgba(50,45,76,0.03)');
+      ctx.fillStyle = haze;
+      ctx.beginPath(); ctx.arc(sx, sy, z.radius * pulse, 0, 6.283); ctx.fill();
+      ctx.strokeStyle = 'rgba(160,137,190,0.62)';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(sx, sy, z.radius, 0, 6.283); ctx.stroke();
+      if (!reducedMotion) {
+        ctx.strokeStyle = 'rgba(190,170,210,0.18)';
+        ctx.lineWidth = 3;
+        for (var w = 0; w < 3; w++) {
+          var wr = z.radius * (0.45 + w * 0.16);
+          ctx.beginPath();
+          ctx.arc(sx + Math.sin(frame * 0.018 + w) * 5, sy + Math.cos(frame * 0.014 + w) * 4, wr, w * 1.7, w * 1.7 + 1.8);
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
+    }
+  }
+
+  function drawHunterGroundFx(h, ox, oy) {
+    drawFogZones(ox, oy);
+    if (!(h.smashT > 0)) return;
+    var sx = h.x - ox, sy = h.y - oy;
+    var active = h.char.active2 || {};
+    var duration = active.duration || 6;
+    var progress = Math.max(0, Math.min(1, h.smashT / duration));
+    var pulse = reducedMotion ? 1 : 1 + Math.sin(frame * 0.16) * 0.08;
+    ctx.save();
+    ctx.globalAlpha = 0.55 + progress * 0.35;
+    ctx.strokeStyle = 'rgba(224,92,55,0.72)';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(sx, sy + 5, 25 * pulse, 0, 6.283); ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,143,73,0.42)';
+    ctx.beginPath(); ctx.arc(sx, sy + 5, 34 * pulse, 0, 6.283); ctx.stroke();
+    ctx.fillStyle = 'rgba(203,67,43,0.25)';
+    ctx.beginPath(); ctx.arc(sx, sy + 5, 20, 0, 6.283); ctx.fill();
+    for (var i = 0; i < 4; i++) {
+      var ang = i * 1.57 + 0.2;
+      var len = 7 + (reducedMotion ? 0 : Math.sin(frame * 0.12 + i) * 3);
+      ctx.fillStyle = 'rgba(255,157,78,0.6)';
+      ctx.fillRect(sx + Math.cos(ang) * 26 - 2, sy + 5 + Math.sin(ang) * 26 - 2, len, 3);
+    }
+    ctx.restore();
+  }
+
+  function drawChainFx(h, ox, oy) {
+    var x1 = h.x - ox, y1 = h.y - oy, x2 = h.chainFxX - ox, y2 = h.chainFxY - oy;
+    var dx = x2 - x1, dy = y2 - y1, len = Math.sqrt(dx * dx + dy * dy) || 1;
+    var ux = dx / len, uy = dy / len, nx = -uy, ny = ux;
+    var a = Math.min(1, h.chainFx / 0.18);
+    var hit = h.chainFxHit;
+    ctx.save();
+    ctx.globalAlpha = a;
+    ctx.strokeStyle = hit ? 'rgba(226,126,62,0.9)' : 'rgba(112,72,57,0.72)';
+    ctx.lineWidth = hit ? 4 : 3;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    for (var i = 0; i <= 8; i++) {
+      var t = i / 8, sway = (i % 2 ? 3 : -3) * (hit ? 1 : 0.7);
+      var px = x1 + dx * t + nx * sway, py = y1 + dy * t + ny * sway;
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+    ctx.strokeStyle = hit ? 'rgba(255,211,139,0.9)' : 'rgba(122,91,78,0.45)';
+    ctx.lineWidth = 1;
+    for (var j = 1; j < 8; j += 2) {
+      var tx = x1 + dx * (j / 8), ty = y1 + dy * (j / 8);
+      ctx.beginPath(); ctx.arc(tx, ty, 4, 0, 6.283); ctx.stroke();
+    }
+    ctx.fillStyle = hit ? 'rgba(255,157,77,0.85)' : 'rgba(107,75,65,0.45)';
+    if (hit) { ctx.beginPath(); ctx.arc(x2, y2, 6, 0, 6.283); ctx.fill(); }
+    else for (var k = -1; k <= 1; k++) { ctx.beginPath(); ctx.arc(x2 + nx * k * 7 - ux * 3, y2 + ny * k * 7 - uy * 3, 2.5, 0, 6.283); ctx.fill(); }
     ctx.restore();
   }
 
@@ -1364,21 +1475,6 @@
     }
   }
 
-  function drawRevealPings(ox, oy) {
-    ctx.strokeStyle = 'rgba(255,80,80,0.9)';
-    ctx.lineWidth = 2;
-    for (var i = 0; i < G.survivors.length; i++) {
-      var s = G.survivors[i];
-      if (!s.alive || s.escaped) continue;
-      if (s.invisible > 0) continue;
-      var sx = s.x - ox, sy = s.y - oy;
-      var pr = 6 + Math.sin(frame * 0.3) * 2;
-      ctx.beginPath(); ctx.arc(sx, sy, pr, 0, 6.283); ctx.stroke();
-      ctx.fillStyle = 'rgba(255,80,80,0.35)';
-      ctx.beginPath(); ctx.arc(sx, sy, pr, 0, 6.283); ctx.fill();
-    }
-  }
-
   /* ================= 光照/雾 ================= */
   function drawLighting() {
     // 冷蓝月光(左上)
@@ -1681,7 +1777,8 @@
       ctx.strokeStyle = 'rgba(255,255,255,0.6)';
       ctx.strokeRect(ax, ay + 42, bw, 20);
       ctx.fillStyle = '#fff';
-      ctx.fillText(h.char.active2.name + (cd2 > 0 ? ' ' + Math.ceil(cd2) + 's' : ' 就绪'), ax + bw / 2, ay + 57);
+      var activeText = (h.smashT > 0 && h.char.active2.type === 'smash_stance') ? '生效 ' + Math.ceil(h.smashT) + 's' : (cd2 > 0 ? Math.ceil(cd2) + 's' : '就绪');
+      ctx.fillText(h.char.active2.name + ' ' + activeText, ax + bw / 2, ay + 57);
     }
     // 存活求生者
     var alive = 0;
@@ -1744,6 +1841,23 @@
         if (c === '#') ctx.fillStyle = 'rgba(120,120,150,0.6)';
         else ctx.fillStyle = 'rgba(60,60,90,0.25)';
         ctx.fillRect(mx + x * cw2, my + y * ch2, cw2 + 0.5, ch2 + 0.5);
+      }
+    }
+    // 迷雾禁区：与世界坐标同源，双方都能读到范围
+    if (G.fogZones && G.fogZones.length) {
+      for (var f = 0; f < G.fogZones.length; f++) {
+        var zone = G.fogZones[f], za = zoneAlpha(zone);
+        if (za <= 0) continue;
+        ctx.save();
+        ctx.globalAlpha = za * 0.72;
+        ctx.fillStyle = 'rgba(132,102,170,0.34)';
+        ctx.beginPath();
+        ctx.arc(mx + zone.x / G.ts * cw2, my + zone.y / G.ts * ch2, zone.radius / G.ts * cw2, 0, 6.283);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(196,157,220,0.72)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.restore();
       }
     }
     // 密码机

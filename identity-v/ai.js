@@ -18,6 +18,7 @@
     this._guardOrbitT = 0;
     this._searchPoint = null;
     this._searchT = 0;
+    this._visibleNow = [];   // 本帧唯一可见集合(与 game.perceiveSurvivors 完全一致)
   }
 
   HunterAI.prototype.update = function (dt) {
@@ -30,6 +31,12 @@
     if (h.wipeT > 0) { h.moveX = 0; h.moveY = 0; return; } // 擦刀期间原地不动
     if (h.vaultT > 0) { h.moveX = 0; h.moveY = 0; return; } // 翻窗期间不动
     if (h.dashT > 0) { h.moveX = Math.cos(h.dashDir); h.moveY = Math.sin(h.dashDir); return; }
+
+    // 传送有短暂后摇；结束后再在落点布置迷雾，避免同帧施法被后摇拦截。
+    if (h._fogAfterTeleport) {
+      h._fogAfterTeleport = false;
+      if (h.char.id === 'hun_tele' && h.skill2Cd <= 0) game.useHunterSkill(h, 2);
+    }
 
     /* 搬运中：找最近的空椅子 */
     if (h.carrying) {
@@ -44,52 +51,62 @@
       return;
     }
 
-    /* 感知 */
+    /* 感知：仅当实际看见目标时才更新 lastSeen/追击(修复隔墙透视) */
     var vis = game.perceiveSurvivors(h);
+    this._visibleNow = vis;   // 本帧唯一可见集合，后续攻击/技能/lastSeen/追踪只认它
     if (vis.length) {
-      var t = vis[0].s;
+      var t = this.chooseTarget(vis);
       h.target = t;
       h.lastSeen = { x: t.x, y: t.y };
       h.lostT = 0;
       h.state = 'chase';
     } else if (h.state === 'chase') {
       h.lostT += dt;
-      if (h.lostT > diff.chaseGiveup) { h.state = 'search'; h.target = null; }
+      if (h.lostT > diff.chaseGiveup) { h.state = 'search'; h.target = null; this._searchT = 4; this._searchPoint = null; }
     }
 
-    /* 全视之眼 / 追击技能释放 */
+    /* 追击技能释放(仅当目标当前可见且未倒地) */
     if (h.state === 'chase') {
       var tgt = h.target;
-      var targetVisible = !!(tgt && game.lineOfSight(h.x, h.y, tgt.x, tgt.y));
-      if (h.char.id === 'hun_tele') {
-        if (h.skillCd <= 0 && (h.lostT > 1.2 || (h.lastSeen && dist(h.x, h.y, h.lastSeen.x, h.lastSeen.y) > 300))) {
+      var targetVisible = !!(tgt && this._isVisibleNow(tgt));
+      if (tgt && targetVisible && tgt.hp > 0) {
+        // 攻击/冲刺/陷阱/震荡波/锁链前先朝向目标，减少无故打空
+        h.dir = Math.atan2(tgt.y - h.y, tgt.x - h.x);
+        if (h.char.id === 'hun_tele') {
+          // 目标较远且靠近密码机时传送截击，不为追击随机跳往无关机器。
+          var targetMachine = this.nearMachine(tgt.x, tgt.y, 160);
+          var teleported = false;
+          if (h.skillCd <= 0 && targetMachine && dist(h.x, h.y, targetMachine.x, targetMachine.y) > 300) {
+            h._teleportTargetMachine = targetMachine;
+            h._fogAfterTeleport = h.skill2Cd <= 0;
+            game.useHunterSkill(h, 1);
+            teleported = true;
+          }
+          if (!teleported && h.skill2Cd <= 0) {
+            var nearM = this.nearMachine(h.x, h.y, 160) || this.nearMachine(tgt.x, tgt.y, 160);
+            if (nearM) game.useHunterSkill(h, 2);
+          }
+        }
+        if (h.char.id === 'hun_chase' && h.skillCd <= 0 && dist(h.x, h.y, tgt.x, tgt.y) > 180) {
           game.useHunterSkill(h, 1);
         }
-      }
-      if (h.char.id === 'hun_chase' && h.skillCd <= 0 && targetVisible && dist(h.x, h.y, tgt.x, tgt.y) > 180) {
-        game.useHunterSkill(h, 1);
-      }
-      // 缚骨陷阱师：追击中接近目标(40~250)时埋下铁笼拦截(先转向目标)
-      if (h.char.id === 'hun_cage' && h.skillCd <= 0 && targetVisible) {
-        var ctd = dist(h.x, h.y, tgt.x, tgt.y);
-        if (ctd > 40 && ctd < 250) {
-          h.dir = Math.atan2(tgt.y - h.y, tgt.x - h.x);
-          game.useHunterSkill(h, 1);
+        // 缚骨陷阱师：追击中接近目标(40~250)时埋下铁笼拦截；目标在锁链合法距离/视野时释放锁链
+        if (h.char.id === 'hun_cage') {
+          var ctd = dist(h.x, h.y, tgt.x, tgt.y);
+          if (h.skillCd <= 0 && ctd > 40 && ctd < 250) game.useHunterSkill(h, 1);
+          if (h.skill2Cd <= 0 && ctd <= 240 && ctd > 60) game.useHunterSkill(h, 2);
         }
-      }
-      // 碎骨重锤：目标进入 150px 内释放震荡波
-      if (h.char.id === 'hun_heavy' && h.skillCd <= 0 && targetVisible) {
-        if (dist(h.x, h.y, tgt.x, tgt.y) < 150) game.useHunterSkill(h, 1);
-      }
-      // 全视之眼：拥有 active2 的监管者追击丢失目标或远程型时周期释放
-      if (h.char.active2 && h.skill2Cd <= 0 && tgt) {
-        if (h.lostT > 1.5 || h.char.id === 'hun_tele') game.useHunterSkill(h, 2);
+        // 碎骨重锤：目标进入 150px 内释放震荡波；目标或双方靠近可用/倒下木板时开粉碎姿态
+        if (h.char.id === 'hun_heavy') {
+          if (h.skillCd <= 0 && dist(h.x, h.y, tgt.x, tgt.y) < 150) game.useHunterSkill(h, 1);
+          if (h.skill2Cd <= 0 && this.nearPalletForSmash(tgt)) game.useHunterSkill(h, 2);
+        }
       }
     }
 
-    /* 抱起倒地者优先(保证能完成淘汰) */
+    /* 抱起倒地者优先(保证能完成淘汰) - 仅当可见 */
     var downedT = this.nearestDowned();
-    if (downedT && dist(h.x, h.y, downedT.x, downedT.y) < 320) {
+    if (downedT && dist(h.x, h.y, downedT.x, downedT.y) < 320 && this._isVisibleNow(downedT)) {
       h.target = downedT;
       h.lastSeen = { x: downedT.x, y: downedT.y };
       h.state = 'chase';
@@ -99,14 +116,19 @@
     if (h.state === 'chase') {
       var target = h.target;
       if (target && target.alive && !target.escaped && target.hp >= 0) {
-        h.lastSeen = { x: target.x, y: target.y };
+        var targetVisible = this._isVisibleNow(target);
+        if (targetVisible) {
+          h.lastSeen = { x: target.x, y: target.y };
+          h.lostT = 0;
+        }
         var d = dist(h.x, h.y, target.x, target.y);
-        // 倒板确实挡住目标时先拆板，避免隔板攻击或在板前反复寻路
-        var blockingPallet = this.blockingPallet(target);
-        if (blockingPallet && !game.lineOfSight(h.x, h.y, target.x, target.y) && game.breakPallet(h, blockingPallet)) return;
-        // 目标已倒地且近身：牵制
-        if (target.hp === 0 && d < RANGE + 22) { game.hunterInteract(h); return; }
-        if (d < h.char.stats.atkRange + 10 && h.atkCd <= 0) {
+        var ls = h.lastSeen || { x: target.x, y: target.y };
+        // 倒板确实挡住目标(最后目击点)时先拆板，避免隔板攻击或在板前反复寻路
+        var blockingPallet = this.blockingPallet(ls.x, ls.y);
+        if (blockingPallet && !game.lineOfSight(h.x, h.y, ls.x, ls.y) && game.breakPallet(h, blockingPallet)) return;
+        // 目标已倒地且近身：牵制(仅可见)
+        if (targetVisible && target.hp === 0 && d < RANGE + 22) { game.hunterInteract(h); return; }
+        if (targetVisible && d < h.char.stats.atkRange + 10 && h.atkCd <= 0) {
           if (!game.hunterAttack(h)) {
             // 没打中，破坏挡路的板子
             this.tryBreakPallet();
@@ -114,35 +136,38 @@
         } else if (this.pathBroken()) {
           this.tryBreakPallet();
         }
-        this.moveToward(h, target.x, target.y, dt);
+        // 移动：可见→当前坐标；丢失→最后目击点(不隔墙透视)
+        var mx = targetVisible ? target.x : ls.x;
+        var my = targetVisible ? target.y : ls.y;
+        this.moveToward(h, mx, my, dt);
       } else {
-        h.state = 'search';
+        h.state = 'search'; this._searchT = 4; this._searchPoint = null;
       }
       return;
     }
 
     if (h.state === 'search') {
+      // 搜索计时按真实 dt 每帧递减；到期立即回 patrol 并清理
+      this._searchT -= dt;
+      if (this._searchT <= 0) {
+        h.state = 'patrol'; h.lastSeen = null; h.target = null; this._searchPoint = null; this._searchT = 0;
+        return;
+      }
       if (h.lastSeen) {
         var ls = h.lastSeen;
         if (this._searchPoint) {
           this.moveToward(h, this._searchPoint.x, this._searchPoint.y, dt);
           if (dist(h.x, h.y, this._searchPoint.x, this._searchPoint.y) < 28) {
             this._searchPoint = null;
-            this._searchT -= dt;
           }
         } else {
           this.moveToward(h, ls.x, ls.y, dt);
           if (dist(h.x, h.y, ls.x, ls.y) < 28) {
-            this._searchT -= dt;
-            if (this._searchT > 0 && Math.random() < 0.75) {
-              var sAng = Math.random() * Math.PI * 2;
-              this._searchPoint = {
-                x: clamp(ls.x + Math.cos(sAng) * 200, 42, this.game.cols * this.game.ts - 42),
-                y: clamp(ls.y + Math.sin(sAng) * 200, 42, this.game.rows * this.game.ts - 42)
-              };
-            } else if (this._searchT <= 0) {
-              h.state = 'patrol'; h.lastSeen = null; this._searchPoint = null; this._searchT = 0;
-            }
+            var sAng = Math.random() * Math.PI * 2;
+            this._searchPoint = {
+              x: clamp(ls.x + Math.cos(sAng) * 200, 42, this.game.cols * this.game.ts - 42),
+              y: clamp(ls.y + Math.sin(sAng) * 200, 42, this.game.rows * this.game.ts - 42)
+            };
           }
         }
       } else h.state = 'patrol';
@@ -168,6 +193,17 @@
     }
 
     /* 巡逻 */
+    if (h.char.id === 'hun_tele' && h.skillCd <= 0) {
+      var pressureMachine = this.farUncompletedMachine();
+      if (pressureMachine) {
+        h._teleportTargetMachine = pressureMachine;
+        h._fogAfterTeleport = h.skill2Cd <= 0;
+        game.useHunterSkill(h, 1);
+        h.path = [];
+        this.thinkT = 0;
+        return;
+      }
+    }
     this.patrol(h, dt);
   };
 
@@ -209,21 +245,26 @@
     if (!h.path || h.path.length === 0 || this.thinkT <= 0) {
       this.thinkT = 3 + Math.random() * 2;
       var g = this.game;
-      var candidates = [];
-      var undecoded = [];
-      for (var i = 0; i < g.machines.length; i++) {
-        var mm = g.machines[i];
-        candidates.push(mm);
-        if (!mm.decoded) undecoded.push(mm);
-      }
-      for (var j = 0; j < g.chairs.length; j++) if (!g.chairs[j].broken) candidates.push(g.chairs[j]);
-      for (var k = 0; k < g.gates.length; k++) candidates.push(g.gates[k]);
-      // 优先压制未完成密码机(60%)，其次随机巡逻
       var c = null;
-      if (undecoded.length && Math.random() < 0.6) {
-        c = undecoded[Math.floor(Math.random() * undecoded.length)];
-      } else {
-        c = candidates[Math.floor(Math.random() * candidates.length)];
+      // 通电后优先巡逻未开启大门
+      var powered = g.gates.some(function (gt) { return gt.powered; });
+      if (powered) {
+        var unopened = [];
+        for (var gi = 0; gi < g.gates.length; gi++) if (!g.gates[gi].open) unopened.push(g.gates[gi]);
+        if (unopened.length) c = this.pickPatrolTarget(h, unopened);
+      }
+      // 优先有破译者或高进度的未完成密码机，兼顾距离
+      if (!c) {
+        var undecoded = [];
+        for (var i = 0; i < g.machines.length; i++) if (!g.machines[i].decoded) undecoded.push(g.machines[i]);
+        if (undecoded.length) c = this.pickPatrolTarget(h, undecoded);
+      }
+      // 兜底：随机巡逻椅子/大门
+      if (!c) {
+        var candidates = [];
+        for (var j = 0; j < g.chairs.length; j++) if (!g.chairs[j].broken) candidates.push(g.chairs[j]);
+        for (var k = 0; k < g.gates.length; k++) candidates.push(g.gates[k]);
+        if (candidates.length) c = candidates[Math.floor(Math.random() * candidates.length)];
       }
       if (c) {
         h.path = g.pathTo(h.x, h.y, c.x, c.y, { win: true });
@@ -231,6 +272,91 @@
       }
     }
     this.followPath(h, dt);
+  };
+
+  // 巡逻目标评分：明显优先有破译者，其次高进度，再兼顾距离，保留少量非确定性
+  HunterAI.prototype.pickPatrolTarget = function (h, list) {
+    var g = this.game;
+    var best = null, bestScore = -1e9;
+    for (var i = 0; i < list.length; i++) {
+      var t = list[i];
+      var score = -dist(h.x, h.y, t.x, t.y) * 0.35;
+      if (t.decoded !== undefined) { // 密码机
+        if (t.decoders > 0) score += t.decoders * 400;
+        if (t.progress) score += t.progress * 2.5;
+      }
+      score += Math.random() * 40;
+      if (score > bestScore) { bestScore = score; best = t; }
+    }
+    return best;
+  };
+
+  // 可见目标选择：倒地者优先搬运；否则按受伤/破译/救援评分，并对当前目标加黏性避免抖动
+  HunterAI.prototype.chooseTarget = function (vis) {
+    var h = this.h;
+    var downed = null, bd = 1e9;
+    for (var i = 0; i < vis.length; i++) {
+      if (vis[i].s.hp === 0 && vis[i].d < bd) { bd = vis[i].d; downed = vis[i].s; }
+    }
+    if (downed) return downed;
+    var best = null, bestScore = -1e9;
+    for (var j = 0; j < vis.length; j++) {
+      var s = vis[j].s;
+      var score = -vis[j].d;
+      if (s.hp === 1) score += 60;
+      if (s.decoding) score += 80;
+      if (s.channel && (s.channel.type === 'rescue' || s.channel.type === 'revive')) score += 90;
+      if (h.target === s) score += 120; // 追击黏性
+      if (score > bestScore) { bestScore = score; best = s; }
+    }
+    return best;
+  };
+
+  // 目标当前是否在本帧可见集合内(与 game.perceiveSurvivors 完全一致)
+  HunterAI.prototype._isVisibleNow = function (s) {
+    for (var i = 0; i < this._visibleNow.length; i++) {
+      if (this._visibleNow[i].s === s) return true;
+    }
+    return false;
+  };
+
+  // 迷雾夫人：较远的未完成密码机中选压力最高者(破译者/进度正权重，距离轻度负权重)
+  HunterAI.prototype.farUncompletedMachine = function () {
+    var g = this.game, h = this.h;
+    var best = null, bestScore = -1e9;
+    for (var i = 0; i < g.machines.length; i++) {
+      var m = g.machines[i];
+      if (m.decoded) continue;
+      var d = dist(h.x, h.y, m.x, m.y);
+      if (d < 300) continue;
+      if (m.decoders <= 0 && m.progress < 20) continue;
+      var score = (m.decoders > 0 ? m.decoders * 400 : 0) + m.progress * 2.5 - d * 0.35;
+      if (score > bestScore) { bestScore = score; best = m; }
+    }
+    return best;
+  };
+
+  HunterAI.prototype.nearMachine = function (x, y, range) {
+    var g = this.game;
+    for (var i = 0; i < g.machines.length; i++) {
+      var m = g.machines[i];
+      if (m.decoded) continue;
+      if (dist(x, y, m.x, m.y) < range) return m;
+    }
+    return null;
+  };
+
+  // 格罗姆：目标或双方靠近可用/倒下木板时开粉碎姿态
+  HunterAI.prototype.nearPalletForSmash = function (tgt) {
+    var g = this.game, h = this.h;
+    for (var i = 0; i < g.pallets.length; i++) {
+      var p = g.pallets[i];
+      if (p.destroyed) continue;
+      var dh = dist(h.x, h.y, p.x, p.y);
+      var dt = tgt ? dist(tgt.x, tgt.y, p.x, p.y) : 1e9;
+      if (dh < 120 || dt < 120) return true;
+    }
+    return false;
   };
 
   HunterAI.prototype.pathBroken = function () {
@@ -244,7 +370,7 @@
     return false;
   };
 
-  HunterAI.prototype.blockingPallet = function (target) {
+  HunterAI.prototype.blockingPallet = function (px, py) {
     var g = this.game, h = this.h, best = null, bd = RANGE + 10;
     for (var i = 0; i < g.pallets.length; i++) {
       var pal = g.pallets[i];
@@ -252,7 +378,7 @@
       var d = dist(h.x, h.y, pal.x, pal.y);
       if (d >= bd) continue;
       var axis = pal.axis === 'vertical' ? 'vertical' : 'horizontal';
-      if (g._whichSide(h, pal, axis) === g._whichSide(target, pal, axis)) continue;
+      if (g._whichSide(h, pal, axis) === g._whichSide({ x: px, y: py }, pal, axis)) continue;
       bd = d;
       best = pal;
     }

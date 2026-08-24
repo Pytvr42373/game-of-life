@@ -51,7 +51,7 @@
     this.floaters = [];
     this.result = null;
     this.fogSeed = Math.random() * 100;
-    this.reveal = 0;              // 监管者全视倒计时
+    this.fogZones = [];           // 迷雾禁区(迷雾夫人)
     this.input = { x: 0, y: 0, attack: false, interact: false, skill: false, skill2: false, crouch: false, pause: false, selfHeal: false };
     this._attackQueued = false;
     this._interactQueued = false;
@@ -100,7 +100,7 @@
       this._matchId++;
       this._lastOpts = opts;
       this.playerIsHunter = !!opts.asHunter;
-      this.reveal = 0;
+      this.fogZones = [];
       this.input = { x: 0, y: 0, attack: false, interact: false, skill: false, skill2: false, crouch: false, pause: false, selfHeal: false };
       this._attackQueued = false;
       this._interactQueued = false;
@@ -188,7 +188,8 @@
         breakingPallet: null, breakT: 0,
         vaultT: 0, wipeT: 0,
         stunT: 0, hurtFlash: 0, dashT: 0, dashDir: 0, chaseBoostT: 0,
-        skillCd: 0, skill2Cd: 0,
+        skillCd: 0, skill2Cd: 0, smashT: 0, chainFx: 0, chainFxX: 0, chainFxY: 0, chainFxHit: false,
+        _fogAfterTeleport: false,
         state: 'patrol', target: null, lastSeen: null, lostT: 0, guardT: 0,
         path: [], pathIdx: 0, repathT: 0,
         moveX: 0, moveY: 0,
@@ -336,6 +337,8 @@
       if (s.sprintT > 0) sp *= 1.65;
       if (s.hitBoostT > 0) sp *= 1.3;
       if (s.hitSlowT > 0) sp *= (s.hitSlowMul || 0.8);
+      var fog = this.inFogZone(s);
+      if (fog) sp *= fog.moveMul;
       return sp;
     },
 
@@ -350,6 +353,22 @@
       if (h.breakingPallet) sp = 0;
       if (h.wipeT > 0) sp = 0;
       return sp;
+    },
+
+    /* ---------- 迷雾禁区 ---------- */
+    _updateFogZones: function (dt) {
+      for (var i = this.fogZones.length - 1; i >= 0; i--) {
+        var z = this.fogZones[i];
+        z.t += dt;
+        if (z.t >= z.dur) this.fogZones.splice(i, 1);
+      }
+    },
+    inFogZone: function (s) {
+      for (var i = 0; i < this.fogZones.length; i++) {
+        var z = this.fogZones[i];
+        if (dist(s.x, s.y, z.x, z.y) < z.radius) return z;
+      }
+      return null;
     },
 
     /* ---------- BFS 寻路 ---------- */
@@ -487,7 +506,9 @@
       if (h.wipeT > 0) h.wipeT -= dt;
       if (h.skillCd > 0) h.skillCd -= dt;
       if (h.skill2Cd > 0) h.skill2Cd -= dt;
-      if (this.reveal > 0) this.reveal -= dt;
+      if (h.smashT > 0) h.smashT -= dt;
+      if (h.chainFx > 0) h.chainFx -= dt;
+      this._updateFogZones(dt);
       if (h.carrying) h.carryDropCd = (h.carryDropCd || 0) - dt;
       this.updatePalletBreak(dt);
       this.updateTraps(dt);
@@ -701,6 +722,9 @@
           if (this.check && this.check.decoder === sv) continue; // 校准中暂停
           var rate = DECODE_RATE * sv.stats.decode * (sv.decodeBoostT > 0 ? 2 : 1);
           if (sv.char.id === 'eng' && sv.hp === 1) rate *= 0.75;
+          // 迷雾禁区：仅对身处雾区的真人破译贡献生效(远程傀儡不受影响)
+          var fog = this.inFogZone(sv);
+          if (fog) rate *= fog.decodeMul;
           added += rate * dt;
         }
         this._syncMachineDecoders(m);
@@ -989,7 +1013,9 @@
       if (h && this._overlapsPallet(h, p)) {
         var hSide = this._palletSide(h, p, axis, true);
         if (hSide) { h.x = hSide.x; h.y = hSide.y; }
-        h.stunT = 1.6;
+        // 粉碎之姿：被板砸晕时长乘 stunMul(默认 0.4，即缩短 60%)
+        var stunMul = (h.smashT > 0 && h.char.active2 && h.char.active2.stunMul) ? h.char.active2.stunMul : 1;
+        h.stunT = 1.6 * stunMul;
         if (AudioSys.stun) AudioSys.stun();
         this.addFloater(p.x, p.y - 20, '板子砸晕!', '#ffd94a');
       }
@@ -1372,7 +1398,9 @@
           h.dashDir = h.dir;
           if (AudioSys.dash) AudioSys.dash();
         } else if (ac.type === 'teleport') {
-          var m = this.nearestMachine(0, 0, true);
+          // 玩家默认传送到自己当前位置最近的未完成密码机；AI 可通过一次性 h._teleportTargetMachine 指定未完成机器
+          var m = h._teleportTargetMachine || this.nearestMachine(h.x, h.y, true);
+          h._teleportTargetMachine = null;
           var tx = m ? m.x + 20 : h.x;
           var ty = m ? m.y + 20 : h.y;
           h.x = clamp(tx, this.ts, this.cols * this.ts - this.ts);
@@ -1430,10 +1458,78 @@
       } else if (slot === 2) {
         var ac2 = ch.active2;
         if (!ac2 || h.skill2Cd > 0) return;
-        this.reveal = ac2.duration;
-        h.skill2Cd = ac2.cd;
-        if (AudioSys.reveal) AudioSys.reveal();
-        this.addFloater(h.x, h.y - 26, '全视之眼!', '#c0a8ff');
+        if (ac2.type === 'fog_zone') {
+          // 迷雾禁区：在施法当前位置生成静态雾区，区内求生者移速/破译减速
+          this.fogZones.push({
+            x: h.x, y: h.y,
+            radius: ac2.radius || 140,
+            t: 0, dur: ac2.duration || 8,
+            moveMul: ac2.moveMul || 0.8,
+            decodeMul: ac2.decodeMul || 0.6
+          });
+          h.skill2Cd = ac2.cd;
+          if (AudioSys.fog) AudioSys.fog();
+          this.addFloater(h.x, h.y - 26, '迷雾禁区!', '#c0a8ff');
+          this.spawnParticle(h.x, h.y, 'spark', 24);
+        } else if (ac2.type === 'chain_pull') {
+          // 锁链拖拽：面前扇区内最近合法求生者向监管者安全拖拽，不伤害/不穿墙/不重叠
+          var CHAIN_RANGE = ac2.range || 240;
+          var CHAIN_PULL = ac2.pull || 80;
+          var CHAIN_ANGLE = 1.0;
+          var chainTarget = null, chainBestD = 1e9;
+          for (var ci = 0; ci < this.survivors.length; ci++) {
+            var cs = this.survivors[ci];
+            if (!cs.alive || cs.escaped || cs.carriedBy || cs.chair || cs.hp <= 0 || cs.invisible > 0) continue;
+            var cd = dist(h.x, h.y, cs.x, cs.y);
+            if (cd > CHAIN_RANGE) continue;
+            var cang = angDiff(h.dir, Math.atan2(cs.y - h.y, cs.x - h.x));
+            if (cang > CHAIN_ANGLE) continue;
+            if (!this.lineOfSight(h.x, h.y, cs.x, cs.y)) continue;
+            if (cd < chainBestD) { chainBestD = cd; chainTarget = cs; }
+          }
+          if (!chainTarget) {
+            // 无合法目标：不消耗完整 CD，提供短暂 chainFx 供 UI 使用(落空端点=面向方向前方约130px)
+            h.chainFx = 0.4;
+            h.chainFxX = h.x + Math.cos(h.dir) * 130;
+            h.chainFxY = h.y + Math.sin(h.dir) * 130;
+            h.chainFxHit = false;
+            h.skill2Cd = 1.0;
+            this.addFloater(h.x, h.y - 26, '锁链落空', '#ff9a6a');
+            return;
+          }
+          var cdx = h.x - chainTarget.x, cdy = h.y - chainTarget.y;
+          var cdl = Math.sqrt(cdx * cdx + cdy * cdy) || 1;
+          cdx /= cdl; cdy /= cdl;
+          var chainSteps = 16;
+          var newX = chainTarget.x, newY = chainTarget.y;
+          for (var st = 1; st <= chainSteps; st++) {
+            var px = chainTarget.x + cdx * CHAIN_PULL * st / chainSteps;
+            var py = chainTarget.y + cdy * CHAIN_PULL * st / chainSteps;
+            if (this.collidesAt(chainTarget, px, py)) break;   // 不可穿墙/倒板
+            if (dist(px, py, h.x, h.y) < h.r + chainTarget.r + 6) break; // 不与监管者重叠
+            newX = px; newY = py;
+          }
+          chainTarget.x = newX;
+          chainTarget.y = newY;
+          chainTarget.vaultT = 0;
+          this.stopDecode(chainTarget);   // 中断破译
+          chainTarget.channel = null;     // 中断持续交互
+          h.chainFx = 0.5;
+          h.chainFxX = chainTarget.x;     // 命中端点=拖拽后目标位置
+          h.chainFxY = chainTarget.y;
+          h.chainFxHit = true;
+          h.skill2Cd = ac2.cd;
+          if (AudioSys.chain) AudioSys.chain();
+          this.addFloater(chainTarget.x, chainTarget.y - 26, '锁链拖拽!', '#ffb860');
+          this.spawnParticle(chainTarget.x, chainTarget.y, 'spark', 16);
+        } else if (ac2.type === 'smash_stance') {
+          // 粉碎之姿：期间被板砸晕缩短、破板加快
+          h.smashT = ac2.duration || 6;
+          h.skill2Cd = ac2.cd;
+          if (AudioSys.smash) AudioSys.smash();
+          this.addFloater(h.x, h.y - 26, '粉碎之姿!', '#ff7a50');
+          this.spawnParticle(h.x, h.y, 'spark', 20);
+        }
       }
     },
 
@@ -1505,7 +1601,8 @@
       h.moveX = 0;
       h.moveY = 0;
       p.breakT = 0;
-      p.breakDur = PALLET_BREAK_TIME;
+      // 粉碎之姿：主动破板时间改为 breakDuration(默认 0.7s)
+      p.breakDur = (h.smashT > 0 && h.char.active2 && h.char.active2.breakDuration) ? h.char.active2.breakDuration : PALLET_BREAK_TIME;
       this.addFloater(p.x, p.y - 22, '破坏木板...', '#ffcf80');
       return true;
     },

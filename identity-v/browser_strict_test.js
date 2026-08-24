@@ -156,6 +156,9 @@ check('求生者悬浮资料包含定位、按键、冷却与技能效果', surv
 const hunterBrief = els['huntersel-list'] && els['huntersel-list'].children[1] && els['huntersel-list'].children[1].children[2];
 check('双技能监管者悬浮资料标明 Shift 与 Q', hunterBrief &&
       /战术定位/.test(hunterBrief.innerHTML) && /SHIFT/.test(hunterBrief.innerHTML) && /Q/.test(hunterBrief.innerHTML));
+const hunterBriefText = els['huntersel-list'] ? Array.from(els['huntersel-list'].children).map(function (c) { return c.children[2] ? c.children[2].innerHTML : ''; }).join(' ') : '';
+check('监管者资料移除全视之眼并包含三项专属 Q', !/全视之眼/.test(hunterBriefText) &&
+      /迷雾禁区/.test(hunterBriefText) && /锁链拖拽/.test(hunterBriefText) && /粉碎之姿/.test(hunterBriefText));
 
 // 点击第一张卡 → 开始对局
 fireEl('charsel-list', 'click');
@@ -201,13 +204,19 @@ check('修机进度增加', m0.progress > 0 || m0.decoded);
 if (game.check) { game.pressCheck(); pump(10, '校准'); check('校准被处理', !game.check); }
 
 // 攻击
-game.hunter.x = game.player.x + 20; game.hunter.y = game.player.y;
-game.hunter.dir = Math.atan2(game.player.y - game.hunter.y, game.player.x - game.hunter.x);
-game.hunter.atkCd = 0; game.hunter.stunT = 0; game.hunter.carrying = null; game.hunter.ai.active = false;
-game.hunter.wipeT = 0;
-game.hunterAttack(game.hunter);
+// 将两者放在已确认的同一合法开放区域，避开随机流程留下的阻断状态。
+game.hunter.x = game.player.x; game.hunter.y = game.player.y;
+game.player.x = game.hunter.x + 18; game.player.y = game.hunter.y;
+game.hunter.dir = 0;
+game.hunter.breakingPallet = null; game.hunter.breakT = 0; game.hunter.vaultT = 0;
+game.hunter.wipeT = 0; game.hunter.stunT = 0; game.hunter.atkCd = 0; game.hunter.carrying = null;
+game.hunter.ai.active = false;
+game.player.invisible = 0; game.player.shield = 0; game.player.chair = null; game.player.carriedBy = null;
+game.player.alive = true; game.player.escaped = false; game.player.hp = 2;
+const attackAccepted = game.hunterAttack(game.hunter);
+check('监管者攻击请求被接受', attackAccepted === true);
 pump(10, '受击');
-check('玩家受伤 hp<2 或护盾', game.player.hp < 2, 'hp=' + game.player.hp);
+check('玩家受伤 hp<2', game.player.hp < 2, 'hp=' + game.player.hp);
 
 // 结算（求生者胜）
 game.endMatch('survivor_win');
@@ -279,6 +288,16 @@ game.update(1/60);
 pump(10, '监管者技能');
 check('监管者技能无异常', true);
 
+// 专属技能视觉状态：实体下方区域/脚下状态与实体上方锁链均至少泵帧
+game.hunter.char = getHunter('hun_heavy');
+game.fogZones = [{ x: game.hunter.x, y: game.hunter.y, radius: 140, t: 1, dur: 8, moveMul: 0.8, decodeMul: 0.6 }];
+game.hunter.smashT = 2;
+game.hunter.chainFx = 0.4;
+game.hunter.chainFxX = game.hunter.x + 90;
+game.hunter.chainFxY = game.hunter.y;
+game.hunter.chainFxHit = true;
+check('监管者三类视觉状态泵帧无异常', pump(8, '监管者视觉状态'));
+
 // 监管者胜
 game.endMatch('hunter_win');
 pump(3, '监管者结算');
@@ -322,6 +341,28 @@ try {
   fireElRecursive(touchCard, 'pointerdown', { pointerType: 'touch' });
   fireElRecursive(touchCard, 'click');
   check('触屏再次点按选择角色并开始对局', game2.state === 'playing');
+  check('触屏求生者主技能显示真实技能名且隐藏 Q', els['btn-skill'].textContent === '急救针剂' && els['btn-skill2'].style.display === 'none');
+
+  // 触屏专属 Q：有 active2 显示真实名称，影鸦不显示
+  game2.endMatch('survivor_win');
+  pump(2, '触屏监管者入口');
+  fireEl('btn-hunter', 'click');
+  const heavyCard = Array.from(els['huntersel-list'].children).filter(function (c) { return c.children[2] && /粉碎之姿/.test(c.children[2].innerHTML); })[0];
+  const shadowCard = Array.from(els['huntersel-list'].children).filter(function (c) { return c.children[2] && /影袭/.test(c.children[2].innerHTML) && !/技能 2/.test(c.children[2].innerHTML); })[0];
+  check('触屏监管者 Q 显示真实技能名', heavyCard && heavyCard.children[2] && /粉碎之姿/.test(heavyCard.children[2].innerHTML));
+  fireElRecursive(heavyCard, 'pointerdown', { pointerType: 'touch' });
+  fireElRecursive(heavyCard, 'click');
+  fireElRecursive(heavyCard, 'pointerdown', { pointerType: 'touch' });
+  fireElRecursive(heavyCard, 'click');
+  check('触屏有 active2 的监管者显示 Q 按钮', els['btn-skill2'].textContent === '粉碎之姿' && els['btn-skill2'].style.display === 'flex');
+  game2.endMatch('hunter_win');
+  pump(2, '触屏影鸦入口');
+  fireEl('btn-hunter', 'click');
+  fireElRecursive(shadowCard, 'pointerdown', { pointerType: 'touch' });
+  fireElRecursive(shadowCard, 'click');
+  fireElRecursive(shadowCard, 'pointerdown', { pointerType: 'touch' });
+  fireElRecursive(shadowCard, 'click');
+  check('触屏影鸦隐藏 Q 按钮', els['btn-skill2'].style.display === 'none');
 }
 catch (e) { errors.push('触摸初始化异常: ' + (e && e.stack ? e.stack : String(e))); }
 

@@ -817,7 +817,7 @@ test('技能: 守护者护盾+冲刺监管者+传送监管者', function () {
   assert.ok(dist(g.hunter.x, g.hunter.y, hx0, hy0) > 100, '传送未生效');
   g.hunter.stunT = 0; // 传送后眩晕会挡技能，先清空
   g.useHunterSkill(g.hunter, 2);
-  assert.ok(g.reveal > 0, '全视之眼未生效');
+  assert.strictEqual(g.fogZones.length, 1, '迷雾禁区未生效');
 });
 
 test('技能CD: 使用后进入冷却并递减', function () {
@@ -1512,6 +1512,409 @@ test('AI: 救人优先于修机(有队友上架时优先救援)', function () {
   putAt(rescuer, chair.x + 40, chair.y);
   const t = rescuer.ai.findRescueTarget(rescuer);
   assert.ok(t && t.kind === 'chair', 'AI应优先选择处刑架救援');
+});
+
+// ============================================================
+// 14. 监管者专属 Q 技能(迷雾禁区/锁链拖拽/粉碎之姿)
+// ============================================================
+test('技能: 迷雾夫人迷雾禁区生成雾区并减速/降破译', function () {
+  const g = fresh(0, { hunterId: 'hun_tele' });
+  const h = g.hunter;
+  const s = g.survivors[0];
+  s.ai = null;
+  putAt(h, 400, 400); h.stunT = 0;
+  g.useHunterSkill(h, 2);
+  assert.strictEqual(g.fogZones.length, 1, '应生成雾区');
+  const z = g.fogZones[0];
+  assert.strictEqual(z.radius, 140, '雾区半径应为140');
+  assert.ok(Math.abs(z.moveMul - 0.8) < 0.001, 'moveMul 应为0.8');
+  assert.ok(Math.abs(z.decodeMul - 0.6) < 0.001, 'decodeMul 应为0.6');
+  // 区内移速 -20%
+  putAt(s, z.x, z.y);
+  const spIn = g.survivorSpeed(s);
+  putAt(s, z.x + 999, z.y);
+  const spOut = g.survivorSpeed(s);
+  assert.ok(Math.abs(spIn - spOut * 0.8) < 0.001, '雾区内移速应乘0.8');
+  // 区内破译 -40%
+  const m = findMachine(g, 0);
+  putAt(s, z.x, z.y);
+  putAt(m, z.x, z.y); // 让机器也在雾区内
+  g.toggleDecode(s, m);
+  const before = m.progress;
+  g.updateDecoding(1);
+  const inRate = m.progress - before;
+  g.stopDecode(s);
+  m.progress = 0;
+  putAt(s, z.x + 999, z.y);
+  putAt(m, z.x + 999, z.y);
+  g.toggleDecode(s, m);
+  g.updateDecoding(1);
+  const outRate = m.progress;
+  assert.ok(Math.abs(inRate - outRate * 0.6) < 0.001, '雾区内破译速率应乘0.6');
+  // 雾区随时间移除
+  for (let i = 0; i < 8 * 30 + 5; i++) step(g, 1 / 30);
+  assert.strictEqual(g.fogZones.length, 0, '雾区应随时间移除');
+});
+
+test('技能: 摩洛克锁链拖拽拉近且不伤害/不穿墙', function () {
+  const g = fresh(0, { hunterId: 'hun_cage' });
+  const h = g.hunter;
+  const s = g.survivors[0];
+  s.ai = null;
+  putAt(h, 400, 400); h.dir = 0; h.stunT = 0;
+  // 目标在正前方 150px，无遮挡
+  putAt(s, 400 + 150, 400);
+  const hp0 = s.hp;
+  const d0 = dist(h.x, h.y, s.x, s.y);
+  g.useHunterSkill(h, 2);
+  const d1 = dist(h.x, h.y, s.x, s.y);
+  assert.ok(d1 < d0, '锁链应拉近目标');
+  assert.ok(d1 >= d0 - 80 - 1, '拉近距离不应超过80px');
+  assert.strictEqual(s.hp, hp0, '锁链不应造成伤害');
+  assert.strictEqual(g.collidesAt(s, s.x, s.y), false, '落点不应穿墙');
+  assert.ok(dist(s.x, s.y, h.x, h.y) >= h.r + s.r + 6 - 1, '不应与监管者重叠');
+  assert.ok(h.skill2Cd > 0, '成功应进入完整CD');
+});
+
+test('技能: 摩洛克锁链无合法目标不消耗完整CD且提供chainFx', function () {
+  const g = fresh(0, { hunterId: 'hun_cage' });
+  const h = g.hunter;
+  for (const s of g.survivors) { s.ai = null; putAt(s, 9999, 9999); }
+  putAt(h, 400, 400); h.dir = 0; h.stunT = 0;
+  g.useHunterSkill(h, 2);
+  assert.ok(h.chainFx > 0, '应提供chainFx状态');
+  assert.ok(h.skill2Cd < 24, '无目标不应消耗完整CD');
+  assert.ok(h.skill2Cd > 0, '应有短暂CD');
+});
+
+test('技能: 摩洛克锁链中断目标破译', function () {
+  const g = fresh(0, { hunterId: 'hun_cage' });
+  const h = g.hunter;
+  const s = g.survivors[0];
+  s.ai = null;
+  const m = findMachine(g, 0);
+  putAt(s, m.x - 20, m.y);
+  g.toggleDecode(s, m);
+  assert.strictEqual(s.decoding, m, '目标应正在破译');
+  putAt(h, s.x + 150, s.y); h.dir = Math.PI; h.stunT = 0;
+  g.useHunterSkill(h, 2);
+  assert.strictEqual(s.decoding, null, '锁链应中断目标破译');
+});
+
+test('技能: 格罗姆粉碎之姿缩短板晕并加快破板', function () {
+  const g = fresh(0, { hunterId: 'hun_heavy' });
+  const h = g.hunter;
+  const p = g.player;
+  h.ai.active = false;
+  const pal = g.pallets[0];
+  // 开启粉碎之姿
+  h.stunT = 0;
+  g.useHunterSkill(h, 2);
+  assert.ok(h.smashT > 0, '粉碎之姿未激活');
+  // 被板砸晕时长乘0.4
+  putAt(p, pal.x, pal.y);
+  putAt(h, pal.x, pal.y);
+  g.survivorInteract(p);
+  assert.strictEqual(pal.down, true, '板子应放下');
+  assert.ok(Math.abs(h.stunT - 1.6 * 0.4) < 0.001, '粉碎之姿下板晕应为1.6*0.4');
+  // 破板时间改为0.7s
+  h.stunT = 0;
+  g.hunterInteract(h);
+  assert.strictEqual(h.breakingPallet, pal, '应开始破坏');
+  assert.ok(Math.abs(pal.breakDur - 0.7) < 0.001, '粉碎之姿下破板时间应为0.7s');
+  g.updatePalletBreak(0.7);
+  assert.strictEqual(pal.destroyed, true, '0.7s后应破坏完成');
+});
+
+test('技能: 粉碎之姿结束后恢复原板晕与破板时间', function () {
+  const g = fresh(0, { hunterId: 'hun_heavy' });
+  const h = g.hunter;
+  const p = g.player;
+  h.ai.active = false;
+  const pal = g.pallets[0];
+  // 姿态结束
+  h.smashT = 0;
+  putAt(p, pal.x, pal.y);
+  putAt(h, pal.x, pal.y);
+  g.survivorInteract(p);
+  assert.ok(Math.abs(h.stunT - 1.6) < 0.001, '姿态结束后板晕应恢复1.6s');
+  h.stunT = 0;
+  g.hunterInteract(h);
+  assert.ok(Math.abs(pal.breakDur - 1.8) < 0.001, '姿态结束后破板时间应恢复1.8s');
+});
+
+test('技能: 空间传送传送到自己当前位置最近的未完成密码机', function () {
+  const g = fresh(0, { hunterId: 'hun_tele' });
+  const h = g.hunter;
+  // 把玩家监管者放到某位置，传送应到该位置最近的未完成机
+  const m = g.nearestMachine(h.x, h.y, true);
+  g.useHunterSkill(h, 1);
+  assert.ok(dist(h.x, h.y, m.x, m.y) < 60, '应传送到最近未完成密码机旁');
+});
+
+test('技能: 空间传送支持AI一次性指定目标机(_teleportTargetMachine)', function () {
+  const g = fresh(0, { hunterId: 'hun_tele' });
+  const h = g.hunter;
+  const far = g.machines[g.machines.length - 1];
+  h._teleportTargetMachine = far;
+  g.useHunterSkill(h, 1);
+  assert.ok(dist(h.x, h.y, far.x, far.y) < 60, '应传送到指定密码机旁');
+  assert.strictEqual(h._teleportTargetMachine, null, '指定目标应一次性消费');
+});
+
+// ============================================================
+// 15. 监管者 AI 优化回归
+// ============================================================
+test('AI: 隐藏目标不再被实时追踪(丢失后前往最后目击点)', function () {
+  const g = fresh(0);
+  const h = g.hunter;
+  const s = g.survivors[1];
+  putAt(g.survivors[0], 9999, 9999); putAt(g.survivors[2], 9999, 9999);
+  // 先看见目标
+  putAt(s, h.x + 160, h.y);
+  h.dir = 0; h.ai.active = true;
+  h.ai.update(0.1);
+  assert.strictEqual(h.state, 'chase', '应进入追击');
+  const lastSeen = { x: s.x, y: s.y };
+  // 目标隐藏并移远(超出视野)
+  putAt(s, h.x + 500, h.y);
+  h.lastSeen = lastSeen;
+  h.lostT = 0;
+  h.path = []; // 清空旧路径，确保本次 update 重新寻路
+  h.ai.update(0.1);
+  // 1) lastSeen 必须保持旧坐标，不被隐藏目标实时位置覆盖
+  assert.strictEqual(h.lastSeen.x, lastSeen.x, '隐藏目标不应更新lastSeen.x');
+  assert.strictEqual(h.lastSeen.y, lastSeen.y, '隐藏目标不应更新lastSeen.y');
+  // 2) 生成路径的最终路点应指向旧 lastSeen，而非隐藏目标实时位置
+  assert.ok(h.path && h.path.length > 0, '应生成前往最后目击点的路径');
+  const end = h.path[h.path.length - 1];
+  const dToLastSeen = dist(end.x, end.y, lastSeen.x, lastSeen.y);
+  const dToReal = dist(end.x, end.y, s.x, s.y);
+  assert.ok(dToLastSeen < dToReal, '路径终点应更接近最后目击点而非隐藏目标实时位置');
+});
+
+test('AI: 搜索计时按真实dt递减,约4秒后结束(而非按抵达次数)', function () {
+  const g = fresh(0);
+  const h = g.hunter;
+  const s = g.survivors[1];
+  putAt(g.survivors[0], 9999, 9999); putAt(g.survivors[2], 9999, 9999);
+  putAt(s, h.x + 160, h.y);
+  h.dir = 0; h.ai.active = true;
+  h.ai.update(0.1);
+  assert.strictEqual(h.state, 'chase', '应进入追击');
+  // 丢失并进入搜索
+  putAt(s, 9999, 9999);
+  h.state = 'chase'; h.target = null; h.lastSeen = { x: h.x + 160, y: h.y }; h.lostT = 4.6;
+  h.ai.update(1.0);
+  assert.strictEqual(h.state, 'search', '应进入搜索');
+  assert.ok(h.ai._searchT > 0, '搜索计时应被初始化');
+  // 已站在最后目击点：即使不移动，计时也应每帧按 dt 递减
+  putAt(h, h.lastSeen.x, h.lastSeen.y);
+  const t0 = h.ai._searchT;
+  h.ai.update(0.1);
+  assert.ok(Math.abs(h.ai._searchT - (t0 - 0.1)) < 1e-6, '搜索计时应按真实dt递减');
+  // 连续更新约4秒后应结束并回 patrol、清理状态
+  for (let i = 0; i < 40; i++) h.ai.update(0.1); // 累计约4s
+  assert.strictEqual(h.state, 'patrol', '约4秒后应回巡逻');
+  assert.strictEqual(h.lastSeen, null, '回巡逻后应清理 lastSeen');
+  assert.strictEqual(h.target, null, '回巡逻后应清理 target');
+  assert.strictEqual(h.ai._searchPoint, null, '回巡逻后应清理 searchPoint');
+});
+
+test('AI: 可见受伤目标优先或追击黏性', function () {
+  const g = fresh(0);
+  const h = g.hunter;
+  const healthy = g.survivors[1], injured = g.survivors[2];
+  healthy.ai = null; injured.ai = null;
+  putAt(g.survivors[0], 9999, 9999);
+  // 受伤目标稍远但受伤，健康目标更近
+  putAt(healthy, h.x + 120, h.y);
+  putAt(injured, h.x + 150, h.y);
+  injured.hp = 1;
+  const vis = g.perceiveSurvivors(h);
+  const chosen = h.ai.chooseTarget(vis);
+  assert.strictEqual(chosen, injured, '应优先选择受伤目标');
+  // 追击黏性：当前目标即使不是最优也保持
+  h.target = healthy;
+  const vis2 = g.perceiveSurvivors(h);
+  const chosen2 = h.ai.chooseTarget(vis2);
+  assert.strictEqual(chosen2, healthy, '追击黏性应保持当前目标');
+});
+
+test('AI: 压力密码机巡逻(较远但有人破译的机获选)', function () {
+  const g = fresh(0);
+  const h = g.hunter;
+  h.ai.active = true;
+  // 让一台较远的未完成机有破译者，另一台更近但空机
+  const farTarget = g.machines[0];
+  const nearEmpty = g.machines[1];
+  farTarget.decoders = 1; farTarget.progress = 5;
+  nearEmpty.decoders = 0; nearEmpty.progress = 5;
+  // 确保 farTarget 确实比 nearEmpty 更远
+  putAt(h, nearEmpty.x, nearEmpty.y);
+  const dFar = dist(h.x, h.y, farTarget.x, farTarget.y);
+  const dNear = dist(h.x, h.y, nearEmpty.x, nearEmpty.y);
+  assert.ok(dFar > dNear, '测试前提: farTarget 应比 nearEmpty 更远');
+  // 桩 Math.random 使评分确定性
+  const origRandom = Math.random;
+  Math.random = function () { return 0.5; };
+  try {
+    const picked = h.ai.pickPatrolTarget(h, g.machines.filter(function (m) { return !m.decoded; }));
+    assert.strictEqual(picked, farTarget, '较远但有人破译的机应优先于近空机');
+  } finally {
+    Math.random = origRandom;
+  }
+});
+
+test('AI: 新Q各有一个合理释放条件', function () {
+  // 迷雾夫人：机旁放迷雾禁区
+  let g = fresh(0, { hunterId: 'hun_tele' });
+  let h = g.hunter;
+  const s = g.survivors[1];
+  s.ai = null; putAt(g.survivors[0], 9999, 9999); putAt(g.survivors[2], 9999, 9999);
+  const m = g.machines[0];
+  putAt(h, m.x, m.y); putAt(s, h.x + 100, h.y);
+  h.dir = Math.atan2(s.y - h.y, s.x - h.x);
+  h.ai.active = true; h.state = 'chase'; h.target = s; h.lastSeen = { x: s.x, y: s.y };
+  h.skill2Cd = 0;
+  h.ai.update(0.1);
+  assert.ok(g.fogZones.length > 0, '迷雾夫人机旁应放迷雾禁区');
+  // 摩洛克：目标在锁链距离内释放锁链
+  g = fresh(0, { hunterId: 'hun_cage' });
+  h = g.hunter;
+  const s2 = g.survivors[1];
+  s2.ai = null; putAt(g.survivors[0], 9999, 9999); putAt(g.survivors[2], 9999, 9999);
+  putAt(h, 400, 400); putAt(s2, 400 + 120, 400);
+  h.dir = 0; h.ai.active = true; h.state = 'chase'; h.target = s2; h.lastSeen = { x: s2.x, y: s2.y };
+  h.skill2Cd = 0;
+  h.ai.update(0.1);
+  assert.ok(h.chainFx > 0 || h.skill2Cd >= 24, '摩洛克应释放锁链(成功或落空)');
+  // 格罗姆：靠近木板时开粉碎姿态
+  g = fresh(0, { hunterId: 'hun_heavy' });
+  h = g.hunter;
+  const s3 = g.survivors[1];
+  s3.ai = null; putAt(g.survivors[0], 9999, 9999); putAt(g.survivors[2], 9999, 9999);
+  const pal = g.pallets[0];
+  putAt(h, pal.x - 30, pal.y); putAt(s3, pal.x + 30, pal.y);
+  h.dir = 0; h.ai.active = true; h.state = 'chase'; h.target = s3; h.lastSeen = { x: s3.x, y: s3.y };
+  h.skill2Cd = 0;
+  h.ai.update(0.1);
+  assert.ok(h.smashT > 0, '格罗姆靠近木板应开粉碎姿态');
+});
+
+test('AI: 蹲伏/隐身目标不再更新lastSeen(与perceiveSurvivors一致)', function () {
+  const g = fresh(0);
+  const h = g.hunter;
+  const s = g.survivors[1];
+  putAt(g.survivors[0], 9999, 9999); putAt(g.survivors[2], 9999, 9999);
+  // 先看见目标
+  putAt(s, h.x + 160, h.y);
+  h.dir = 0; h.ai.active = true;
+  h.ai.update(0.1);
+  assert.strictEqual(h.state, 'chase', '应进入追击');
+  const lastSeen = { x: s.x, y: s.y };
+  h.lastSeen = lastSeen;
+  // 目标隐身(不可见)
+  s.invisible = 5;
+  putAt(s, h.x + 200, h.y); // 目标移动了
+  h.ai.update(0.1);
+  // lastSeen 不应更新为目标新位置(仍为旧位置)
+  assert.strictEqual(h.lastSeen.x, lastSeen.x, '隐身目标不应更新lastSeen');
+  assert.strictEqual(h.lastSeen.y, lastSeen.y, '隐身目标不应更新lastSeen');
+  // 蹲伏折减：玩家蹲伏时视距下降，目标在折减范围外则不可见
+  s.invisible = 0;
+  const g2 = fresh(0, { asHunter: true });
+  const h2 = g2.hunter;
+  const s2 = g2.survivors[0];
+  s2.ai = null; putAt(g2.survivors[1], 9999, 9999); putAt(g2.survivors[2], 9999, 9999);
+  putAt(s2, h2.x + 160, h2.y);
+  h2.dir = 0; h2.ai.active = true;
+  g2.input.crouch = true; // 玩家蹲伏
+  // 蹲伏下视距折减，160px 可能不可见；验证 _visibleNow 与 perceiveSurvivors 一致
+  const vis = g2.perceiveSurvivors(h2);
+  h2.ai.update(0.1);
+  assert.strictEqual(h2.ai._isVisibleNow(s2), vis.some(function (v) { return v.s === s2; }), '_visibleNow 应与 perceiveSurvivors 一致');
+});
+
+test('AI: 迷雾夫人远机传送选压力最高者(破译者/进度正权重)', function () {
+  const g = fresh(0, { hunterId: 'hun_tele' });
+  const h = g.hunter;
+  // 直接设定两台 >=300px 的未完成机坐标：一台有人破译(较近)，一台更远但空机
+  const pressured = g.machines[0];
+  const farEmpty = g.machines[1];
+  putAt(h, 100, 100);
+  putAt(pressured, 100 + 400, 100);   // 400px，有人破译
+  putAt(farEmpty, 100 + 700, 100);    // 700px，空机
+  pressured.decoders = 1; pressured.progress = 10;
+  farEmpty.decoders = 0; farEmpty.progress = 10;
+  const picked = h.ai.farUncompletedMachine();
+  assert.strictEqual(picked, pressured, '应选有人破译的压力机而非更远空机');
+});
+
+test('AI: 迷雾夫人不传送到无压力远机,传送后在落点布置迷雾', function () {
+  const g = fresh(0, { hunterId: 'hun_tele' });
+  const h = g.hunter;
+  for (const s of g.survivors) { s.ai = null; putAt(s, 9999, 9999); }
+  putAt(h, 100, 100);
+  for (const m of g.machines) { m.progress = 0; m.decoders = 0; }
+  assert.strictEqual(h.ai.farUncompletedMachine(), null, '无破译者和高进度时不应随机选择远机');
+
+  const pressured = g.machines[0];
+  putAt(pressured, 500, 100);
+  pressured.decoders = 1;
+  h.state = 'patrol'; h.skillCd = 0; h.skill2Cd = 0; h.ai.active = true;
+  h.ai.update(0.1);
+  assert.ok(dist(h.x, h.y, pressured.x, pressured.y) < 60, '巡逻时应传送到远处压力机');
+  assert.strictEqual(h._fogAfterTeleport, true, '传送后应等待后摇结束再布置迷雾');
+  assert.strictEqual(g.fogZones.length, 0, '传送后摇期间不应提前生成雾区');
+
+  h.stunT = 0;
+  h.ai.update(0.1);
+  assert.strictEqual(h._fogAfterTeleport, false, '落点迷雾施放后应清理待施法状态');
+  assert.strictEqual(g.fogZones.length, 1, '传送后摇结束应在落点生成迷雾禁区');
+  assert.ok(dist(g.fogZones[0].x, g.fogZones[0].y, h.x, h.y) < 1, '迷雾禁区应位于传送落点');
+});
+
+test('AI: 可见倒地目标直接进入搬运,不浪费专属技能', function () {
+  const g = fresh(0, { hunterId: 'hun_cage' });
+  const h = g.hunter;
+  const downed = g.survivors[1];
+  downed.ai = null; putAt(g.survivors[0], 9999, 9999); putAt(g.survivors[2], 9999, 9999);
+  downed.hp = 0;
+  putAt(h, 400, 400); putAt(downed, 400 + 120, 400);
+  h.dir = 0; h.ai.active = true; h.state = 'chase'; h.target = downed; h.lastSeen = { x: downed.x, y: downed.y };
+  h.skillCd = 0; h.skill2Cd = 0;
+  h.ai.update(0.1);
+  // 倒地目标不应触发陷阱/锁链技能
+  assert.strictEqual(h.traps.length, 0, '倒地目标不应浪费陷阱');
+  assert.strictEqual(h.chainFx, 0, '倒地目标不应浪费锁链');
+  // 应直接进入搬运流程(靠近后牵制)
+  putAt(h, downed.x + 10, downed.y);
+  h.ai.update(0.1);
+  assert.strictEqual(h.carrying, downed, '倒地目标应直接进入搬运');
+});
+
+test('技能: 锁链拖拽记录端点状态供UI可视化', function () {
+  // 命中：记录拖拽后目标位置并标记命中
+  let g = fresh(0, { hunterId: 'hun_cage' });
+  let h = g.hunter;
+  const s = g.survivors[0];
+  s.ai = null;
+  putAt(h, 400, 400); h.dir = 0; h.stunT = 0;
+  putAt(s, 400 + 150, 400);
+  g.useHunterSkill(h, 2);
+  assert.strictEqual(h.chainFxHit, true, '命中应标记chainFxHit');
+  assert.ok(Math.abs(h.chainFxX - s.x) < 1 && Math.abs(h.chainFxY - s.y) < 1, '命中端点应为拖拽后目标位置');
+  // 落空：记录面向方向前方约130px端点并标记未命中
+  g = fresh(0, { hunterId: 'hun_cage' });
+  h = g.hunter;
+  for (const ss of g.survivors) { ss.ai = null; putAt(ss, 9999, 9999); }
+  putAt(h, 400, 400); h.dir = 0; h.stunT = 0;
+  g.useHunterSkill(h, 2);
+  assert.strictEqual(h.chainFxHit, false, '落空应标记chainFxHit=false');
+  assert.ok(Math.abs(h.chainFxX - (400 + 130)) < 1 && Math.abs(h.chainFxY - 400) < 1, '落空端点应为面向方向前方约130px');
+  // chainFx 仍为数字计时
+  assert.strictEqual(typeof h.chainFx, 'number', 'chainFx 应为数字');
 });
 
 // ============================================================
