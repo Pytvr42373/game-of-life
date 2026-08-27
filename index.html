@@ -996,7 +996,7 @@ body[data-theme="arcade"] .card-avatar .ico{filter:drop-shadow(0 0 18px rgba(160
       <li>经典益智持续上新，更多好游戏正在路上，<b>保持关注！</b></li>
     </ul>
     <div class="vmodal-cta">经典益智持续上新，挑一款马上开玩！</div>
-    <button type="button" class="vmodal-btn" id="vmodalOk">进入好玩游戏</button>
+    <button type="button" class="vmodal-btn" id="vmodalOk">知道了，开玩！</button>
   </div>
 </div>
 
@@ -1533,9 +1533,8 @@ function handleVersionKeydown(event){
 }
 if(versionClose)versionClose.addEventListener('click',hideVersionModal);
 if(versionOk)versionOk.addEventListener('click',function(){
-  // 进入好玩游戏频道
+  // 仅关闭公告弹窗，不跳转
   hideVersionModal();
-  go('action-games/index.html');
 });
 if(versionModal){
   versionModal.addEventListener('keydown',handleVersionKeydown);
