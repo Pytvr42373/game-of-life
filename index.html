@@ -277,6 +277,9 @@ body[data-theme="4399"] .card .ico{font-size:44px;margin-bottom:14px;display:blo
 .card .ico-1a2b{display:flex;align-items:center;justify-content:center;margin-bottom:12px}
 .card .ico-1a2b svg{filter:drop-shadow(0 0 6px rgba(58,168,255,.45))}
 body[data-theme="arcade"] .card .ico-1a2b svg{filter:drop-shadow(0 0 8px rgba(61,225,255,.55)) drop-shadow(0 0 16px rgba(255,45,120,.3))}
+.card .ico-sokoban{display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.card .ico-sokoban svg{filter:drop-shadow(0 0 6px rgba(255,138,61,.5))}
+body[data-theme="arcade"] .card .ico-sokoban svg{filter:drop-shadow(0 0 8px rgba(61,225,255,.6)) drop-shadow(0 0 16px rgba(255,45,120,.35))}
 .card .ico-2048{display:flex;align-items:center;justify-content:center;margin-bottom:12px}
 .card .ico-2048 svg{filter:drop-shadow(0 0 6px rgba(237,194,46,.45))}
 body[data-theme="arcade"] .card .ico-2048 svg{filter:drop-shadow(0 0 8px rgba(61,225,255,.6)) drop-shadow(0 0 16px rgba(255,45,120,.35))}
@@ -985,14 +988,14 @@ body[data-theme="arcade"] .card-avatar .ico{filter:drop-shadow(0 0 18px rgba(160
 <div class="vmodal" id="vmodal" role="dialog" aria-modal="true" aria-labelledby="vmodalTitle" aria-hidden="true" inert>
   <div class="vmodal-box">
     <button type="button" class="vmodal-close" id="vmodalClose" aria-label="关闭">&#10005;</button>
-    <div class="vmodal-title" id="vmodalTitle">暗巷潜行 · 正式上线！<br><span class="vw-qs">ALLEY HEIST</span></div>
-    <div class="vmodal-ver">v3.5.0</div>
+    <div class="vmodal-title" id="vmodalTitle">推箱子 · 新入口上线！<br><span class="vw-qs">SOKOBAN</span></div>
+    <div class="vmodal-ver">v3.6.0</div>
     <ul class="vmodal-log">
-      <li>《暗巷潜行 <b>ALLEY HEIST</b>》追逃重制：安静潜入 · <b>视锥确认</b> · 转角断线 · 警报撤离！</li>
-      <li>新任务：夺取<b>唯一钥匙</b>后出口开启，守卫随警报赶来，冲刺声也会暴露路线。</li>
-      <li>六关渐进的夜巷——猎犬远听、卷帘门危险捷径与多守卫金库，<b>甩开他们！</b></li>
+      <li>《推箱子 <b>SOKOBAN</b>》经典仓库推箱：把每一只箱子推到目标点，<b>步步为营</b>。</li>
+      <li>新入口直达外部站点，移动端触屏友好，随时随地开一局。</li>
+      <li>经典益智持续上新，更多好游戏正在路上，<b>保持关注！</b></li>
     </ul>
-    <div class="vmodal-cta">七款精选，挑一款马上开玩！</div>
+    <div class="vmodal-cta">经典益智持续上新，挑一款马上开玩！</div>
     <button type="button" class="vmodal-btn" id="vmodalOk">进入好玩游戏</button>
   </div>
 </div>
@@ -1238,6 +1241,26 @@ body[data-theme="arcade"] .card-avatar .ico{filter:drop-shadow(0 0 18px rgba(160
       </span>
       <div class="name">2048</div>
       <div class="tag">益智 · 数字</div>
+    </a>
+    <!-- 推箱子（外部站点） -->
+    <a class="card" href="https://sokoban-5pk.pages.dev" data-delay=".69s" data-categories="益智 逻辑 上新" onclick="go(this.href,event)">
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <span class="ico ico-sokoban" aria-hidden="true">
+        <svg viewBox="0 0 48 48" width="46" height="46" fill="none">
+          <rect x="2.5" y="5.5" width="43" height="37" rx="7" fill="#f3ebda"/>
+          <path d="M2.5 17.5h43M2.5 29.5h43M17.5 5.5v37M31.5 5.5v37" stroke="#dfd4bc" stroke-width="1.1"/>
+          <circle cx="37.5" cy="11.5" r="4.4" stroke="#ff5b57" stroke-width="2.2"/>
+          <circle cx="37.5" cy="11.5" r="1.4" fill="#ff5b57"/>
+          <circle cx="10" cy="10.5" r="3.2" fill="#3aa8ff" stroke="#1e6fb5" stroke-width="1.2"/>
+          <path d="M4 23c.6-4.2 2.9-6.3 6-6.3s5.4 2.1 6 6.3" fill="#3aa8ff"/>
+          <rect x="20.5" y="22" width="15.5" height="15.5" rx="2.6" fill="#e5a55d" stroke="#8a5a2b" stroke-width="1.8"/>
+          <path d="M20.5 27.5h15.5M20.5 33h15.5" stroke="#b07c3e" stroke-width="1.3" opacity=".8"/>
+          <path d="M13.5 29.5h4.5" stroke="#ff8a3d" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M16 26.5l3 3-3 3" stroke="#ff8a3d" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <div class="name">推箱子</div>
+      <div class="tag">益智 · 逻辑 · 经典推箱</div>
     </a>
     <!-- 好玩游戏频道入口：保留在“上新”标签，具体游戏仍在频道与隐藏档案中 -->
     <a class="card card-actions" href="action-games/index.html" data-delay=".72s" data-categories="上新" onclick="go(this.href,event)">
