@@ -46,3 +46,12 @@ id_ed25519
 
 # 调试临时脚本，不入库
 .td_debug/
+
+# 隐藏游戏目录（仅本地保留，不上传 GitHub Pages）
+2048/
+1A2B/
+1A2B-hard/
+tusha/
+pacman/
+pacman_preview.html
+action-games/
