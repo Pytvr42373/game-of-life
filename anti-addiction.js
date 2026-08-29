@@ -6,7 +6,8 @@
 
   var STATE_KEY = 'gh-wellbeing-v1';
   var LEASE_KEY = 'gh-wellbeing-owner-v1';
-  var PLAY_REMINDER_MS = 15 * 60 * 1000;
+  var PLAY_REMINDER_MS = 10 * 60 * 1000;
+  var PLAY_LIMIT_MS = 20 * 60 * 1000;
   var HEARTBEAT_MS = 5000;
   var LEASE_MS = 12000;
   var MAX_STEP_MS = HEARTBEAT_MS * 3;
@@ -19,6 +20,7 @@
 
   var tabId = createTabId();
   var lastCountedAt = 0;
+  var dayLocked = false;
   var host = null;
   var overlay = null;
   var card = null;
@@ -52,6 +54,7 @@
       date: day,
       activeMs: 0,
       lastPlayReminderSlot: 0,
+      lockedDate: '',
       clockReminders: [],
       updatedAt: Date.now()
     };
@@ -85,7 +88,8 @@
     var slot = Number(slotRaw);
     var dirty = !(isFinite(activeMs) && activeMs >= 0) ||
       !(isFinite(slot) && slot >= 0) ||
-      !Array.isArray(parsed.clockReminders);
+      !Array.isArray(parsed.clockReminders) ||
+      typeof parsed.lockedDate !== 'string';
     parsed.activeMs = isFinite(activeMs) && activeMs >= 0 ? activeMs : 0;
     if (parsed.playReminderShown === true && slotRaw === undefined) {
       parsed.lastPlayReminderSlot = 1;
@@ -93,6 +97,7 @@
     } else {
       parsed.lastPlayReminderSlot = isFinite(slot) && slot >= 0 ? slot : 0;
     }
+    parsed.lockedDate = typeof parsed.lockedDate === 'string' ? parsed.lockedDate : '';
     parsed.clockReminders = Array.isArray(parsed.clockReminders) ? parsed.clockReminders : [];
     return { state: parsed, dirty: dirty };
   }
@@ -160,10 +165,16 @@
     }
     noticeVisible = false;
     noticeBlocking = false;
+    if (dayLocked) {
+      // 强制停止期间不可真正关闭：稍候重新弹出锁屏
+      setTimeout(showNextQueue, 250);
+      return;
+    }
     setTimeout(showNextQueue, 250);
   }
 
   function showNextQueue() {
+    if (dayLocked && !noticeQueue.length && !noticeVisible) queueLockout();
     showNextNotice();
   }
 
@@ -183,10 +194,26 @@
     return changed;
   }
 
+  function queueLockout() {
+    queueNotice(
+      '今日游戏时间已达 20 分钟',
+      '为保护视力和身体，今天先到这里吧。明天再来，即可重新开始。',
+      true,
+      true
+    );
+  }
+
   function checkPlayReminders(state) {
+    if (state.lockedDate === state.date) return false;
     var slot = Math.floor(state.activeMs / PLAY_REMINDER_MS);
     if (slot >= 1 && slot > state.lastPlayReminderSlot) {
       state.lastPlayReminderSlot = slot;
+      if (state.activeMs >= PLAY_LIMIT_MS) {
+        state.lockedDate = state.date;
+        dayLocked = true;
+        queueLockout();
+        return true;
+      }
       queueNotice(
         '已连续游戏 ' + Math.floor(state.activeMs / 60000) + ' 分钟',
         '休息一下吧：看看远处、活动一下肩颈，清醒后再继续。',
@@ -202,8 +229,15 @@
     var result = readState(now);
     var state = result.state;
     var changed = result.dirty;
+    var wasLocked = dayLocked;
 
-    if (includeElapsed && lastCountedAt) {
+    dayLocked = state.lockedDate === state.date;
+    if (dayLocked && !wasLocked && !noticeVisible && !noticeQueue.length) {
+      // 页面加载/跨标签页时恢复当日锁屏
+      queueLockout();
+    }
+
+    if (includeElapsed && lastCountedAt && !dayLocked) {
       var start = lastCountedAt;
       if (dateKey(start) !== state.date) {
         var midnight = new Date(now);

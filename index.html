@@ -396,12 +396,14 @@ body[data-theme="arcade"] .ext-code:hover{border-color:var(--cyan);box-shadow:6p
 <div class="vmodal" id="vmodal" role="dialog" aria-modal="true" aria-labelledby="vmodalTitle" aria-hidden="true" inert>
   <div class="vmodal-box">
     <button type="button" class="vmodal-close" id="vmodalClose" aria-label="关闭">&#10005;</button>
-    <div class="vmodal-title" id="vmodalTitle">经典上新 · 持续维护中<br><span class="vw-qs">GAMEHUB</span></div>
-    <div class="vmodal-ver">v3.6.0</div>
+    <div class="vmodal-title" id="vmodalTitle">防沉迷精简 · 部分游戏下线<br><span class="vw-qs">GAMEHUB</span></div>
+    <div class="vmodal-ver">v3.7.0</div>
     <ul class="vmodal-log">
-      <li>经典益智<b>持续上新</b>，更多好游戏正在路上，<b>保持关注！</b></li>
+      <li>为响应<b>防沉迷</b>，下线了多款游戏入口：推箱子、词域远征、2048、1A2B、涂鸦游戏、吃豆人、好玩游戏频道，以及倒水谜题、光线侦探、点灯。</li>
+      <li>新增游玩时长管理：<b>每 10 分钟</b>提醒休息，<b>满 20 分钟</b>当日强制停止，次日自动恢复。</li>
+      <li>「神秘」标签栏及两张神秘彩蛋卡一并移除，保留<b>经典益智玩法</b>，健康游戏，适度娱乐。</li>
     </ul>
-    <div class="vmodal-cta">经典益智持续上新，挑一款马上开玩！</div>
+    <div class="vmodal-cta">经典益智持续在线，挑一款马上开玩！</div>
     <button type="button" class="vmodal-btn" id="vmodalOk">知道了，开玩！</button>
   </div>
 </div>
@@ -465,21 +467,6 @@ body[data-theme="arcade"] .ext-code:hover{border-color:var(--cyan);box-shadow:6p
       <div class="name">康威生命游戏</div>
       <div class="tag">经典</div>
     </a>
-    <!-- 倒水游戏 -->
-    <a class="card" href="bottle/index.html" data-delay=".12s" data-categories="益智 逻辑 经典" onclick="go(this.href,event)">
-      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
-      <span class="ico">
-        <svg viewBox="0 0 48 48" width="44" height="44" fill="none" aria-hidden="true">
-          <path d="M18 6h12v6l-3.5 8 10.5 12a7 7 0 0 1-5.4 12H16.4a7 7 0 0 1-5.4-12L21.5 20 18 12z" fill="#d7f1ff"/>
-          <path d="M17 32l-5.2 6a7 7 0 0 0 4.6 8h15.2a7 7 0 0 0 4.6-8l-5.2-6z" fill="#3aa8ff"/>
-          <circle cx="23" cy="39" r="2.2" fill="#ffffff" opacity=".9"/>
-          <circle cx="29" cy="35" r="1.5" fill="#ffffff" opacity=".9"/>
-          <circle cx="20" cy="43" r="1.3" fill="#ffffff" opacity=".85"/>
-        </svg>
-      </span>
-      <div class="name">倒水谜题</div>
-      <div class="tag">益智 · 逻辑</div>
-    </a>
     <!-- Stroop 挑战 -->
     <a class="card" href="stroop/index.html" data-delay=".3s" data-categories="反应 经典" onclick="go(this.href,event)">
       <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
@@ -488,38 +475,6 @@ body[data-theme="arcade"] .ext-code:hover{border-color:var(--cyan);box-shadow:6p
       </span>
       <div class="name">Stroop 挑战</div>
       <div class="tag">反应</div>
-    </a>
-    <!-- 点灯 -->
-    <a class="card" href="light-up/index.html" data-delay=".36s" data-categories="益智 逻辑" onclick="go(this.href,event)">
-      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
-      <span class="ico">
-        <svg viewBox="0 0 48 48" width="44" height="44" fill="none" aria-hidden="true">
-          <path d="M24 2v5M9 8l4 4M39 8l-4 4M3 24h5M40 24h5" stroke="#ffd166" stroke-width="3" stroke-linecap="round"/>
-          <circle cx="24" cy="19" r="12.5" fill="#ffe14d"/>
-          <circle cx="24" cy="19" r="12.5" fill="none" stroke="#ff8a3d" stroke-width="2"/>
-          <path d="M19 23l3-4 2 6 2-6 3 4" stroke="#ff8a3d" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-          <rect x="17" y="31" width="14" height="9" rx="3" fill="#5f6b7a"/>
-          <rect x="20" y="40" width="8" height="3" rx="1.5" fill="#3d4552"/>
-        </svg>
-      </span>
-      <div class="name">点灯 · 光廊</div>
-      <div class="tag">益智 · 逻辑</div>
-    </a>
-    <!-- 光线侦探 -->
-    <a class="card" href="ray-lab/index.html" data-delay=".42s" data-categories="益智 逻辑" onclick="go(this.href,event)">
-      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
-      <span class="ico">
-        <svg viewBox="0 0 48 48" width="44" height="44" fill="none" aria-hidden="true">
-          <path d="M25 10 L40 38 H10 Z" fill="#a05cff"/>
-          <path d="M25 10 L40 38 H10 Z" fill="none" stroke="#7c3fb0" stroke-width="2" stroke-linejoin="round"/>
-          <path d="M4 21 L16 27" stroke="#ffe14d" stroke-width="3.2" stroke-linecap="round"/>
-          <path d="M31 30 L39 21" stroke="#ff2d78" stroke-width="3" stroke-linecap="round"/>
-          <path d="M33 32 L41 26" stroke="#3ddc97" stroke-width="3" stroke-linecap="round"/>
-          <path d="M35 34 L43 31" stroke="#3aa8ff" stroke-width="3" stroke-linecap="round"/>
-        </svg>
-      </span>
-      <div class="name">光线侦探</div>
-      <div class="tag">益智 · 逻辑</div>
     </a>
     <!-- 数织 Nonogram -->
     <a class="card" href="nonogram/index.html" data-delay=".45s" data-categories="益智 逻辑" onclick="go(this.href,event)">
@@ -830,30 +785,7 @@ filterButtons.forEach(button=>button.addEventListener('click',()=>filterGames(bu
 // 初始应用筛选：默认"上新"，展示近期新游戏
 filterGames('上新');
 
-/* ===== bottle 预取：悬停/触摸预热 + 空闲预取主页 ===== */
-const prefetched=new Set();
-function prefetch(href){
-  if(prefetched.has(href))return;
-  prefetched.add(href);
-  const link=document.createElement('link');
-  link.rel='prefetch';
-  link.href=href;
-  document.head.appendChild(link);
-}
-const bottleAssets=[
-  'bottle/index.html'
-];
-const bottleCard=document.querySelector('.card[href="bottle/index.html"]');
-if(bottleCard){
-  const warmBottle=()=>bottleAssets.forEach(prefetch);
-  bottleCard.addEventListener('pointerenter',warmBottle,{once:true});
-  bottleCard.addEventListener('touchstart',warmBottle,{once:true});
-}
-if(window.requestIdleCallback){
-  requestIdleCallback(()=>prefetch('bottle/index.html'));
-}else{
-  setTimeout(()=>prefetch('bottle/index.html'),3000);
-}
+
 
 
 
