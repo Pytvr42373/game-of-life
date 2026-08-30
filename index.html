@@ -177,6 +177,7 @@ body[data-theme="arcade"] .harcade{display:block}
 .harcade .title{font-family:'Press Start 2P',monospace;font-size:clamp(20px,4.5vw,34px);line-height:1.7;text-align:center;color:var(--text);text-shadow:3px 3px 0 var(--hard),0 0 20px rgba(61,225,255,.4);margin-bottom:14px}
 .harcade .title .c{color:var(--pink);text-shadow:3px 3px 0 var(--hard),0 0 20px var(--pink)}
 .harcade .title .y{color:var(--cyan);text-shadow:3px 3px 0 var(--hard),0 0 20px var(--cyan)}
+.harcade .coin-btn{font-family:'Press Start 2P',monospace;font-size:13px;letter-spacing:3px;color:var(--yellow);text-shadow:0 0 14px var(--yellow),3px 3px 0 var(--hard);text-align:center;width:fit-content;max-width:100%;margin:0 auto 18px;padding:10px 22px;animation:blink 1.4s steps(1) infinite;pointer-events:none}
 .harcade .sub{text-align:center;color:var(--dim);font-family:'Press Start 2P',monospace;font-size:10px;letter-spacing:3px;margin-bottom:26px}
 .harcade .nav{display:flex;justify-content:center;gap:10px;margin-bottom:38px;flex-wrap:wrap}
 .harcade .nav button{padding:8px 11px;border:2px solid var(--line);color:var(--dim);background:var(--surface);font-family:'Press Start 2P',monospace;font-size:8px;line-height:1;cursor:pointer;box-shadow:3px 3px 0 var(--hard)}
@@ -432,6 +433,7 @@ body[data-theme="arcade"] .ext-code:hover{border-color:var(--cyan);box-shadow:6p
 
   <!-- 街机厅 头部 -->
   <header class="harcade">
+    <div class="coin-btn" aria-hidden="true">▶ INSERT COIN ◀</div>
     <h1 class="title"><span class="c">小</span>游<span class="y">戏</span>合<span class="c">集</span></h1>
     <p class="sub">— 选择你的游戏 —</p>
     <nav class="nav" aria-label="GAME CATEGORIES">
